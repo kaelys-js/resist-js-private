@@ -1,3 +1,13 @@
+/**
+ * Tests for `$lib/utils/url-params` — covers parsing of `?ff.X=`
+ * feature-flag overrides and `?app.Y=` preference overrides via
+ * `URL_PARAM_PREFIX`, the key validators (`isValidAppKey`,
+ * `isValidFeatureFlag`), and the apply step that merges parsed
+ * overrides onto a state object.
+ *
+ * @module
+ */
+
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import {
   parseDebugParams,

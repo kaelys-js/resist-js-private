@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Editor wrapper around `@/ui/theme-switcher`. Builds the localized
+   * theme list (default / slate / violet / midnight / etc.) with their
+   * preview color dots, and routes the user's selection through the
+   * editor-state store so the choice persists across reloads.
+   *
+   * @module
+   */
   import ThemeSwitcher from '@/ui/theme-switcher/ThemeSwitcher.svelte';
   import { localeStore, t } from '$lib/stores/i18n.svelte';
   import { useEditorStore } from '$lib/stores/editor-state.svelte';

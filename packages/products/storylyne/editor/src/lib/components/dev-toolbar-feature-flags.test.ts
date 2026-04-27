@@ -1,3 +1,11 @@
+/**
+ * Unit tests for the DevToolbar Feature-Flags panel — discovers flags
+ * from `FeatureFlagsSchema` and asserts that the panel renders the
+ * expected testid, heading, and one Switch per flag.
+ *
+ * @module
+ */
+
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import DevToolbarFeatureFlagsTest from './DevToolbarFeatureFlagsTest.svelte';

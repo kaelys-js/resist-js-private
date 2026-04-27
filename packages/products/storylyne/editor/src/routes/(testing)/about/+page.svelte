@@ -5,6 +5,8 @@
    * Displays project information organized into searchable, filterable
    * sections with category chips, view modes, sort options, and export
    * capabilities. Layout and UX patterns match the Tokens page.
+   *
+   * @module
    */
   import type { Bool, Num, Str } from '@/schemas/common';
   import Input from '@/ui/input/input.svelte';

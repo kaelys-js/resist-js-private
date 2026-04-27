@@ -1,3 +1,12 @@
+/**
+ * Unit tests for the ThemeSwitcher submenu — verifies the
+ * sub-trigger label, theme entries, and selection callback. Uses
+ * fake timers because bits-ui's BodyScrollLock schedules an async
+ * destroy timeout that would otherwise outlive jsdom teardown.
+ *
+ * @module
+ */
+
 import { render, screen } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ThemeSwitcherTest from './ThemeSwitcherTest.svelte';

@@ -5,6 +5,8 @@
    *
    * Matches the Icons page UX: sticky header, 3-dot dropdown, inline search,
    * grid of tag cards showing component counts and samples.
+   *
+   * @module
    */
   import { page } from '$app/state';
   import type { Bool, Num, Str } from '@/schemas/common';

@@ -5,6 +5,8 @@
    * The real app shell (sidebar, header, resizable panes) lives in
    * `(app)/+layout.svelte`. This keeps `(testing)/` routes completely
    * free of the editor chrome.
+   *
+   * @module
    */
   import '../app.css';
 

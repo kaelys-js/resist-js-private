@@ -3,6 +3,8 @@
  *
  * Separated from lens-categories.ts to stay under the max-dependencies lint limit.
  * Domain category icons are imported from the companion file.
+ *
+ * @module
  */
 import type { Component } from 'svelte';
 import type { Str } from '@/schemas/common';

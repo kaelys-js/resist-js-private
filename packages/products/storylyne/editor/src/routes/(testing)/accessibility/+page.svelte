@@ -8,6 +8,8 @@
    * chips, view modes, sorting, and export.
    *
    * Layout and UX patterns match the Browser Support page.
+   *
+   * @module
    */
   import type { Bool, Num, Str } from '@/schemas/common';
   import Badge from '@/ui/badge/badge.svelte';

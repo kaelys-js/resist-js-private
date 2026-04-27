@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * NavScenes — sidebar scene list with collapsible groups and a
+   * per-scene popover menu (rename, duplicate, delete). Each scene
+   * also has a "More" dropdown surfacing the same actions, gated by
+   * the editor-state `useSidebar()` open/collapsed mode.
+   *
+   * @module
+   */
   import MapIcon from '@lucide/svelte/icons/map';
   import MoreHorizontal from '@lucide/svelte/icons/more-horizontal';
   import Plus from '@lucide/svelte/icons/plus';

@@ -1,3 +1,12 @@
+/**
+ * Unit tests for the DevToolbar App-State panel — discovers app
+ * preferences from `AppPreferencesSchema`, mounts the panel via
+ * `DevToolbarAppStateTest`, and asserts the expected testid, heading,
+ * and that every discovered preference renders a control row.
+ *
+ * @module
+ */
+
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import DevToolbarAppStateTest from './DevToolbarAppStateTest.svelte';

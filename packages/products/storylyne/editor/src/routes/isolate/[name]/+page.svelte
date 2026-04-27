@@ -5,6 +5,8 @@
    * Opened via "Open in new tab" from LensComponentRenderer cards.
    * Supports ?variant=key&option=value plus a ?s=base64JSON state param
    * that carries all computed toolbar styles.
+   *
+   * @module
    */
   import type { Bool, Num, Str } from '@/schemas/common';
   import type { Component } from 'svelte';

@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Editor sidebar-footer NavProject — wraps `@/ui/nav-project` with
+   * a project header (current project name + subtitle), an Open Project
+   * action, and Theme/Language submenu entries that route to the
+   * editor's ThemeSwitcher and LanguageSwitcher panels.
+   *
+   * @module
+   */
   import Folder from '@lucide/svelte/icons/folder';
   import SettingsIcon from '@lucide/svelte/icons/settings';
   import * as DropdownMenu from '@/ui/dropdown-menu/index.js';

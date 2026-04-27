@@ -1,3 +1,11 @@
+/**
+ * Tests for the editor-state Svelte store — covers store creation,
+ * initialization from localStorage, persistence, feature-flag
+ * mutations, and the singleton `useEditorStore` accessor.
+ *
+ * @module
+ */
+
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { Bool, NullableStr, Str, Void } from '@/schemas/common';
 import {

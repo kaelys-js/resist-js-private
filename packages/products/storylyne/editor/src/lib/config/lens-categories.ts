@@ -3,6 +3,8 @@
  *
  * Single source of truth for category ordering, icons, colors, descriptions,
  * and background accents used across the overview page, category page, and sidebar layout.
+ *
+ * @module
  */
 import type { Str } from '@/schemas/common';
 export { CATEGORY_ICONS } from './lens-category-icons.js';

@@ -1,4 +1,14 @@
 <script lang="ts">
+  /**
+   * Editor SiteHeader — wraps `@/ui/site-header` with a route-derived
+   * Breadcrumb trail, mode toggle, header user dropdown, and the
+   * sidebar trigger that registers the Cmd/Ctrl+B shortcut via
+   * `shortcutStore`. Adapts when `isError` is true (suppresses
+   * breadcrumb / search) and accepts an optional pre-resolved user
+   * from `+page.server` load.
+   *
+   * @module
+   */
   import SiteHeader from '@/ui/site-header/SiteHeader.svelte';
   import * as Breadcrumb from '@/ui/breadcrumb/index.js';
   import HeaderUser from './HeaderUser.svelte';

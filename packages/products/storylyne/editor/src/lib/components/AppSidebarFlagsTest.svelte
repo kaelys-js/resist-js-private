@@ -1,4 +1,13 @@
 <script lang="ts">
+  /**
+   * Test harness for AppSidebar under feature-flag scenarios.
+   *
+   * Mounts AppSidebar inside FeatureFlagsTestProviders with mock user,
+   * project, and scene fixtures so unit tests can assert sidebar
+   * rendering with arbitrary flag combinations applied.
+   *
+   * @module
+   */
   import type { Str } from '@/schemas/common';
   import FeatureFlagsTestProviders from './FeatureFlagsTestProviders.svelte';
   import AppSidebar from './AppSidebar.svelte';

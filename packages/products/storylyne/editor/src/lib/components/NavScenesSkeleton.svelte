@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * NavScenesSkeleton — placeholder bones rendered while the scene
+   * list is loading. Shows three Skeleton row placeholders in the
+   * expanded sidebar (hidden when the sidebar is collapsed to icon
+   * mode).
+   *
+   * @module
+   */
   import { Skeleton } from '@/ui/skeleton/index.js';
   import * as Sidebar from '@/ui/sidebar/index.js';
   import type { Num } from '@/schemas/common';

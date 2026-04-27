@@ -1,4 +1,14 @@
 <script lang="ts">
+  /**
+   * DevToolbarPerf — performance + network info panel for the dev toolbar.
+   *
+   * Reads connection quality (effective type, save-data) from the
+   * Network Information API, surfaces real-time web vitals (LCP, CLS,
+   * INP, FCP, TTFB) via the vitals subscriber, and lets the developer
+   * dismiss individual signals with a chevron/X.
+   *
+   * @module
+   */
   import Activity from '@lucide/svelte/icons/activity';
   import Wifi from '@lucide/svelte/icons/wifi';
   import Radio from '@lucide/svelte/icons/radio';

@@ -1,3 +1,12 @@
+/**
+ * Unit tests for the AppLogo component — asserts that the rendered
+ * `<img>` points at `/favicon.svg`, honors the `size` prop for both
+ * the `width` and `height` attributes, and falls back to a default
+ * size of 24 when no size is provided.
+ *
+ * @module
+ */
+
 import { render } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import AppLogo from '@/ui/app-logo/AppLogo.svelte';

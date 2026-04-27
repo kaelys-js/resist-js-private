@@ -1,3 +1,12 @@
+/**
+ * Tests for the server data type schemas (`ServerUserSchema`,
+ * `ServerProjectSchema`, `ServerSceneSchema`) — verifies that
+ * required fields, optional fields, and field-level validators
+ * accept valid payloads and reject malformed shapes.
+ *
+ * @module
+ */
+
 import { describe, expect, it } from 'vitest';
 import { safeParse } from '@/utils/result/safe';
 import { ServerUserSchema, ServerProjectSchema, ServerSceneSchema } from './types';

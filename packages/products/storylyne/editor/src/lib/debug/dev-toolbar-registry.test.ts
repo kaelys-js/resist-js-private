@@ -1,3 +1,12 @@
+/**
+ * Unit tests for the dev-toolbar registry — covers the schema-walk
+ * helpers (`discoverAppPreferences`, `discoverDebugFields`,
+ * `discoverFeatureFlags`), URL-override generation, and the key /
+ * option humanization utilities used by the dev-toolbar panels.
+ *
+ * @module
+ */
+
 import { describe, expect, it, vi } from 'vitest';
 import {
   discoverAppPreferences,

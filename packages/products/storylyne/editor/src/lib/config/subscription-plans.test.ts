@@ -1,3 +1,12 @@
+/**
+ * Unit tests for `subscription-plans` — verifies that
+ * `getPresetForPlan` returns the expected feature-flag preset per
+ * plan tier and that `applyPlanPreset` correctly merges the preset
+ * onto an existing flags object without dropping unrelated keys.
+ *
+ * @module
+ */
+
 import { describe, expect, it } from 'vitest';
 import { getPresetForPlan, applyPlanPreset } from './subscription-plans';
 import { FeatureFlagsSchema } from '$lib/schemas/editor-state';

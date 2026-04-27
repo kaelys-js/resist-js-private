@@ -4,6 +4,8 @@
    *
    * Displays stats, health metrics, explore hub cards, categories at a glance,
    * popular tags, and recent activity feed.
+   *
+   * @module
    */
   import type { Num, Str } from '@/schemas/common';
   import type { LensMeta, CategoryGroup } from '@/ui/lens/types.js';

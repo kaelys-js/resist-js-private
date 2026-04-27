@@ -5,6 +5,8 @@
    * Displays a timeline of commits touching the component library,
    * grouped by date with component badges, search, filter chips,
    * and collapsible date groups.
+   *
+   * @module
    */
   import type { Bool, Num, Str } from '@/schemas/common';
   import { toTitle } from '@/ui/lens/lens-utils.js';

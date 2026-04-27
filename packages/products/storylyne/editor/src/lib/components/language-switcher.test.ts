@@ -1,3 +1,12 @@
+/**
+ * Unit tests for the LanguageSwitcher submenu — exercises the
+ * sub-trigger label, the listed locales, search filtering, and the
+ * locale-selection callback. Uses fake timers because bits-ui's
+ * BodyScrollLock schedules an async destroy timeout.
+ *
+ * @module
+ */
+
 import { cleanup, render, screen, fireEvent } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import LanguageSwitcherTest from './LanguageSwitcherTest.svelte';

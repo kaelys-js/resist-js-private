@@ -6,6 +6,8 @@
  * - Persistent notification center entries (bell icon dropdown)
  * - localStorage persistence for notification center
  * - Type-safe notification types and preferences
+ *
+ * @module
  */
 import * as v from 'valibot';
 import type { Bool, Num, Str } from '@/schemas/common';

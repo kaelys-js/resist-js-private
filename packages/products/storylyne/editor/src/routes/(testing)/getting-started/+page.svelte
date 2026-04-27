@@ -4,6 +4,8 @@
    *
    * Vertical timeline with numbered steps covering installation, imports,
    * first component, project structure, customization, and next steps.
+   *
+   * @module
    */
   import type { Bool, Str } from '@/schemas/common';
   import * as DropdownMenu from '@/ui/dropdown-menu/index.js';

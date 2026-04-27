@@ -1,3 +1,12 @@
+/**
+ * Unit tests for `$lib/config/app-meta` — asserts the shape and
+ * canonical values of the exported app metadata constants
+ * (name, id, scope, icons, security URLs, etc.) used by the
+ * manifest, head meta, and security.txt routes.
+ *
+ * @module
+ */
+
 import { describe, expect, it } from 'vitest';
 import {
   APP_CATEGORIES,

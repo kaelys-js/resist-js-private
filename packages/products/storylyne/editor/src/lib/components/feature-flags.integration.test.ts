@@ -8,6 +8,8 @@
  * - Default state (all flags true) → element is present
  * - Specific flag disabled → element is absent
  * - Uses FeatureFlagsTestProviders.svelte to configure flags per test
+ *
+ * @module
  */
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';

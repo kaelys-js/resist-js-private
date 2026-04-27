@@ -1,3 +1,12 @@
+/**
+ * Unit tests for the DevToolbar Debug panel — verifies the panel
+ * testid, heading, debug-enabled switch, and the per-field rows
+ * discovered from `DebugStateSchema`, plus URL-override behavior
+ * exercised through `DevToolbarDebugOverridesTest`.
+ *
+ * @module
+ */
+
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import DevToolbarDebugTest from './DevToolbarDebugTest.svelte';

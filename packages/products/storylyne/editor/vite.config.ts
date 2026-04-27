@@ -4,6 +4,8 @@
  * Uses the shared factory from `@/config/tooling/vite` for git metadata,
  * server watch config, and SSR settings. Editor-specific plugins (tailwind,
  * template HTML, preview WS, devtools) are added here.
+ *
+ * @module
  */
 
 import tailwindcss from '@tailwindcss/vite';

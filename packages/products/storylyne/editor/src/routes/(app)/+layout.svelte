@@ -1,4 +1,15 @@
 <script lang="ts">
+  /**
+   * Root layout for the `(app)` route group — wires up editor and
+   * debug stores, locale + theme sync, the resizable sidebar
+   * (PaneForge), site header, head metadata (theme-color, OG, page
+   * title), navigation breadcrumbs for error reporting, and the
+   * dev-toolbar mount. Also resolves streaming `project` / `scenes`
+   * load promises into reactive state for child routes.
+   *
+   * @module
+   */
+
   import '../../app.css';
   import { untrack } from 'svelte';
   import { browser } from '$app/environment';

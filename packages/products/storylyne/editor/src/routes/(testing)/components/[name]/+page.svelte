@@ -4,6 +4,8 @@
    *
    * Extracts props, TV variants, and examples from raw component source
    * at runtime — no hand-written Demo.svelte files needed.
+   *
+   * @module
    */
   import type { Bool, Num, Str, Void } from '@/schemas/common';
   import { getContext, tick, untrack, type Component } from 'svelte';

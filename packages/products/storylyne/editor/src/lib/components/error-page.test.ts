@@ -1,3 +1,11 @@
+/**
+ * Unit tests for the ErrorPage component — covers the user-facing
+ * title and description copy for 400/404/500 statuses and the
+ * "Go home" / reload action buttons rendered by `ErrorPageTest`.
+ *
+ * @module
+ */
+
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { describe, expect, it, vi } from 'vitest';
 import ErrorPageTest from './ErrorPageTest.svelte';

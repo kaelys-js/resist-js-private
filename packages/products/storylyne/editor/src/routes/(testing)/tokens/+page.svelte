@@ -7,6 +7,8 @@
    * category chip filters, theme selection, and export options.
    *
    * Layout and UX patterns match the Icons gallery page.
+   *
+   * @module
    */
   import type { Bool, Num, Str } from '@/schemas/common';
   import {

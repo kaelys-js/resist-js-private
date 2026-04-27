@@ -7,6 +7,8 @@
    * view modes, sort options, and export functionality.
    *
    * Layout and UX patterns match the Tokens gallery page.
+   *
+   * @module
    */
   import type { Bool, Num, Str } from '@/schemas/common';
   import * as DropdownMenu from '@/ui/dropdown-menu/index.js';

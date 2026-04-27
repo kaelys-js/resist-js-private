@@ -1,3 +1,15 @@
+/**
+ * Tests for `hooks.client.ts` — SvelteKit client-side `handleError`.
+ *
+ * Verifies the App.Error return shape (message + errorId UUID), unique
+ * errorId generation per call, preservation of domain-specific
+ * AppError codes when the thrown value is already an AppError, source-
+ * map resolution from browser `@fs` URLs, and the `groupCollapsed`
+ * console-logging pipeline produced by `logErrorToConsole`.
+ *
+ * @module
+ */
+
 import { describe, expect, it, vi } from 'vitest';
 import { ERRORS, err } from '@/schemas/result/result';
 import type { Num, Str } from '@/schemas/common';

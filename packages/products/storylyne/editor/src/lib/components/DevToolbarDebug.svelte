@@ -1,4 +1,13 @@
 <script lang="ts">
+  /**
+   * DevToolbarDebug — debug-flag dropdown for the dev toolbar.
+   *
+   * Exposes per-namespace logger toggles (debug categories) plus a
+   * global debug-mode switch with searchable selection and reset
+   * controls.
+   *
+   * @module
+   */
   import Bug from '@lucide/svelte/icons/bug';
   import CheckIcon from '@lucide/svelte/icons/check';
   import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';

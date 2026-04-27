@@ -1,3 +1,11 @@
+/**
+ * Unit tests for the AppSidebar — verifies that the wrapper renders
+ * the sidebar slot, app branding (name + tagline), and the default
+ * scene list expected by `AppSidebarTest`.
+ *
+ * @module
+ */
+
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import AppSidebarTest from './AppSidebarTest.svelte';

@@ -1,3 +1,12 @@
+/**
+ * Tests for the `/api/errors` POST handler — verifies that
+ * incoming beacon payloads are parsed, validated, and forwarded to
+ * the structured logger with the expected `[client-beacon]` tag,
+ * and that malformed payloads are rejected with a 400.
+ *
+ * @module
+ */
+
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import type { Str, Bool } from '@/schemas/common';
 import type { AppError } from '@/schemas/result/result';

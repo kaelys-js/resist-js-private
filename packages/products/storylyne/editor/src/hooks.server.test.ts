@@ -1,3 +1,16 @@
+/**
+ * Tests for `hooks.server.ts` — SvelteKit server-side `handle` and
+ * `handleError`.
+ *
+ * Verifies request-shaping middleware (locale + theme cookie reads,
+ * security-header injection, error-page handler), `handleError`'s
+ * App.Error return shape, dev vs prod output differences, and that
+ * the `dev` flag from `$app/environment` is honored when shaping
+ * stack-trace inclusion.
+ *
+ * @module
+ */
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { RequestEvent, ResolveOptions } from '@sveltejs/kit';
 import { ERRORS, err } from '@/schemas/result/result';

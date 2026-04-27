@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Editor-local ErrorPage wrapper that maps HTTP status codes (400 /
+   * 403 / 404 / 500 / unexpected) to localized titles via the i18n
+   * locale store and forwards the underlying error metadata to the
+   * shared `@/ui/error-page` shell.
+   *
+   * @module
+   */
   import ErrorPage from '@/ui/error-page/ErrorPage.svelte';
   import type { Str, Num } from '@/schemas/common';
   import type { Result } from '@/schemas/result/result';

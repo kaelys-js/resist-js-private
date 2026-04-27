@@ -1,4 +1,13 @@
 <script lang="ts">
+  /**
+   * Error page for the `(app)` route group — derives `status` and
+   * `message` from `$app/state.page` and forwards them to the
+   * shared `ErrorPage` component along with the SvelteKit-attached
+   * `errorId`.
+   *
+   * @module
+   */
+
   import { page } from '$app/state';
   import ErrorPage from '$lib/components/ErrorPage.svelte';
   import type { Num, Str } from '@/schemas/common';
