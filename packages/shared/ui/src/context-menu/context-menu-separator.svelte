@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * ContextMenu separator — horizontal divider between groups
+   * inside a context menu. Wraps Bits UI's
+   * `ContextMenu.Separator`.
+   *
+   * @module
+   */
+
   import { ContextMenu as ContextMenuPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

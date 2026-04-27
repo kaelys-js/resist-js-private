@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * ContextMenu checkbox item — toggleable checkbox menu entry.
+   * Wraps Bits UI's `ContextMenu.CheckboxItem` with our slot
+   * conventions and a check-icon indicator.
+   *
+   * @module
+   */
+
   import { ContextMenu as ContextMenuPrimitive } from 'bits-ui';
   import CheckIcon from '@lucide/svelte/icons/check';
   import { cn, type WithoutChildrenOrChild } from '../utils.js';

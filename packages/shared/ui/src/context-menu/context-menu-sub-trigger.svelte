@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * ContextMenu sub trigger — menu entry that opens a nested
+   * submenu. Wraps Bits UI's `ContextMenu.SubTrigger` with a
+   * trailing chevron-right icon.
+   *
+   * @module
+   */
+
   import { ContextMenu as ContextMenuPrimitive } from 'bits-ui';
   import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import { cn, type WithoutChild } from '../utils.js';

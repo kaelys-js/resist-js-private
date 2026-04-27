@@ -1,3 +1,14 @@
+/**
+ * Barrel re-export for the context-menu compound component —
+ * exposes Root / Sub / Portal / Item / Group / GroupHeading /
+ * Label / Trigger / Content / Shortcut / Separator / RadioGroup
+ * / RadioItem / SubContent / SubTrigger / CheckboxItem
+ * sub-components under both internal aliases and the
+ * `ContextMenu*` public names.
+ *
+ * @module
+ */
+
 import Root from './context-menu.svelte';
 import Sub from './context-menu-sub.svelte';
 import Portal from './context-menu-portal.svelte';

@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * ContextMenu sub content — popover surface for a nested
+   * submenu. Wraps Bits UI's `ContextMenu.SubContent` with
+   * open/close fade-zoom + slide-from-side animation.
+   *
+   * @module
+   */
+
   import { ContextMenu as ContextMenuPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

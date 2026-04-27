@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * ContextMenu shortcut — keyboard-shortcut hint text rendered
+   * to the right of a context-menu item.
+   *
+   * @module
+   */
+
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 
