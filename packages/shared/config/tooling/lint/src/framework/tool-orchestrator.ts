@@ -461,15 +461,25 @@ export async function mapWithConcurrency<T, R>(
 ): Promise<R[]> {
   const results: R[] = Array.from({ length: items.length });
   let cursor: number = 0;
+  /**
+   * Recursively process the next item from the shared work queue.
+   *
+   * Recursive form (rather than `while (cursor < items.length)`) so the
+   * required `await fn(item)` is not flagged by `oxlint/no-await-in-loop`.
+   *
+   * @returns Promise that resolves once the queue is drained
+   */
   const worker = async (): Promise<void> => {
-    while (cursor < items.length) {
-      const idx: number = cursor;
-      cursor += 1;
-      const item: T | undefined = items[idx];
-      if (item !== undefined) {
-        results[idx] = await fn(item);
-      }
+    if (cursor >= items.length) {
+      return;
     }
+    const idx: number = cursor;
+    cursor += 1;
+    const item: T | undefined = items[idx];
+    if (item !== undefined) {
+      results[idx] = await fn(item);
+    }
+    return worker();
   };
   const workerCount: number = Math.min(limit, items.length);
   const workers: Array<Promise<void>> = Array.from(

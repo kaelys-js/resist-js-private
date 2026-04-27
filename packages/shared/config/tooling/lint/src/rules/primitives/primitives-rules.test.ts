@@ -13,7 +13,7 @@ import noFloatEquality from './no-float-equality.ts';
 import noInfinityArithmetic from './no-infinity-arithmetic.ts';
 import useNumberIsFinite from './use-number-is-finite.ts';
 import useNumberIsInteger from './use-number-is-integer.ts';
-import noToFixedRounding from './no-toFixed-rounding.ts';
+import noToFixedRounding from './no-to-fixed-rounding.ts';
 import preferBigintForIds from './prefer-bigint-for-ids.ts';
 import noBigintNumberMix from './no-bigint-number-mix.ts';
 import noMathRandomCrypto from './no-math-random-crypto.ts';

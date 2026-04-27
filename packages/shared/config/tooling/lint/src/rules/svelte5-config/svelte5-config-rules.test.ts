@@ -25,7 +25,7 @@ import outputDirectory from './output-directory.ts';
 import versionSkewHandling from './version-skew-handling.ts';
 import trailingSlashConsistency from './trailing-slash-consistency.ts';
 import noInlinePreprocess from './no-inline-preprocess.ts';
-import viteOptimizeDeps from './vite-optimizeDeps.ts';
+import viteOptimizeDeps from './vite-optimize-deps.ts';
 
 /**
  * Run a single rule against fixture source code.

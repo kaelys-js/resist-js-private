@@ -63,7 +63,7 @@ function runCli(args: string[]): Promise<CliResult> {
     return cached;
   }
 
-  cached = new Promise<CliResult>((res: (v: CliResult) => void): void => {
+  cached = new Promise<CliResult>((_resolve: (v: CliResult) => void): void => {
     execFile(
       process.execPath,
       ['--import', REGISTER_ALIASES_PATH, CLI_PATH, ...args],
@@ -71,13 +71,13 @@ function runCli(args: string[]): Promise<CliResult> {
       (error: Error | null, stdout: string, stderr: string): void => {
         if (error) {
           const execError = error as unknown as { status?: number };
-          res({
+          _resolve({
             stdout: stdout ?? '',
             stderr: stderr ?? '',
             exitCode: (execError.status ?? 1) as number,
           });
         } else {
-          res({ stdout, stderr: stderr ?? '', exitCode: 0 });
+          _resolve({ stdout, stderr: stderr ?? '', exitCode: 0 });
         }
       },
     );
