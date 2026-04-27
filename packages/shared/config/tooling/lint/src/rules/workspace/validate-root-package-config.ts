@@ -160,31 +160,9 @@ const rule: WorkspaceRule = {
     /* Check packageManager field */
     const { packageManager } = pkgJson;
 
-    if (typeof packageManager !== 'string') {
-      results.push(
-        createResult(
-          'workspace/validate-root-package-config',
-          rootPkgPath,
-          1,
-          1,
-          'error',
-          'Missing packageManager field in root package.json',
-        ),
-      );
-    } else {
+    if (typeof packageManager === 'string') {
       const pmMatch: RegExpMatchArray | null = packageManager.match(PACKAGE_MANAGER_RE);
-      if (!pmMatch) {
-        results.push(
-          createResult(
-            'workspace/validate-root-package-config',
-            rootPkgPath,
-            1,
-            1,
-            'error',
-            `packageManager must match format 'pnpm@x.y.z', found: '${packageManager}'`,
-          ),
-        );
-      } else {
+      if (pmMatch) {
         const major: number = Number(pmMatch[1]);
         const minor: number = Number(pmMatch[2]);
 
@@ -200,13 +178,19 @@ const rule: WorkspaceRule = {
             ),
           );
         }
+      } else {
+        results.push(
+          createResult(
+            'workspace/validate-root-package-config',
+            rootPkgPath,
+            1,
+            1,
+            'error',
+            `packageManager must match format 'pnpm@x.y.z', found: '${packageManager}'`,
+          ),
+        );
       }
-    }
-
-    /* Check engines.node */
-    const { engines } = pkgJson;
-
-    if (typeof engines !== 'object' || engines === null) {
+    } else {
       results.push(
         createResult(
           'workspace/validate-root-package-config',
@@ -214,14 +198,32 @@ const rule: WorkspaceRule = {
           1,
           1,
           'error',
-          'Missing engines field in root package.json',
+          'Missing packageManager field in root package.json',
         ),
       );
-    } else {
+    }
+
+    /* Check engines.node */
+    const { engines } = pkgJson;
+
+    if (typeof engines === 'object' && engines !== null) {
       const enginesObj: Record<string, unknown> = engines as Record<string, unknown>;
       const nodeEngine: unknown = enginesObj.node;
 
-      if (typeof nodeEngine !== 'string') {
+      if (typeof nodeEngine === 'string') {
+        if (!NODE_ENGINE_RE.test(nodeEngine)) {
+          results.push(
+            createResult(
+              'workspace/validate-root-package-config',
+              rootPkgPath,
+              1,
+              1,
+              'error',
+              `engines.node must reference Node 24+, found: '${nodeEngine}'`,
+            ),
+          );
+        }
+      } else {
         results.push(
           createResult(
             'workspace/validate-root-package-config',
@@ -232,18 +234,18 @@ const rule: WorkspaceRule = {
             'Missing engines.node field in root package.json',
           ),
         );
-      } else if (!NODE_ENGINE_RE.test(nodeEngine)) {
-        results.push(
-          createResult(
-            'workspace/validate-root-package-config',
-            rootPkgPath,
-            1,
-            1,
-            'error',
-            `engines.node must reference Node 24+, found: '${nodeEngine}'`,
-          ),
-        );
       }
+    } else {
+      results.push(
+        createResult(
+          'workspace/validate-root-package-config',
+          rootPkgPath,
+          1,
+          1,
+          'error',
+          'Missing engines field in root package.json',
+        ),
+      );
     }
 
     return results;
