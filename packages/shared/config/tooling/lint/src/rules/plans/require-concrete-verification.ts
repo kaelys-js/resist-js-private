@@ -12,7 +12,7 @@
 
 import { createResult, type LintResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
-import { discoverPlanFiles, parsePlan, type PlanTask } from '@/lint/rules/plans/plan-parser.ts';
+import { discoverPlanFiles, parsePlan } from '@/lint/rules/plans/plan-parser.ts';
 
 /** Rule ID constant. */
 const RULE_ID: string = 'plans/require-concrete-verification';
