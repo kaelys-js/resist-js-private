@@ -75,7 +75,7 @@ const rule: WorkspaceRule = {
       return results;
     }
 
-    const { rules }: unknown = parsed as Record<string, unknown>;
+    const { rules } = parsed as Record<string, unknown>;
     if (rules === undefined || rules === null || typeof rules !== 'object') {
       return results;
     }
