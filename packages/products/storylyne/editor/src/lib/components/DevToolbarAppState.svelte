@@ -1,4 +1,14 @@
 <script lang="ts">
+  /**
+   * DevToolbarAppState — app-state inspector dropdown for the dev toolbar.
+   *
+   * Lets the developer view + override editor state (theme, locale,
+   * sidebar width, login state, sidebarOpen, etc.), reset to defaults,
+   * and pivot through state via search-and-pick combobox controls.
+   * Mutations route through `goto()` so URL params reflect overrides.
+   *
+   * @module
+   */
   import CheckIcon from '@lucide/svelte/icons/check';
   import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
   import RotateCcwIcon from '@lucide/svelte/icons/rotate-ccw';

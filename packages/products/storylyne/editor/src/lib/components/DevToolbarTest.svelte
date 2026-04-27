@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * Test harness for DevToolbar with a controllable `debugEnabled`
+   * prop so unit tests can assert behavior in both debug-on and
+   * debug-off states without rerouting through URL params.
+   *
+   * @module
+   */
   import type { Bool } from '@/schemas/common';
   import DevToolbar from './DevToolbar.svelte';
   import { initEditorStore } from '$lib/stores/editor-state.svelte';

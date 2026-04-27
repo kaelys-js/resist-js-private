@@ -1,3 +1,27 @@
+/**
+ * Module description.
+ *
+ * @module
+ */
+
+/**
+ * SvelteKit server hooks — `handle` and `handleError`.
+ *
+ * The `handle` middleware shapes every server-rendered response:
+ * detects locale (cookie → URL prefix → Accept-Language → default),
+ * resolves theme/sidebar preferences from cookies, applies a fixed
+ * set of security headers (`X-Frame-Options`, `X-Content-Type-
+ * Options`, `Referrer-Policy`, COOP/CORP/COEP), and seeds
+ * `event.locals` with a typed user / data-service handle.
+ *
+ * The `handleError` adapter converts a thrown unknown into an
+ * `App.Error { message, errorId }` while routing the underlying
+ * `AppError` into the captured-error reporter so Vitals can
+ * surface it.
+ *
+ * @module
+ */
+
 import type { Handle, HandleServerError } from '@sveltejs/kit';
 import { building, dev } from '$app/environment';
 import type { Bool, Num, Str, Void } from '@/schemas/common';
@@ -195,6 +219,7 @@ export function getWaitUntil(): ((promise: Promise<unknown>) => void) | null {
   return _waitUntil;
 }
 
+/** Description. */
 export const handle: Handle = async ({ event, resolve }) => {
   // Capture Cloudflare ExecutionContext.waitUntil for downstream use.
   // Not available during prerendering or in dev mode without wrangler.

@@ -7,6 +7,8 @@
    * view mode selection, sort options, and export capabilities.
    *
    * Layout and UX patterns match the Tokens page.
+   *
+   * @module
    */
   import type { Bool, Num, Str } from '@/schemas/common';
   import Badge from '@/ui/badge/badge.svelte';

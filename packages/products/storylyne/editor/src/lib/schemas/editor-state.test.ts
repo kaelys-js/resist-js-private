@@ -1,3 +1,12 @@
+/**
+ * Tests for `editor-state` schemas — exercises default values,
+ * required-field validation, and the compositional shape of
+ * `EditorStateSchema` (app preferences + feature flags) using
+ * `safeParse` to assert success/failure paths.
+ *
+ * @module
+ */
+
 import { describe, expect, it } from 'vitest';
 import { safeParse } from '@/utils/result/safe';
 import {

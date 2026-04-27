@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Home page for the `(app)` route group — renders the welcome
+   * screen with the app logo, localized welcome text and tagline,
+   * and a hint to select or create a scene from the sidebar.
+   *
+   * @module
+   */
+
   import AppLogo from '@/ui/app-logo/AppLogo.svelte';
   import type { Str } from '@/schemas/common';
   import type { Result } from '@/schemas/result/result';

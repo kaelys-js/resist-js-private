@@ -9,6 +9,8 @@
    * and a page-level three-dot menu with export options for the full icon list.
    *
    * Uses import.meta.glob for reliable Vite-resolved icon loading.
+   *
+   * @module
    */
   import type { Bool, Num, Str } from '@/schemas/common';
   import LensEmpty from '@/ui/lens-empty/LensEmpty.svelte';

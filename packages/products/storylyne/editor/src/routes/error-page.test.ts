@@ -8,6 +8,8 @@ import { APP_NAME } from '$lib/config/app-meta';
  * Since +error.svelte depends on $app/state (which requires full SvelteKit runtime),
  * we verify the status→locale mapping logic that ErrorPage uses directly.
  * The actual rendering of +error.svelte with $app/state is verified via E2E tests.
+ *
+ * @module
  */
 describe('+error.svelte integration logic', () => {
   it('maps 400 status to badRequest locale key', () => {

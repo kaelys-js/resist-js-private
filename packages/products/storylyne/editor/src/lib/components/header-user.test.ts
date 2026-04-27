@@ -1,3 +1,11 @@
+/**
+ * Unit tests for the HeaderUser dropdown trigger — asserts the
+ * trigger's testid and `aria-label`, the avatar fallback initials,
+ * and accessible name behavior wired through `HeaderUserTest`.
+ *
+ * @module
+ */
+
 import { render } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import HeaderUserTest from './HeaderUserTest.svelte';

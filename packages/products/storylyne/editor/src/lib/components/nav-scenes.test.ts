@@ -1,3 +1,11 @@
+/**
+ * Unit tests for the NavScenes sidebar group — verifies scene
+ * titles, the "Scenes" group label, and active-state styling for
+ * the expanded sidebar layout via `NavScenesTest`.
+ *
+ * @module
+ */
+
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import NavScenesTest from './NavScenesTest.svelte';

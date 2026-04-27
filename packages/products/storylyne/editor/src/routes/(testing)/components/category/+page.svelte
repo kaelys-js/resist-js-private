@@ -5,6 +5,8 @@
    *
    * Matches the Icons page UX pattern: sticky header, 3-dot dropdown with
    * Export/Customize/Reset, inline search, category filter chips.
+   *
+   * @module
    */
   import type { Bool, Num, Str } from '@/schemas/common';
   import type { LensMeta, CategoryGroup } from '@/ui/lens/types.js';

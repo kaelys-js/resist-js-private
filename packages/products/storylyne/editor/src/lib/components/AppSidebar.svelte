@@ -1,4 +1,14 @@
 <script lang="ts">
+  /**
+   * AppSidebar — editor-specific sidebar shell.
+   *
+   * Wraps `@/ui/app-sidebar/AppSidebar` with editor-local navigation
+   * sections (NavScenes / NavProject), wires the i18n locale store
+   * for tagline strings, and reads the editor-state store for the
+   * current user/project/scene context.
+   *
+   * @module
+   */
   import House from '@lucide/svelte/icons/house';
   import Settings from '@lucide/svelte/icons/settings';
   import CircleHelp from '@lucide/svelte/icons/circle-help';

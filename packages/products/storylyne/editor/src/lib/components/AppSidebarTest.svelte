@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Test harness for AppSidebar with default mock data (no flag overrides).
+   *
+   * Mounts AppSidebar inside TestProviders with a baseline user / project /
+   * scene fixture so unit tests have a stable snapshot target.
+   *
+   * @module
+   */
   import TestProviders from './TestProviders.svelte';
   import AppSidebar from './AppSidebar.svelte';
 

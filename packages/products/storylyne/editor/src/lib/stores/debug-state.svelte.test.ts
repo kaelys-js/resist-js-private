@@ -1,3 +1,11 @@
+/**
+ * Tests for the debug-state Svelte store — covers store creation,
+ * initialization from localStorage, URL-param overrides via
+ * `URL_PARAM_PREFIX`, and the singleton `useDebugStore` accessor.
+ *
+ * @module
+ */
+
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import type { Num, NullableStr, Str } from '@/schemas/common';
 import { URL_PARAM_PREFIX, storageKey } from '$lib/config/app-meta';

@@ -5,6 +5,8 @@ import type { Str } from '@/schemas/common';
  * Tests for +layout.server.ts load function behavior.
  * Since the load function uses SvelteKit's LayoutServerLoad type which requires
  * internal types, we test the logic pattern directly.
+ *
+ * @module
  */
 describe('+layout.server load', () => {
   it('returns locale from locals', () => {

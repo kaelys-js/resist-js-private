@@ -33,7 +33,10 @@ const rule: TypeScriptRule = {
         return results;
       }
 
-      const hasModule: boolean = /@module\b/.test(context.content.slice(0, 500));
+      // Scan the first 2000 chars to allow long-form leading JSDoc blocks
+      // (multi-paragraph descriptions with bullet lists) to still place
+      // `@module` near the bottom of the comment without tripping the rule.
+      const hasModule: boolean = /@module\b/.test(context.content.slice(0, 2000));
 
       if (!hasModule) {
         results.push({

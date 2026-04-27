@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * Test harness for `@/ui/nav-secondary` with a fixed Settings/Help
+   * item fixture. Lets editor unit tests verify the secondary nav
+   * group rendering in the editor's TestProviders context.
+   *
+   * @module
+   */
   import CircleHelp from '@lucide/svelte/icons/circle-help';
   import Settings from '@lucide/svelte/icons/settings';
   import TestProviders from './TestProviders.svelte';

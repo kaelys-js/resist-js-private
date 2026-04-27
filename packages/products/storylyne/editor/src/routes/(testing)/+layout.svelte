@@ -5,6 +5,8 @@
    * Sits under the minimal root layout (CSS only) — the editor's app
    * shell (sidebar, header, resizable panes) lives in `(app)/+layout.svelte`.
    * Provides its own sidebar + breadcrumb chrome for the Lens documentation system.
+   *
+   * @module
    */
   import { ModeWatcher, mode as derivedMode, setMode as rawSetMode } from 'mode-watcher';
   import { page } from '$app/state';

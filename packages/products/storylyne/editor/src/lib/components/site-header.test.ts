@@ -1,3 +1,11 @@
+/**
+ * Unit tests for the SiteHeader — verifies the `<header>` landmark,
+ * breadcrumb "Home" entry, sidebar trigger, and the user-menu
+ * trigger rendered through `SiteHeaderTest`.
+ *
+ * @module
+ */
+
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import SiteHeaderTest from './SiteHeaderTest.svelte';

@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Editor wrapper around the shared `@/ui/header-user` avatar
+   * dropdown. Wires the i18n store for menu labels, the editor-state
+   * store for the current user, and SvelteKit `goto`/`page` for
+   * sign-in / sign-out URL routing.
+   *
+   * @module
+   */
   import HeaderUser from '@/ui/header-user/HeaderUser.svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';

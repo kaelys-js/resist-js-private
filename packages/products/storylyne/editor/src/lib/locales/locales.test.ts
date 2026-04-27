@@ -1,3 +1,13 @@
+/**
+ * Tests every editor locale file under `$lib/locales/` parses
+ * cleanly against `EditorLocaleSchema`, ensuring every translation
+ * file stays in sync with the schema. Locale files are discovered
+ * dynamically via `import.meta.glob` so adding a new locale is
+ * pickup-only.
+ *
+ * @module
+ */
+
 import { describe, expect, it } from 'vitest';
 import { safeParse } from '@/utils/result/safe';
 import { EditorLocaleSchema, type EditorLocaleRaw } from './schema';

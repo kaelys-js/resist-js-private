@@ -1,4 +1,13 @@
 <script lang="ts">
+  /**
+   * DevToolbar — debug-only toolbar shown when `?debug=true` is set.
+   *
+   * Surfaces app-state inspection, feature-flag overrides, and perf
+   * vitals via dropdown panels. Includes a copy-state button (with
+   * 1-second checkmark feedback), reset button, and theme/mode toggle.
+   *
+   * @module
+   */
   import Code from '@lucide/svelte/icons/code';
   import Flag from '@lucide/svelte/icons/flag';
   import Settings2 from '@lucide/svelte/icons/settings-2';

@@ -1,4 +1,13 @@
 <script lang="ts">
+  /**
+   * Editor wrapper around `@/ui/language-switcher`. Resolves the user's
+   * supported locales, their endonyms (via `@/locale/display`) and
+   * text direction (LTR/RTL), and persists the chosen locale into the
+   * editor store. Mutations are logged via the shared logger and route
+   * through the locale-cookie writer in `editor-state.svelte`.
+   *
+   * @module
+   */
   import LanguageSwitcher from '@/ui/language-switcher/LanguageSwitcher.svelte';
   import { getTextDirection, type TextDirection } from '@/locale/direction';
   import type { Str, Void } from '@/schemas/common';

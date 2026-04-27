@@ -1,3 +1,11 @@
+/**
+ * Unit tests for the NavSecondary sidebar group — verifies the
+ * Settings and Help menu items render with their expected hrefs
+ * and labels via `NavSecondaryTest`.
+ *
+ * @module
+ */
+
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import NavSecondaryTest from './NavSecondaryTest.svelte';

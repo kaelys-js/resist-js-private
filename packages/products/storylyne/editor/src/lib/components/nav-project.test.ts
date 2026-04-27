@@ -1,3 +1,11 @@
+/**
+ * Unit tests for the NavProject sidebar-footer entry — verifies
+ * the rendered user name, the placeholder subtitle, and the
+ * dropdown trigger wired through `NavProjectTest`.
+ *
+ * @module
+ */
+
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import NavProjectTest from './NavProjectTest.svelte';

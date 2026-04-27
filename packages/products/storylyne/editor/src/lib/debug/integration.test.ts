@@ -4,6 +4,8 @@
  * Full-flow tests that verify the debug store, URL param parsing,
  * devtools API, orchestrator, welcome banner, state logging pipeline,
  * and unknown param detection work together correctly.
+ *
+ * @module
  */
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import type { Bool, Num, Str } from '@/schemas/common';

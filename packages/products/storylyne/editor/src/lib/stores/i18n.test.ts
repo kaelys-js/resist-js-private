@@ -1,3 +1,12 @@
+/**
+ * Tests for the i18n Svelte store — verifies the `localeStore`
+ * accessor, the `t()` translation helper, and that every supported
+ * locale (en/ja/zh/ko/fr/de/es) resolves keys without falling back
+ * to the key itself.
+ *
+ * @module
+ */
+
 import { describe, expect, it } from 'vitest';
 import { localeStore, t } from './i18n.svelte';
 import { APP_NAME } from '$lib/config/app-meta';

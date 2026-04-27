@@ -1,3 +1,11 @@
+/**
+ * Unit tests for the EmptyScenes empty-state — verifies the testid
+ * container, the "No scenes yet" heading, and the supporting
+ * description copy rendered by `EmptyScenesTest`.
+ *
+ * @module
+ */
+
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import EmptyScenesTest from './EmptyScenesTest.svelte';

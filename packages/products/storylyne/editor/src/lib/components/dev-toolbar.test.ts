@@ -1,3 +1,12 @@
+/**
+ * Unit tests for the DevToolbar shell — exercises the trigger
+ * collapse/expand behavior, debug-gated visibility, and the panel
+ * tabs (App State / Debug / Feature Flags / Perf) wired together via
+ * `DevToolbarTest`.
+ *
+ * @module
+ */
+
 import { fireEvent, render, waitFor } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { describe, expect, it } from 'vitest';

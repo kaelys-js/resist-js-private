@@ -1,4 +1,13 @@
 <script lang="ts">
+  /**
+   * Client-side validation-error test page — runs a deliberately
+   * failing valibot `safeParse` during hydration and throws the
+   * resulting AppError so the client `handleError` hook can
+   * preserve `VALIDATION.SCHEMA_FAILED` and the full cause chain.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { browser } from '$app/environment';
   import { safeParse } from '@/utils/result/safe';

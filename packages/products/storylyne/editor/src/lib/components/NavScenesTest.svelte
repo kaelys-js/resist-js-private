@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Test harness for NavScenes with a configurable `collapsed` prop
+   * and a fixed three-scene fixture (Overworld / Dungeon B1 / Town
+   * Interior). Lets unit tests assert both the expanded and collapsed
+   * (icon-mode) renderings.
+   *
+   * @module
+   */
   import type { Bool } from '@/schemas/common';
   import TestProviders from './TestProviders.svelte';
   import NavScenes from './NavScenes.svelte';

@@ -2,6 +2,8 @@
  * Domain-specific category icons (commerce, gaming, healthcare, etc.).
  *
  * Split from lens-category-icons.ts to stay under the max-dependencies lint limit.
+ *
+ * @module
  */
 import type { Component } from 'svelte';
 import type { Str } from '@/schemas/common';

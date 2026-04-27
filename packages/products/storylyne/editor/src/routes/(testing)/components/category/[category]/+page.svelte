@@ -5,6 +5,8 @@
    * Displays a category header with icon, description, search, and a grid of component
    * cards with name, description, tags, compatibility status, and links.
    * Data is self-contained via import.meta.glob (same pattern as other Lens pages).
+   *
+   * @module
    */
   import { page } from '$app/state';
   import type { Bool, Num, Str } from '@/schemas/common';

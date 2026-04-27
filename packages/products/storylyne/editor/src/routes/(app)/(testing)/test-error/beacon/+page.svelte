@@ -16,6 +16,14 @@
   not during SSR.
 -->
 <script lang="ts">
+  /**
+   * Client-side error beacon test page — throws a deliberate domain
+   * error during hydration so the global error handler exercises the
+   * console logger and the `/api/errors` beacon round-trip.
+   *
+   * @module
+   */
+
   import { browser } from '$app/environment';
   import { ERRORS, err } from '@/schemas/result/result';
 

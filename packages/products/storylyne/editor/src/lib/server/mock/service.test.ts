@@ -1,3 +1,12 @@
+/**
+ * Tests for the mock data service — verifies that
+ * `createMockService` exposes the expected `projects` and `scenes`
+ * accessors and that each accessor returns the canonical mock
+ * fixtures (MOCK_PROJECT, MOCK_SCENES, MOCK_USER) used in tests.
+ *
+ * @module
+ */
+
 import { describe, expect, it } from 'vitest';
 import { createMockService } from './service';
 import { MOCK_PROJECT, MOCK_SCENES, MOCK_USER } from './data';

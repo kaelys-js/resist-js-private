@@ -1,3 +1,12 @@
+/**
+ * Unit tests for the ModeToggle button — verifies the accessible
+ * name (`Toggle mode`), presence of sun/moon SVG icons for the
+ * light/dark indicator, and that the button acts as a
+ * dropdown-menu trigger.
+ *
+ * @module
+ */
+
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import ModeToggleTest from './ModeToggleTest.svelte';

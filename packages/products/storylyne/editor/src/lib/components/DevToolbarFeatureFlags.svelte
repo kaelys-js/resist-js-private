@@ -1,4 +1,14 @@
 <script lang="ts">
+  /**
+   * DevToolbarFeatureFlags — feature-flag override panel for the dev toolbar.
+   *
+   * Discovers all registered feature flags via
+   * `@/utils/devtools/dev-toolbar-registry`, renders a searchable
+   * switch list, and announces toggle changes via the live region for
+   * screen readers.
+   *
+   * @module
+   */
   import Flag from '@lucide/svelte/icons/flag';
   import Search from '@lucide/svelte/icons/search';
   import SearchX from '@lucide/svelte/icons/search-x';

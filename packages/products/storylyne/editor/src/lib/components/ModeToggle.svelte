@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Editor wrapper around the shared `@/ui/mode-toggle` light/dark
+   * switcher. Pulls localized labels (`Toggle theme`, `Light`, `Dark`,
+   * `System`) from the i18n store and reads/writes the mode via the
+   * editor-state store.
+   *
+   * @module
+   */
   import ModeToggle from '@/ui/mode-toggle/ModeToggle.svelte';
   import { localeStore, t } from '$lib/stores/i18n.svelte';
   import { useEditorStore } from '$lib/stores/editor-state.svelte';

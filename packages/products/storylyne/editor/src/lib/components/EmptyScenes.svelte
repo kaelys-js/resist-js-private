@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * EmptyScenes — sidebar placeholder shown when no scenes exist.
+   *
+   * Renders a "Create your first scene" CTA card inside a sidebar menu
+   * item, gated by the `emptyScenePlaceholder` feature flag.
+   *
+   * @module
+   */
   import Map from '@lucide/svelte/icons/map';
   import Plus from '@lucide/svelte/icons/plus';
   import * as Sidebar from '@/ui/sidebar/index.js';
