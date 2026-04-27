@@ -11,6 +11,7 @@
  */
 
 import type { Component } from 'svelte';
+import type { ButtonProps } from './types.js';
 
 export {
   buttonVariants,
@@ -18,8 +19,6 @@ export {
   type ButtonSize,
   type ButtonProps,
 } from './types.js';
-
-import type { ButtonProps } from './types.js';
 
 /** Default export: the Button Svelte component. */
 declare const Button: Component<ButtonProps>;
