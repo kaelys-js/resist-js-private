@@ -34,7 +34,6 @@ import type { GenericSchema, GenericSchemaFactory } from '@/schemas/generic/type
 function _toGenericSchema<TFactory extends GenericSchemaFactory>(
   value: TFactory,
 ): GenericSchema<TFactory> {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- centralized cast
   return value as GenericSchema<TFactory>;
 }
 

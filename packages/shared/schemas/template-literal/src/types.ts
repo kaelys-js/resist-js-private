@@ -196,6 +196,5 @@ export function _toTemplateLiteralSchema<
 >(
   value: v.BaseSchema<string, TOutput, TemplateLiteralIssue>,
 ): TemplateLiteralSchema<TParts, TOutput, TMessage> {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- centralized cast
   return value as TemplateLiteralSchema<TParts, TOutput, TMessage>;
 }
