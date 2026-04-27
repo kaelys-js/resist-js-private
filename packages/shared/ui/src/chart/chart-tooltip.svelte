@@ -1,4 +1,13 @@
 <script lang="ts">
+  /**
+   * Chart tooltip — themed tooltip surface that reads the active
+   * payload via `getTooltipContext` and pairs it with the
+   * surrounding `ChartConfig` from `useChart` to render labels,
+   * indicators, and formatted values.
+   *
+   * @module
+   */
+
   import { getTooltipContext, Tooltip as TooltipPrimitive } from 'layerchart';
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
