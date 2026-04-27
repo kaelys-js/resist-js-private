@@ -93,10 +93,8 @@ describe('getBuildInfo', () => {
     const origCommit = globalThis.__GIT_COMMIT__;
 
     try {
-      // @ts-expect-error — intentionally setting to undefined for test
-      globalThis.__APP_VERSION__ = undefined;
-      // @ts-expect-error — intentionally setting to undefined for test
-      globalThis.__GIT_COMMIT__ = undefined;
+      (globalThis as { __APP_VERSION__?: string | undefined }).__APP_VERSION__ = undefined;
+      (globalThis as { __GIT_COMMIT__?: string | undefined }).__GIT_COMMIT__ = undefined;
 
       const result = getBuildInfo();
       expect(result.ok).toBe(false);

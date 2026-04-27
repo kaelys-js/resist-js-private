@@ -4,7 +4,6 @@
  * @module
  */
 
-// oxlint-disable require-await -- async test helpers for loadConfig don't always need await
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
@@ -114,8 +113,7 @@ describe('loadConfig', () => {
     // Temporarily override the nodePath mock to return null
     const nodeImports = await import('@/utils/core/node-imports');
     const original = nodeImports.nodePath;
-    // @ts-expect-error — overriding readonly for test
-    nodeImports.nodePath = null;
+    (nodeImports as { nodePath: typeof nodeImports.nodePath | null }).nodePath = null;
 
     const result = await loadConfig();
 
@@ -403,8 +401,7 @@ describe('configExists', () => {
   it('returns false when nodePath is null', async () => {
     const nodeImports = await import('@/utils/core/node-imports');
     const original = nodeImports.nodePath;
-    // @ts-expect-error — overriding readonly for test
-    nodeImports.nodePath = null;
+    (nodeImports as { nodePath: typeof nodeImports.nodePath | null }).nodePath = null;
 
     const result: Result<Bool> = configExists();
     expect(result.ok).toBe(true);

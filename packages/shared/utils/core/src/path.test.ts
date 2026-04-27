@@ -52,8 +52,7 @@ describe('cwd', () => {
 
   it('returns RUNTIME.UNSUPPORTED when process is unavailable', () => {
     const original = globalThis.process;
-    // @ts-expect-error — simulating non-Node environment
-    globalThis.process = undefined;
+    (globalThis as { process?: NodeJS.Process | undefined }).process = undefined;
     try {
       const result: Result<Path> = cwd();
       expect(result.ok).toBe(false);
