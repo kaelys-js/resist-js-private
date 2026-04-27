@@ -1,3 +1,12 @@
+/**
+ * Lens manifest for the AnimatedBackground component (animation
+ * category) — full-page or section background with animated
+ * particles / gradients / grids / 3D effects. Tagged for animated
+ * / background / effect / motion lookups.
+ *
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
