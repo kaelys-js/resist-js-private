@@ -7,7 +7,7 @@
  * @module
  */
 
-import { basename, relative } from 'node:path';
+import { relative } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
@@ -63,7 +63,6 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       /* Only check store-related files. */
-      const name: string = basename(filePath);
       const hasStoreExt: boolean = [...STORE_EXTENSIONS].some((ext: string): boolean =>
         filePath.endsWith(ext),
       );
