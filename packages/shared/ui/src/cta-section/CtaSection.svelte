@@ -1,5 +1,14 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * CtaSection — full-section call-to-action with heading,
+   * description, and primary action button. Placeholder shell
+   * awaiting full implementation; ships with a `class` prop for
+   * root-level styling overrides.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
