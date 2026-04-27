@@ -22,22 +22,8 @@ const PHP_ERROR: RegExp = /^(?:PHP )?Parse error:\s*(.+?)\s+in\s+(.+?)\s+on\s+li
 /**
  * Transform PHP syntax check output into LintResult[].
  *
- * `php -l` outputs parse errors on stderr with lines like:
- * `PHP Parse error: syntax error, unexpected '}' in test.php on line 10`
- * `Parse error: syntax error, unexpected end of file in test.php on line 25`
- *
- * Lines containing "No syntax errors detected" are skipped.
- *
- * @param {string} output - Raw output from `php -l`
- * @returns {LintResult[]} Transformed lint results
- *
- * @example
- * ```typescript
- * const results = transformPhpOutput("PHP Parse error: syntax error, unexpected '}' in test.php on line 10");
- * // results[0].ruleId === 'php/syntax'
- * // results[0].line === 10
- * ```
- * @returns Description
+ * @param output - Raw output from php-l (one diagnostic per line)
+ * @returns Parsed lint results
  */
 export function transformPhpOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();

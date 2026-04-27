@@ -16,19 +16,8 @@ const ZSH_LINE: RegExp = /^(.+?):(\d+): (.+)$/;
 /**
  * Transform zsh syntax check output into LintResult[].
  *
- * `zsh -n` outputs syntax errors on stderr with lines like:
- * `script.zsh:10: parse error near '}'`
- *
- * @param {string} output - Raw stderr output from `zsh -n`
- * @returns {LintResult[]} Transformed lint results
- *
- * @example
- * ```typescript
- * const results = transformZshOutput("script.zsh:10: parse error near '}'");
- * // results[0].ruleId === 'zsh/syntax'
- * // results[0].line === 10
- * ```
- * @returns Description
+ * @param output - Raw stderr output from zsh -n (one diagnostic per line)
+ * @returns Parsed lint results
  */
 export function transformZshOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
