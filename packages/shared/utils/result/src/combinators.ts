@@ -362,13 +362,10 @@ export function combineWithAllErrors<T>(results: ReadonlyArray<Result<T>>): Resu
     }
   }
 
-  if (errors.length === 0) {
+  const [firstError, ...relatedErrors]: AppError[] = errors;
+  if (firstError === undefined) {
     return okUnchecked<readonly T[]>(values);
   }
-
-  // oxlint-disable-next-line typescript/no-non-null-assertion -- guarded by errors.length === 0 early return above
-  const firstError: AppError = errors[0]!;
-  const relatedErrors: AppError[] = errors.slice(1);
 
   return err(firstError.code, firstError.message, {
     ...(firstError.validation !== undefined && { validation: firstError.validation }),

@@ -7,7 +7,6 @@
  * Also tests that the breadcrumb + beacon modules work together correctly.
  */
 
-// oxlint-disable require-await -- async mocks return Response directly (no await needed)
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import type { Str, Bool, Void } from '@/schemas/common';
 import type { AppError, Result } from '@/schemas/result/result';
@@ -197,7 +196,10 @@ describe('error reporting pipeline', () => {
   it('fetch breadcrumbs are captured and included in error reports', async () => {
     const originalFetch: typeof fetch = globalThis.fetch;
     const mockFetch: typeof fetch = vi.fn(
-      async () => new Response('not found', { status: 404 }),
+      (): Promise<Response> =>
+        new Promise<Response>((resolve: (r: Response) => void): void => {
+          resolve(new Response('not found', { status: 404 }));
+        }),
     ) as typeof fetch;
     globalThis.fetch = mockFetch;
 

@@ -9,7 +9,6 @@
  * @module
  */
 
-/* oxlint-disable max-dependencies -- test file imports all tool transforms */
 import { describe, expect, it, vi } from 'vitest';
 import type * as ToolOrchestratorModule from '@/lint/framework/tool-orchestrator.ts';
 import type { LintResult } from '@/lint/framework/types.ts';

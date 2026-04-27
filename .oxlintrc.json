@@ -523,7 +523,7 @@
   },
   "overrides": [
     {
-      "files": ["**/tools/registry.ts"],
+      "files": ["**/tools/registry.ts", "**/tools/tools.test.ts"],
       "rules": {
         "import/max-dependencies": "off"
       }

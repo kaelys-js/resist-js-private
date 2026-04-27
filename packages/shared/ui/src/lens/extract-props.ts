@@ -683,10 +683,9 @@ function buildPlaceholderObject(typeSummary: string): Record<string, string> | n
  * Extract field names from a resolved type definition body and build a placeholder object.
  * Parses JSDoc values tags from the definition body to populate placeholder values.
  *
- * @param definition - Resolved type definition string starting with `{`
- * @returns Placeholder object mapping field names to mock values, or null if empty
+ * @param definition - Resolved type definition string starting with brace.
+ * @returns Placeholder object mapping field names to mock values, or null if empty.
  */
-// eslint-disable-next-line jsdoc/require-returns -- false positive: @returns IS present; oxlint misparses due to star-slash in string/regex literals
 function buildPlaceholderFromDefinition(definition: string): Record<string, string> | null {
   const inner: string = definition.slice(1, -1).trim();
   if (!inner) {

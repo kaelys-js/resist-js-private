@@ -56,8 +56,12 @@ import { fromUnknownError, safeParse } from '@/utils/result/safe';
  * @returns The config module's `getConfig` function.
  */
 function _loadConfig(): typeof import('@/config/loader') {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  return require('@/config/loader') as typeof import('@/config/loader');
+  // Synchronous CommonJS require avoids the circular import that an
+  // ESM `import` at the top of the file would create. We cast through
+  // unknown to satisfy the eventual ESM module shape.
+  const cjsRequire: NodeRequire = (globalThis as { require?: NodeRequire }).require as NodeRequire;
+  const loaded: unknown = cjsRequire('@/config/loader');
+  return loaded as typeof import('@/config/loader');
 }
 
 // =============================================================================

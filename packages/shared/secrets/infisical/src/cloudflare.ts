@@ -312,7 +312,7 @@ export function withValidatedEnv(env: unknown): Result<ProductSecrets> {
  * Uses typeof narrowing instead of `as` casts.
  *
  * @param {unknown} env - Worker env bindings object.
- * @param {readonly (keyof ProductSecrets)[]} keys - Required secret key names.
+ * @param {ReadonlyArray<keyof ProductSecrets>} keys - Required secret key names.
  * @returns {Result<Bool>} True if all keys are present and non-empty.
  *
  * @example
