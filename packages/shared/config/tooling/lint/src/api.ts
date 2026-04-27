@@ -44,6 +44,8 @@ export const LintOptionsSchema = v.strictObject({
   configPath: v.optional(v.string()),
   /** File/directory paths to lint from disk. */
   paths: v.optional(v.array(v.string())),
+  /** Workspace package names to lint (e.g. `['@/lint', '@storylyne/editor']`). */
+  packageNames: v.optional(v.array(v.string())),
   /** In-memory sources to lint (no disk I/O). */
   sources: v.optional(v.array(LintSourceSchema)),
   /** Rule IDs to run (empty = all). */
@@ -179,6 +181,7 @@ export async function lint(options?: LintOptions): Promise<LintApiResult<LintRes
     json: false,
     listRules: false,
     locale: opts.locale,
+    packageNames: opts.packageNames ?? [],
     paths: opts.paths ?? [],
     quiet: false,
     ruleIds: opts.ruleIds ?? [],

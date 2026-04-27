@@ -5789,7 +5789,7 @@ describe('workspace/validate-package-entrypoints', () => {
       ['/workspace/pkg/package.json', JSON.stringify({ main: './dist/index.js' })],
     ]);
     const ctx: WorkspaceContext = mockContext({ files });
-    vi.spyOn(ctx, 'fileExists').mockImplementation(() => Promise.resolve(true));
+    vi.spyOn(ctx, 'fileExists').mockImplementation(async () => true);
     const results: LintResult[] = await validatePackageEntrypoints.check(ctx);
     expect(results.length).toBe(0);
   });
@@ -17921,7 +17921,7 @@ describe('workspace/no-inline-svg-in-source', () => {
   it('skips files that cannot be read', async () => {
     const ctx: WorkspaceContext = {
       ...mockContext(),
-      allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.tsx']),
+      allFiles: async (): Promise<readonly string[]> => ['/workspace/bad.tsx'],
       readFile: async (): Promise<string> => {
         await Promise.resolve();
         throw new Error('ENOENT');
@@ -17984,7 +17984,7 @@ describe('workspace/no-webp-in-css', () => {
   it('skips files that cannot be read', async () => {
     const ctx: WorkspaceContext = {
       ...mockContext(),
-      allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.css']),
+      allFiles: async (): Promise<readonly string[]> => ['/workspace/bad.css'],
       readFile: async (): Promise<string> => {
         await Promise.resolve();
         throw new Error('ENOENT');
@@ -18059,7 +18059,7 @@ describe('workspace/no-raw-svg-in-components', () => {
   it('skips files that cannot be read', async () => {
     const ctx: WorkspaceContext = {
       ...mockContext(),
-      allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.svelte']),
+      allFiles: async (): Promise<readonly string[]> => ['/workspace/bad.svelte'],
       readFile: async (): Promise<string> => {
         await Promise.resolve();
         throw new Error('ENOENT');
@@ -18112,7 +18112,7 @@ describe('workspace/webp-max-size', () => {
   it('skips files that cannot be read', async () => {
     const ctx: WorkspaceContext = {
       ...mockContext(),
-      allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.webp']),
+      allFiles: async (): Promise<readonly string[]> => ['/workspace/bad.webp'],
       readFile: async (): Promise<string> => {
         await Promise.resolve();
         throw new Error('ENOENT');
@@ -18252,7 +18252,7 @@ describe('workspace/webp-no-metadata', () => {
   it('skips files that cannot be read', async () => {
     const ctx: WorkspaceContext = {
       ...mockContext(),
-      allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.webp']),
+      allFiles: async (): Promise<readonly string[]> => ['/workspace/bad.webp'],
       readFile: async (): Promise<string> => {
         await Promise.resolve();
         throw new Error('ENOENT');
@@ -18750,7 +18750,7 @@ describe('workspace/webp-no-color-profile', () => {
   it('skips files that cannot be read', async () => {
     const ctx: WorkspaceContext = {
       ...mockContext(),
-      allFiles: (): Promise<readonly string[]> => Promise.resolve(['/workspace/bad.webp']),
+      allFiles: async (): Promise<readonly string[]> => ['/workspace/bad.webp'],
       readFile: async (): Promise<string> => {
         await Promise.resolve();
         throw new Error('ENOENT');
