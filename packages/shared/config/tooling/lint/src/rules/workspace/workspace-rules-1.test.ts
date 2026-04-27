@@ -4695,3 +4695,129 @@ for (const { name, rule } of RULES_WITH_PACKAGE_INPUTS) {
     });
   });
 }
+
+// =============================================================================
+// Bulk inputs() smoke-coverage for workspace-rules-1
+// =============================================================================
+const BULK_INPUTS_RULES_1: ReadonlyArray<{
+  id: string;
+  rule: { inputs?: (ctx: unknown) => Promise<readonly string[]> };
+}> = [
+  { id: 'no-broken-symlinks', rule: noBrokenSymlinks },
+  { id: 'no-leftover-sqlite', rule: noLeftoverSqlite },
+  { id: 'no-lockfile-local-links', rule: noLockfileLocalLinks },
+  { id: 'no-unpinned-git-deps', rule: noUnpinnedGitDeps },
+  { id: 'no-merge-conflicts', rule: noMergeConflicts },
+  { id: 'no-untracked-artifacts', rule: noUntrackedArtifacts },
+  { id: 'require-git-repo', rule: requireGitRepo },
+  { id: 'require-lockfile', rule: requireLockfile },
+  { id: 'no-absolute-workspace-globs', rule: noAbsoluteWorkspaceGlobs },
+  { id: 'no-duplicate-workspace-globs', rule: noDuplicateWorkspaceGlobs },
+  { id: 'no-node-modules-workspace-globs', rule: noNodeModulesWorkspaceGlobs },
+  { id: 'no-test-dir-workspace-globs', rule: noTestDirWorkspaceGlobs },
+  { id: 'no-trailing-slash-globs', rule: noTrailingSlashGlobs },
+  { id: 'require-workspace-schema', rule: requireWorkspaceSchema },
+  { id: 'workspace-globs-resolve', rule: workspaceGlobsResolve },
+  { id: 'workspace-paths-exist', rule: workspacePathsExist },
+  { id: 'workspace-valid', rule: workspaceValid },
+  { id: 'no-utf8-bom', rule: noUtf8Bom },
+  { id: 'no-trailing-whitespace', rule: noTrailingWhitespace },
+  { id: 'no-tabs-in-code', rule: noTabsInCode },
+  { id: 'require-utf8-encoding', rule: requireUtf8Encoding },
+  { id: 'no-dangerous-shell-commands', rule: noDangerousShellCommands },
+  { id: 'no-missing-shebang', rule: noMissingShebang },
+  { id: 'no-debug-statements', rule: noDebugStatements },
+  { id: 'no-todo-comments', rule: noTodoComments },
+  { id: 'no-long-lines', rule: noLongLines },
+  { id: 'no-editor-artifacts', rule: noEditorArtifacts },
+  { id: 'no-binary-files', rule: noBinaryFiles },
+  { id: 'no-case-collisions', rule: noCaseCollisions },
+  { id: 'no-large-files', rule: noLargeFiles },
+  { id: 'no-tsbuildinfo', rule: noTsbuildinfo },
+  { id: 'no-empty-files', rule: noEmptyFiles },
+  { id: 'no-exec-bit', rule: noExecBit },
+  { id: 'no-temp-files', rule: noTempFiles },
+  { id: 'no-excess-trailing-newlines', rule: noExcessTrailingNewlines },
+  { id: 'no-mixed-indentation', rule: noMixedIndentation },
+  { id: 'no-hardcoded-ips', rule: noHardcodedIps },
+  { id: 'no-js-source-files', rule: noJsSourceFiles },
+  { id: 'no-insecure-urls', rule: noInsecureUrls },
+  { id: 'no-skipped-tests', rule: noSkippedTests },
+  { id: 'no-unsafe-regex', rule: noUnsafeRegex },
+  { id: 'no-hardcoded-urls', rule: noHardcodedUrls },
+  { id: 'no-fixup-commits', rule: noFixupCommits },
+  { id: 'no-env-files', rule: noEnvFiles },
+  { id: 'no-nvmrc', rule: noNvmrc },
+  { id: 'no-package-lock', rule: noPackageLock },
+  { id: 'no-wrangler-toml', rule: noWranglerToml },
+  { id: 'no-tests-directory', rule: noTestsDirectory },
+  { id: 'no-bench-directory', rule: noBenchDirectory },
+  { id: 'no-eslint-config', rule: noEslintConfig },
+  { id: 'no-prettier-config', rule: noPrettierConfig },
+  { id: 'no-jest-config', rule: noJestConfig },
+  { id: 'no-yarn-files', rule: noYarnFiles },
+  { id: 'no-npm-files', rule: noNpmFiles },
+  { id: 'no-stylelint-config', rule: noStylelintConfig },
+  { id: 'no-commitlint-config', rule: noCommitlintConfig },
+  { id: 'no-babel-config', rule: noBabelConfig },
+  { id: 'no-tslint-config', rule: noTslintConfig },
+  { id: 'no-huskyrc-config', rule: noHuskyrcConfig },
+  { id: 'no-tsconfig-overrides', rule: noTsconfigOverrides },
+  { id: 'no-bower-json', rule: noBowerJson },
+  { id: 'no-webpack-config', rule: noWebpackConfig },
+  { id: 'no-rollup-config', rule: noRollupConfig },
+  { id: 'no-gulp-config', rule: noGulpConfig },
+  { id: 'no-grunt-config', rule: noGruntConfig },
+  { id: 'no-jsconfig', rule: noJsconfig },
+  { id: 'no-nodemon-config', rule: noNodemonConfig },
+  { id: 'no-sensitive-cert-files', rule: noSensitiveCertFiles },
+  { id: 'no-env-file-clones', rule: noEnvFileClones },
+  { id: 'no-git-submodules', rule: noGitSubmodules },
+  { id: 'no-nested-git-folders', rule: noNestedGitFolders },
+  { id: 'no-nonroot-ignore-files', rule: noNonrootIgnoreFiles },
+  { id: 'no-sudo-in-scripts', rule: noSudoInScripts },
+  { id: 'no-scss-sass', rule: noScssSass },
+  { id: 'no-cypress-config', rule: noCypressConfig },
+  { id: 'no-puppeteer-config', rule: noPuppeteerConfig },
+  { id: 'no-pnpmfile', rule: noPnpmfile },
+  { id: 'no-browserslist', rule: noBrowserslist },
+  { id: 'no-swcrc', rule: noSwcrc },
+  { id: 'no-parcel-config', rule: noParcelConfig },
+  { id: 'no-postinstall-scripts', rule: noPostinstallScripts },
+  { id: 'no-tool-overrides-in-package-json', rule: noToolOverridesInPackageJson },
+  { id: 'require-tsconfig-strict', rule: requireTsconfigStrict },
+  { id: 'require-tsconfig-target', rule: requireTsconfigTarget },
+  { id: 'require-tsconfig-extends-base', rule: requireTsconfigExtendsBase },
+  { id: 'tsconfig-extends-resolves', rule: tsconfigExtendsResolves },
+  { id: 'no-tsconfig-circular-extends', rule: noTsconfigCircularExtends },
+];
+
+describe('workspace-rules-1 — bulk inputs() smoke-coverage', () => {
+  for (const { id, rule } of BULK_INPUTS_RULES_1) {
+    it(`workspace/${id}.inputs() runs without throwing`, async () => {
+      if (typeof rule.inputs !== 'function') {
+        return;
+      }
+      const ctx: WorkspaceContext = mockContext({
+        rootDir: '/workspace',
+        files: new Map([
+          ['/workspace/foo.ts', 'export const a = 1;'],
+          ['/workspace/pnpm-workspace.yaml', 'packages:\n  - "packages/*"\n'],
+          ['/workspace/pnpm-lock.yaml', 'lockfileVersion: 9.0\n'],
+          ['/workspace/package.json', '{"name":"x"}'],
+          ['/workspace/tsconfig.json', '{"compilerOptions":{}}'],
+        ]),
+        packages: [
+          {
+            name: '@/a',
+            path: '/workspace/packages/a/package.json',
+            dir: '/workspace/packages/a',
+            packageJson: { name: '@/a' },
+          },
+        ],
+      });
+      const inputs = await rule.inputs!(ctx);
+      expect(Array.isArray(inputs)).toBe(true);
+    });
+  }
+});
