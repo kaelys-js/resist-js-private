@@ -27,19 +27,8 @@ const KTLINT_LINE: RegExp = /^(.+?):(\d+):(\d+):\s*(.+?)\s+\((.+?)\)$/;
 /**
  * Transform ktlint plain reporter output into LintResult[].
  *
- * ktlint with `--reporter=plain` outputs lines like:
- * `src/Main.kt:10:1: Unexpected blank line(s) before "}" (no-blank-line-before-rbrace)`
- *
- * @param {string} output - Raw text output from ktlint
- * @returns {LintResult[]} Transformed lint results
- *
- * @example
- * ```typescript
- * const results = transformKtlintOutput('src/Main.kt:10:1: Needless blank line (no-blank-line-before-rbrace)');
- * // results[0].ruleId === 'ktlint/no-blank-line-before-rbrace'
- * // results[0].severity === 'error'
- * ```
- * @returns Description
+ * @param output - Raw text output from ktlint (one diagnostic per line)
+ * @returns Parsed lint results
  */
 export function transformKtlintOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();

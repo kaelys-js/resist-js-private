@@ -29,20 +29,8 @@ const ERLC_ERROR: RegExp = /^(.+?):(\d+):\s*error:\s*(.+)$/;
 /**
  * Transform erlc compilation output into LintResult[].
  *
- * `erlc -W` outputs warnings and errors on stderr with lines like:
- * `module.erl:15: Warning: variable 'X' is unused`
- * `module.erl:10: error: syntax error before: ')'`
- *
- * @param {string} output - Raw stderr output from `erlc -W`
- * @returns {LintResult[]} Transformed lint results
- *
- * @example
- * ```typescript
- * const results = transformErlcOutput("module.erl:15: Warning: variable 'X' is unused");
- * // results[0].ruleId === 'erlc/compile'
- * // results[0].severity === 'warning'
- * ```
- * @returns Description
+ * @param output - Raw stderr output from erlc -W (one diagnostic per line)
+ * @returns Parsed lint results
  */
 export function transformErlcOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();

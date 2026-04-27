@@ -23,22 +23,11 @@ const NIX_LINE: RegExp = /^error:\s+(.+?),?\s+at\s+(.+?):(\d+):(\d+)$/;
 /**
  * Transform nix-instantiate parse output into LintResult[].
  *
- * `nix-instantiate --parse` outputs syntax errors with lines like:
- * `error: syntax error, unexpected '}', at filename:line:column`
- *
  * Lines that don't match the expected pattern (trace output,
  * blank lines) are silently skipped.
  *
- * @param {string} output - Raw text output from nix-instantiate
- * @returns {LintResult[]} Transformed lint results
- *
- * @example
- * ```typescript
- * const results = transformNixOutput("error: syntax error, unexpected '}', at config.nix:12:5");
- * // results[0].ruleId === 'nix/syntax'
- * // results[0].line === 12
- * ```
- * @returns Description
+ * @param output - Raw text output from nix-instantiate (one diagnostic per line)
+ * @returns Parsed lint results
  */
 export function transformNixOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
