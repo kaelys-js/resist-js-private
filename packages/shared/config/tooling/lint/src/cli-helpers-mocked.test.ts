@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { execSync } from 'node:child_process';
-import * as NodeFsModule from 'node:fs';
+import type * as NodeFsModule from 'node:fs';
 import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 

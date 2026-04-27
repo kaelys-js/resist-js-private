@@ -9,7 +9,7 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import * as NodeFsModule from 'node:fs';
+import type * as NodeFsModule from 'node:fs';
 import { existsSync, readdirSync, type Dirent, type PathLike } from 'node:fs';
 import { join } from 'node:path';
 

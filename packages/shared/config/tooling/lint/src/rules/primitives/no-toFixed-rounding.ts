@@ -41,12 +41,12 @@ const rule: TypeScriptRule = {
           propRaw !== null && typeof propRaw === 'object' ? (propRaw as AstNode) : undefined;
         const propNameVal = property?.name as string | undefined;
         const propValueVal: unknown = property?.value;
-        const propertyName =
-          property?.type === 'Identifier'
-            ? propNameVal
-            : (property?.type === 'Literal' && typeof propValueVal === 'string'
-              ? propValueVal
-              : undefined);
+        let propertyName: string | undefined;
+        if (property?.type === 'Identifier') {
+          propertyName = propNameVal;
+        } else if (property?.type === 'Literal' && typeof propValueVal === 'string') {
+          propertyName = propValueVal;
+        }
 
         if (propertyName === 'toFixed') {
           results.push({
