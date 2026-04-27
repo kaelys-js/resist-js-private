@@ -525,7 +525,8 @@
     {
       "files": ["**/tools/registry.ts", "**/tools/tools.test.ts"],
       "rules": {
-        "import/max-dependencies": "off"
+        "import/max-dependencies": "off",
+        "max-dependencies": "off"
       }
     },
     {
@@ -575,6 +576,12 @@
       }
     },
     {
+      "files": ["**/tools/tools.test.ts"],
+      "rules": {
+        "import/max-dependencies": "off"
+      }
+    },
+    {
       "files": [
         "**/logger.ts",
         "**/terminal.ts",
@@ -586,6 +593,7 @@
         "**/utils/devtools/**/init.svelte.ts",
         "**/utils/devtools/**/state-logger.svelte.ts",
         "**/utils/devtools/**/devtools-api.svelte.ts",
+        "**/utils/devtools/**/url-params.ts",
         "**/perf/vitals-logger.ts",
         "**/web-vitals/**/vitals-logger.ts",
         "**/lens-stats/LensStats.svelte",
