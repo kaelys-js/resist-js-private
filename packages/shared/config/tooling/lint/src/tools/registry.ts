@@ -7,7 +7,6 @@
  * @module
  */
 
-/* oxlint-disable max-dependencies -- registry file intentionally imports all tools */
 import type { ExternalTool, WorkspaceTool } from '@/lint/framework/tool-orchestrator.ts';
 import { actionlintTool } from '@/lint/tools/actionlint.ts';
 import { asciidocTool } from '@/lint/tools/asciidoc.ts';

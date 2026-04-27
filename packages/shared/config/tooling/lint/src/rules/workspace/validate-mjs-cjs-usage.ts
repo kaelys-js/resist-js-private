@@ -35,8 +35,7 @@ async function findNearestPackageType(
 ): Promise<string | undefined> {
   let currentDir: string = startDir;
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  while (true) {
+  for (;;) {
     const pkgPath: string = join(currentDir, 'package.json');
     const found: boolean = await exists(pkgPath);
 

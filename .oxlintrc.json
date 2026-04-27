@@ -523,6 +523,12 @@
   },
   "overrides": [
     {
+      "files": ["**/tools/registry.ts"],
+      "rules": {
+        "import/max-dependencies": "off"
+      }
+    },
+    {
       "files": ["*.svelte", "**/*.svelte"],
       "rules": {
         "no-undef": "off",

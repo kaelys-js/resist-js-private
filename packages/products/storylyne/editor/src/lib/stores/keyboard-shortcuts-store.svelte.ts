@@ -47,6 +47,23 @@ export const SHORTCUTS_STORAGE_KEY: Str = storageKey('keyboard-shortcuts');
 
 let _registry: ShortcutRegistry = $state(resetAllShortcuts());
 
+/**
+ * Strip Svelte 5 `$state` proxies from a registry by JSON round-trip.
+ *
+ * `structuredClone()` cannot clone Svelte's reactive proxies (it throws
+ * `DataCloneError`); JSON.stringify falls back to the proxy's underlying
+ * shape, producing a plain object. This is the documented workaround
+ * pattern for serializing $state — `structuredClone` is only safe for
+ * primitive trees and Svelte runes are non-primitive.
+ *
+ * @param registry - The reactive registry to strip
+ * @returns A plain (non-proxy) clone of the registry
+ */
+function stripStateProxies(registry: ShortcutRegistry): ShortcutRegistry {
+  const serialized: string = JSON.stringify(registry);
+  return JSON.parse(serialized) as ShortcutRegistry;
+}
+
 // ── Persistence helpers ─────────────────────────────────────────────────────
 
 /**
@@ -200,9 +217,8 @@ export const shortcutStore: KeyboardShortcutsStore = {
   },
 
   update(id, key, modifiers): Result<Void> {
-    // JSON round-trip to strip $state proxies — structuredClone can't clone Svelte proxies
-    // eslint-disable-next-line unicorn/prefer-structured-clone -- structuredClone throws on Svelte 5 $state proxies
-    const plain: ShortcutRegistry = JSON.parse(JSON.stringify(_registry)) as ShortcutRegistry;
+    // JSON round-trip strips $state proxies — structuredClone throws on Svelte 5 proxies.
+    const plain: ShortcutRegistry = stripStateProxies(_registry);
     const result: Result<ShortcutRegistry> = updateShortcut(plain, id, key, modifiers);
     if (!result.ok) {
       return result;
@@ -213,9 +229,8 @@ export const shortcutStore: KeyboardShortcutsStore = {
   },
 
   reset(id): Result<Void> {
-    // JSON round-trip to strip $state proxies — structuredClone can't clone Svelte proxies
-    // eslint-disable-next-line unicorn/prefer-structured-clone -- structuredClone throws on Svelte 5 $state proxies
-    const plain: ShortcutRegistry = JSON.parse(JSON.stringify(_registry)) as ShortcutRegistry;
+    // JSON round-trip strips $state proxies — structuredClone throws on Svelte 5 proxies.
+    const plain: ShortcutRegistry = stripStateProxies(_registry);
     const result: Result<ShortcutRegistry> = resetShortcut(plain, id);
     if (!result.ok) {
       return result;
