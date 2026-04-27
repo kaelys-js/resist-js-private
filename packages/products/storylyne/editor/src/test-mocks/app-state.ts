@@ -37,7 +37,6 @@ export const navigating: null = null;
 /** Mock updated state with async check function. */
 export const updated: { current: Bool; check: () => Promise<Bool> } = {
   current: false,
-  // oxlint-disable-next-line require-await -- SvelteKit's $app/state mock matches the async signature
   check: async (): Promise<Bool> => {
     await Promise.resolve();
     return false;

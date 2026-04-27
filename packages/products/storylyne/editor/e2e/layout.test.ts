@@ -44,10 +44,7 @@ test.describe('layout — minimum viewport width', () => {
     await page.goto('/');
 
     const wrapper = page.locator('[data-slot="sidebar-wrapper"]');
-    const minWidth: string = await wrapper.evaluate(
-      // eslint-disable-next-line no-undef -- runs in browser context
-      (el) => window.getComputedStyle(el).minWidth,
-    );
+    const minWidth: string = await wrapper.evaluate((el) => window.getComputedStyle(el).minWidth);
     expect(minWidth).toBe('450px');
   });
 
@@ -72,7 +69,6 @@ test.describe('layout — no horizontal scrollbar', () => {
 
     // The content pane is the second Resizable.Pane (contains Sidebar.Inset)
     const contentPane = page.locator('[data-pane-group] > [data-pane-id]').last();
-    // eslint-disable-next-line no-undef -- runs in browser context
     const overflowX: string = await contentPane.evaluate(
       (el) => window.getComputedStyle(el).overflowX,
     );
@@ -84,7 +80,6 @@ test.describe('layout — no horizontal scrollbar', () => {
     await page.goto('/');
 
     const contentPane = page.locator('[data-pane-group] > [data-pane-id]').last();
-    // eslint-disable-next-line no-undef -- runs in browser context
     const overflowX: string = await contentPane.evaluate(
       (el) => window.getComputedStyle(el).overflowX,
     );

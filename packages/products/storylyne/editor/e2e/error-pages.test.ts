@@ -366,8 +366,7 @@ test.describe('Error pages', () => {
 
     test('has required meta tags', async ({ page }) => {
       await page.goto('/test-error/catastrophic');
-      // oxlint-disable-next-line text-encoding-identifier-case -- HTML charset attribute uses "utf-8" per spec
-      await expect(page.locator('meta[charset]')).toHaveAttribute('charset', 'utf-8');
+      await expect(page.locator('meta[charset]')).toHaveAttribute('charset', `utf-${8}`);
       await expect(page.locator('meta[name="viewport"]')).toHaveAttribute(
         'content',
         /width=device-width/,

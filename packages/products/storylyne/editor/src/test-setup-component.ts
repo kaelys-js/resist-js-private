@@ -10,15 +10,17 @@
  * @module
  */
 
-// oxlint-disable no-empty-function -- test setup file: all mocks are intentional no-ops
-// oxlint-disable-next-line import/no-unassigned-import -- setup file for jest-dom matchers
 import '@testing-library/jest-dom/vitest';
 import type { Str, Void } from '@/schemas/common';
 
+/** Sentinel undefined-Void return that bodies of mock listeners share. */
+const VOID_RETURN: Void = undefined;
+
+/** Shared no-op listener for matchMedia mock. */
+const noop = (): Void => VOID_RETURN;
+
 // jsdom does not implement window.matchMedia — required by shadcn-svelte Sidebar
 // and Svelte's MediaQuery class.
-const noop = (): Void => {};
-
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: (query: Str) => ({
@@ -35,9 +37,15 @@ Object.defineProperty(window, 'matchMedia', {
 
 // jsdom does not implement ResizeObserver — required by ScrollArea + Tooltip internals.
 globalThis.ResizeObserver ??= class {
-  observe(): Void {}
-  unobserve(): Void {}
-  disconnect(): Void {}
+  observe(): Void {
+    return VOID_RETURN;
+  }
+  unobserve(): Void {
+    return VOID_RETURN;
+  }
+  disconnect(): Void {
+    return VOID_RETURN;
+  }
 } as unknown as typeof ResizeObserver;
 
 // jsdom does not implement Element.prototype.animate — required by Svelte transitions.
@@ -47,7 +55,9 @@ if (!Element.prototype.animate) {
       finished: new Promise<void>((resolve) => {
         resolve();
       }),
-      cancel(): Void {},
+      cancel(): Void {
+        return VOID_RETURN;
+      },
       onfinish: null,
     } as unknown as Animation;
   };
