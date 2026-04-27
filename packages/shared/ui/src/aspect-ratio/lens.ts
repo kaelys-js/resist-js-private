@@ -1,3 +1,13 @@
+/**
+ * Lens manifest + examples for the AspectRatio component (layout
+ * category) — maintains a consistent width-to-height ratio for
+ * child content. Ships basic and side-by-side example lenses.
+ * Tagged for aspect-ratio / container / responsive / image
+ * lookups.
+ *
+ * @module
+ */
+
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
