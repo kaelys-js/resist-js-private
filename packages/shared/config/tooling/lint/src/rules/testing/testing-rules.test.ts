@@ -429,3 +429,31 @@ describe('testing/require-integration-location', () => {
     expect(results.length).toBe(0);
   });
 });
+
+// =============================================================================
+// inputs() lifecycle smoke-coverage
+// =============================================================================
+describe('testing — inputs() lifecycle smoke-coverage', () => {
+  for (const { id, rule } of [
+    { id: 'require-test-suffix', rule: requireTestSuffix },
+    { id: 'require-e2e-location', rule: requireE2eLocation },
+    { id: 'require-integration-location', rule: requireIntegrationLocation },
+  ] as const) {
+    it(`testing/${id}.inputs() runs without throwing`, async () => {
+      if (typeof (rule as { inputs?: unknown }).inputs !== 'function') {
+        return;
+      }
+      const ctx: WorkspaceContext = mockContext({
+        files: new Map([
+          ['/workspace/src/foo.test.ts', 'export const x = 1;'],
+          ['/workspace/tests/e2e/bar.spec.ts', 'export const y = 2;'],
+          ['/workspace/tests/integration/baz.test.ts', 'export const z = 3;'],
+        ]),
+      });
+      const inputs = await (
+        rule as { inputs: (ctx: unknown) => Promise<readonly string[]> }
+      ).inputs(ctx);
+      expect(Array.isArray(inputs)).toBe(true);
+    });
+  }
+});
