@@ -9,13 +9,15 @@ import { collapseShortJsonArrays, getGitChangedFiles } from './cli-helpers.ts';
 vi.mock('node:child_process', () => ({
   execSync: vi.fn(),
   execFile: vi.fn(),
-  execFileSync: vi.fn()}));
+  execFileSync: vi.fn(),
+}));
 
 vi.mock('node:fs', async (importOriginal) => {
   const actual = await importOriginal<typeof NodeFsModule>();
   return {
     ...actual,
-    writeFileSync: vi.fn()};
+    writeFileSync: vi.fn(),
+  };
 });
 
 /* ---------- collapseShortJsonArrays ---------- */
@@ -167,7 +169,8 @@ describe('writeJsonSchema', () => {
         patterns: ['**/*.ts'],
         categories: [],
         stages: ['lint'],
-        visitor: {}},
+        visitor: {},
+      },
     ];
     const pkgRules = [
       {
@@ -176,7 +179,8 @@ describe('writeJsonSchema', () => {
         patterns: ['**/package.json'],
         categories: [],
         stages: ['lint'],
-        check: () => []},
+        check: () => [],
+      },
     ];
     const cwd = '/tmp/test-project';
 
@@ -200,7 +204,8 @@ describe('writeJsonSchema', () => {
         patterns: ['**/*.ts'],
         categories: [],
         stages: ['lint'],
-        visitor: {}},
+        visitor: {},
+      },
     ];
 
     freshWrite(tsRules as any, [] as any, freshEn, [], '/tmp');
@@ -250,8 +255,9 @@ describe('writeJsonSchema', () => {
         categories: [],
         stages: ['lint'],
         scope: 'workspace',
-        check: async () => [],
-        optionsSchema: { type: 'object', properties: { strict: { type: 'boolean' } } }},
+        check: () => Promise.resolve([]),
+        optionsSchema: { type: 'object', properties: { strict: { type: 'boolean' } } },
+      },
     ];
 
     freshWrite([] as any, [] as any, freshEn, wsRules as any, '/tmp');
