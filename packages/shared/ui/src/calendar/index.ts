@@ -1,3 +1,14 @@
+/**
+ * Barrel re-export for the calendar compound component — exposes
+ * Root / Caption / Cell / Day / Grid (+ GridBody / GridHead /
+ * GridRow / HeadCell) / Header / Heading / Month / Months /
+ * MonthSelect / Nav / NextButton / PrevButton / YearSelect
+ * sub-components under both internal aliases and the
+ * `Calendar*` public names.
+ *
+ * @module
+ */
+
 import Root from './calendar.svelte';
 import Caption from './calendar-caption.svelte';
 import Cell from './calendar-cell.svelte';

@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Calendar next button — chevron-right button that advances
+   * the calendar by one month. Wraps Bits UI's
+   * `Calendar.NextButton` with the configured button variant.
+   *
+   * @module
+   */
+
   import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import { Calendar as CalendarPrimitive } from 'bits-ui';
   import { type ButtonVariant, buttonVariants } from '../button/index.js';

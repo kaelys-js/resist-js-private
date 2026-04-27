@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Calendar cell — single date cell inside a calendar week row.
+   * Wraps Bits UI's `Calendar.Cell` with our cell-size styling and
+   * the rounded edge handling for selected ranges.
+   *
+   * @module
+   */
+
   import { Calendar as CalendarPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

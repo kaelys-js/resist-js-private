@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * Calendar month — column container for a single month inside
+   * the multi-month calendar layout. Wraps a flex-column `<div>`.
+   *
+   * @module
+   */
+
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';
 

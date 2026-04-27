@@ -1,4 +1,13 @@
 <script lang="ts">
+  /**
+   * Calendar month select — `<select>` dropdown for picking the
+   * displayed month, used by the dropdown caption layouts. Wraps
+   * Bits UI's `Calendar.MonthSelect` with our chevron-button
+   * styling.
+   *
+   * @module
+   */
+
   import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
   import { Calendar as CalendarPrimitive } from 'bits-ui';
   import { cn, type WithoutChildrenOrChild } from '../utils.js';

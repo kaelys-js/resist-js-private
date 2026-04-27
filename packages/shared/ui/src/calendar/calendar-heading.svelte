@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Calendar heading — text label inside the calendar header
+   * showing the current month / year. Wraps Bits UI's
+   * `Calendar.Heading`.
+   *
+   * @module
+   */
+
   import { Calendar as CalendarPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

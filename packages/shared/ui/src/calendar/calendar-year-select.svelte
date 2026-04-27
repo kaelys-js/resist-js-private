@@ -1,4 +1,13 @@
 <script lang="ts">
+  /**
+   * Calendar year select — `<select>` dropdown for picking the
+   * displayed year, used by the dropdown caption layouts. Wraps
+   * Bits UI's `Calendar.YearSelect` with our chevron-button
+   * styling.
+   *
+   * @module
+   */
+
   import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
   import { Calendar as CalendarPrimitive } from 'bits-ui';
   import { cn, type WithoutChildrenOrChild } from '../utils.js';

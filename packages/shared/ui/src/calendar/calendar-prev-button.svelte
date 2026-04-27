@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Calendar prev button — chevron-left button that moves the
+   * calendar back by one month. Wraps Bits UI's
+   * `Calendar.PrevButton` with the configured button variant.
+   *
+   * @module
+   */
+
   import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
   import { Calendar as CalendarPrimitive } from 'bits-ui';
   import { type ButtonVariant, buttonVariants } from '../button/index.js';

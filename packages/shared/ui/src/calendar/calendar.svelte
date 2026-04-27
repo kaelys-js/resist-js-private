@@ -1,5 +1,15 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
+  /**
+   * Calendar root — interactive date-picker calendar with month
+   * / year navigation, configurable caption layout, locale-aware
+   * weekday and month formatting, and a `day` slot for custom
+   * cell rendering. Composes the bits-ui Calendar primitives with
+   * our own caption / nav / grid / cell sub-components.
+   *
+   * @module
+   */
+
   import { type DateValue, isEqualMonth } from '@internationalized/date';
   import { Calendar as CalendarPrimitive } from 'bits-ui';
   import type { Snippet } from 'svelte';

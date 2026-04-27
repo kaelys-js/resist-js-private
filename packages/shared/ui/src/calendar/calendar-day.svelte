@@ -1,4 +1,13 @@
 <script lang="ts">
+  /**
+   * Calendar day — clickable day button rendered inside a
+   * calendar cell. Wraps Bits UI's `Calendar.Day` with the ghost
+   * button variant and styling for today / selected / outside-
+   * month / disabled / unavailable states.
+   *
+   * @module
+   */
+
   import { Calendar as CalendarPrimitive } from 'bits-ui';
   import { buttonVariants } from '../button/index.js';
   import { cn } from '../utils.js';
