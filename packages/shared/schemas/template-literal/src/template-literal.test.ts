@@ -15,6 +15,21 @@ import { templateLiteral } from '@/schemas/template-literal/template-literal';
 import type { TemplateLiteralPart } from '@/schemas/template-literal/types';
 
 /**
+ * Local equivalent of `v.InferOutput` that accepts TemplateLiteralSchema
+ * even though its third generic argument is `TemplateLiteralIssue`
+ * rather than `v.BaseIssue<unknown>` and therefore fails
+ * `v.InferOutput`'s `TSchema extends v.BaseSchema<unknown, unknown,
+ * v.BaseIssue<unknown>>` generic constraint under tsgo. Inference
+ * walks the TemplateLiteralSchema generic slots first, then falls
+ * back to a widened BaseSchema match.
+ */
+type InferOutputLoose<TSchema> = TSchema extends {
+  readonly '~types'?: { readonly output: infer Out } | undefined;
+}
+  ? Out
+  : never;
+
+/**
  * Cast safe: tsgo cannot verify TemplateLiteralSchema conforms to BaseSchema generics.
  *
  * @param s - The unknown value to cast.
@@ -482,8 +497,7 @@ describe('templateLiteral() type inference', () => {
     if (!result.ok) {
       return;
     }
-    // @ts-expect-error -- tsgo cannot verify TemplateLiteralSchema satisfies InferOutput constraint
-    expectTypeOf<v.InferOutput<typeof result.data>>().toEqualTypeOf<'hello'>();
+    expectTypeOf<InferOutputLoose<typeof result.data>>().toEqualTypeOf<'hello'>();
   });
 
   it('infers string interpolation', () => {
@@ -491,8 +505,7 @@ describe('templateLiteral() type inference', () => {
     if (!result.ok) {
       return;
     }
-    // @ts-expect-error -- tsgo cannot verify TemplateLiteralSchema satisfies InferOutput constraint
-    expectTypeOf<v.InferOutput<typeof result.data>>().toEqualTypeOf<`user_${string}`>();
+    expectTypeOf<InferOutputLoose<typeof result.data>>().toEqualTypeOf<`user_${string}`>();
   });
 
   it('infers number interpolation', () => {
@@ -500,8 +513,7 @@ describe('templateLiteral() type inference', () => {
     if (!result.ok) {
       return;
     }
-    // @ts-expect-error -- tsgo cannot verify TemplateLiteralSchema satisfies InferOutput constraint
-    expectTypeOf<v.InferOutput<typeof result.data>>().toEqualTypeOf<`id_${number}`>();
+    expectTypeOf<InferOutputLoose<typeof result.data>>().toEqualTypeOf<`id_${number}`>();
   });
 
   it('infers boolean interpolation', () => {
@@ -509,8 +521,7 @@ describe('templateLiteral() type inference', () => {
     if (!result.ok) {
       return;
     }
-    // @ts-expect-error -- tsgo cannot verify TemplateLiteralSchema satisfies InferOutput constraint
-    expectTypeOf<v.InferOutput<typeof result.data>>().toEqualTypeOf<`is_${boolean}`>();
+    expectTypeOf<InferOutputLoose<typeof result.data>>().toEqualTypeOf<`is_${boolean}`>();
   });
 
   it('infers literal interpolation', () => {
@@ -518,8 +529,7 @@ describe('templateLiteral() type inference', () => {
     if (!result.ok) {
       return;
     }
-    // @ts-expect-error -- tsgo cannot verify TemplateLiteralSchema satisfies InferOutput constraint
-    expectTypeOf<v.InferOutput<typeof result.data>>().toEqualTypeOf<'GET /api'>();
+    expectTypeOf<InferOutputLoose<typeof result.data>>().toEqualTypeOf<'GET /api'>();
   });
 
   it('infers picklist distribution', () => {
@@ -527,8 +537,7 @@ describe('templateLiteral() type inference', () => {
     if (!result.ok) {
       return;
     }
-    // @ts-expect-error -- tsgo cannot verify TemplateLiteralSchema satisfies InferOutput constraint
-    expectTypeOf<v.InferOutput<typeof result.data>>().toEqualTypeOf<'a_suffix' | 'b_suffix'>();
+    expectTypeOf<InferOutputLoose<typeof result.data>>().toEqualTypeOf<'a_suffix' | 'b_suffix'>();
   });
 
   it('infers multiple slots', () => {
@@ -536,8 +545,7 @@ describe('templateLiteral() type inference', () => {
     if (!result.ok) {
       return;
     }
-    // @ts-expect-error -- tsgo cannot verify TemplateLiteralSchema satisfies InferOutput constraint
-    expectTypeOf<v.InferOutput<typeof result.data>>().toEqualTypeOf<`${string}:${number}`>();
+    expectTypeOf<InferOutputLoose<typeof result.data>>().toEqualTypeOf<`${string}:${number}`>();
   });
 });
 
