@@ -1,3 +1,11 @@
+/**
+ * Lens manifest for the ColumnLayout component (layout category)
+ * — multi-column content layout. Tagged for column / layout /
+ * multi lookups.
+ *
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

@@ -1,5 +1,14 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * ComboCounter — game-style combo counter showing successive
+   * action streaks. Placeholder shell awaiting full
+   * implementation; ships with a `class` prop for root-level
+   * styling overrides.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
