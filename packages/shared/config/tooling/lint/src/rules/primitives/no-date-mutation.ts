@@ -52,12 +52,12 @@ const rule: TypeScriptRule = {
         propertyRaw !== null && typeof propertyRaw === 'object'
           ? (propertyRaw as AstNode)
           : undefined;
-      const propertyName =
-        propertyNode?.type === 'Identifier'
-          ? (propertyNode.name as string)
-          : (propertyNode?.type === 'Literal'
-            ? String(propertyNode.value as unknown)
-            : undefined);
+      let propertyName: string | undefined;
+      if (propertyNode?.type === 'Identifier') {
+        propertyName = propertyNode.name as string;
+      } else if (propertyNode?.type === 'Literal') {
+        propertyName = String(propertyNode.value as unknown);
+      }
 
       if (!propertyName || !DATE_MUTATION_METHODS.has(propertyName)) {
         return results;

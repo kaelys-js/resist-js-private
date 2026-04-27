@@ -503,13 +503,16 @@ export function createWorkspaceContext(
   /** Extension-filtered file cache — keyed by sorted comma-joined extensions. */
   const extCache: Map<string, Promise<readonly string[]>> = new Map();
 
-  function cachedFilesByExtension(...exts: string[]): Promise<readonly string[]> {
+  async function cachedFilesByExtension(...exts: string[]): Promise<readonly string[]> {
     const key: string = [...exts].toSorted().join(',');
     let cached: Promise<readonly string[]> | undefined = extCache.get(key);
     if (cached === undefined) {
-      cached = getFileCache().then((files: readonly string[]): readonly string[] =>
-        files.filter((f: string): boolean => exts.some((ext: string): boolean => f.endsWith(ext))),
-      );
+      cached = (async (): Promise<readonly string[]> => {
+        const files: readonly string[] = await getFileCache();
+        return files.filter((f: string): boolean =>
+          exts.some((ext: string): boolean => f.endsWith(ext)),
+        );
+      })();
       extCache.set(key, cached);
     }
     return cached;

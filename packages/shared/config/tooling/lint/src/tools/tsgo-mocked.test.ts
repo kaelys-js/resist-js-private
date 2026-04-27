@@ -10,7 +10,7 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { execFileAsync } from '@/lint/framework/exec.ts';
-import * as NodeFsModule from 'node:fs';
+import type * as NodeFsModule from 'node:fs';
 import { existsSync, readFileSync, readdirSync, type Dirent, type PathLike } from 'node:fs';
 import { join } from 'node:path';
 import * as ToolOrchestratorModule from '@/lint/framework/tool-orchestrator.ts';
