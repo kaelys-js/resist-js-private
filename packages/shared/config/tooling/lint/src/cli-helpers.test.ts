@@ -972,32 +972,6 @@ describe('parseCliArgs — --locale', () => {
   });
 });
 
-// =============================================================================
-// runLinter
-// =============================================================================
-
-/**
- * Create a capture output sink for testing.
- *
- * @returns Object with stdout/stderr capture arrays and CliOutput
- */
-function captureOutput(): { stdoutLines: string[]; stderrLines: string[]; output: CliOutput } {
-  const stdoutLines: string[] = [];
-  const stderrLines: string[] = [];
-  return {
-    stdoutLines,
-    stderrLines,
-    output: {
-      stdout: (msg: string): void => {
-        stdoutLines.push(msg);
-      },
-      stderr: (msg: string): void => {
-        stderrLines.push(msg);
-      },
-    },
-  };
-}
-
 describe('pathsIntersectDomain', () => {
   it('returns true when path is exactly the domain', () => {
     expect(pathsIntersectDomain(['docs/plans'], 'docs/plans')).toBe(true);

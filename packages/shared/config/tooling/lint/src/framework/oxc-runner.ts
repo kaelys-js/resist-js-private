@@ -91,7 +91,7 @@ const SCRIPT_CLOSE_RE: RegExp = /^<\/script\s*>$/i;
  */
 export function extractScriptBlocks(content: string): string {
   const lines: string[] = content.split('\n');
-  const output: string[] = new Array<string>(lines.length).fill('');
+  const output: string[] = Array.from({ length: lines.length }, (): string => '');
   let inScript: boolean = false;
   let foundAny: boolean = false;
 
@@ -140,7 +140,7 @@ const CODE_FENCE_CLOSE_RE: RegExp = /^`{3,}\s*$/;
  */
 export function extractCodeFences(content: string): string {
   const lines: string[] = content.split('\n');
-  const output: string[] = new Array<string>(lines.length).fill('');
+  const output: string[] = Array.from({ length: lines.length }, (): string => '');
   let inFence: boolean = false;
   let fenceBacktickCount: number = 0;
   let foundAny: boolean = false;

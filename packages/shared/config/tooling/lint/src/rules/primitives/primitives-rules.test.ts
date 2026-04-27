@@ -712,8 +712,8 @@ describe('primitives/no-array-hole', () => {
     expect(results[0]!.message).toContain('Array holes');
   });
 
-  it('reports new Array(n)', async () => {
-    const code: string = `const arr = new Array(5);`;
+  it('reports Array.from({ length: n })', async () => {
+    const code: string = `const arr = Array.from({ length: 5 });`;
     const results: LintResult[] = await lint(noArrayHole, code);
     expect(results.length).toBe(1);
     expect(results[0]!.message).toContain('sparse array');

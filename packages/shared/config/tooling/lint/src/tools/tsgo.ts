@@ -47,7 +47,7 @@ const FINGERPRINT_SKIP_DIRS: ReadonlySet<string> = new Set([
 function listTsgoInputs(pkgDir: string): string[] {
   const files: string[] = [];
   function walk(dir: string): void {
-    let entries: Array<Dirent>;
+    let entries: Dirent[];
     try {
       entries = readdirSync(dir, { withFileTypes: true });
     } catch {
@@ -183,7 +183,7 @@ export function discoverTsconfigDirs(cwd: string): string[] {
   const found: string[] = [];
 
   function walk(dir: string): void {
-    let entries: Array<Dirent>;
+    let entries: Dirent[];
     try {
       entries = readdirSync(dir, { withFileTypes: true });
     } catch {
