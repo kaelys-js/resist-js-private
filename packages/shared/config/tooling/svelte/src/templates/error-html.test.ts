@@ -1,3 +1,12 @@
+/**
+ * Tests for the shared SvelteKit `error.html` static fallback —
+ * verifies the file contains the expected charset, viewport, and
+ * other invariants used by the static error path when the
+ * SvelteKit runtime is not available.
+ *
+ * @module
+ */
+
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';

@@ -3,6 +3,8 @@
  *
  * Tests `getLanguageDisplayName` and `getLanguageDisplayNames` which wrap
  * the browser-native `Intl.DisplayNames` API to produce endonym/exonym pairs.
+ *
+ * @module
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Str } from '@/schemas/common';

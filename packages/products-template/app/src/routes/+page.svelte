@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Home page for the products-template app — minimal scaffold
+   * page with a counter button used as the starting point for new
+   * product applications generated from the template.
+   *
+   * @module
+   */
+
   import { Button } from '@/ui/button';
 
   let count = $state(0);

@@ -1,3 +1,11 @@
+/**
+ * Tests for the locale registry — covers `createLocaleRegistry`
+ * and `createNamespacedRegistry`, which build typed locale stores
+ * from a strictObject schema and a per-locale strings map.
+ *
+ * @module
+ */
+
 import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 import { createLocaleRegistry, createNamespacedRegistry } from './registry';

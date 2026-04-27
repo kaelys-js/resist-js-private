@@ -1,3 +1,11 @@
+/**
+ * Tests for the shared SvelteKit `app.html` template — verifies
+ * the IIFE bootstrap script is wrapped in a try/catch and that
+ * other robustness invariants of the shared template hold.
+ *
+ * @module
+ */
+
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';

@@ -1,3 +1,11 @@
+/**
+ * Mocked-fs / mocked-execSync unit tests for `cli-helpers` —
+ * exercises `collapseShortJsonArrays`, `getGitChangedFiles`, and
+ * other branches that need filesystem and child-process stubs.
+ *
+ * @module
+ */
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { execSync } from 'node:child_process';
