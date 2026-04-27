@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * Breadcrumb Lens example — basic three-level path with links
+   * to Home and Projects plus a non-interactive current-page leaf.
+   *
+   * @module
+   */
+
   import * as Breadcrumb from '@/ui/breadcrumb';
 </script>
 

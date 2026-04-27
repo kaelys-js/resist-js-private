@@ -1,5 +1,15 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * BrowserFrame — decorative wrapper rendering content inside a
+   * realistic browser window frame with address bar, tabs, and
+   * window controls. Placeholder shell awaiting full
+   * implementation; ships with a `class` prop for root-level
+   * styling overrides.
+   *
+   * @module
+   */
+
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
