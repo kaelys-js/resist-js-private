@@ -1,3 +1,13 @@
+/**
+ * DataTable Svelte 5 store — wraps `@tanstack/table-core` with
+ * `$state` reactivity so the headless table API can be used
+ * inside `<script module>` and Svelte components without manual
+ * subscriptions. Exposes the `mergeObjects` helper for shallow
+ * state merges.
+ *
+ * @module
+ */
+
 import {
   type RowData,
   type TableOptions,
@@ -97,6 +107,7 @@ function resolveThunk<T extends object>(src: MaybeThunk<T>): T | undefined {
   return typeof src === 'function' ? (src() ?? undefined) : src;
 }
 
+/** Description. */
 export function mergeObjects<Sources extends readonly MaybeThunk<object>[]>(
   ...sources: Sources
 ): Intersection<{ [K in keyof Sources]: Sources[K] }> {
