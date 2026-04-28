@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the MapMarker component (maps category)
+ * — single map pin. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
