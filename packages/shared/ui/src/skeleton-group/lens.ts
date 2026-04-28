@@ -1,3 +1,9 @@
+/**
+ * Lens manifest for the SkeletonGroup component (feedback
+ * category) — preset skeleton layout mimicking content.
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

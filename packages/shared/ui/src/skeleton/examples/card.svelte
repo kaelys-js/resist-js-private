@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Lens example — Skeleton arranged as an avatar-plus-text
+   * card placeholder mimicking a user-card layout.
+   *
+   * @module
+   */
   import Skeleton from '@/ui/skeleton/skeleton.svelte';
 </script>
 

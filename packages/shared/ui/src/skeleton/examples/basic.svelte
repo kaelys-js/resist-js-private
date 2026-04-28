@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Lens example — basic Skeleton shapes laid out as pulsing
+   * placeholder lines at varying widths.
+   *
+   * @module
+   */
   import Skeleton from '@/ui/skeleton/skeleton.svelte';
 </script>
 
