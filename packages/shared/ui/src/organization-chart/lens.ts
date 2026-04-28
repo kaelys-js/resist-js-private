@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the OrganizationChart component
+ * (data-display category) — hierarchical org chart. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

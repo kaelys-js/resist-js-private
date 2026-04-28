@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the OrderList component (commerce
+ * category) — admin orders table. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
