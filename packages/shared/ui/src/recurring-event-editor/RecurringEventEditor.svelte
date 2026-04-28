@@ -1,5 +1,14 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * RecurringEventEditor Svelte component — visual rule
+   * builder for RFC 5545 RRULE recurrence patterns (daily,
+   * weekly, monthly, custom). Placeholder shell awaiting
+   * full implementation; ships with a class prop for
+   * root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
