@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Lens example — Spinner shown at multiple sizes via
+   * utility classes.
+   *
+   * @module
+   */
   import Spinner from '@/ui/spinner/Spinner.svelte';
 </script>
 

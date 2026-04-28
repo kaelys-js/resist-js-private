@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * SplitButton Svelte component — primary button paired with
+   * a chevron-trigger that opens a dropdown of secondary
+   * actions. Placeholder shell awaiting full implementation;
+   * ships with a class prop for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
