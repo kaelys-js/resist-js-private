@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * ProductQuickView Svelte component — modal overlay for
+   * previewing a product without leaving the listing page.
+   * Placeholder shell awaiting full implementation; ships with
+   * a class prop for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 

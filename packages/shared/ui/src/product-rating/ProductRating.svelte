@@ -1,5 +1,12 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * ProductRating Svelte component — star-based product rating
+   * display. Placeholder shell awaiting full implementation;
+   * ships with a class prop for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
