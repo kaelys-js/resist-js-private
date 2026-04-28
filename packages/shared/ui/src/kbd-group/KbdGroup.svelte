@@ -1,4 +1,11 @@
 <script module lang="ts">
+  /**
+   * KbdGroup Svelte component — groups multiple `Kbd`
+   * components with a separator (e.g. `Cmd + Shift + P`) for
+   * displaying multi-key shortcuts.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 

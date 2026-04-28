@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the KanbanBoard component (data-display
+ * category) — drag-and-drop kanban board. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

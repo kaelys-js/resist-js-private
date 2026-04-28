@@ -1,4 +1,11 @@
 <script module lang="ts">
+  /**
+   * Kbd Svelte component — keyboard shortcut indicator with
+   * platform-aware key symbol mapping, size variants, and
+   * grouping.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import type { Snippet } from 'svelte';
   import { type VariantProps, tv } from 'tailwind-variants';
@@ -100,8 +107,11 @@
     },
   });
 
+  /** Variant prop type for the Kbd component. */
   export type KbdVariant = VariantProps<typeof kbdVariants>['variant'];
+  /** Size prop type for the Kbd component. */
   export type KbdSize = VariantProps<typeof kbdVariants>['size'];
+  /** Color prop type for the Kbd component. */
   export type KbdColor = VariantProps<typeof kbdVariants>['color'];
 
   export const KbdPropsSchema = v.strictObject({
@@ -122,6 +132,7 @@
     /** Custom content inside the kbd element. @values {#snippet children()}⌘K{/snippet} */
     children: v.optional(v.custom<Snippet>(() => true)),
   });
+  /** Raw input props inferred from KbdPropsSchema (pre-parse). */
   export type KbdInputProps = v.InferInput<typeof KbdPropsSchema>;
   /** Public component props for Kbd. */
   export type KbdProps = v.InferOutput<typeof KbdPropsSchema>;
