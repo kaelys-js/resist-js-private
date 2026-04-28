@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * TabsList Svelte component — horizontal container holding
+   * the row of TabsTrigger buttons.
+   *
+   * @module
+   */
   import { Tabs as TabsPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

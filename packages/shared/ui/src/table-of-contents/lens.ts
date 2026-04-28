@@ -1,3 +1,9 @@
+/**
+ * Lens manifest for the TableOfContents component
+ * (navigation category) — auto-generated heading nav.
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

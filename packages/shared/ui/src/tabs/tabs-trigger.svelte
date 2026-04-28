@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * TabsTrigger Svelte component — clickable tab button
+   * inside a TabsList that activates the matching
+   * TabsContent panel.
+   *
+   * @module
+   */
   import { Tabs as TabsPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 
