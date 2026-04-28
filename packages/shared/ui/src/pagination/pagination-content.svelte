@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * Pagination.Content — `<ul>` container holding the
+   * Pagination items. @module
+   */
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';
 

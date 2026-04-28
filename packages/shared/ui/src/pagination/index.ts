@@ -1,3 +1,12 @@
+/**
+ * Barrel re-export for the pagination compound component —
+ * exposes Root / Content / Item / Link / PrevButton /
+ * NextButton / Previous / Next / Ellipsis sub-components under
+ * both internal aliases and the `Pagination*` public names.
+ *
+ * @module
+ */
+
 import Root from './pagination.svelte';
 import Content from './pagination-content.svelte';
 import Item from './pagination-item.svelte';
