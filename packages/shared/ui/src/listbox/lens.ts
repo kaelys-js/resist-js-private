@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Listbox component (form category) —
+ * accessible scrollable selectable list. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

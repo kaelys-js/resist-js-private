@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * LiquidEffect Svelte component — animated liquid /
+   * fluid morph effect on a target element. Placeholder shell
+   * awaiting full implementation; ships with a class prop for
+   * root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
