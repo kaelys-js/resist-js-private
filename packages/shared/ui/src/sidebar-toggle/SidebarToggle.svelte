@@ -1,4 +1,13 @@
 <script module lang="ts">
+  /**
+   * SidebarToggle Svelte component — sidebar collapse/expand
+   * trigger button wrapped in a tooltip showing the
+   * localized label and keyboard shortcut, followed by a
+   * vertical separator. Per-product editors supply their own
+   * label and formatted shortcut string.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
