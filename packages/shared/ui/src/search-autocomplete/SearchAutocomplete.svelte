@@ -1,4 +1,12 @@
 <script module lang="ts">
+  /**
+   * SearchAutocomplete Svelte component — search input with a
+   * keyboard-navigable popover autocomplete dropdown
+   * (composes Popover + Command/cmdk-sv) where items can
+   * navigate via href or fire an `onSelect` callback.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
   import { SearchItemSchema, type SearchItem } from './search-item.js';
