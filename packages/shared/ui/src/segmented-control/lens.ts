@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the SegmentedControl component (form
+ * category) — iOS-style segmented option control. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

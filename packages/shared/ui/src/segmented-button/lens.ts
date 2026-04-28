@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the SegmentedButton component (form
+ * category) — connected button-style single-select. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

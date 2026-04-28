@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Section component (layout category)
+ * — semantic page-section wrapper. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
