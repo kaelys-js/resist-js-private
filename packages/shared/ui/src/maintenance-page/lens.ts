@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the MaintenancePage component (feedback
+ * category) — full-page maintenance notice. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
