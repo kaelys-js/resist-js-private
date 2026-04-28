@@ -27,6 +27,8 @@ this component, so the fade always plays from a clean state.
    *
    * Uses double `requestAnimationFrame` to ensure the browser paints the transparent
    * frame before transitioning. SSR-safe: content renders fully visible on the server.
+   *
+   * @module
    */
   import type { Bool } from '@/schemas/common';
   import type { Snippet } from 'svelte';

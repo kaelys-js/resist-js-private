@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the PageFadeIn component (animation
+ * category) — page-content fade-in wrapper. @module
+ */
+
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
