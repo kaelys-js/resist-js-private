@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * TabsContent Svelte component — content panel rendered
+   * when its matching TabsTrigger is active.
+   *
+   * @module
+   */
   import { Tabs as TabsPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

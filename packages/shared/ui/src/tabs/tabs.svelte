@@ -1,5 +1,12 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
+  /**
+   * Tabs root Svelte component — Bits UI `Tabs.Root` wrapper
+   * managing the active tab value across triggers and
+   * content panels.
+   *
+   * @module
+   */
   import { Tabs as TabsPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 
