@@ -1,5 +1,14 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
+  /**
+   * Drawer root — bottom-sheet / side drawer surface backed by
+   * vaul-svelte. Wraps `Drawer.Root` with bindable `open` and
+   * `activeSnapPoint` props plus the `shouldScaleBackground`
+   * option.
+   *
+   * @module
+   */
+
   import { Drawer as DrawerPrimitive } from 'vaul-svelte';
 
   let {

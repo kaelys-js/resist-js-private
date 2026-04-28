@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Drawer nested — wrapper for nested drawer-within-drawer.
+   * Wraps vaul-svelte's `Drawer.NestedRoot` with bindable
+   * `open` and `activeSnapPoint`.
+   *
+   * @module
+   */
+
   import { Drawer as DrawerPrimitive } from 'vaul-svelte';
 
   let {

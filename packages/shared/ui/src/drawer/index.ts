@@ -1,3 +1,12 @@
+/**
+ * Barrel re-export for the drawer compound component — exposes
+ * Root / NestedRoot / Content / Description / Overlay / Footer
+ * / Header / Title / Trigger / Portal / Close sub-components
+ * under both internal aliases and the `Drawer*` public names.
+ *
+ * @module
+ */
+
 import Root from './drawer.svelte';
 import Content from './drawer-content.svelte';
 import Description from './drawer-description.svelte';

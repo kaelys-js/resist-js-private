@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Drawer description — supporting body copy beneath the
+   * drawer title. Wraps vaul-svelte's `Drawer.Description` with
+   * muted-foreground / small-text styling.
+   *
+   * @module
+   */
+
   import { Drawer as DrawerPrimitive } from 'vaul-svelte';
   import { cn } from '../utils.js';
 

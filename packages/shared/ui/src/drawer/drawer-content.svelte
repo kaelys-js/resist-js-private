@@ -1,4 +1,13 @@
 <script lang="ts">
+  /**
+   * Drawer content — drawer panel positioned per
+   * `data-vaul-drawer-direction` (top / bottom / left / right).
+   * Wraps vaul-svelte's `Drawer.Content` with portal + overlay
+   * composition and shows a drag-handle pill on bottom drawers.
+   *
+   * @module
+   */
+
   import { Drawer as DrawerPrimitive } from 'vaul-svelte';
   import DrawerPortal from './drawer-portal.svelte';
   import DrawerOverlay from './drawer-overlay.svelte';

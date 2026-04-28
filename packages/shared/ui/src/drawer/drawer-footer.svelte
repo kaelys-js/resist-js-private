@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Drawer footer — flex-column container for action buttons at
+   * the bottom of the drawer content (pushed to the bottom via
+   * `mt-auto`).
+   *
+   * @module
+   */
+
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 
