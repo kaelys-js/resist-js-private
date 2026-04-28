@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * SidebarMenuSkeleton Svelte component — placeholder
+   * skeleton row matching SidebarMenuButton's shape, used
+   * while menu data is loading.
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import { Skeleton } from '../skeleton/index.js';
   import type { HTMLAttributes } from 'svelte/elements';

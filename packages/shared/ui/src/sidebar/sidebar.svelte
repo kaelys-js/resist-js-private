@@ -1,7 +1,10 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
   /**
-   * Collapsible sidebar layout container with desktop and mobile variants.
+   * Sidebar root Svelte component — collapsible sidebar
+   * layout container with desktop and mobile variants.
+   *
+   * @module
    *
    * On desktop, renders a fixed sidebar panel with collapsible modes (offcanvas, icon, none).
    * On mobile, renders as a sheet/drawer overlay.

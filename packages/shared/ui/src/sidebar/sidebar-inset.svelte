@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * SidebarInset Svelte component — main-content wrapper that
+   * sits next to the Sidebar and adapts its layout when the
+   * sidebar collapses or hides on mobile.
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 

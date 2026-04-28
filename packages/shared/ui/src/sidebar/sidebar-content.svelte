@@ -1,6 +1,9 @@
 <script lang="ts">
   /**
-   * Sidebar scrollable content area that fills available space between header and footer.
+   * SidebarContent Svelte component — scrollable region that
+   * fills the space between SidebarHeader and SidebarFooter.
+   *
+   * @module
    */
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';

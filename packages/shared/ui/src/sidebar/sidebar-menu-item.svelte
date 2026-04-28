@@ -1,6 +1,10 @@
 <script lang="ts">
   /**
-   * Sidebar menu list item (`<li>`) wrapper that provides group context for menu buttons.
+   * SidebarMenuItem Svelte component — `<li>` wrapper inside
+   * a SidebarMenu providing group/peer context for the
+   * menu button and its action/badge children.
+   *
+   * @module
    */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';

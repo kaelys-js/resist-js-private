@@ -1,3 +1,13 @@
+/**
+ * Barrel re-export for the sidebar component — exposes the
+ * full Sidebar compound (Provider, Trigger, Rail, Inset,
+ * Header, Footer, Content, Group + variants, Menu + sub
+ * variants, Input, Separator) and the `useSidebar` context
+ * helper under stable public names.
+ *
+ * @module
+ */
+
 import { useSidebar } from './context.svelte.js';
 import Content from './sidebar-content.svelte';
 import Footer from './sidebar-footer.svelte';
