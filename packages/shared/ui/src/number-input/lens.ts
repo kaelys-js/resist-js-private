@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the NumberInput component (form
+ * category) — numeric input with stepper. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
