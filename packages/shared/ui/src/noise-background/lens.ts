@@ -1,3 +1,9 @@
+/**
+ * Lens manifest for the NoiseBackground component (animation
+ * category) — animated noise / grain texture backdrop.
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
