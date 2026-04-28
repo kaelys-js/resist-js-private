@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Field.Title — primary heading line for a `Field.Set` or a
+   * grouped Field, rendered as semibold small text.
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 

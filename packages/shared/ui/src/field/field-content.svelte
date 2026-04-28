@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * Field.Content — column wrapper for the input slot of a
+   * `Field`, sits beside the label and stacks any related help
+   * text or error messaging.
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 

@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * Field.Error — validation error message slot for a `Field`,
+   * rendered in the destructive color when the surrounding field
+   * is marked invalid.
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
   import type { Snippet } from 'svelte';

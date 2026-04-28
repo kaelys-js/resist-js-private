@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Field.Description — secondary helper-text line beneath a
+   * `Field` label, rendered as muted small text.
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 

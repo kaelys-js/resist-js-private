@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * Field.Label — accessible `<label>` slot for a `Field` that
+   * forwards its `for` association and styles via the shared
+   * `Label` component.
+   *
+   * @module
+   */
   import { Label } from '../label/index.js';
   import { cn } from '../utils.js';
   import type { ComponentProps } from 'svelte';

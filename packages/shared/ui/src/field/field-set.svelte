@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * Field.Set — semantic `<fieldset>` wrapper that groups
+   * related `Field` components and pairs with a `Field.Legend`
+   * for accessible labelling.
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLFieldsetAttributes } from 'svelte/elements';
 

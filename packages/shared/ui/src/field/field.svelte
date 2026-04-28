@@ -1,7 +1,16 @@
 <!-- @convert-to-lens -->
 <script lang="ts" module>
+  /**
+   * Field — root container for a form field that composes
+   * `Label` / `Description` / `Error` / `Content` slots with a
+   * vertical / horizontal / responsive orientation. Exposes its
+   * TV variants helper so callers can compose matching styles.
+   *
+   * @module
+   */
   import { tv, type VariantProps } from 'tailwind-variants';
 
+  /** TV variants helper for the Field root — drives orientation styles. */
   export const fieldVariants = tv({
     base: 'group/field data-[invalid=true]:text-destructive flex w-full gap-3',
     variants: {
@@ -24,6 +33,7 @@
     },
   });
 
+  /** Orientation prop type for the Field root — `vertical`, `horizontal`, or `responsive`. */
   export type FieldOrientation = VariantProps<typeof fieldVariants>['orientation'];
 </script>
 
