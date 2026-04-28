@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * RangeCalendarPrevButton Svelte component — chevron button
+   * stepping the calendar back to the previous month.
+   *
+   * @module
+   */
   import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
   import { RangeCalendar as RangeCalendarPrimitive } from 'bits-ui';
   import { type ButtonVariant, buttonVariants } from '../button/index.js';

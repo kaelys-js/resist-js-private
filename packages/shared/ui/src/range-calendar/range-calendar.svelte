@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
+  /**
+   * RangeCalendar root Svelte component — wraps Bits UI
+   * `RangeCalendar.Root` and composes the calendar header,
+   * navigation, grid, and per-day rendering for range
+   * (start/end) date selection.
+   *
+   * @module
+   */
   import { type DateValue, isEqualMonth } from '@internationalized/date';
   import { RangeCalendar as RangeCalendarPrimitive } from 'bits-ui';
   import type { Snippet } from 'svelte';

@@ -1,3 +1,13 @@
+/**
+ * Barrel re-export for the range-calendar component — exposes
+ * the RangeCalendar root and its Bits UI subcomponent
+ * wrappers (Caption, Cell, Day, Grid, Header, Heading,
+ * Months, Nav, NextButton, PrevButton, MonthSelect,
+ * YearSelect) under stable public names.
+ *
+ * @module
+ */
+
 import Root from './range-calendar.svelte';
 import Caption from './range-calendar-caption.svelte';
 import Cell from './range-calendar-cell.svelte';

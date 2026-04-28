@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * RangeCalendarGrid Svelte component — table-style wrapper
+   * laying out the weeks and days of one calendar month.
+   *
+   * @module
+   */
   import { RangeCalendar as RangeCalendarPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

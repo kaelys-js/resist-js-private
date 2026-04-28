@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * RangeCalendarCaption Svelte component — header label for
+   * the calendar, rendered either as plain text or as
+   * month/year dropdowns depending on `captionLayout`.
+   *
+   * @module
+   */
   import { DateFormatter, type DateValue, getLocalTimeZone } from '@internationalized/date';
   import type { ComponentProps } from 'svelte';
   import type RangeCalendar from './range-calendar.svelte';
