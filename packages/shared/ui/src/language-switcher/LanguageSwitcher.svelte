@@ -1,4 +1,10 @@
 <script module lang="ts">
+  /**
+   * LanguageSwitcher Svelte component — locale picker with
+   * endonym / exonym display names.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema, type Str } from '@/schemas/common';
 

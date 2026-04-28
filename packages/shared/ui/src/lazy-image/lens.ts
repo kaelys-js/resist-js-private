@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the LazyImage component (media category)
+ * — viewport-triggered lazy-loading image. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

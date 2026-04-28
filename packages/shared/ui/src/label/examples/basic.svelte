@@ -1,4 +1,9 @@
 <script lang="ts">
+  /**
+   * Label Lens example — basic standalone label.
+   *
+   * @module
+   */
   import Label from '@/ui/label/label.svelte';
 </script>
 
