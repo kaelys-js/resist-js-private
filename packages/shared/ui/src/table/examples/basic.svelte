@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Lens example — Table with a header row and a few body
+   * rows of sample data.
+   *
+   * @module
+   */
   import * as Table from '@/ui/table';
 </script>
 

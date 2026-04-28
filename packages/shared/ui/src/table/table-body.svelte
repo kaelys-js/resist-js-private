@@ -1,6 +1,10 @@
 <script lang="ts">
   /**
-   * Table body section (`<tbody>`) with last-row border removal.
+   * TableBody Svelte component — `<tbody>` section that
+   * removes the bottom border of its last row for a clean
+   * table edge.
+   *
+   * @module
    */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';

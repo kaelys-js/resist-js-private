@@ -1,3 +1,12 @@
+/**
+ * Barrel re-export for the table component — exposes the
+ * Table root and its subcomponent wrappers (Body, Caption,
+ * Cell, Footer, Head, Header, Row) under stable public
+ * names.
+ *
+ * @module
+ */
+
 import Root from './table.svelte';
 import Body from './table-body.svelte';
 import Caption from './table-caption.svelte';
