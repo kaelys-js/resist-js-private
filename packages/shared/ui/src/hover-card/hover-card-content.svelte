@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * HoverCard.Content — floating panel slot for a HoverCard,
+   * portalled and positioned relative to the trigger.
+   *
+   * @module
+   */
   import { LinkPreview as HoverCardPrimitive } from 'bits-ui';
   import { cn, type WithoutChildrenOrChild } from '../utils.js';
   import HoverCardPortal from './hover-card-portal.svelte';
