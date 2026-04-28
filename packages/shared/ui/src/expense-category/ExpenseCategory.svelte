@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * ExpenseCategory Svelte component — expense category card
+   * with budget vs spent breakdown. Placeholder shell awaiting
+   * full implementation; ships with a class prop for root-level
+   * styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 

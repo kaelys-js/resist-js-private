@@ -1,4 +1,11 @@
 <script module lang="ts">
+  /**
+   * ErrorPage Svelte component — full-page error display with
+   * status code, title, and optional retry / home action. Used as
+   * a SvelteKit `+error.svelte` body or an in-app fallback.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema, NumSchema, type Str, type Bool } from '@/schemas/common';
 

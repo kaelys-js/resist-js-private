@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * ErrorBoundary Svelte component — catches errors thrown
+   * during child rendering and displays a fallback UI.
+   * Placeholder shell awaiting full implementation; ships with a
+   * class prop for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
