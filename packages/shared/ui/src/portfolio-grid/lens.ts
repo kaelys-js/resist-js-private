@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the PortfolioGrid component (marketing
+ * category) — portfolio project tiles. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
