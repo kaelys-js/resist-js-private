@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the KbdGroup component (typography
+ * category) — multi-key keyboard shortcut group. @module
+ */
+
 import type { Str } from '@/schemas/common';
 import type { LensMeta } from '../lens/types.js';
 

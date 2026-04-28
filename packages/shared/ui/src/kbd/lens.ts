@@ -1,3 +1,9 @@
+/**
+ * Lens manifest for the Kbd component (typography category) —
+ * keyboard shortcut indicator with platform-aware symbols.
+ * @module
+ */
+
 import type { Str } from '@/schemas/common';
 import type { LensMeta } from '../lens/types.js';
 
