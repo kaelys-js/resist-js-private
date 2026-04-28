@@ -1,3 +1,11 @@
+/**
+ * Lens manifest for the FocusRing component (a11y category) —
+ * custom keyboard focus indicator. Tagged for focus / ring /
+ * indicator / a11y lookups.
+ *
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
