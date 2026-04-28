@@ -1,7 +1,10 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
   /**
-   * Toggle switch control for binary on/off settings with animated thumb transition.
+   * Switch Svelte component — Bits UI `Switch` wrapper for
+   * binary on/off settings with an animated thumb transition.
+   *
+   * @module
    */
   import { Switch as SwitchPrimitive } from 'bits-ui';
   import { cn, type WithoutChildrenOrChild } from '../utils.js';

@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Switch component (form category) —
+ * binary on/off toggle switch. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

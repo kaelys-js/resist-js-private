@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the SwipeableCard component (mobile
+ * category) — Tinder-style stack card. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
