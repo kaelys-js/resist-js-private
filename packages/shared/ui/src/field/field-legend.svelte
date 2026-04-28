@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Field.Legend — `<legend>` slot for a `Field.Set` group with
+   * default and description text variants.
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 

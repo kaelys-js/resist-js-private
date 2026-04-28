@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * Field.Group — vertical stack of related `Field` components
+   * sharing a `field-group` container query for responsive
+   * orientation switching.
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 

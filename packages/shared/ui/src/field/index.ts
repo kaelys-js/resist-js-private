@@ -1,3 +1,12 @@
+/**
+ * Barrel re-export for the field compound component — exposes
+ * Field / Set / Legend / Group / Content / Label / Title /
+ * Description / Separator / Error sub-components under both
+ * internal aliases and the `Field*` public names.
+ *
+ * @module
+ */
+
 import Field from './field.svelte';
 import Set from './field-set.svelte';
 import Legend from './field-legend.svelte';
