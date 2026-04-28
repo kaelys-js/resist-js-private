@@ -1,6 +1,8 @@
 <script lang="ts">
   /**
    * Popover content panel rendered inside a portal with enter/exit animations.
+   *
+   * @module
    */
   import { Popover as PopoverPrimitive } from 'bits-ui';
   import PopoverPortal from './popover-portal.svelte';

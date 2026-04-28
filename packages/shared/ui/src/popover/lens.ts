@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Popover compound component (overlay
+ * category) — anchored floating panel. @module
+ */
+
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

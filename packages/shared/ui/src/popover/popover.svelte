@@ -2,6 +2,8 @@
 <script lang="ts">
   /**
    * Popover root that manages open/close state and anchors content to a trigger element.
+   *
+   * @module
    */
   import { Popover as PopoverPrimitive } from 'bits-ui';
 

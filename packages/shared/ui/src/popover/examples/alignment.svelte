@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Popover Lens example — popover with custom alignment to
+   * the trigger element.
+   *
+   * @module
+   */
   import * as Popover from '@/ui/popover';
   import Button from '@/ui/button/button.svelte';
 </script>
