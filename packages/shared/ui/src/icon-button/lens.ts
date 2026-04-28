@@ -1,3 +1,11 @@
+/**
+ * Lens manifest for the IconButton component (form category)
+ * — compact icon-only button. Tagged for button / icon /
+ * compact / action lookups.
+ *
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

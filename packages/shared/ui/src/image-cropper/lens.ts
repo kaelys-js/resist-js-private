@@ -1,3 +1,11 @@
+/**
+ * Lens manifest for the ImageCropper component (form
+ * category) — drag-to-crop image editor. Tagged for image /
+ * crop / resize / editor lookups.
+ *
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
