@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the SchemaViewer component (devtools
+ * category) — schema structure explorer. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
