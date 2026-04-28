@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the StatusBadge component (feedback
+ * category) — presence/status indicator dot. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
