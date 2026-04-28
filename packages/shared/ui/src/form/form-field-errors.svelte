@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * Form.FieldErrors — renders the validation error messages
+   * for a `Form.Field`, with a customisable per-error class
+   * applied to each line.
+   *
+   * @module
+   */
   import * as FormPrimitive from 'formsnap';
   import { cn, type WithoutChild } from '../utils.js';
 

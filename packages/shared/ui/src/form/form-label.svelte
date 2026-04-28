@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Form.Label — accessible `<label>` slot for a `Form.Field`
+   * that wires the `for` association via Formsnap.
+   *
+   * @module
+   */
   import * as FormPrimitive from 'formsnap';
   import { Label } from '../label/index.js';
   import { cn, type WithoutChild } from '../utils.js';

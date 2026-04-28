@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Form.Legend — `<legend>` slot for a `Form.Fieldset` group
+   * wired into Formsnap's accessible association.
+   *
+   * @module
+   */
   import * as FormPrimitive from 'formsnap';
   import { cn, type WithoutChild } from '../utils.js';
 

@@ -1,3 +1,13 @@
+/**
+ * Barrel re-export for the form compound component — exposes
+ * Field / Control / Label / Button / FieldErrors / Description
+ * / Fieldset / Legend / ElementField sub-components built on
+ * Formsnap, under both internal aliases and the `Form*` public
+ * names.
+ *
+ * @module
+ */
+
 import * as FormPrimitive from 'formsnap';
 import Button from './form-button.svelte';
 import Description from './form-description.svelte';
