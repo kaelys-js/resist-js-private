@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the SystemStatus component (admin
+ * category) — service health indicator panel. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
