@@ -1,3 +1,9 @@
+/**
+ * Lens manifest for the LiveRegion component (a11y category)
+ * — ARIA live region for assistive-tech announcements.
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
