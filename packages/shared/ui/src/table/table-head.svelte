@@ -1,6 +1,9 @@
 <script lang="ts">
   /**
-   * Table header cell (`<th>`) with bold foreground text and consistent alignment.
+   * TableHead Svelte component — `<th>` header cell with
+   * bold foreground text and consistent alignment.
+   *
+   * @module
    */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLThAttributes } from 'svelte/elements';

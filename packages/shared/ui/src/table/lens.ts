@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Table component (data-display
+ * category) — header / body / footer data table. @module
+ */
+
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

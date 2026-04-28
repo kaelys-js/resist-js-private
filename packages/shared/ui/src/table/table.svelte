@@ -1,7 +1,10 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
   /**
-   * Data table root wrapped in a horizontally-scrollable container.
+   * Table root Svelte component — `<table>` element wrapped
+   * in a horizontally-scrollable overflow container.
+   *
+   * @module
    */
   import type { HTMLTableAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';

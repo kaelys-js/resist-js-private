@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Lens example — Table demonstrating a footer row used to
+   * display column totals.
+   *
+   * @module
+   */
   import * as Table from '@/ui/table';
 </script>
 

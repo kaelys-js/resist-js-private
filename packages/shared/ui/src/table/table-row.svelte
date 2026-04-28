@@ -1,6 +1,9 @@
 <script lang="ts">
   /**
-   * Table row with hover highlight and selected-state background styling.
+   * TableRow Svelte component — `<tr>` row with hover
+   * highlight and selected-state background styling.
+   *
+   * @module
    */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';

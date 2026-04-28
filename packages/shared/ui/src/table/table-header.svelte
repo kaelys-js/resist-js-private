@@ -1,6 +1,9 @@
 <script lang="ts">
   /**
-   * Table header row group (`<thead>`) with bottom-bordered rows.
+   * TableHeader Svelte component — `<thead>` row group
+   * styled with bottom-bordered rows.
+   *
+   * @module
    */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
