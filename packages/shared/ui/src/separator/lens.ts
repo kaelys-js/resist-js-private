@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Separator component (layout
+ * category) — horizontal/vertical content divider. @module
+ */
+
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
