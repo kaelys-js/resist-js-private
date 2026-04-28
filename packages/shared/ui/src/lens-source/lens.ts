@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the LensSource infrastructure component
+ * — source-code block with copy. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

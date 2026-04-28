@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the LensComponentRenderer infrastructure
+ * — renders a Lens preview card with settings. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

@@ -1,4 +1,11 @@
 <script module lang="ts">
+  /**
+   * LensDependencyTree — renders the import-graph dependency
+   * tree for a Lens-documented component, distinguishing
+   * internal vs external imports.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema, NumSchema } from '@/schemas/common';
 

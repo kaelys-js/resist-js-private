@@ -1,4 +1,11 @@
 <script module lang="ts">
+  /**
+   * LensPortalScope — scoped portal target for floating
+   * content (popovers, tooltips) inside a Lens preview card,
+   * keeping overlays anchored within the card boundary.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema, BoolSchema } from '@/schemas/common';
   import type { Snippet } from 'svelte';

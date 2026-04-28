@@ -1,4 +1,10 @@
 <script module lang="ts">
+  /**
+   * LensHeader — page header for a Lens-documented component
+   * showing name, description, category, tags, and stats.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema, BoolSchema, NumSchema } from '@/schemas/common';
   import { LensMetaSchema, type LensMeta } from '../lens/types.js';

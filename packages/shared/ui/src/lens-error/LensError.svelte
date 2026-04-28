@@ -1,4 +1,10 @@
 <script module lang="ts">
+  /**
+   * LensError — error fallback displayed inside a Lens preview
+   * card when an example throws during render.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
   import type { Snippet } from 'svelte';

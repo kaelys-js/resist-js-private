@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the LensHeader infrastructure component
+ * — page header for documented components. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
