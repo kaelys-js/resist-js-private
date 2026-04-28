@@ -12,6 +12,8 @@
  * // { button: 1420, dialog: 3200, badge: 680 }
  * console.log(formatBytes(sizes['button'])); // '1.4 kB'
  * ```
+ *
+ * @module
  */
 import type { Num, Str } from '@/schemas/common';
 

@@ -2,6 +2,8 @@
  * Unit tests for the Lens props extractor.
  *
  * Tests regex-based extraction of `$props()` metadata from raw Svelte source.
+ *
+ * @module
  */
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';

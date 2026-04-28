@@ -3,6 +3,8 @@
  *
  * Parses `:root`, `.dark`, and `[data-theme='...']` blocks to extract
  * CSS custom property definitions grouped by semantic category.
+ *
+ * @module
  */
 import type { Str } from '@/schemas/common';
 

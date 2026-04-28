@@ -8,6 +8,8 @@
    * Each row shows a colored badge indicating the ruleset (Lens, A11y, Browser).
    *
    * A11y and browser data are passed as optional props, filtered by the caller.
+   *
+   * @module
    */
   import type { Num, Str } from '@/schemas/common';
   import type { A11yRuleResult } from '@/ui/lens/detect-accessibility.js';

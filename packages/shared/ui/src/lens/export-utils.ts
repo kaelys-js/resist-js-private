@@ -6,6 +6,8 @@
  * (JSON, Mermaid, DOT) for dependency chain graphs.
  *
  * Uses `modern-screenshot` for DOM-to-image conversion.
+ *
+ * @module
  */
 import * as v from 'valibot';
 import { StrSchema, NumSchema, type Str, type Bool, type Num } from '@/schemas/common';

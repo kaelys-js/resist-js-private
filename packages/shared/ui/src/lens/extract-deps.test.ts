@@ -1,5 +1,7 @@
 /**
  * Tests for extract-deps.ts — dependency extraction from raw Svelte component source.
+ *
+ * @module
  */
 import { describe, it, expect } from 'vitest';
 import type { Str } from '@/schemas/common';

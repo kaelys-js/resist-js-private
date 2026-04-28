@@ -6,6 +6,8 @@
    * Used in All Components, Category, and Sidebar views.
    * A11y data is loaded from context and filtered to the specific component.
    * Browser support is global and NOT shown in per-component tooltips.
+   *
+   * @module
    */
   import type { Num, Str } from '@/schemas/common';
   import type { LensCompatibility } from '@/ui/lens/lens-utils.js';

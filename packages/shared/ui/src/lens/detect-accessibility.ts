@@ -11,6 +11,8 @@
  * const result = auditAccessibility(sources);
  * // result.overallScore → 82
  * // result.rules → [{ id: 'wcag-2.1-aa', status: 'pass', ... }, ...]
+ *
+ * @module
  */
 import type { Num, Str } from '@/schemas/common';
 

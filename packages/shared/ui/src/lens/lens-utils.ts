@@ -3,6 +3,8 @@
  *
  * Provides directory/file extraction helpers and text transformation
  * used by both the Lens layout sidebar and component detail pages.
+ *
+ * @module
  */
 import * as v from 'valibot';
 import { NumSchema, StrSchema, type Num, type Str } from '@/schemas/common';
@@ -194,6 +196,7 @@ export const LensViolationSchema = v.strictObject({
   /** Human-readable description of the violation. @values Missing lens.ts, Needs @convert-to-lens conversion */
   message: StrSchema,
 });
+/** Description. */
 export type LensViolation = v.InferOutput<typeof LensViolationSchema>;
 
 /**
@@ -205,6 +208,7 @@ export const LensCompatibilitySchema = v.strictObject({
   /** List of lint rule violations found. @values [] */
   violations: v.array(LensViolationSchema),
 });
+/** Description. */
 export type LensCompatibility = v.InferOutput<typeof LensCompatibilitySchema>;
 
 /** Kebab-case validation regex matching lint rule 10. */
@@ -457,6 +461,7 @@ export const LensCompatibilityInputSchema = v.strictObject({
   /** Example .svelte filenames that exist on the filesystem. @values basic.svelte */
   existingExampleFiles: v.array(StrSchema),
 });
+/** Description. */
 export type LensCompatibilityInput = v.InferOutput<typeof LensCompatibilityInputSchema>;
 
 /**

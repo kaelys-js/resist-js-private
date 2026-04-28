@@ -2,6 +2,8 @@
  * Unit tests for the Lens TV variant extractor.
  *
  * Tests regex-based extraction of `tv()` variant metadata from raw Svelte source.
+ *
+ * @module
  */
 import { describe, expect, it } from 'vitest';
 

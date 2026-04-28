@@ -25,6 +25,8 @@
  * 21. Root element must spread `{...restProps}` for DOM attribute passthrough
  * 22. Snippet/callback props must NOT pass through `stripSvelteProps`
  * 23. No dead props — every schema field must be referenced in instance script or template
+ *
+ * @module
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { basename, dirname, join, relative } from 'node:path';
