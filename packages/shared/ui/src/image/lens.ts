@@ -1,3 +1,11 @@
+/**
+ * Lens manifest for the Image component (media category) —
+ * enhanced image with lazy loading, fallbacks, and preview.
+ * Tagged for image / lazy / fallback / responsive lookups.
+ *
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
