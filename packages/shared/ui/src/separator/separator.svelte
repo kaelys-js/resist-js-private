@@ -1,7 +1,11 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
   /**
-   * Visual separator line supporting horizontal and vertical orientations.
+   * Separator Svelte component — Bits UI `Separator` wrapper
+   * rendering a horizontal or vertical divider line between
+   * content sections.
+   *
+   * @module
    */
   import { Separator as SeparatorPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
