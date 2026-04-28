@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * Menubar.RadioGroup — exclusive selection group of
+   * `Menubar.RadioItem` rows. @module
+   */
   import { Menubar as MenubarPrimitive } from 'bits-ui';
 
   let {

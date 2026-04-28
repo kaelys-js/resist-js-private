@@ -1,3 +1,14 @@
+/**
+ * Barrel re-export for the menubar compound component —
+ * exposes Root / Menu / Trigger / Content / Item / Group /
+ * GroupHeading / Label / Separator / Shortcut / Sub /
+ * SubTrigger / SubContent / Portal / RadioGroup / RadioItem /
+ * CheckboxItem sub-components under both internal aliases and
+ * the `Menubar*` public names.
+ *
+ * @module
+ */
+
 import Root from './menubar.svelte';
 import CheckboxItem from './menubar-checkbox-item.svelte';
 import Content from './menubar-content.svelte';

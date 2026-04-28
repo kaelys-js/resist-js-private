@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * Menubar.SubTrigger — menu row that opens a nested
+   * submenu, decorated with a trailing chevron. @module
+   */
   import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import { Menubar as MenubarPrimitive } from 'bits-ui';
   import { cn, type WithoutChild } from '../utils.js';

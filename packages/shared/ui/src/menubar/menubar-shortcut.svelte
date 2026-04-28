@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * Menubar.Shortcut — trailing keyboard-shortcut hint inside
+   * a Menubar item. @module
+   */
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';
 

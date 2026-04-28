@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * Menubar.Label — non-interactive section label inside a
+   * Menubar menu. @module
+   */
   import type { WithElementRef } from 'bits-ui';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '../utils.js';

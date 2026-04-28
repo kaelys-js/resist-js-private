@@ -1,5 +1,11 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
+  /**
+   * Menubar — application menu bar root composing menus
+   * (File / Edit / View). Wraps Bits UI's `Menubar` primitive.
+   *
+   * @module
+   */
   import { Menubar as MenubarPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

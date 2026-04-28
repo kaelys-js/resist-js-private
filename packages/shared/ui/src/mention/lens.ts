@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Mention component (form category) —
+ * @username mention picker. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * Menubar.Group — semantic wrapper for related menu items.
+   * @module
+   */
   import { Menubar as MenubarPrimitive } from 'bits-ui';
 
   let {
