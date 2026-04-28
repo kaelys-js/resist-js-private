@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * RadioGroupItem Svelte component — individual selectable
+   * radio inside a RadioGroup; renders the Bits UI primitive
+   * with a circular indicator dot when checked.
+   *
+   * @module
+   */
   import { RadioGroup as RadioGroupPrimitive } from 'bits-ui';
   import CircleIcon from '@lucide/svelte/icons/circle';
   import { cn, type WithoutChildrenOrChild } from '../utils.js';
