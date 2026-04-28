@@ -1,4 +1,10 @@
 <script module lang="ts">
+  /**
+   * NavProject Svelte component — sidebar nav row representing
+   * a project entry, with optional pinned state.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema, BoolSchema } from '@/schemas/common';
   import type { Snippet } from 'svelte';

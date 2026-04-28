@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the NavLink component (navigation
+ * category) — navigation link with active state. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
