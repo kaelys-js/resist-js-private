@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * ReorderableList Svelte component — drag-and-drop sortable
+   * list with handle-based reordering. Placeholder shell
+   * awaiting full implementation; ships with a class prop
+   * for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
