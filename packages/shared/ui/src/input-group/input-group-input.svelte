@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * InputGroup.Input — text input slot inside an `InputGroup`
+   * that strips its own border to integrate with surrounding
+   * addons.
+   *
+   * @module
+   */
   import { cn } from '../utils.js';
   import type { ComponentProps } from 'svelte';
   import { Input } from '../input/index.js';

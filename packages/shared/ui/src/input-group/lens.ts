@@ -1,3 +1,12 @@
+/**
+ * Lens manifest for the InputGroup compound component (form
+ * category) — input combined with leading / trailing addons
+ * (icon, button, text). Tagged for input / group / addons /
+ * compound lookups.
+ *
+ * @module
+ */
+
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

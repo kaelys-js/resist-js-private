@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * InputGroup.Textarea — multi-line textarea slot inside an
+   * `InputGroup` that strips its own border to integrate with
+   * surrounding addons.
+   *
+   * @module
+   */
   import { cn } from '../utils.js';
   import { Textarea } from '../textarea/index.js';
   import type { ComponentProps } from 'svelte';
