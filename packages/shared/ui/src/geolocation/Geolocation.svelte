@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * Geolocation Svelte component — wrapper around the browser
+   * Geolocation API exposing position state to children.
+   * Placeholder shell awaiting full implementation; ships with a
+   * class prop for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
