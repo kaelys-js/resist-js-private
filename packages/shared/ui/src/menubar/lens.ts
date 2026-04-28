@@ -1,3 +1,9 @@
+/**
+ * Lens manifest for the Menubar compound component (overlay
+ * category) — application menu bar with menus / items /
+ * separators / submenus. @module
+ */
+
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

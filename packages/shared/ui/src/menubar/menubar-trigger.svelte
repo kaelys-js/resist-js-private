@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * Menubar.Trigger — top-level menu trigger button (e.g. the
+   * "File" label that opens its menu). @module
+   */
   import { Menubar as MenubarPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

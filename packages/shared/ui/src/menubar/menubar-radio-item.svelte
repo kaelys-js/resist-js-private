@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * Menubar.RadioItem — selectable row within a
+   * `Menubar.RadioGroup`. @module
+   */
   import CircleIcon from '@lucide/svelte/icons/circle';
   import { Menubar as MenubarPrimitive } from 'bits-ui';
   import { cn, type WithoutChild } from '../utils.js';

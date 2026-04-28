@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * Menubar.SubContent — floating panel for a nested
+   * Menubar submenu. @module
+   */
   import { Menubar as MenubarPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

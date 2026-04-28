@@ -1,4 +1,7 @@
 <script lang="ts">
+  /**
+   * Menubar.Sub — root for a nested Menubar submenu. @module
+   */
   import { Menubar as MenubarPrimitive } from 'bits-ui';
 
   let {

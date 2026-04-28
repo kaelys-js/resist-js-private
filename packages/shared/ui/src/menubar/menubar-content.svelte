@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * Menubar.Content — floating panel for an open Menubar
+   * menu, portalled and aligned to the trigger. @module
+   */
   import { Menubar as MenubarPrimitive } from 'bits-ui';
   import type { ComponentProps } from 'svelte';
   import { cn, type WithoutChildrenOrChild } from '../utils.js';

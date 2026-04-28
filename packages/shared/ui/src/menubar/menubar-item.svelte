@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * Menubar.Item — actionable menu row supporting `inset`
+   * and destructive variants. @module
+   */
   import { Menubar as MenubarPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the MegaMenu component (navigation
+ * category) — full-width navigation flyout. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

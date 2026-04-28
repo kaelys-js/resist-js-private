@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Menubar Lens example — basic application menu bar with
+   * File / Edit / View menus.
+   *
+   * @module
+   */
   import * as Menubar from '@/ui/menubar';
 </script>
 

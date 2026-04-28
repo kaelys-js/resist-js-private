@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * Menubar.CheckboxItem — toggleable menu row with check /
+   * minus indicator. @module
+   */
   import CheckIcon from '@lucide/svelte/icons/check';
   import MinusIcon from '@lucide/svelte/icons/minus';
   import { Menubar as MenubarPrimitive } from 'bits-ui';
