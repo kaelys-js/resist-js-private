@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Tag component (display category) —
+ * removable keyword/label pill. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
