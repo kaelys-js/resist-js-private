@@ -1,3 +1,12 @@
+/**
+ * Lens manifest for the InfiniteScrollArea component
+ * (data-display category) — continuous-loop scrolling content.
+ * Tagged for infinite-scroll / lazy-load / pagination / virtual
+ * lookups.
+ *
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
