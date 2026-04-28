@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Searchbox component (form category)
+ * — search input with clear button and suggestions. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
