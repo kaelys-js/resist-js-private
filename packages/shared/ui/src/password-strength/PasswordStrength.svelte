@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * PasswordStrength Svelte component — visual password
+   * strength meter. Placeholder shell awaiting full
+   * implementation; ships with a class prop for root-level
+   * styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 

@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the PasswordInput component (form
+ * category) — password input with show/hide. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
