@@ -1,3 +1,9 @@
+/**
+ * Lens manifest for the ParallelCoordinates component
+ * (data-display category) — multivariate parallel coords.
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
