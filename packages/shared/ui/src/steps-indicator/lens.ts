@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the StepsIndicator component (navigation
+ * category) — display-only steps indicator. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
