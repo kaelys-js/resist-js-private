@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * LinearGauge Svelte component — horizontal bar progress
+   * gauge for showing a value within a range. Placeholder shell
+   * awaiting full implementation; ships with a class prop for
+   * root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
