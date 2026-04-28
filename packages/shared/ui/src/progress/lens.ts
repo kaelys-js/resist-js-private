@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Progress component (feedback
+ * category) — task completion bar. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
