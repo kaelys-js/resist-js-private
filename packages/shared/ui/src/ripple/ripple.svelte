@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * Ripple Svelte component — animated radial-wave ripple
+   * effect for background decoration or button-click feedback.
+   * Placeholder shell awaiting full implementation; ships
+   * with a class prop for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
