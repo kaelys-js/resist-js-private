@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * RangeCalendarCell Svelte component — single grid cell
+   * wrapper for one calendar date inside the RangeCalendar.
+   *
+   * @module
+   */
   import { RangeCalendar as RangeCalendarPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

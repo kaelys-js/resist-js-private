@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * RangeCalendarMonths Svelte component — flex container
+   * that horizontally arranges one or more `RangeCalendarMonth`
+   * children.
+   *
+   * @module
+   */
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';
 

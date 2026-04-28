@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * RangeCalendarNav Svelte component — wrapper holding the
+   * previous/next month buttons above the grid.
+   *
+   * @module
+   */
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';
 

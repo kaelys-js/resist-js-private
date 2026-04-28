@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * RangeCalendarHeadCell Svelte component — single `<th>`
+   * cell rendering one weekday name in the calendar header
+   * row.
+   *
+   * @module
+   */
   import { RangeCalendar as RangeCalendarPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

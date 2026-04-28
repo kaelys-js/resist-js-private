@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * RangeCalendarDay Svelte component — selectable day button
+   * inside a RangeCalendar cell, styled with the shared
+   * button variants.
+   *
+   * @module
+   */
   import { RangeCalendar as RangeCalendarPrimitive } from 'bits-ui';
   import { buttonVariants } from '../button/index.js';
   import { cn } from '../utils.js';

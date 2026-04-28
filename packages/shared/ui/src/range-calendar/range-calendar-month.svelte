@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * RangeCalendarMonth Svelte component — column wrapper for
+   * a single month inside the calendar (multi-month layouts
+   * stack several of these horizontally).
+   *
+   * @module
+   */
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';
 

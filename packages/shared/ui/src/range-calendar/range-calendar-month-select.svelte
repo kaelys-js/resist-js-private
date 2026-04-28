@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * RangeCalendarMonthSelect Svelte component — month
+   * dropdown shown in the caption when `captionLayout`
+   * includes a month picker.
+   *
+   * @module
+   */
   import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
   import { RangeCalendar as RangeCalendarPrimitive } from 'bits-ui';
   import { cn, type WithoutChildrenOrChild } from '../utils.js';

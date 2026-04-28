@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * RangeCalendarNextButton Svelte component — chevron button
+   * advancing the calendar to the next month.
+   *
+   * @module
+   */
   import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import { RangeCalendar as RangeCalendarPrimitive } from 'bits-ui';
   import { type ButtonVariant, buttonVariants } from '../button/index.js';

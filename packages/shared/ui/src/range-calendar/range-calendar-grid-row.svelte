@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * RangeCalendarGridRow Svelte component — single `<tr>`
+   * row for one week of dates in the calendar grid.
+   *
+   * @module
+   */
   import { RangeCalendar as RangeCalendarPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

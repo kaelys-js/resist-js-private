@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * RangeCalendarHeader Svelte component — flex container
+   * holding the calendar's caption above the grid.
+   *
+   * @module
+   */
   import { RangeCalendar as RangeCalendarPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 
