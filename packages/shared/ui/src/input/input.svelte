@@ -4,6 +4,8 @@
    * Styled text input field supporting all standard HTML input types including file uploads.
    *
    * Provides focus-visible ring, validation error states, and bindable value/files props.
+   *
+   * @module
    */
   import type { HTMLInputAttributes, HTMLInputTypeAttribute } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';

@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * InputOTP.Slot — single character cell for the OTP input,
+   * driven by Bits UI's `PinInput.Cell` primitive.
+   *
+   * @module
+   */
   import { PinInput as InputOTPPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 
