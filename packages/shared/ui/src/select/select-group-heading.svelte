@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * SelectGroupHeading Svelte component — heading label for
+   * a SelectGroup, styled as a small caps caption above its
+   * options.
+   *
+   * @module
+   */
   import { Select as SelectPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
   import type { ComponentProps } from 'svelte';

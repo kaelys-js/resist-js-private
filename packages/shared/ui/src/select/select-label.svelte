@@ -1,6 +1,10 @@
 <script lang="ts">
   /**
-   * Section label within a select dropdown for grouping related options.
+   * SelectLabel Svelte component — section label rendered
+   * inside the Select dropdown to introduce a related set
+   * of options.
+   *
+   * @module
    */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';

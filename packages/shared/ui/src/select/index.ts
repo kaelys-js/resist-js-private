@@ -1,3 +1,13 @@
+/**
+ * Barrel re-export for the select component — exposes the
+ * Select root and its Bits UI subcomponent wrappers (Group,
+ * Label, Item, Content, Trigger, Separator, ScrollDownButton,
+ * ScrollUpButton, GroupHeading, Portal) under stable public
+ * names.
+ *
+ * @module
+ */
+
 import Root from './select.svelte';
 import Group from './select-group.svelte';
 import Label from './select-label.svelte';

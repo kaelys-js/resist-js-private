@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * SelectScrollUpButton Svelte component — chevron button
+   * shown at the top of a long Select content panel
+   * scrolling the option list up.
+   *
+   * @module
+   */
   import ChevronUpIcon from '@lucide/svelte/icons/chevron-up';
   import { Select as SelectPrimitive } from 'bits-ui';
   import { cn, type WithoutChildrenOrChild } from '../utils.js';
