@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * ReadingTime Svelte component — small badge showing the
+   * estimated minutes-to-read for an article. Placeholder
+   * shell awaiting full implementation; ships with a class
+   * prop for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
