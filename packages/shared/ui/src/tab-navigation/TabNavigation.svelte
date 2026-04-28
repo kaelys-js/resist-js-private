@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * TabNavigation Svelte component — page-tab navigation
+   * (route-aware) for switching between sibling pages.
+   * Placeholder shell awaiting full implementation; ships
+   * with a class prop for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
