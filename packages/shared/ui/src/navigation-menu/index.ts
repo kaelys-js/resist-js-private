@@ -1,3 +1,12 @@
+/**
+ * Barrel re-export for the navigation-menu compound component
+ * — exposes Root / Content / Indicator / Item / Link / List /
+ * Trigger / Viewport sub-components under both internal aliases
+ * and the `NavigationMenu*` public names.
+ *
+ * @module
+ */
+
 import Root from './navigation-menu.svelte';
 import Content from './navigation-menu-content.svelte';
 import Indicator from './navigation-menu-indicator.svelte';

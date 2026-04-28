@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * NavigationMenu.Content — flyout content panel for an
+   * open NavigationMenu item. @module
+   */
   import { NavigationMenu as NavigationMenuPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

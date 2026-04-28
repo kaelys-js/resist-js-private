@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * NavigationMenu.Link — anchor link inside a NavigationMenu
+   * content panel. @module
+   */
   import { NavigationMenu as NavigationMenuPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 
