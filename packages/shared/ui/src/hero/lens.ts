@@ -1,3 +1,12 @@
+/**
+ * Lens manifest for the Hero component (marketing category) —
+ * large top-of-page banner with headline, description, CTA,
+ * and optional media. Tagged for hero / banner / landing /
+ * header lookups.
+ *
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
