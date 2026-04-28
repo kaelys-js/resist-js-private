@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Lens example — Sonner mounted with three buttons firing
+   * default, success, and error toasts.
+   *
+   * @module
+   */
   import { toast } from 'svelte-sonner';
   import Button from '@/ui/button/button.svelte';
   import Sonner from '@/ui/sonner/Sonner.svelte';

@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Sonner component (overlay category)
+ * — non-blocking toast notification surface. @module
+ */
+
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
