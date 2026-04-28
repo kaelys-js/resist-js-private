@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the ShimmerButton component (animation
+ * category) — animated shine-sweep CTA. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

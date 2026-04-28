@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the ShineBorder component (animation
+ * category) — animated light-sweep border effect. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
