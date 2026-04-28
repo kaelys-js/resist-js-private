@@ -1,6 +1,10 @@
 <script lang="ts">
   /**
-   * Select trigger button that displays the current value and a chevron indicator.
+   * SelectTrigger Svelte component — button that opens the
+   * Select dropdown, displaying the current value with a
+   * chevron indicator.
+   *
+   * @module
    */
   import { Select as SelectPrimitive } from 'bits-ui';
   import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';

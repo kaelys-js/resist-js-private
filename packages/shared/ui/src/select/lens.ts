@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Select component (form category) —
+ * dropdown selection with grouped options. @module
+ */
+
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

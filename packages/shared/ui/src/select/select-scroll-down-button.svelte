@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * SelectScrollDownButton Svelte component — chevron button
+   * shown at the bottom of a long Select content panel
+   * scrolling the option list down.
+   *
+   * @module
+   */
   import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
   import { Select as SelectPrimitive } from 'bits-ui';
   import { cn, type WithoutChildrenOrChild } from '../utils.js';

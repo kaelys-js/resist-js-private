@@ -1,6 +1,10 @@
 <script lang="ts">
   /**
-   * Select dropdown content panel with scroll buttons, rendered inside a portal.
+   * SelectContent Svelte component — dropdown content panel
+   * (rendered inside a portal) containing the option list
+   * and scroll up/down buttons for the Select.
+   *
+   * @module
    */
   import { Select as SelectPrimitive } from 'bits-ui';
   import SelectPortal from './select-portal.svelte';

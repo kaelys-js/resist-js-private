@@ -1,7 +1,11 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
   /**
-   * Select dropdown root that manages open/close state and the selected value.
+   * Select root Svelte component — Bits UI `Select.Root`
+   * wrapper that manages dropdown open/close state and the
+   * currently selected value.
+   *
+   * @module
    */
   import { Select as SelectPrimitive } from 'bits-ui';
 

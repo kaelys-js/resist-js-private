@@ -1,6 +1,9 @@
 <script lang="ts">
   /**
-   * Individual select option with a checkmark indicator for the selected state.
+   * SelectItem Svelte component — single option inside the
+   * Select dropdown that shows a checkmark icon when chosen.
+   *
+   * @module
    */
   import CheckIcon from '@lucide/svelte/icons/check';
   import { Select as SelectPrimitive } from 'bits-ui';
