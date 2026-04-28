@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * Highlight Svelte component — wraps matching substrings of
+   * a given text in a `<mark>` element for search-result
+   * display. Placeholder shell awaiting full implementation;
+   * ships with a class prop for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
