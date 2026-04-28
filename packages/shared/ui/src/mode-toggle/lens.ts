@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the ModeToggle component (utility
+ * category) — light / dark / system theme toggle. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

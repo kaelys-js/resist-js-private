@@ -1,4 +1,10 @@
 <script module lang="ts">
+  /**
+   * ModeToggle Svelte component — light / dark / system theme
+   * mode toggle.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema, type Str } from '@/schemas/common';
 
