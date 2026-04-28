@@ -1,4 +1,10 @@
 <script module lang="ts">
+  /**
+   * HelpTooltip Svelte component — help icon button paired with
+   * a tooltip for contextual information.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema, NumSchema } from '@/schemas/common';
 

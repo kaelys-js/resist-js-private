@@ -1,4 +1,10 @@
 <script module lang="ts">
+  /**
+   * HeaderUser Svelte component — header user profile
+   * dropdown showing avatar, name, and account actions.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema, BoolSchema } from '@/schemas/common';
 
