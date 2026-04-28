@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Item.Group — list container that stacks `Item` rows with
+   * separator-friendly defaults.
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 

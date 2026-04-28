@@ -1,3 +1,9 @@
+/**
+ * Lens manifest for the Item compound component (data-display
+ * category) — generic list / card row composing Header / Title
+ * / Description / Media / Actions / Footer slots. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

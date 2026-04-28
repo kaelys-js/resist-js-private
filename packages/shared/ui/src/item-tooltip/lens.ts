@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the ItemTooltip component (gaming
+ * category) — RPG item rarity tooltip. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

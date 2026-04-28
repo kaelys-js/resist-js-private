@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * IssueCard Svelte component — bug / issue tracker card with
+   * status, priority, and assignee. Placeholder shell awaiting
+   * full implementation; ships with a class prop for root-level
+   * styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
