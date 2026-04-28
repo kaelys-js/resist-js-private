@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * DynamicForm Svelte component — schema-driven form builder
+   * that renders fields from a runtime schema definition.
+   * Placeholder shell awaiting full implementation; ships with a
+   * class prop for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 

@@ -1,5 +1,14 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * Dropdown Svelte component — generic floating menu
+   * triggered by a button click, distinct from DropdownMenu by
+   * being simpler and often used for single actions. Placeholder
+   * shell awaiting full implementation; ships with a class prop
+   * for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
