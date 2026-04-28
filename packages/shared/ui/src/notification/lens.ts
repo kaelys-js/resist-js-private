@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Notification component (feedback
+ * category) — single notification item. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
