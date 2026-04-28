@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * PullQuote Svelte component — featured callout block
+   * displaying an article quote at large type for emphasis.
+   * Placeholder shell awaiting full implementation; ships with
+   * a class prop for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
