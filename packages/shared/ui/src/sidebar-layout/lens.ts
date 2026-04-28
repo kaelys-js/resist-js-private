@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the SidebarLayout component (layout
+ * category) — sidebar + content shell. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
