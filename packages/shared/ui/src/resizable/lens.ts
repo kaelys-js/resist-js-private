@@ -1,3 +1,9 @@
+/**
+ * Lens manifest for the Resizable component (layout category)
+ * — drag-to-resize split-pane layout (paneforge wrapper).
+ * @module
+ */
+
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

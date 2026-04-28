@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * ResizableHandle Svelte component — draggable divider
+   * between resizable panes; thin wrapper around paneforge's
+   * `PaneResizer` primitive with optional grip indicator.
+   *
+   * @module
+   */
   import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
   import * as ResizablePrimitive from 'paneforge';
   import { cn, type WithoutChildrenOrChild } from '../utils.js';

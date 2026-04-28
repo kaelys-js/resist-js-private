@@ -1,3 +1,9 @@
+/**
+ * Lens manifest for the ResourceCalendar component
+ * (scheduling category) — resource/room timeline calendar.
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

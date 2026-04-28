@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * ResizablePaneGroup Svelte component — container that
+   * arranges one or more resizable panes horizontally or
+   * vertically (paneforge `PaneGroup` wrapper).
+   *
+   * @module
+   */
   import * as ResizablePrimitive from 'paneforge';
   import { cn } from '../utils.js';
 
