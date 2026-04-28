@@ -3,6 +3,8 @@
  *
  * Provides a cross-browser clipboard copy function with `navigator.clipboard`
  * and `document.execCommand('copy')` fallback for insecure contexts.
+ *
+ * @module
  */
 import type { Bool, Str } from '@/schemas/common';
 

@@ -9,6 +9,8 @@
  *
  * When a component's a11y is FIXED, update the snapshot in this file to reflect
  * the improvement. When a component REGRESSES, the test fails — investigate and fix.
+ *
+ * @module
  */
 import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';

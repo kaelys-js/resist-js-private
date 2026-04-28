@@ -12,6 +12,8 @@
  * const deps = extractDeps(rawSvelteSource);
  * // { internal: [{ path: '../button/index.js', names: ['Button'] }], ... }
  * ```
+ *
+ * @module
  */
 import type { Str } from '@/schemas/common';
 

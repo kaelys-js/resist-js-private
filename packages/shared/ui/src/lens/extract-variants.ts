@@ -11,6 +11,8 @@
  * const meta = extractVariants(rawSvelteSource);
  * // { variants: [{ key: 'variant', options: ['default', 'secondary', ...], default: 'default' }] }
  * ```
+ *
+ * @module
  */
 import type { VariantKeyMeta, VariantMeta } from './types.js';
 

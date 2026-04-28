@@ -3,6 +3,8 @@
  *
  * These schemas define the metadata structures extracted from component source
  * files at runtime — props, TV variants, and example definitions.
+ *
+ * @module
  */
 import * as v from 'valibot';
 import { StrSchema, BoolSchema } from '@/schemas/common';
@@ -92,6 +94,7 @@ export const PropMetaSchema = v.strictObject({
   /** Whether the prop is optional (from `v.optional()` or `?:` in type). */
   optional: v.optional(BoolSchema),
 });
+/** Description. */
 export type PropMeta = v.InferOutput<typeof PropMetaSchema>;
 
 /**
@@ -127,6 +130,7 @@ export const VariantKeyMetaSchema = v.strictObject({
     ),
   ),
 });
+/** Description. */
 export type VariantKeyMeta = v.InferOutput<typeof VariantKeyMetaSchema>;
 
 /**
@@ -136,6 +140,7 @@ export const VariantMetaSchema = v.strictObject({
   /** All variant keys and their options. */
   variants: v.array(VariantKeyMetaSchema),
 });
+/** Description. */
 export type VariantMeta = v.InferOutput<typeof VariantMetaSchema>;
 
 /**
@@ -158,6 +163,7 @@ export const LensExampleSchema = v.strictObject({
   /** Optional description shown below the title. */
   description: v.optional(StrSchema, ''),
 });
+/** Description. */
 export type LensExample = v.InferOutput<typeof LensExampleSchema>;
 
 /**
@@ -196,6 +202,7 @@ export const LensCategorySchema = v.picklist([
   'typography',
   'utility',
 ]);
+/** Description. */
 export type LensCategory = v.InferOutput<typeof LensCategorySchema>;
 
 /**
@@ -222,6 +229,7 @@ export type LensCategory = v.InferOutput<typeof LensCategorySchema>;
  * - 'placeholder' — stub component, not yet implemented
  */
 export const LensStatusSchema = v.picklist(['new', 'updated', 'deprecated', 'placeholder']);
+/** Description. */
 export type LensStatus = v.InferOutput<typeof LensStatusSchema>;
 
 /**
@@ -257,6 +265,7 @@ export const LensMetaSchema = v.strictObject({
   /** Child component directory name for group wrappers (e.g., 'kbd', 'avatar'). When set, Lens auto-renders instances of this component inside the group instead of text label. */
   childComponent: v.optional(StrSchema),
 });
+/** Description. */
 export type LensMeta = v.InferOutput<typeof LensMetaSchema>;
 
 /**
@@ -281,4 +290,5 @@ export const CategoryGroupSchema = v.strictObject({
   /** Sorted list of component directory names in this category. */
   components: v.array(StrSchema),
 });
+/** Description. */
 export type CategoryGroup = v.InferOutput<typeof CategoryGroupSchema>;

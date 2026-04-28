@@ -11,6 +11,8 @@
  * const props = extractProps(rawSvelteSource);
  * // [{ name: 'variant', type: 'string', default: '"default"', description: '...', bindable: false }]
  * ```
+ *
+ * @module
  */
 import type { PropMeta, TypeField, VariantKeyMeta } from './types.js';
 

@@ -11,6 +11,8 @@
  * const result = detectBrowserSupport(sources);
  * // result.features → [{ id: 'oklch', ... usageCount: 268, files: ['app.css'] }]
  * // result.browsers → [{ name: 'Chrome', minVersion: '117', ... }]
+ *
+ * @module
  */
 import type { Num, Str } from '@/schemas/common';
 

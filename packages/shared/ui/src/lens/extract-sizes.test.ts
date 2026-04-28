@@ -1,5 +1,7 @@
 /**
  * Tests for extract-sizes.ts — source size extraction from raw Svelte component sources.
+ *
+ * @module
  */
 import { describe, it, expect } from 'vitest';
 import type { Str, Num } from '@/schemas/common';
