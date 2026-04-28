@@ -1,3 +1,11 @@
+/**
+ * Lens manifest for the FileUpload component (form category)
+ * — file picker for click or drag-and-drop uploads. Tagged for
+ * upload / file / drag-drop / input lookups.
+ *
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
