@@ -1,3 +1,12 @@
+/**
+ * Barrel re-export for the item compound component — exposes
+ * Root / Group / Separator / Header / Footer / Content /
+ * Title / Description / Actions / Media sub-components under
+ * both internal aliases and the `Item*` public names.
+ *
+ * @module
+ */
+
 import Root from './item.svelte';
 import Group from './item-group.svelte';
 import Separator from './item-separator.svelte';

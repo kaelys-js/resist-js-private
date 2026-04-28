@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * Item.Content — primary content column for an `Item` row,
+   * stacks `Title` and `Description` between `Media` and
+   * `Actions`.
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 

@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Item.Footer — bottom-of-row slot for an `Item`, used for
+   * tertiary actions or metadata.
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 

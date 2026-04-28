@@ -1,6 +1,14 @@
 <script lang="ts" module>
+  /**
+   * Item.Media — leading visual slot for an `Item` row (icon
+   * tile, image thumbnail, or transparent default). Exposes a
+   * TV variants helper so callers can compose matching styles.
+   *
+   * @module
+   */
   import { tv, type VariantProps } from 'tailwind-variants';
 
+  /** TV variants helper for the Item.Media slot. */
   export const itemMediaVariants = tv({
     base: 'flex shrink-0 items-center justify-center gap-2 group-has-[[data-slot=item-description]]/item:translate-y-0.5 group-has-[[data-slot=item-description]]/item:self-start [&_svg]:pointer-events-none',
     variants: {
@@ -15,6 +23,7 @@
     },
   });
 
+  /** Variant prop type for the Item.Media slot. */
   export type ItemMediaVariant = VariantProps<typeof itemMediaVariants>['variant'];
 </script>
 

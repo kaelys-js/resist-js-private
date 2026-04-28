@@ -1,7 +1,17 @@
 <!-- @convert-to-lens -->
 <script lang="ts" module>
+  /**
+   * Item — generic list / card row root composing
+   * `Header` / `Title` / `Description` / `Media` / `Actions` /
+   * `Footer` slots, with `default` / `outline` / `muted`
+   * variants and `default` / `sm` sizes. Exposes its TV
+   * variants helper for composing matching styles.
+   *
+   * @module
+   */
   import { tv, type VariantProps } from 'tailwind-variants';
 
+  /** TV variants helper for the Item root — drives variant + size styles. */
   export const itemVariants = tv({
     base: 'group/item [a]:hover:bg-accent/50 focus-visible:border-ring focus-visible:ring-ring/50 flex flex-wrap items-center rounded-md border border-transparent text-sm transition-colors duration-100 outline-none focus-visible:ring-[3px] [a]:transition-colors',
     variants: {
@@ -21,7 +31,9 @@
     },
   });
 
+  /** Size prop type for the Item root. */
   export type ItemSize = VariantProps<typeof itemVariants>['size'];
+  /** Variant prop type for the Item root. */
   export type ItemVariant = VariantProps<typeof itemVariants>['variant'];
 </script>
 

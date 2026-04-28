@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Item.Header — top-of-row slot for an `Item`, typically
+   * containing a `Title` and supporting metadata.
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 

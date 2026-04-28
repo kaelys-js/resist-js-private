@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Item.Description — secondary helper-text line beneath an
+   * `Item.Title`.
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 

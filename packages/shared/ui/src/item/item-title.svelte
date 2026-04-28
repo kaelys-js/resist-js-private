@@ -1,4 +1,9 @@
 <script lang="ts">
+  /**
+   * Item.Title — primary heading line for an `Item` row.
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 
