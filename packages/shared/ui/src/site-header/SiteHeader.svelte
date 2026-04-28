@@ -1,4 +1,12 @@
 <script module lang="ts">
+  /**
+   * SiteHeader Svelte component — application top bar with
+   * sidebar toggle, breadcrumbs, and right-side action slot.
+   * Placeholder shell awaiting full implementation; ships
+   * with a class prop for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema, BoolSchema } from '@/schemas/common';
   import type { Snippet } from 'svelte';
