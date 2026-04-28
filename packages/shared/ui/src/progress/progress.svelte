@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
+  /**
+   * Progress Svelte component — visual indicator showing
+   * completion progress of a task; thin wrapper around the
+   * Bits UI `Progress` primitive that fills a horizontal bar
+   * proportional to `value` / `max`.
+   *
+   * @module
+   */
   import { Progress as ProgressPrimitive } from 'bits-ui';
   import { cn, type WithoutChildrenOrChild } from '../utils.js';
 
