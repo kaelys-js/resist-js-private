@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the TagsInput component (form category)
+ * — tokenized chip-creating input. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
