@@ -1,3 +1,11 @@
+/**
+ * Lens manifest for the GridLayout component (layout
+ * category) — CSS grid layout utility. Tagged for grid /
+ * layout / responsive / columns lookups.
+ *
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
