@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * FaqAccordion Svelte component — collapsible list of
+   * frequently-asked questions with expandable answers.
+   * Placeholder shell awaiting full implementation; ships with a
+   * class prop for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
