@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * PushNotificationPreview Svelte component — preview card
+   * mocking how a push notification renders on iOS/Android.
+   * Placeholder shell awaiting full implementation; ships with
+   * a class prop for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
@@ -7,6 +15,7 @@
     /** Additional CSS classes for the root element. @values custom-class */
     class: v.optional(StrSchema),
   });
+  /** Public component props for PushNotificationPreview. */
   export type PushNotificationPreviewProps = v.InferOutput<
     typeof PushNotificationPreviewPropsSchema
   >;
