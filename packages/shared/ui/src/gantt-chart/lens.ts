@@ -1,3 +1,11 @@
+/**
+ * Lens manifest for the GanttChart component (data-display
+ * category) — task timeline chart with dependencies. Tagged
+ * for gantt / chart / timeline / tasks lookups.
+ *
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
