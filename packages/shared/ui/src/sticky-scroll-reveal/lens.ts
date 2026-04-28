@@ -1,3 +1,9 @@
+/**
+ * Lens manifest for the StickyScrollReveal component
+ * (animation category) — pinned scroll-driven reveal.
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

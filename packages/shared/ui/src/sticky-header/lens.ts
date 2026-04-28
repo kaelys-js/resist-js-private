@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the StickyHeader component (navigation
+ * category) — sticky scrolling page header. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
