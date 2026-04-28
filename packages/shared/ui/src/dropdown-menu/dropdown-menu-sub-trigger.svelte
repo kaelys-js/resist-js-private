@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * DropdownMenu sub-trigger — menu row that opens a nested
+   * submenu, decorated with a trailing chevron-right indicator.
+   * Honours the shared `inset` flag used to align with siblings
+   * that ship leading icons.
+   *
+   * @module
+   */
   import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
   import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import { cn } from '../utils.js';

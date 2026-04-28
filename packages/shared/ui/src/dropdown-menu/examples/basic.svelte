@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * DropdownMenu Lens example — basic menu with items, keyboard
+   * shortcuts, and a separator above a destructive action.
+   *
+   * @module
+   */
   import * as DropdownMenu from '@/ui/dropdown-menu';
   import Button from '@/ui/button/button.svelte';
 </script>

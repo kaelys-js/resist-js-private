@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * DropdownMenu Lens example — toggle-able checkbox items
+   * within a dropdown, with bindable per-item checked state.
+   *
+   * @module
+   */
   import * as DropdownMenu from '@/ui/dropdown-menu';
   import Button from '@/ui/button/button.svelte';
 

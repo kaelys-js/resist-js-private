@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * DropdownMenu checkbox group — exclusive grouping for a set
+   * of `DropdownMenu.CheckboxItem` children with bindable
+   * checked-values array. Wraps Bits UI's
+   * `DropdownMenu.CheckboxGroup` with our `data-slot` convention.
+   *
+   * @module
+   */
   import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
 
   let {

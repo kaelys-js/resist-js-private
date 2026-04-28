@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * DropdownMenu radio group — exclusive selection group with a
+   * single bindable `value`. Children are
+   * `DropdownMenu.RadioItem` components keyed by their `value`.
+   *
+   * @module
+   */
   import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
 
   let {

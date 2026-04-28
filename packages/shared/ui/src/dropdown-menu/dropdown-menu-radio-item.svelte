@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * DropdownMenu radio item — selectable row within a
+   * `DropdownMenu.RadioGroup` with a leading filled-circle
+   * indicator when its value matches the group's selection.
+   *
+   * @module
+   */
   import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
   import CircleIcon from '@lucide/svelte/icons/circle';
   import { cn, type WithoutChild } from '../utils.js';

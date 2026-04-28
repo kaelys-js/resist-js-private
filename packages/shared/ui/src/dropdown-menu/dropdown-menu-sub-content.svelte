@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * DropdownMenu sub-content panel — portalled floating panel
+   * for a nested submenu. Forwards `portalProps` to the underlying
+   * `DropdownMenuPortal` so consumers can target a specific mount
+   * node when needed.
+   *
+   * @module
+   */
   import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
   import { cn, type WithoutChildrenOrChild } from '../utils.js';
   import DropdownMenuPortal from './dropdown-menu-portal.svelte';

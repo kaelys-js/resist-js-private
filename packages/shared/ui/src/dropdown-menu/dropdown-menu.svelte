@@ -4,6 +4,8 @@
    * Root state container for a dropdown menu that manages its open/closed lifecycle.
    *
    * Pair with a DropdownMenu.Trigger and DropdownMenu.Content to create a click-activated menu.
+   *
+   * @module
    */
   import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
 

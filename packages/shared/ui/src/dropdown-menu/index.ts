@@ -1,3 +1,14 @@
+/**
+ * Barrel re-export for the dropdown-menu compound component —
+ * exposes Root / Sub / Trigger / Content / Group / Item / Label /
+ * Separator / Shortcut / Portal / SubTrigger / SubContent /
+ * GroupHeading / RadioGroup / RadioItem / CheckboxGroup /
+ * CheckboxItem under both internal aliases and the
+ * `DropdownMenu*` public names.
+ *
+ * @module
+ */
+
 import Root from './dropdown-menu.svelte';
 import Sub from './dropdown-menu-sub.svelte';
 import CheckboxGroup from './dropdown-menu-checkbox-group.svelte';
