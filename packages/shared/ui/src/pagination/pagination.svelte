@@ -1,5 +1,12 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
+  /**
+   * Pagination — paginated navigation root composing
+   * Content / Item / Link / Previous / Next / Ellipsis
+   * sub-components. Wraps Bits UI's `Pagination` primitive.
+   *
+   * @module
+   */
   import { Pagination as PaginationPrimitive } from 'bits-ui';
 
   import { cn } from '../utils.js';

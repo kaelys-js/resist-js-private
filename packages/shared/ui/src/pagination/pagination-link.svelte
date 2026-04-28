@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * Pagination.Link — clickable Pagination page link.
+   * @module
+   */
   import { Pagination as PaginationPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
   import { type Props, buttonVariants } from '../button/index.js';

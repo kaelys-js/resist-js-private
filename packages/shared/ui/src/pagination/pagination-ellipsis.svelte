@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * Pagination.Ellipsis — gap indicator between
+   * non-contiguous Pagination pages. @module
+   */
   import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
   import { cn, type WithElementRef, type WithoutChildren } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';

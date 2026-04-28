@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * Pagination.PrevButton — icon-only "previous page" button
+   * (with chevron-left). @module
+   */
   import { Pagination as PaginationPrimitive } from 'bits-ui';
   import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
   import { buttonVariants } from '../button/index.js';

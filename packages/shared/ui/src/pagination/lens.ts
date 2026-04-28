@@ -1,3 +1,9 @@
+/**
+ * Lens manifest for the Pagination compound component
+ * (navigation category) — paginated list / table navigation.
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

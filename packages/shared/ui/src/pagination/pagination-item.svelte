@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * Pagination.Item — `<li>` wrapper for a single
+   * Pagination row. @module
+   */
   import type { HTMLLiAttributes } from 'svelte/elements';
   import type { WithElementRef } from '../utils.js';
 

@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * Pagination.Next — labelled "next page" link with
+   * chevron-right icon. @module
+   */
   import { Pagination as PaginationPrimitive } from 'bits-ui';
   import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import { buttonVariants } from '../button/index.js';
