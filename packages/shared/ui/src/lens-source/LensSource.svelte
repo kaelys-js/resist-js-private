@@ -1,4 +1,10 @@
 <script module lang="ts">
+  /**
+   * LensSource — syntax-highlighted source-code block for a
+   * Lens example, with copy-to-clipboard button.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { BoolSchema, StrSchema } from '@/schemas/common';
 

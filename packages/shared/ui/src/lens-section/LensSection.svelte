@@ -1,4 +1,11 @@
 <script module lang="ts">
+  /**
+   * LensSection — collapsible section wrapper for grouping
+   * documentation content within a Lens-documented component
+   * page.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { BoolSchema, StrSchema } from '@/schemas/common';
   import type { Snippet } from 'svelte';

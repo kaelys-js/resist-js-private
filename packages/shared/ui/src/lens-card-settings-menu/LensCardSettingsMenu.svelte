@@ -19,6 +19,8 @@
    *   />
    * </DropdownMenu.Content>
    * ```
+   *
+   * @module
    */
   import type { Bool, Num, Str, Void } from '@/schemas/common';
   import type { Component } from 'svelte';

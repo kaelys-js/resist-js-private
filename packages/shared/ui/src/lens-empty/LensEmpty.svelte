@@ -1,4 +1,10 @@
 <script module lang="ts">
+  /**
+   * LensEmpty — empty state shown inside a Lens preview card
+   * when the example yields no rendered output.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
   import type { Snippet } from 'svelte';

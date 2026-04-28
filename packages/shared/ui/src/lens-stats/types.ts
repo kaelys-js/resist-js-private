@@ -3,6 +3,8 @@
  *
  * Defines the data shapes for mount/render timing, DOM analysis,
  * accessibility auditing, console capture, and performance budgets.
+ *
+ * @module
  */
 import * as v from 'valibot';
 import { StrSchema, BoolSchema, NumSchema } from '@/schemas/common';
@@ -13,6 +15,7 @@ import { StrSchema, BoolSchema, NumSchema } from '@/schemas/common';
 
 /** Performance budget level for a single metric. */
 export const BudgetLevelSchema = v.picklist(['green', 'yellow', 'red']);
+/** Description. */
 export type BudgetLevel = v.InferOutput<typeof BudgetLevelSchema>;
 
 /* ------------------------------------------------------------------ */
@@ -26,6 +29,7 @@ export const HeadingInfoSchema = v.strictObject({
   /** Text content of the heading (truncated to 60 chars). */
   text: StrSchema,
 });
+/** Description. */
 export type HeadingInfo = v.InferOutput<typeof HeadingInfoSchema>;
 
 /* ------------------------------------------------------------------ */
@@ -41,6 +45,7 @@ export const FocusOrderIssueSchema = v.strictObject({
   /** Element text preview for identification. */
   text: StrSchema,
 });
+/** Description. */
 export type FocusOrderIssue = v.InferOutput<typeof FocusOrderIssueSchema>;
 
 /* ------------------------------------------------------------------ */
@@ -56,6 +61,7 @@ export const TabOrderEntrySchema = v.strictObject({
   /** Tabindex value (0 = natural order, -1 = programmatic only, >0 = explicit). */
   tabindex: NumSchema,
 });
+/** Description. */
 export type TabOrderEntry = v.InferOutput<typeof TabOrderEntrySchema>;
 
 /* ------------------------------------------------------------------ */
@@ -77,6 +83,7 @@ export const ContrastIssueSchema = v.strictObject({
   /** Effective background color as CSS value. */
   bgColor: StrSchema,
 });
+/** Description. */
 export type ContrastIssue = v.InferOutput<typeof ContrastIssueSchema>;
 
 /* ------------------------------------------------------------------ */
@@ -92,6 +99,7 @@ export const AriaIssueSchema = v.strictObject({
   /** Description of the ARIA issue. */
   issue: StrSchema,
 });
+/** Description. */
 export type AriaIssue = v.InferOutput<typeof AriaIssueSchema>;
 
 /* ------------------------------------------------------------------ */
@@ -109,6 +117,7 @@ export const UnlabeledElementSchema = v.strictObject({
   /** Closest identifiable parent context (e.g., `<div class="toolbar">`). */
   parentContext: StrSchema,
 });
+/** Description. */
 export type UnlabeledElement = v.InferOutput<typeof UnlabeledElementSchema>;
 
 /** Accessibility snapshot of the rendered component. */
@@ -152,6 +161,7 @@ export const A11yAuditSchema = v.strictObject({
   /** Count of elements with active CSS animations or transitions. */
   animatedElementCount: NumSchema,
 });
+/** Description. */
 export type A11yAudit = v.InferOutput<typeof A11yAuditSchema>;
 
 /* ------------------------------------------------------------------ */
@@ -165,6 +175,7 @@ export const CapturedConsoleMessageSchema = v.strictObject({
   /** Message text (first argument stringified). */
   message: StrSchema,
 });
+/** Description. */
 export type CapturedConsoleMessage = v.InferOutput<typeof CapturedConsoleMessageSchema>;
 
 /* ------------------------------------------------------------------ */
@@ -188,6 +199,7 @@ export const MetricBudgetSchema = v.strictObject({
   /** Yellow threshold max value (for future custom threshold support). */
   yellowMax: NumSchema,
 });
+/** Description. */
 export type MetricBudget = v.InferOutput<typeof MetricBudgetSchema>;
 
 /* ------------------------------------------------------------------ */
@@ -203,6 +215,7 @@ export const LayoutShiftSourceSchema = v.strictObject({
   /** Shift contribution value for this element. */
   shiftValue: NumSchema,
 });
+/** Description. */
 export type LayoutShiftSource = v.InferOutput<typeof LayoutShiftSourceSchema>;
 
 /* ------------------------------------------------------------------ */
@@ -240,6 +253,7 @@ export const WebVitalsSchema = v.strictObject({
   /** Whether the browser supports the required PerformanceObserver entry types. */
   supported: BoolSchema,
 });
+/** Description. */
 export type WebVitals = v.InferOutput<typeof WebVitalsSchema>;
 
 /* ------------------------------------------------------------------ */
@@ -281,4 +295,5 @@ export const LensStatsDataSchema = v.strictObject({
   /** Duration of each re-render in milliseconds (measured via MutationObserver + rAF). */
   reRenderTimings: v.array(NumSchema),
 });
+/** Description. */
 export type LensStatsData = v.InferOutput<typeof LensStatsDataSchema>;

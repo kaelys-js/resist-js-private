@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the LensDependencyTree infrastructure —
+ * import-graph dependency tree visualisation. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

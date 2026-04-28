@@ -1,4 +1,11 @@
 <script module lang="ts">
+  /**
+   * PropsTable — Lens-documented component props reference
+   * table listing each prop's name, type, default, and
+   * description.
+   *
+   * @module
+   */
   /* Public types/values live in `./types.ts` so consumers can re-export
      them via standard TS module resolution. */
   export {

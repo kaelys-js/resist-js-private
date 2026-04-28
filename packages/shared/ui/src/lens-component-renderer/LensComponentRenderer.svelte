@@ -1,4 +1,12 @@
 <script module lang="ts">
+  /**
+   * LensComponentRenderer — renders a Lens component example
+   * with per-card settings (background, zoom, viewport, theme,
+   * accessibility, etc.) wired to the shared
+   * `LensCardSettingsMenu`.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema, BoolSchema } from '@/schemas/common';
   import { PropMetaSchema, VariantMetaSchema } from '../lens/types.js';

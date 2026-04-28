@@ -1,5 +1,11 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * LensStats — at-a-glance stats strip for a Lens-documented
+   * component (lines of code, props count, examples count).
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema, NumSchema } from '@/schemas/common';
   import type { Snippet } from 'svelte';
