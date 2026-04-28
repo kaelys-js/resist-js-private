@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Spinner component (feedback
+ * category) — animated loading spinner. @module
+ */
+
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
