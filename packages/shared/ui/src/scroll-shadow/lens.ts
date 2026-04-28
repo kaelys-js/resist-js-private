@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the ScrollShadow component (feedback
+ * category) — gradient edge-shadow overflow hint. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

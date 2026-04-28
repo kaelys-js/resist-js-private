@@ -1,7 +1,12 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
   /**
-   * Custom scrollbar container with styled vertical and/or horizontal scrollbar tracks.
+   * ScrollArea root Svelte component — Bits UI `ScrollArea`
+   * wrapper that renders a viewport with styled vertical
+   * and/or horizontal custom scrollbar tracks for overflow
+   * content.
+   *
+   * @module
    */
   import { ScrollArea as ScrollAreaPrimitive } from 'bits-ui';
   import Scrollbar from './scroll-area-scrollbar.svelte';

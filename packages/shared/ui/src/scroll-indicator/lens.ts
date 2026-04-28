@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the ScrollIndicator component (feedback
+ * category) — page scroll progress bar. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
