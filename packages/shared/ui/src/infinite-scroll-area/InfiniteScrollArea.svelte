@@ -1,5 +1,14 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * InfiniteScrollArea Svelte component — container that
+   * continuously scrolls content in a loop, used for logo bars,
+   * testimonials, or content feeds. Placeholder shell awaiting
+   * full implementation; ships with a class prop for root-level
+   * styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
