@@ -1,3 +1,11 @@
+/**
+ * Barrel re-export for the resizable component — exposes
+ * the ResizablePaneGroup, ResizablePane (re-exported from
+ * paneforge), and ResizableHandle under stable public names.
+ *
+ * @module
+ */
+
 import { Pane } from 'paneforge';
 import Handle from './resizable-handle.svelte';
 import PaneGroup from './resizable-pane-group.svelte';
