@@ -20,6 +20,8 @@
  *
  * The glob pattern deliberately matches only direct children of `src/`, so it
  * excludes `src/lens/` analyser sources and any nested test fixtures.
+ *
+ * @module
  */
 import { describe, expect, it } from 'vitest';
 
