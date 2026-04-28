@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * Drawer overlay — semi-transparent black scrim behind the
+   * drawer content. Wraps vaul-svelte's `Drawer.Overlay` with
+   * the open / close fade animation.
+   *
+   * @module
+   */
+
   import { Drawer as DrawerPrimitive } from 'vaul-svelte';
   import { cn } from '../utils.js';
 

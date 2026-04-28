@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * Drawer header — flex-column container for the drawer title
+   * and description at the top of the drawer content.
+   *
+   * @module
+   */
+
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';
 

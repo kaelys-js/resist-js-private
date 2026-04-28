@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * Drawer title — heading at the top of the drawer content.
+   * Wraps vaul-svelte's `Drawer.Title` with semibold styling.
+   *
+   * @module
+   */
+
   import { Drawer as DrawerPrimitive } from 'vaul-svelte';
   import { cn } from '../utils.js';
 
