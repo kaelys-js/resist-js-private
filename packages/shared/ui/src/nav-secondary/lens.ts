@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the NavSecondary component (navigation
+ * category) — secondary nav rail. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

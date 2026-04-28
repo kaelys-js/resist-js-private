@@ -1,4 +1,11 @@
 <script module lang="ts">
+  /**
+   * NavSecondary Svelte component — secondary nav rail with
+   * settings / utility links pinned to the bottom of the
+   * sidebar.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
   import type { Component } from 'svelte';

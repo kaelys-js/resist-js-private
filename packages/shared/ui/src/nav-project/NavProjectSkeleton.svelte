@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * NavProjectSkeleton — loading-state placeholder shown
+   * while NavProject data is being fetched.
+   *
+   * @module
+   */
   import { Skeleton } from '../skeleton/index.js';
   import * as Sidebar from '../sidebar/index.js';
 </script>

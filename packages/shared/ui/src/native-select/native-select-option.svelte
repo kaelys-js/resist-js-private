@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * NativeSelect.Option — single `<option>` child of a
+   * `NativeSelect`. @module
+   */
   import type { HTMLOptionAttributes } from 'svelte/elements';
   import type { WithElementRef } from '../utils.js';
 

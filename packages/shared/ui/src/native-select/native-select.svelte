@@ -1,5 +1,11 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
+  /**
+   * NativeSelect — native HTML `<select>` styled to match the
+   * design system, with `Option` and `OptGroup` sub-components.
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLSelectAttributes } from 'svelte/elements';
   import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';

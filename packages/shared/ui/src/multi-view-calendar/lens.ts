@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the MultiViewCalendar component
+ * (scheduling category) — multi-view calendar. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
