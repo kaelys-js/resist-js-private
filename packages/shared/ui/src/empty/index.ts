@@ -1,3 +1,12 @@
+/**
+ * Barrel re-export for the empty compound component — exposes
+ * Root / Header / Media / Title / Description / Content
+ * sub-components under both internal aliases and the `Empty*`
+ * public names.
+ *
+ * @module
+ */
+
 import Root from './empty.svelte';
 import Header from './empty-header.svelte';
 import Media from './empty-media.svelte';

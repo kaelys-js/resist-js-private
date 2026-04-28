@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * Empty.Header — top-aligned header slot for an Empty
+   * placeholder, typically wrapping `Empty.Media` and
+   * `Empty.Title`.
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 

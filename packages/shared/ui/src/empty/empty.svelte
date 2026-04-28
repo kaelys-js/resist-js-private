@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
+  /**
+   * Empty — root container for an empty-state placeholder
+   * composed of `Header` / `Media` / `Title` / `Description` /
+   * `Content` slots, used to communicate "no data yet" with an
+   * optional illustration and call-to-action.
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 
