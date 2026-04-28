@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Empty Lens example — basic empty state with an Inbox icon,
+   * title, and description.
+   *
+   * @module
+   */
   import * as Empty from '@/ui/empty';
   import InboxIcon from '@lucide/svelte/icons/inbox';
 </script>

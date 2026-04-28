@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * Empty.Content — column wrapper that stacks a `Title`,
+   * `Description`, and any action elements within an Empty
+   * placeholder.
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 

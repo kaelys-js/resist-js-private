@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Empty.Description — secondary helper-text line beneath an
+   * Empty placeholder's title.
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 

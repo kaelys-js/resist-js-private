@@ -1,6 +1,15 @@
 <script lang="ts" module>
+  /**
+   * Empty.Media — leading visual slot for an Empty placeholder
+   * (icon, image, or illustration). Exposes a `variant` prop and
+   * its TV variants helper for callers that need to compose
+   * matching styles externally.
+   *
+   * @module
+   */
   import { tv, type VariantProps } from 'tailwind-variants';
 
+  /** TV variants helper for the Empty.Media slot — drives icon vs default styling. */
   export const emptyMediaVariants = tv({
     base: 'mb-2 flex shrink-0 items-center justify-center [&_svg]:pointer-events-none [&_svg]:shrink-0',
     variants: {
@@ -14,6 +23,7 @@
     },
   });
 
+  /** Variant prop type for the Empty.Media slot — `default` or `icon`. */
   export type EmptyMediaVariant = VariantProps<typeof emptyMediaVariants>['variant'];
 </script>
 
