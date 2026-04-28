@@ -1,7 +1,16 @@
 <script lang="ts" module>
+  /**
+   * NavigationMenu.Trigger — top-level menu trigger button
+   * with chevron-down indicator that rotates on open. Exposes
+   * the shared `navigationMenuTriggerStyle` TV variants helper
+   * so consumers can compose matching styles.
+   *
+   * @module
+   */
   import { tv } from 'tailwind-variants';
   import { cn } from '../utils.js';
 
+  /** TV variants helper for the NavigationMenu.Trigger button styling. */
   export const navigationMenuTriggerStyle = tv({
     base: 'bg-background hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground data-[state=open]:hover:bg-accent data-[state=open]:text-accent-foreground data-[state=open]:focus:bg-accent data-[state=open]:bg-accent/50 focus-visible:ring-ring/50 group inline-flex h-9 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50',
   });

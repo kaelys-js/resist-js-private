@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Navbar component (navigation
+ * category) — top-of-page navigation bar. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

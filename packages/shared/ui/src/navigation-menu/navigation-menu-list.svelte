@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * NavigationMenu.List — horizontal list of NavigationMenu
+   * items. @module
+   */
   import { NavigationMenu as NavigationMenuPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

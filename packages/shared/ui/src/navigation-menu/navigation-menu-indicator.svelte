@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * NavigationMenu.Indicator — animated arrow indicator that
+   * tracks the active NavigationMenu trigger. @module
+   */
   import { NavigationMenu as NavigationMenuPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

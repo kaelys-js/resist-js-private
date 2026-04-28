@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * NavigationMenu.Viewport — animated container that holds
+   * the active NavigationMenu Content panel. @module
+   */
   import { NavigationMenu as NavigationMenuPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

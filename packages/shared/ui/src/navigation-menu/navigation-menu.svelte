@@ -1,5 +1,11 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
+  /**
+   * NavigationMenu — site-wide horizontal navigation menu
+   * with dropdowns. Wraps Bits UI's `NavigationMenu` primitive.
+   *
+   * @module
+   */
   import { NavigationMenu as NavigationMenuPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
   import NavigationMenuViewport from './navigation-menu-viewport.svelte';
