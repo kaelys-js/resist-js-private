@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Knob component (form category) —
+ * circular rotary input. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

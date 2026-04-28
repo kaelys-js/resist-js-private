@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * KeyValueList Svelte component — key-value property
+   * display list. Placeholder shell awaiting full
+   * implementation; ships with a class prop for root-level
+   * styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 

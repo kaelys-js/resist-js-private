@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * KeyFilter Svelte component — input that restricts allowed
+   * keystrokes via a mask / character pattern. Placeholder shell
+   * awaiting full implementation; ships with a class prop for
+   * root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
