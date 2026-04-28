@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * FlipWords Svelte component — rotating-text headline that
+   * cycles through a list of words with a flip animation.
+   * Placeholder shell awaiting full implementation; ships with a
+   * class prop for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 

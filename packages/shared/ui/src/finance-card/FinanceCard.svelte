@@ -1,4 +1,10 @@
 <script module lang="ts">
+  /**
+   * FinanceCard Svelte component — financial summary card with
+   * value and trend indicator for dashboards.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
