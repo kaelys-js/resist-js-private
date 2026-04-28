@@ -1,6 +1,9 @@
 <script lang="ts">
   /**
-   * Sheet footer area pinned to the bottom of the panel for action buttons.
+   * SheetFooter Svelte component — footer region pinned to
+   * the bottom of the sheet panel for action buttons.
+   *
+   * @module
    */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';

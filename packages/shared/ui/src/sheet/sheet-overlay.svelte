@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * SheetOverlay Svelte component — semi-transparent backdrop
+   * rendered behind the sheet panel that closes the sheet
+   * when clicked.
+   *
+   * @module
+   */
   import { Dialog as SheetPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 

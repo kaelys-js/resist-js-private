@@ -1,6 +1,10 @@
 <script lang="ts">
   /**
-   * Sheet description text rendered in a muted style below the sheet title.
+   * SheetDescription Svelte component — supplementary
+   * description text rendered in muted styling beneath the
+   * SheetTitle.
+   *
+   * @module
    */
   import { Dialog as SheetPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';

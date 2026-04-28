@@ -1,5 +1,14 @@
 <script lang="ts" module>
+  /**
+   * SheetContent Svelte component — slide-in panel content
+   * with overlay backdrop and close button. Supports top /
+   * bottom / left / right slide directions via the `side`
+   * prop and exposes `sheetVariants` for downstream use.
+   *
+   * @module
+   */
   import { tv, type VariantProps } from 'tailwind-variants';
+  /** Tailwind-variants helper for sheet panel side animations. */
   export const sheetVariants = tv({
     base: 'bg-background data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500',
     variants: {
@@ -17,6 +26,7 @@
     },
   });
 
+  /** Side prop type for the SheetContent panel slide direction. */
   export type Side = VariantProps<typeof sheetVariants>['side'];
 </script>
 

@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Sheet component (overlay category)
+ * — slide-out panel/drawer from screen edge. @module
+ */
+
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
