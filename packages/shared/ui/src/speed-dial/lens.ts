@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the SpeedDial component (navigation
+ * category) — FAB that expands to fan-of-actions. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
