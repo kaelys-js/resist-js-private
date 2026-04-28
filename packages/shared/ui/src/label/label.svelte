@@ -2,6 +2,8 @@
 <script lang="ts">
   /**
    * Form field label with disabled-state styling and peer association support.
+   *
+   * @module
    */
   import { Label as LabelPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';

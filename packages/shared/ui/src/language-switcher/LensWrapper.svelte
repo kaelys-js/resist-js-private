@@ -3,6 +3,8 @@
    * Lens context wrapper for LanguageSwitcher.
    *
    * Provides the DropdownMenu.Root + Content context required by DropdownMenu.Sub.
+   *
+   * @module
    */
   import type { Snippet } from 'svelte';
   import * as DropdownMenu from '../dropdown-menu/index.js';

@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Label Lens example — label paired with an associated
+   * `<input>` for accessible form pairing.
+   *
+   * @module
+   */
   import Label from '@/ui/label/label.svelte';
   import Input from '@/ui/input/input.svelte';
 </script>

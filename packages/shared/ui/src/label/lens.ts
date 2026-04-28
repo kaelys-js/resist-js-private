@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Label component (form category) —
+ * accessible form field label with peer association. @module
+ */
+
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

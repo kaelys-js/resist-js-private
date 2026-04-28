@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the LanguageSwitcher component (i18n
+ * category) — locale picker dropdown. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 import LensWrapper from './LensWrapper.svelte';
 
