@@ -3,6 +3,8 @@
  *
  * Tests the `cn` class-name merging function that combines clsx
  * conditional logic with tailwind-merge conflict resolution.
+ *
+ * @module
  */
 import { describe, expect, it } from 'vitest';
 import type { Str } from '@/schemas/common';
