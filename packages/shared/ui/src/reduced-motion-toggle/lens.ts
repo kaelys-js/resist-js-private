@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the ReducedMotionToggle component (a11y
+ * category) — reduced-motion preference toggle. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
