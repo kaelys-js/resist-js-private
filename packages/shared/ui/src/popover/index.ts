@@ -1,3 +1,12 @@
+/**
+ * Barrel re-export for the popover compound component —
+ * exposes Root / Content / Trigger / Close / Portal
+ * sub-components under both internal aliases and the
+ * `Popover*` public names.
+ *
+ * @module
+ */
+
 import Root from './popover.svelte';
 import Close from './popover-close.svelte';
 import Content from './popover-content.svelte';

@@ -1,4 +1,9 @@
 <script lang="ts">
+  /**
+   * Popover Lens example — basic anchored floating panel.
+   *
+   * @module
+   */
   import * as Popover from '@/ui/popover';
   import Button from '@/ui/button/button.svelte';
   import Input from '@/ui/input/input.svelte';

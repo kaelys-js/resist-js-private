@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * Popover.Trigger — element that toggles the Popover.
+   * @module
+   */
   import { cn } from '../utils.js';
   import { Popover as PopoverPrimitive } from 'bits-ui';
 
