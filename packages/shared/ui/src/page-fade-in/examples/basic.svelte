@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * PageFadeIn Lens example — basic page-content fade-in
+   * wrapper.
+   *
+   * @module
+   */
   import PageFadeIn from '@/ui/page-fade-in/PageFadeIn.svelte';
 </script>
 

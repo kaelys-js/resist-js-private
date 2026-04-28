@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the PageSheet component (layout
+ * category) — page-level paper sheet surface. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

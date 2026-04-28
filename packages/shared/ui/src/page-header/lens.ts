@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the PageHeader component (layout
+ * category) — page-level header. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
