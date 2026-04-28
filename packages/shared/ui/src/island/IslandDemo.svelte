@@ -2,6 +2,8 @@
   /**
    * Demo for the Island component — shows a basic interactive island
    * embedded in static content.
+   *
+   * @module
    */
   import Island from './Island.svelte';
 </script>

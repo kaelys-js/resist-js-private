@@ -13,6 +13,8 @@
    *   <InteractiveChart data={chartData} />
    * </Island>
    * ```
+   *
+   * @module
    */
   import type { Snippet } from 'svelte';
   import { cn } from '../utils.js';
