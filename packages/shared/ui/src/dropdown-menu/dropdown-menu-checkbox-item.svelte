@@ -1,4 +1,12 @@
 <script lang="ts">
+  /**
+   * DropdownMenu checkbox item — toggleable menu row with a
+   * leading check / minus indicator (indeterminate state). Wraps
+   * Bits UI's `DropdownMenu.CheckboxItem` and exposes our
+   * `data-slot` plus shared `cn` class composition.
+   *
+   * @module
+   */
   import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
   import CheckIcon from '@lucide/svelte/icons/check';
   import MinusIcon from '@lucide/svelte/icons/minus';

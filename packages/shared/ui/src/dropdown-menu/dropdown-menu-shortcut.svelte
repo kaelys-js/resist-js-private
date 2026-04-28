@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * DropdownMenu shortcut hint — trailing keyboard-shortcut
+   * label rendered as muted small text inside a menu item, aligned
+   * to the row's right edge.
+   *
+   * @module
+   */
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';
 

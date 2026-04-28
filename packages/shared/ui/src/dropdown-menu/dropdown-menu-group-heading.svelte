@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * DropdownMenu group heading — non-interactive label rendered
+   * above a `DropdownMenu.Group` of items. Supports an `inset`
+   * flag to align with icon-bearing siblings.
+   *
+   * @module
+   */
   import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
   import type { ComponentProps } from 'svelte';

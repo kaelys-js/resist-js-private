@@ -3,6 +3,8 @@
    * Floating content panel for a dropdown menu, rendered inside a portal with animated open/close transitions.
    *
    * Positions itself relative to the trigger with a configurable side offset and constrains its height to available viewport space.
+   *
+   * @module
    */
   import { cn, type WithoutChildrenOrChild } from '../utils.js';
   import DropdownMenuPortal from './dropdown-menu-portal.svelte';

@@ -1,3 +1,12 @@
+/**
+ * Lens manifest for the DropdownMenu compound component
+ * (overlay category) — contextual menu of items, groups,
+ * separators, and submenus. Tagged for dropdown / menu / actions
+ * / context / compound lookups.
+ *
+ * @module
+ */
+
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

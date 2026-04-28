@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * DropdownMenu Lens example — items decorated with Lucide
+   * icons and a destructive variant for the final row.
+   *
+   * @module
+   */
   import * as DropdownMenu from '@/ui/dropdown-menu';
   import Button from '@/ui/button/button.svelte';
   import UserIcon from '@lucide/svelte/icons/user';

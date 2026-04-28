@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * DropdownMenu sub — root for a nested submenu. Manages the
+   * submenu's bindable `open` state independently of the parent
+   * menu's lifecycle.
+   *
+   * @module
+   */
   import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
 
   let {
