@@ -1,3 +1,11 @@
+/**
+ * Barrel re-export for the message-reaction component —
+ * exposes the MessageReaction Svelte component, its props
+ * type, and the props schema under stable public names.
+ *
+ * @module
+ */
+
 import Root, {
   type MessageReactionProps,
   MessageReactionPropsSchema,
