@@ -1,3 +1,11 @@
+/**
+ * Lens manifest for the HelpTooltip component (overlay
+ * category) — help icon button with tooltip. Tagged for help /
+ * tooltip / info / contextual lookups.
+ *
+ * @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
