@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Lens example — Resizable with two horizontal panes split
+   * by a draggable handle.
+   *
+   * @module
+   */
   import * as Resizable from '@/ui/resizable';
 </script>
 

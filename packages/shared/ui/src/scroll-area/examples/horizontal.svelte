@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Lens example — ScrollArea wrapping horizontally
+   * overflowing content with a styled horizontal scrollbar.
+   *
+   * @module
+   */
   import ScrollArea from '@/ui/scroll-area/scroll-area.svelte';
 </script>
 

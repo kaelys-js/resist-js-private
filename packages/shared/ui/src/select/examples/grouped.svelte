@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Lens example — Select with options organised under group
+   * headings for category-based browsing.
+   *
+   * @module
+   */
   import type { Str } from '@/schemas/common';
   import * as Select from '@/ui/select';
 

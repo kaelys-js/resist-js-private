@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Lens example — Separator placed between stacked content
+   * blocks demonstrating both orientations.
+   *
+   * @module
+   */
   import Separator from '@/ui/separator/separator.svelte';
 </script>
 

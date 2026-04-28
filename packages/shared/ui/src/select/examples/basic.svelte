@@ -1,4 +1,9 @@
 <script lang="ts">
+  /**
+   * Lens example — Select with a flat list of options.
+   *
+   * @module
+   */
   import type { Str } from '@/schemas/common';
   import * as Select from '@/ui/select';
 
