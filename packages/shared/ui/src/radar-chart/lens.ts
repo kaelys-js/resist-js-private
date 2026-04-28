@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the RadarChart component (data-display
+ * category) — multi-axis spider/polygon chart. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * Quiz Svelte component — interactive multi-question
+   * assessment surface for learning and onboarding flows.
+   * Placeholder shell awaiting full implementation; ships with
+   * a class prop for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
