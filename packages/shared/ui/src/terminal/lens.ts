@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Terminal component (typography
+ * category) — CLI output display surface. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

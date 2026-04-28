@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the TextDivider component (layout
+ * category) — divider with centered text label. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
