@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Lens example — Sheet sliding in from the right edge
+   * containing a small profile-edit form.
+   *
+   * @module
+   */
   import * as Sheet from '@/ui/sheet';
   import Button from '@/ui/button/button.svelte';
   import Input from '@/ui/input/input.svelte';

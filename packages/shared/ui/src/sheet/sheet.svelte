@@ -1,7 +1,11 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
   /**
-   * Sheet/drawer root that manages open/close state for a slide-in panel overlay.
+   * Sheet root Svelte component — Bits UI `Dialog.Root`
+   * wrapper that manages open/close state for a slide-in
+   * panel overlay (drawer).
+   *
+   * @module
    */
   import { Dialog as SheetPrimitive } from 'bits-ui';
 

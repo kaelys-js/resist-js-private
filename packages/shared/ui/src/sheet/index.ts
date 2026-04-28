@@ -1,3 +1,12 @@
+/**
+ * Barrel re-export for the sheet component — exposes the
+ * Sheet root and its Bits UI subcomponent wrappers (Close,
+ * Trigger, Portal, Overlay, Content, Header, Footer, Title,
+ * Description) under stable public names.
+ *
+ * @module
+ */
+
 import Root from './sheet.svelte';
 import Portal from './sheet-portal.svelte';
 import Trigger from './sheet-trigger.svelte';

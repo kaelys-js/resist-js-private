@@ -1,6 +1,9 @@
 <script lang="ts">
   /**
-   * Sheet header area containing the title and description at the top of the panel.
+   * SheetHeader Svelte component — header region at the top
+   * of the Sheet panel containing the title and description.
+   *
+   * @module
    */
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';

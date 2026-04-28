@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Lens example — Sheet demonstrating slide-in from left,
+   * top, and bottom edges via the `side` prop.
+   *
+   * @module
+   */
   import * as Sheet from '@/ui/sheet';
   import Button from '@/ui/button/button.svelte';
 </script>
