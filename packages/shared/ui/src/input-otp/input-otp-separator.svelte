@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * InputOTP.Separator — visual divider (minus icon) rendered
+   * between two `InputOTP.Group` runs.
+   *
+   * @module
+   */
   import MinusIcon from '@lucide/svelte/icons/minus';
   import type { HTMLAttributes } from 'svelte/elements';
   import type { WithElementRef } from '../utils.js';

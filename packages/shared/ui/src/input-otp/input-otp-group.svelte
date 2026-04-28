@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * InputOTP.Group — wraps a contiguous run of `InputOTP.Slot`
+   * components for visual grouping inside an OTP input.
+   *
+   * @module
+   */
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';
 

@@ -1,5 +1,12 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
+  /**
+   * InputOTP — root for an OTP / one-time-password input
+   * composed of `Group`, `Slot`, and `Separator` sub-components.
+   * Wraps Bits UI's `PinInput` primitive.
+   *
+   * @module
+   */
   import { PinInput as InputOTPPrimitive } from 'bits-ui';
   import { cn } from '../utils.js';
 
