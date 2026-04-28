@@ -1,7 +1,10 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
   /**
-   * Loading placeholder with a pulsing animation, used to indicate content is being fetched.
+   * Skeleton Svelte component — pulsing rounded rectangle
+   * placeholder used while real content is loading.
+   *
+   * @module
    */
   import { cn, type WithElementRef, type WithoutChildren } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';

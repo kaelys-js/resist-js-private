@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * SkeletonText Svelte component — text-shaped loading
+   * placeholder rendering N skeleton lines of varying
+   * widths. Placeholder shell awaiting full implementation;
+   * ships with a class prop for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 

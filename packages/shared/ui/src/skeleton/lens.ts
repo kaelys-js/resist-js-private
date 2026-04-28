@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Skeleton component (feedback
+ * category) — pulsing loading placeholder. @module
+ */
+
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
