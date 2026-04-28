@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * MessageBar Svelte component — site-wide announcement /
+   * status bar at the top or bottom of the page. Placeholder
+   * shell awaiting full implementation; ships with a class prop
+   * for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
