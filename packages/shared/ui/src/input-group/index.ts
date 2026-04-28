@@ -1,3 +1,12 @@
+/**
+ * Barrel re-export for the input-group compound component —
+ * exposes Root / Addon / Button / Input / Text / Textarea
+ * sub-components under both internal aliases and the
+ * `InputGroup*` public names.
+ *
+ * @module
+ */
+
 import Root from './input-group.svelte';
 import Addon from './input-group-addon.svelte';
 import Button from './input-group-button.svelte';

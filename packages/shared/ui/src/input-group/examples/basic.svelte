@@ -1,4 +1,9 @@
 <script lang="ts">
+  /**
+   * InputGroup Lens example — basic input combined with addons.
+   *
+   * @module
+   */
   import * as InputGroup from '@/ui/input-group';
 </script>
 

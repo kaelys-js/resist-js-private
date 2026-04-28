@@ -1,5 +1,15 @@
 <script lang="ts" module>
+  /**
+   * InputGroup.Addon — leading / trailing decoration slot for
+   * an `InputGroup` (icon, kbd, button). Exposes a TV variants
+   * helper so callers can compose matching styles, with
+   * inline-start / inline-end / block-start / block-end
+   * alignments.
+   *
+   * @module
+   */
   import { tv, type VariantProps } from 'tailwind-variants';
+  /** TV variants helper for InputGroup.Addon — drives alignment styles. */
   export const inputGroupAddonVariants = tv({
     base: "text-muted-foreground flex h-auto cursor-text items-center justify-center gap-2 py-1.5 text-sm font-medium select-none group-data-[disabled=true]/input-group:opacity-50 [&>kbd]:rounded-[calc(var(--radius)-5px)] [&>svg:not([class*='size-'])]:size-4",
     variants: {
@@ -17,6 +27,7 @@
     },
   });
 
+  /** Alignment prop type for InputGroup.Addon. */
   export type InputGroupAddonAlign = VariantProps<typeof inputGroupAddonVariants>['align'];
 </script>
 

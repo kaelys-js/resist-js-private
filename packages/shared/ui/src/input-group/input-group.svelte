@@ -1,5 +1,12 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
+  /**
+   * InputGroup — root container that combines an input with
+   * leading / trailing addons (icons, buttons, text decorators)
+   * sharing a unified border and focus ring.
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 

@@ -1,4 +1,10 @@
 <script lang="ts" module>
+  /**
+   * InputGroup.Button — button slot inside an InputGroup,
+   * styled compact with `xs` / `sm` / icon-only sizes.
+   *
+   * @module
+   */
   import { tv, type VariantProps } from 'tailwind-variants';
 
   const inputGroupButtonVariants = tv({
@@ -16,6 +22,7 @@
     },
   });
 
+  /** Size prop type for InputGroup.Button. */
   export type InputGroupButtonSize = VariantProps<typeof inputGroupButtonVariants>['size'];
 </script>
 

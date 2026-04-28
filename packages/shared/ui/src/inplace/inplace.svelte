@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * Inplace Svelte component — toggles between a display view
+   * and an editable / interactive content view. Placeholder
+   * shell awaiting full implementation; ships with a class prop
+   * for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 

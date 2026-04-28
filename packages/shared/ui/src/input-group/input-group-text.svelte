@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * InputGroup.Text — inline text label slot inside an
+   * `InputGroup` (e.g. unit / prefix indicator).
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 
