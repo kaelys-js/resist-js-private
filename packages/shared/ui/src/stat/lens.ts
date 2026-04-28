@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Stat component (data-display
+ * category) — KPI / metric display. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
