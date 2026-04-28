@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * SavedFilters Svelte component — list of named filter
+   * presets that the user can apply or pin in a data view.
+   * Placeholder shell awaiting full implementation; ships
+   * with a class prop for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
