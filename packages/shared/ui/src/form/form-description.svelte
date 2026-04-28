@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * Form.Description — secondary helper-text line beneath a
+   * `Form.Field` label, wired into Formsnap's accessible
+   * description association.
+   *
+   * @module
+   */
   import * as FormPrimitive from 'formsnap';
   import { cn, type WithoutChild } from '../utils.js';
 
