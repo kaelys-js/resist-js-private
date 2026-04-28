@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Masonry component (layout category)
+ * — Pinterest-style staggered grid. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
