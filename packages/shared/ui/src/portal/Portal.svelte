@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * Portal Svelte component — generic portal wrapper for
+   * mounting children outside the parent DOM tree. Placeholder
+   * shell awaiting full implementation; ships with a class
+   * prop for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
