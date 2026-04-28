@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the SlopeChart component (data-display
+ * category) — two-point slope comparison chart. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

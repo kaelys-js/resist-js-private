@@ -1,10 +1,12 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
   /**
-   * Styled range slider built on bits-ui Slider primitives.
+   * Slider Svelte component — Bits UI `Slider` wrapper that
+   * supports single/multi-thumb modes and horizontal /
+   * vertical orientations, integrated with the design
+   * system's colour tokens.
    *
-   * Supports single and multiple thumb modes, horizontal/vertical orientation,
-   * and integrates with the design system's color tokens.
+   * @module
    *
    * @example
    * ```svelte
