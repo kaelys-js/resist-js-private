@@ -1,8 +1,11 @@
 <script lang="ts">
   /**
-   * Sidebar context and state provider that manages open/closed state and keyboard shortcuts.
+   * SidebarProvider Svelte component — context provider that
+   * manages sidebar open/closed state and the toggle keyboard
+   * shortcut. Wraps children in a Tooltip.Provider and sets
+   * CSS custom properties for sidebar widths.
    *
-   * Wraps children in a Tooltip.Provider and sets CSS custom properties for sidebar widths.
+   * @module
    */
   import * as Tooltip from '../tooltip/index.js';
   import { cn, type WithElementRef } from '../utils.js';

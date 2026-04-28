@@ -1,6 +1,10 @@
 <script lang="ts">
   /**
-   * Separator line styled with the sidebar border color for dividing sidebar sections.
+   * SidebarSeparator Svelte component — horizontal divider
+   * styled with the sidebar border colour for separating
+   * sidebar sections.
+   *
+   * @module
    */
   import { Separator } from '../separator/index.js';
   import { cn } from '../utils.js';

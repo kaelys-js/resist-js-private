@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * SidebarMenuBadge Svelte component — small numeric/text
+   * badge anchored to the trailing edge of a
+   * SidebarMenuItem (e.g. unread counts).
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { HTMLAttributes } from 'svelte/elements';
 

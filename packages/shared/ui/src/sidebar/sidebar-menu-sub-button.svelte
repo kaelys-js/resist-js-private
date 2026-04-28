@@ -1,6 +1,10 @@
 <script lang="ts">
   /**
-   * Submenu item button rendered as an anchor link with active-state and size variants.
+   * SidebarMenuSubButton Svelte component — submenu item
+   * button rendered as an anchor link, styled with
+   * active-state and size variants.
+   *
+   * @module
    */
   import { cn, type WithElementRef } from '../utils.js';
   import type { Snippet } from 'svelte';

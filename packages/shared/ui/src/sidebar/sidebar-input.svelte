@@ -1,6 +1,10 @@
 <script lang="ts">
   /**
-   * Search input styled for use inside a sidebar with reduced height and no shadow.
+   * SidebarInput Svelte component — text input styled for
+   * use inside a sidebar (reduced height, no shadow), suited
+   * for in-sidebar search.
+   *
+   * @module
    */
   import type { ComponentProps } from 'svelte';
   import { Input } from '../input/index.js';

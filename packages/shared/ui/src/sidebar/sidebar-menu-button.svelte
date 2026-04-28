@@ -1,6 +1,15 @@
 <script lang="ts" module>
+  /**
+   * SidebarMenuButton Svelte component — clickable menu item
+   * button with optional tooltip shown when the sidebar
+   * collapses to icon-only mode; exposes
+   * `sidebarMenuButtonVariants` for downstream use.
+   *
+   * @module
+   */
   import { tv, type VariantProps } from 'tailwind-variants';
 
+  /** Tailwind-variants helper for sidebar menu button variant + size. */
   export const sidebarMenuButtonVariants = tv({
     base: 'peer/menu-button ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground flex w-full items-center gap-2 overflow-clip rounded-md p-2 text-start text-sm outline-hidden transition-all duration-150 ease-in-out group-has-data-[sidebar=menu-action]/menu-item:pe-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
     variants: {
@@ -21,7 +30,9 @@
     },
   });
 
+  /** Variant prop type for SidebarMenuButton. */
   export type SidebarMenuButtonVariant = VariantProps<typeof sidebarMenuButtonVariants>['variant'];
+  /** Size prop type for SidebarMenuButton. */
   export type SidebarMenuButtonSize = VariantProps<typeof sidebarMenuButtonVariants>['size'];
 </script>
 

@@ -1,6 +1,10 @@
 <script lang="ts">
   /**
-   * Sidebar bottom section for persistent footer content like user menus.
+   * SidebarFooter Svelte component — pinned bottom region of
+   * the sidebar for persistent footer content (user menus,
+   * status indicators).
+   *
+   * @module
    */
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';

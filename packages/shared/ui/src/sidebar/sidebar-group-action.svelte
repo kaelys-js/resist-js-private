@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * SidebarGroupAction Svelte component — small icon-button
+   * pinned to the top-right of a SidebarGroup label for
+   * group-level actions (add, refresh, etc).
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { Snippet } from 'svelte';
   import type { HTMLButtonAttributes } from 'svelte/elements';

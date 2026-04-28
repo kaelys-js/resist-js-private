@@ -14,6 +14,7 @@ import type { Bool, Str, Void } from '@/schemas/common';
 
 type Getter<T> = () => T;
 
+/** Props for constructing a SidebarState — open/setOpen for desktop and mobile, plus the keyboard-shortcut character. */
 export type SidebarStateProps = {
   /**
    * A getter function that returns the current open state of the sidebar.

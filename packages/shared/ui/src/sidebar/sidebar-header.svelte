@@ -1,6 +1,10 @@
 <script lang="ts">
   /**
-   * Sidebar top section for branding, project switcher, or navigation header content.
+   * SidebarHeader Svelte component — pinned top region of
+   * the sidebar for branding, a project switcher, or
+   * navigation header content.
+   *
+   * @module
    */
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn, type WithElementRef } from '../utils.js';

@@ -1,6 +1,9 @@
 <script lang="ts">
   /**
-   * Sidebar toggle trigger button that expands or collapses the sidebar on click.
+   * SidebarTrigger Svelte component — toggle button that
+   * expands or collapses the sidebar on click.
+   *
+   * @module
    */
   import { Button } from '../button/index.js';
   import { cn } from '../utils.js';

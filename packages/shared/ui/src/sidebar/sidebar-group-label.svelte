@@ -1,6 +1,10 @@
 <script lang="ts">
   /**
-   * Sidebar group heading label that collapses with the sidebar in icon mode.
+   * SidebarGroupLabel Svelte component — heading label for a
+   * SidebarGroup; hidden when the sidebar collapses to icon
+   * mode.
+   *
+   * @module
    */
   import { cn, type WithElementRef } from '../utils.js';
   import type { Snippet } from 'svelte';

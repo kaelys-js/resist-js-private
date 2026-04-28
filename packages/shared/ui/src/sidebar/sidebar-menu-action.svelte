@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * SidebarMenuAction Svelte component — small icon-button
+   * pinned to the right of a SidebarMenuItem for
+   * item-specific actions (delete, rename, etc).
+   *
+   * @module
+   */
   import { cn, type WithElementRef } from '../utils.js';
   import type { Snippet } from 'svelte';
   import type { HTMLButtonAttributes } from 'svelte/elements';

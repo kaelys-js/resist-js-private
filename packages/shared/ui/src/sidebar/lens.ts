@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Sidebar component (layout category)
+ * — application sidebar with collapsible nav groups. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
