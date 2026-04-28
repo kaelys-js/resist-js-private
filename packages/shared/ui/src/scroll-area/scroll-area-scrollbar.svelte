@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * ScrollAreaScrollbar Svelte component — single styled
+   * scrollbar track + thumb (horizontal or vertical) used
+   * inside the ScrollArea root.
+   *
+   * @module
+   */
   import { ScrollArea as ScrollAreaPrimitive } from 'bits-ui';
   import { cn, type WithoutChild } from '../utils.js';
 

@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the ScrollArea component (layout
+ * category) — custom scrollbar overflow container. @module
+ */
+
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
