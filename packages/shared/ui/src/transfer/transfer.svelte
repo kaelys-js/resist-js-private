@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * Transfer Svelte component — dual-list shuttle for moving
+   * items between source and target columns. Placeholder
+   * shell awaiting full implementation; ships with a class
+   * prop for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
