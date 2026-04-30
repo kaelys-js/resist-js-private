@@ -43,6 +43,7 @@
   const validated: ContentBlockProps = $derived.by(() => {
     const rawProps: ContentBlockProps = stripSvelteProps(allProps);
     const result = safeParse(ContentBlockPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

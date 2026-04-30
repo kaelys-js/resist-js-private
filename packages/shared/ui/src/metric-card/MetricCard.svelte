@@ -42,6 +42,7 @@
   const validated: MetricCardProps = $derived.by(() => {
     const rawProps: MetricCardProps = stripSvelteProps(allProps);
     const result = safeParse(MetricCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

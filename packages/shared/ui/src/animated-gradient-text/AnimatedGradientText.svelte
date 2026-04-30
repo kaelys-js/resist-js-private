@@ -42,6 +42,7 @@
   const validated: AnimatedGradientTextProps = $derived.by(() => {
     const rawProps: AnimatedGradientTextProps = stripSvelteProps(allProps);
     const result = safeParse(AnimatedGradientTextPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

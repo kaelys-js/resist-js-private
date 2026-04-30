@@ -29,14 +29,18 @@ const localeModules: Record<string, Record<string, RawLocaleStrings>> = import.m
  * Extracts the locale code from the filename (e.g., `../locales/en.ts` → `'en'`).
  */
 const locales: Record<string, RawLocaleStrings> = {};
+
 for (const [path, mod] of Object.entries(localeModules)) {
   const match: RegExpMatchArray | null = path.match(/\/(\w+)\.ts$/);
+
   if (!match) {
     continue;
   }
+
   const [, code]: RegExpMatchArray = match;
   // Each locale file exports a single named const — grab the first export value
   const [data]: RawLocaleStrings[] = Object.values(mod);
+
   if (data && code !== undefined) {
     locales[code] = data;
   }
@@ -57,6 +61,7 @@ if (!registryResult.ok) {
 }
 
 const storeResult = createLocaleStore<typeof EditorLocaleSchema>(registryResult.data);
+
 if (!storeResult.ok) {
   throw new Error(`Locale store failed: ${storeResult.error.code} — ${storeResult.error.message}`);
 }

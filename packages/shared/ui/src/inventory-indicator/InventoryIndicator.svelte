@@ -42,6 +42,7 @@
   const validated: InventoryIndicatorProps = $derived.by(() => {
     const rawProps: InventoryIndicatorProps = stripSvelteProps(allProps);
     const result = safeParse(InventoryIndicatorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

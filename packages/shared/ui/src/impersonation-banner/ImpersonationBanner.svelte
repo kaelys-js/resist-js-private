@@ -42,6 +42,7 @@
   const validated: ImpersonationBannerProps = $derived.by(() => {
     const rawProps: ImpersonationBannerProps = stripSvelteProps(allProps);
     const result = safeParse(ImpersonationBannerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

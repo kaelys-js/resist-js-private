@@ -42,6 +42,7 @@
   const validated: SystemStatusProps = $derived.by(() => {
     const rawProps: SystemStatusProps = stripSvelteProps(allProps);
     const result = safeParse(SystemStatusPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

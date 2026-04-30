@@ -54,6 +54,7 @@ const rule: WorkspaceRule = {
     for (const pkg of packages) {
       const pkgJson = pkg.packageJson as Record<string, unknown>;
       const contributes = pkgJson['contributes'] as Record<string, unknown> | undefined;
+
       if (!contributes || !contributes['commands']) {
         continue;
       }
@@ -85,6 +86,7 @@ const rule: WorkspaceRule = {
 
       // Extract COMMANDS from brand.ts
       const commandsBlock: RegExpMatchArray | null = COMMANDS_BLOCK_RE.exec(brandSource);
+
       if (!commandsBlock) {
         results.push(
           createResult(
@@ -105,12 +107,14 @@ const rule: WorkspaceRule = {
       const brandCommands: string[] = [];
       const commandsText: string = commandsBlock[1] ?? '';
       let match: RegExpExecArray | null;
+
       while ((match = COMMAND_VALUE_RE.exec(commandsText)) !== null) {
         brandCommands.push(match[1] ?? match[2] ?? '');
       }
 
       // Extract CONFIG_SECTION from brand.ts
       const configMatch: RegExpMatchArray | null = CONFIG_SECTION_RE.exec(brandSource);
+
       if (!configMatch) {
         results.push(
           createResult(

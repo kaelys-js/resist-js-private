@@ -42,6 +42,7 @@
   const validated: OauthButtonsProps = $derived.by(() => {
     const rawProps: OauthButtonsProps = stripSvelteProps(allProps);
     const result = safeParse(OauthButtonsPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -184,9 +184,11 @@ describe('getFileUrl', () => {
 describe('toRelativePath', () => {
   it('converts absolute path within cwd to relative', () => {
     const cwdResult = cwd();
+
     if (!cwdResult.ok) {
       throw new Error('cwd failed');
     }
+
     const abs = `${cwdResult.data}/src/test.ts` as Path;
     const result: Result<Path> = toRelativePath(abs);
     expect(result.ok).toBe(true);
@@ -214,9 +216,11 @@ describe('toRelativePath', () => {
 
   it('returns original path when relative equals empty (cwd itself)', () => {
     const cwdResult = cwd();
+
     if (!cwdResult.ok) {
       throw new Error('cwd failed');
     }
+
     const result: Result<Path> = toRelativePath(cwdResult.data);
     expect(result.ok).toBe(true);
     if (result.ok) {

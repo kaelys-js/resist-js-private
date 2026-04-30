@@ -42,6 +42,7 @@
   const validated: PinchToZoomProps = $derived.by(() => {
     const rawProps: PinchToZoomProps = stripSvelteProps(allProps);
     const result = safeParse(PinchToZoomPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

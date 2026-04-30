@@ -42,6 +42,7 @@
   const validated: MeterProps = $derived.by(() => {
     const rawProps: MeterProps = stripSvelteProps(allProps);
     const result = safeParse(MeterPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

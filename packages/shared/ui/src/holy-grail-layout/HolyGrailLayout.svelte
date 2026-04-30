@@ -42,6 +42,7 @@
   const validated: HolyGrailLayoutProps = $derived.by(() => {
     const rawProps: HolyGrailLayoutProps = stripSvelteProps(allProps);
     const result = safeParse(HolyGrailLayoutPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

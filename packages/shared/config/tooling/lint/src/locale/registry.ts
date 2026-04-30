@@ -63,6 +63,7 @@ export function resolveLocale(requested?: string): LocaleResult {
   }
 
   const available: string = getAvailableLocales().join(', ');
+
   return {
     ok: false,
     error: `Unknown locale "${requested}". Available locales: ${available}`,

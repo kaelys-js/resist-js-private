@@ -43,6 +43,7 @@
   const validated: ComparisonSliderProps = $derived.by(() => {
     const rawProps: ComparisonSliderProps = stripSvelteProps(allProps);
     const result = safeParse(ComparisonSliderPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

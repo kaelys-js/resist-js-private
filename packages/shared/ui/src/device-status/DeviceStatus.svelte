@@ -42,6 +42,7 @@
   const validated: DeviceStatusProps = $derived.by(() => {
     const rawProps: DeviceStatusProps = stripSvelteProps(allProps);
     const result = safeParse(DeviceStatusPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

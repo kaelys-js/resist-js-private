@@ -51,6 +51,7 @@
   const validated: KbdGroupProps = $derived.by(() => {
     const rawProps: KbdGroupProps = stripSvelteProps(restProps);
     const result = safeParse(KbdGroupPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

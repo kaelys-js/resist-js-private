@@ -42,6 +42,7 @@
   const validated: InlineAlertProps = $derived.by(() => {
     const rawProps: InlineAlertProps = stripSvelteProps(allProps);
     const result = safeParse(InlineAlertPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

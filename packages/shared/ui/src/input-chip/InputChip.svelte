@@ -42,6 +42,7 @@
   const validated: InputChipProps = $derived.by(() => {
     const rawProps: InputChipProps = stripSvelteProps(allProps);
     const result = safeParse(InputChipPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -44,6 +44,7 @@ const RSTCHECK_LINE: RegExp = /^(.+):(\d+):\s*\((ERROR|WARNING|INFO|SEVERE)\/.+\
  */
 export function transformRstcheckOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -53,11 +54,13 @@ export function transformRstcheckOutput(output: string): LintResult[] {
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = RSTCHECK_LINE.exec(stripped);
+
     if (!match) {
       continue;
     }
@@ -70,6 +73,7 @@ export function transformRstcheckOutput(output: string): LintResult[] {
     const levelLower: string = level.toLowerCase();
 
     let severity: 'error' | 'warning' | 'info' = 'warning';
+
     if (level === 'ERROR' || level === 'SEVERE') {
       severity = 'error';
     } else if (level === 'INFO') {

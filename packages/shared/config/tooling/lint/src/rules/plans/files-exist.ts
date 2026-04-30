@@ -63,6 +63,7 @@ const rule: WorkspaceRule = {
 
           /* Resolve path: if plan has a package path, use it as base */
           let resolvedPath: string = taskFile.path;
+
           if (plan.header.packagePath.length > 0 && !taskFile.path.startsWith('/')) {
             resolvedPath = join(ctx.rootDir, plan.header.packagePath, taskFile.path);
           } else if (!taskFile.path.startsWith('/')) {
@@ -70,6 +71,7 @@ const rule: WorkspaceRule = {
           }
 
           const exists: boolean = await ctx.fileExists(resolvedPath);
+
           if (!exists) {
             results.push(
               createResult(

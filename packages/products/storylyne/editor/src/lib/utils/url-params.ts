@@ -75,5 +75,6 @@ export function applyUrlOverrides(
   overrides: UrlOverrides,
 ): Result<Void> {
   const config = getDevtoolsConfig();
+
   return sharedApplyUrlOverrides(editorStore, debugStore, overrides, config);
 }

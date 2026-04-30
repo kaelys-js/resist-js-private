@@ -119,6 +119,7 @@ export async function waitForBoot(
         'getprop',
         'sys.boot_completed',
       ]);
+
       return parseBootStatus(stdout as Str) as Bool;
     } catch {
       /* Device not yet reachable */
@@ -128,6 +129,7 @@ export async function waitForBoot(
 
   /* Initial check */
   const initialCheck: Bool = await checkOnce();
+
   if (initialCheck) {
     return true as Bool;
   }
@@ -156,6 +158,7 @@ async function pollBoot(
   await delay();
 
   const ready: Bool = await check();
+
   if (ready) {
     return true as Bool;
   }

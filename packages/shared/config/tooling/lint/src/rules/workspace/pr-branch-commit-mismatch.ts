@@ -48,11 +48,13 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     const sourceBranch: string | undefined = process.env['MR_SOURCE_BRANCH'];
+
     if (sourceBranch === undefined) {
       return Promise.resolve(results);
     }
 
     const commits: string | undefined = process.env['MR_COMMITS'];
+
     if (commits === undefined) {
       return Promise.resolve(results);
     }
@@ -62,6 +64,7 @@ const rule: WorkspaceRule = {
     }
 
     const [prefix]: string[] = sourceBranch.split(/[/-]/);
+
     if (prefix === undefined || prefix === '') {
       return Promise.resolve(results);
     }

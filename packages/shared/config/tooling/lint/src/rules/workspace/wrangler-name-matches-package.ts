@@ -22,6 +22,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -47,11 +48,13 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
+
       if (name !== 'wrangler.json' && name !== 'wrangler.jsonc') {
         continue;
       }
 
       let wranglerContent: string;
+
       try {
         wranglerContent = await ctx.readFile(filePath);
       } catch {
@@ -59,6 +62,7 @@ const rule: WorkspaceRule = {
       }
 
       let wranglerJson: Record<string, unknown>;
+
       try {
         wranglerJson = JSON.parse(wranglerContent) as Record<string, unknown>;
       } catch {
@@ -66,6 +70,7 @@ const rule: WorkspaceRule = {
       }
 
       const wranglerName: unknown = wranglerJson.name;
+
       if (typeof wranglerName !== 'string') {
         continue;
       }
@@ -80,6 +85,7 @@ const rule: WorkspaceRule = {
       }
 
       let pkgContent: string;
+
       try {
         pkgContent = await ctx.readFile(pkgPath);
       } catch {
@@ -87,6 +93,7 @@ const rule: WorkspaceRule = {
       }
 
       let pkgJson: Record<string, unknown>;
+
       try {
         pkgJson = JSON.parse(pkgContent) as Record<string, unknown>;
       } catch {
@@ -94,6 +101,7 @@ const rule: WorkspaceRule = {
       }
 
       const pkgName: unknown = pkgJson.name;
+
       if (typeof pkgName !== 'string') {
         continue;
       }

@@ -42,6 +42,7 @@
   const validated: TriStateCheckboxProps = $derived.by(() => {
     const rawProps: TriStateCheckboxProps = stripSvelteProps(allProps);
     const result = safeParse(TriStateCheckboxPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

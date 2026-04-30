@@ -201,7 +201,9 @@ ${'<'}/script>
     if (!exportSearch) {
       return EXPORT_OPTIONS;
     }
+
     const q: Str = exportSearch.toLowerCase() as Str;
+
     return EXPORT_OPTIONS.filter(
       (o) => o.label.toLowerCase().includes(q) || o.description.toLowerCase().includes(q),
     );

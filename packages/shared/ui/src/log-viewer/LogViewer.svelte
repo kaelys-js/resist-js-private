@@ -42,6 +42,7 @@
   const validated: LogViewerProps = $derived.by(() => {
     const rawProps: LogViewerProps = stripSvelteProps(allProps);
     const result = safeParse(LogViewerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -104,8 +104,10 @@ const rule: WorkspaceRule = {
 
       /* Check required tail tasks */
       const taskNames: string[] = plan.tasks.map((t) => t.name);
+
       for (const req of REQUIRED_TAIL_TASKS) {
         const found: boolean = taskNames.some((name: string): boolean => req.pattern.test(name));
+
         if (!found) {
           results.push(
             createResult(
@@ -125,6 +127,7 @@ const rule: WorkspaceRule = {
 
       /* Check Integration Verification task content */
       const integrationTask = plan.tasks.find((t) => /integration\s+verification/i.test(t.name));
+
       if (integrationTask !== undefined) {
         const taskContent: string = [
           integrationTask.gap,
@@ -133,6 +136,7 @@ const rule: WorkspaceRule = {
         ].join('\n');
 
         const missingChecks: string[] = [];
+
         for (const check of INTEGRATION_CHECKS) {
           if (!check.pattern.test(taskContent)) {
             missingChecks.push(check.label);
@@ -158,6 +162,7 @@ const rule: WorkspaceRule = {
 
       /* Check Final Verification + Commit has >=3 verify bullets */
       const finalTask = plan.tasks.find((t) => /final\s+verification.*commit/i.test(t.name));
+
       if (finalTask !== undefined) {
         const verifyCount: number = (finalTask.verification.match(/[Vv]erify/g) ?? []).length;
         const planVerifyCount: number = finalTask.planBullets.filter((b: string): boolean =>
@@ -184,8 +189,10 @@ const rule: WorkspaceRule = {
 
       /* Check Full QA task has pnpm commands */
       const qaTask = plan.tasks.find((t) => /full\s+qa|qa.*coverage/i.test(t.name));
+
       if (qaTask !== undefined) {
         const qaContent: string = [...qaTask.planBullets, qaTask.verification].join('\n');
+
         if (!qaContent.includes('pnpm')) {
           results.push(
             createResult(

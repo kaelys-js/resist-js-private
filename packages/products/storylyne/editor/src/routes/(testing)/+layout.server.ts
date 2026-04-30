@@ -30,6 +30,7 @@ export const load: LayoutServerLoad = () => {
     const iconsDir: string = resolve('node_modules/@lucide/svelte/dist/icons');
     const files: string[] = readdirSync(iconsDir);
     const nameSet: Set<string> = new Set();
+
     for (const file of files) {
       if (file.endsWith('.svelte') && !file.endsWith('.d.ts')) {
         nameSet.add(file.replace('.svelte', ''));

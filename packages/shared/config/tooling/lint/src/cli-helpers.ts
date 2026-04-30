@@ -155,8 +155,10 @@ export function parseCliArgs(argv: string[]): CliArgs {
    * argv entry which would otherwise be misclassified as a positional path. */
   const packageNames: string[] = [];
   const consumed: Set<number> = new Set<number>();
+
   for (let i: number = 0; i < argv.length; i++) {
     const a: string = argv[i] ?? '';
+
     if (a === '--package' && i + 1 < argv.length) {
       packageNames.push(argv[i + 1] ?? '');
       consumed.add(i);
@@ -166,6 +168,7 @@ export function parseCliArgs(argv: string[]): CliArgs {
       consumed.add(i);
     }
   }
+
   const filteredArgv: string[] = argv.filter((_: string, i: number): boolean => !consumed.has(i));
   const flags: string[] = filteredArgv.filter((a: string): boolean => a.startsWith('-'));
   const paths: string[] = filteredArgv.filter((a: string): boolean => !a.startsWith('-'));
@@ -175,10 +178,13 @@ export function parseCliArgs(argv: string[]): CliArgs {
   if (packageNames.length > 0) {
     const root: string = findWorkspaceRoot(process.cwd()) ?? process.cwd();
     const pkgMap: ReadonlyMap<string, string> = getPackageMap(root);
+
     for (const name of packageNames) {
       const dir: string | undefined = pkgMap.get(name);
+
       if (dir === undefined) {
         const valid: string = [...pkgMap.keys()].toSorted().join(', ');
+
         throw new Error(`Unknown --package: ${name}. Valid packages: ${valid}`);
       }
       paths.push(dir);
@@ -224,6 +230,7 @@ export function parseCliArgs(argv: string[]): CliArgs {
     (f: string): boolean => f === '--diff' || f.startsWith('--diff='),
   );
   let diff: 'head' | 'staged' | undefined;
+
   if (diffFlag) {
     const diffValue: string = diffFlag.includes('=') ? (diffFlag.split('=')[1] ?? 'head') : 'head';
     diff = diffValue === 'staged' ? 'staged' : 'head';
@@ -280,9 +287,11 @@ function parseFormatFlag(
   const formatFlag: string | undefined = flags.find((f: string): boolean =>
     f.startsWith('--format='),
   );
+
   if (!formatFlag) {
     return undefined;
   }
+
   const value: string = formatFlag.split('=')[1] ?? 'text';
   const validFormats: ReadonlySet<string> = new Set([
     'text',
@@ -292,6 +301,7 @@ function parseFormatFlag(
     'junit',
     'compact',
   ]);
+
   if (validFormats.has(value)) {
     return value as 'text' | 'json' | 'sarif' | 'github' | 'junit' | 'compact';
   }
@@ -315,12 +325,15 @@ const _packageMapCache: Map<string, Map<string, string>> = new Map<string, Map<s
  */
 export function getPackageMap(workspaceRoot: string): ReadonlyMap<string, string> {
   const cached: Map<string, string> | undefined = _packageMapCache.get(workspaceRoot);
+
   if (cached !== undefined) {
     return cached;
   }
+
   const map: Map<string, string> = new Map<string, string>();
   const walk = (dir: string): void => {
     let entries: Dirent[];
+
     try {
       entries = readdirSync(dir, { withFileTypes: true });
     } catch {
@@ -336,6 +349,7 @@ export function getPackageMap(workspaceRoot: string): ReadonlyMap<string, string
         try {
           const content: string = readFileSync(join(dir, 'package.json'), 'utf8');
           const pkg: { name?: string } = JSON.parse(content) as { name?: string };
+
           if (typeof pkg.name === 'string' && pkg.name.length > 0) {
             map.set(pkg.name, dir);
           }
@@ -395,8 +409,10 @@ function ruleDomainFor(ruleId: string): string | null {
  */
 export function pathsIntersectDomain(paths: readonly string[], domain: string): boolean {
   const normDomain: string = domain.replace(/^\.\//, '').replace(/\/+$/, '');
+
   for (const raw of paths) {
     const norm: string = raw.replace(/^\.\//, '').replace(/\/+$/, '');
+
     if (norm === normDomain) {
       return true;
     }
@@ -422,7 +438,9 @@ export function shouldRunWorkspaceRule(ruleId: string, paths: readonly string[])
   if (paths.length === 0) {
     return true;
   }
+
   const domain: string | null = ruleDomainFor(ruleId);
+
   if (domain === null) {
     return true;
   }
@@ -501,10 +519,13 @@ const BINARY_EXTENSIONS: ReadonlySet<string> = new Set([
  */
 export function isBinaryFile(filePath: string): boolean {
   const dot: number = filePath.lastIndexOf('.');
+
   if (dot < 0) {
     return false;
   }
+
   const ext: string = filePath.slice(dot).toLowerCase();
+
   return BINARY_EXTENSIONS.has(ext);
 }
 
@@ -525,6 +546,7 @@ export function getGitChangedFiles(mode: 'head' | 'staged'): Set<string> {
     mode === 'staged' ? 'git diff --cached --name-only' : 'git diff --name-only HEAD';
 
   let output: string;
+
   try {
     output = execSync(cmd, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
   } catch {
@@ -537,6 +559,7 @@ export function getGitChangedFiles(mode: 'head' | 'staged'): Set<string> {
 
   for (const line of output.split('\n')) {
     const trimmed: string = line.trim();
+
     if (trimmed.length > 0) {
       files.add(resolve(cwd, trimmed));
     }
@@ -574,6 +597,7 @@ export function shouldLint(filePath: string, config: LintConfig): boolean {
   }
 
   const ext: string = extname(filePath);
+
   return config.extensions.includes(ext);
 }
 
@@ -610,6 +634,7 @@ export function shouldExcludeDir(
   }
 
   const relPath: string = relative(rootDir, dirFullPath);
+
   return excludePaths.some((p: string): boolean => relPath === p || relPath.startsWith(`${p}/`));
 }
 
@@ -655,6 +680,7 @@ export async function collectFiles(
   const { excludeNames, excludePaths } = splitExcludes(config.exclude);
 
   let entries: Dirent[];
+
   try {
     entries = (await readdir(dir, { withFileTypes: true })) as Dirent[];
   } catch {
@@ -679,6 +705,7 @@ export async function collectFiles(
 
   if (subdirPromises.length > 0) {
     const subdirResults: string[][] = await Promise.all(subdirPromises);
+
     for (const subFiles of subdirResults) {
       files.push(...subFiles);
     }
@@ -705,6 +732,7 @@ export async function collectPackageJsonFiles(
   const { excludeNames, excludePaths } = splitExcludes(config.exclude);
 
   let entries: Dirent[];
+
   try {
     entries = (await readdir(dir, { withFileTypes: true })) as Dirent[];
   } catch {
@@ -715,6 +743,7 @@ export async function collectPackageJsonFiles(
 
   for (const entry of entries) {
     const fullPath: string = join(dir, entry.name as string);
+
     if (entry.isDirectory()) {
       if (shouldExcludeDir(entry.name as string, fullPath, root, excludeNames, excludePaths)) {
         continue;
@@ -727,6 +756,7 @@ export async function collectPackageJsonFiles(
 
   if (subdirPromises.length > 0) {
     const subdirResults: string[][] = await Promise.all(subdirPromises);
+
     for (const subFiles of subdirResults) {
       files.push(...subFiles);
     }
@@ -757,6 +787,7 @@ export function runPkgRules(
   allRuleOptions?: Record<string, Record<string, unknown>>,
 ): LintResult[] {
   const results: LintResult[] = [];
+
   for (const rule of rules) {
     const ruleOpts: Record<string, unknown> | undefined = allRuleOptions?.[rule.id];
     const context: PackageJsonContext = { file: filePath, isRoot, pkg, ruleOptions: ruleOpts };
@@ -784,6 +815,7 @@ function applyRuleOptionsOverrides(
 ): void {
   for (const rule of rules) {
     const opts: Record<string, unknown> | undefined = ruleOptions[rule.id];
+
     if (!opts) {
       continue;
     }
@@ -816,6 +848,7 @@ export function applyFixes(content: string, fixes: LintFix[]): string {
   );
 
   let result: string = content;
+
   for (const fix of sorted) {
     result = result.slice(0, fix.range.start) + fix.text + result.slice(fix.range.end);
   }
@@ -926,6 +959,7 @@ export function writeJsonSchema(
     ...wsRules.map((r: WorkspaceRule): string => r.id),
   ];
   const descriptions: Map<string, string> = new Map();
+
   for (const r of tsRules) {
     descriptions.set(r.id, r.description);
   }
@@ -935,7 +969,9 @@ export function writeJsonSchema(
   for (const r of wsRules) {
     descriptions.set(r.id, r.description);
   }
+
   const ruleOptSchemas: Map<string, OptionsSchema> = new Map();
+
   for (const r of tsRules) {
     if (r.optionsSchema) {
       ruleOptSchemas.set(r.id, r.optionsSchema);
@@ -951,6 +987,7 @@ export function writeJsonSchema(
       ruleOptSchemas.set(r.id, r.optionsSchema);
     }
   }
+
   const schema: Record<string, unknown> = generateJsonSchema(
     allRuleIds,
     descriptions,
@@ -958,6 +995,7 @@ export function writeJsonSchema(
     ruleOptSchemas,
   );
   const outPath: string = resolve(cwd, SCHEMA_FILENAME);
+
   try {
     const raw: string = JSON.stringify(schema, null, 2);
     writeFileSync(outPath, `${collapseShortJsonArrays(raw, 100)}\n`, 'utf8');
@@ -1147,9 +1185,11 @@ function processBailTasks(
    */
   async function processNext(index: number): Promise<{ results: LintResult[]; bailed: boolean }> {
     const task = tasks[index];
+
     if (index >= tasks.length || !task) {
       return { bailed: false, results: accumulated };
     }
+
     const taskResults: LintResult[] = await runTypeScriptRules(
       task.filePath,
       task.content,
@@ -1269,6 +1309,7 @@ export async function _runLintCore(
 
   /* Collect files — when --stdin-filename is set, use that as the sole file */
   const allFiles: string[] = [];
+
   if (cliArgs.stdinFilename && stdinContent !== undefined) {
     const resolved: string = resolve(cliArgs.stdinFilename);
     allFiles.push(resolved);
@@ -1277,8 +1318,10 @@ export async function _runLintCore(
     const collectedPerPath: string[][] = await Promise.all(
       paths.map(async (p): Promise<string[]> => {
         const resolved: string = resolve(p);
+
         try {
           const s: Awaited<ReturnType<typeof stat>> = await stat(resolved);
+
           if (s.isDirectory()) {
             return collectFiles(resolved, config, cwd);
           }
@@ -1292,6 +1335,7 @@ export async function _runLintCore(
         }
       }),
     );
+
     for (const collected of collectedPerPath) {
       allFiles.push(...collected);
     }
@@ -1320,6 +1364,7 @@ export async function _runLintCore(
 
   /* Build rule description map (needed for SARIF format and API consumers) */
   const ruleDescs: Map<string, string> = new Map<string, string>();
+
   for (const rule of loaded.typescript) {
     ruleDescs.set(rule.id, rule.description);
   }
@@ -1359,11 +1404,13 @@ export async function _runLintCore(
 
   /* Identify rules with finalize() — these need check() on ALL files for cross-file state */
   const finalizeRuleIds: Set<string> = new Set();
+
   for (const rule of allTsRules) {
     if (rule.finalize) {
       finalizeRuleIds.add(rule.id);
     }
   }
+
   const hasFinalizeRules: boolean = finalizeRuleIds.size > 0;
 
   /* Run TypeScript rules on each file — read all files concurrently */
@@ -1382,8 +1429,10 @@ export async function _runLintCore(
     const readResults: Array<PromiseSettledResult<string>> = await Promise.allSettled(
       allFiles.map((filePath: string): Promise<string> => readFile(filePath, 'utf8')),
     );
+
     for (let i: number = 0; i < allFiles.length; i++) {
       const result: PromiseSettledResult<string> | undefined = readResults[i];
+
       if (result?.status === 'fulfilled') {
         fileContents.set(allFiles[i] ?? '', result.value);
       }
@@ -1402,6 +1451,7 @@ export async function _runLintCore(
     const out: LintResult[] = [];
     dbg(strings.debug.toolLoading);
     const toolRegistry: ToolRegistry = new ToolRegistry(strings);
+
     for (const tool of ALL_TOOLS) {
       toolRegistry.register(tool);
     }
@@ -1469,6 +1519,7 @@ export async function _runLintCore(
         (wsTool: WorkspaceTool): Promise<LintResult[]> => toolRegistry.runWorkspaceTool(wsTool),
       ),
     );
+
     for (const wsToolResults of remainingResults) {
       out.push(...wsToolResults);
       wsResultCount += wsToolResults.length;
@@ -1497,6 +1548,7 @@ export async function _runLintCore(
   } else {
     for (const filePath of allFiles) {
       const content: string | undefined = fileContents.get(filePath);
+
       if (content === undefined) {
         /* File not readable — skip */
         continue;
@@ -1504,8 +1556,10 @@ export async function _runLintCore(
 
       /* Check cache first */
       let cacheHit: boolean = false;
+
       if (lintCache) {
         const cached: LintResult[] | null = lintCache.get(filePath, content);
+
         if (cached) {
           cachedResults.push(...cached);
           cacheHit = true;
@@ -1522,6 +1576,7 @@ export async function _runLintCore(
           const patternMatch: boolean = rule.patterns.some((pattern: string): boolean => {
             if (pattern.startsWith('**/*.')) {
               const ext: string = pattern.slice(4);
+
               if (filePath.endsWith(ext)) {
                 return true;
               }
@@ -1540,6 +1595,7 @@ export async function _runLintCore(
 
           /* Check override severity — skip if "off" for this file */
           const severity: string = resolveRuleSeverity(config, rule.id, filePath);
+
           return severity !== 'off';
         },
       );
@@ -1555,6 +1611,7 @@ export async function _runLintCore(
           const finalizeRules: TypeScriptRule[] = applicableRules.filter(
             (r: TypeScriptRule): boolean => r.finalize !== undefined,
           );
+
           if (finalizeRules.length > 0) {
             finalizeStateTasks.push({ applicableRules: finalizeRules, content, filePath });
           }
@@ -1646,10 +1703,12 @@ export async function _runLintCore(
   if (lintCache) {
     /* Group results by file for cache storage */
     const resultsByFile: Map<string, LintResult[]> = new Map();
+
     for (const result of allResults) {
       if (finalizeRuleIds.has(result.ruleId)) {
         continue;
       }
+
       const existing: LintResult[] = resultsByFile.get(result.file) ?? [];
       existing.push(result);
       resultsByFile.set(result.file, existing);
@@ -1672,11 +1731,14 @@ export async function _runLintCore(
     );
   }
   /* Run package.json rules (skip if bailed) */
+
   const pkgFilesPerPath: string[][] = await Promise.all(
     paths.map(async (p): Promise<string[]> => {
       const resolved: string = resolve(p);
+
       try {
         const s: Awaited<ReturnType<typeof stat>> = await stat(resolved);
+
         if (s.isDirectory()) {
           return collectPackageJsonFiles(resolved, config, cwd);
         }
@@ -1694,9 +1756,11 @@ export async function _runLintCore(
   const pkgReadResults: Array<PromiseSettledResult<string>> = await Promise.allSettled(
     pkgFiles.map((pkgPath: string): Promise<string> => readFile(pkgPath, 'utf8')),
   );
+
   for (let i: number = 0; i < pkgFiles.length; i++) {
     const pkgPath: string = pkgFiles[i] ?? '';
     const pkgResult: PromiseSettledResult<string> | undefined = pkgReadResults[i];
+
     if (pkgResult?.status !== 'fulfilled') {
       continue;
     }
@@ -1709,6 +1773,7 @@ export async function _runLintCore(
        * Push to allResults directly (cachedResults has already been merged). */
       if (lintCache) {
         const cached: LintResult[] | null = lintCache.get(pkgPath, raw);
+
         if (cached) {
           allResults.push(...cached);
           continue;
@@ -1742,10 +1807,12 @@ export async function _runLintCore(
   /* Run workspace rules (skip if bailed or if only individual files were provided).
    * Workspace rules scan the entire repo so they only make sense when linting
    * directories (e.g., `resist-lint packages/` or the default config include paths). */
+
   const dirChecks: boolean[] = await Promise.all(
     paths.map(async (p: string): Promise<boolean> => {
       try {
         const st: Awaited<ReturnType<typeof stat>> = await stat(resolve(p));
+
         return st.isDirectory();
       } catch {
         return false;
@@ -1816,14 +1883,18 @@ export async function _runLintCore(
             const inputFiles: readonly string[] = await rule.inputs(wsContext);
             const pathsKey: string = [...inputFiles].toSorted().join('\n');
             let fp: string | undefined = fpMemo.get(pathsKey);
+
             if (fp === undefined) {
               fp = fingerprintFiles(inputFiles);
               fpMemo.set(pathsKey, fp);
             }
+
             const cached: LintResult[] | null = lintCache.getTool(`workspace:${rule.id}`, '/', fp);
+
             if (cached !== null) {
               return cached;
             }
+
             const results: LintResult[] = await rule.check(wsContext);
             lintCache.setTool(`workspace:${rule.id}`, '/', fp, results);
             return results;
@@ -1835,6 +1906,7 @@ export async function _runLintCore(
       /* Post-filter: strip results from excluded paths (defense in depth) */
       const { excludeNames: wsExcNames, excludePaths: wsExcPaths } = splitExcludes(config.exclude);
       const cwdResolved: string = resolve(cwd);
+
       for (const results of wsResults) {
         for (const r of results) {
           const relFile: string = relative(cwdResolved, r.file);
@@ -1843,6 +1915,7 @@ export async function _runLintCore(
           const pathExcluded: boolean = wsExcPaths.some(
             (ep: string): boolean => relFile === ep || relFile.startsWith(`${ep}/`),
           );
+
           if (!nameExcluded && !pathExcluded) {
             allResults.push(r);
           }
@@ -1868,6 +1941,7 @@ export async function _runLintCore(
   /* Apply per-file severity from overrides (convert error to warning based on config) */
   allResults = allResults.map((result: LintResult): LintResult => {
     const severity: string = resolveRuleSeverity(config, result.ruleId, result.file);
+
     if (severity === 'warn' && result.severity === 'error') {
       return { ...result, severity: 'warning' };
     }
@@ -1885,12 +1959,15 @@ export async function _runLintCore(
 
   /* Apply fixes if --fix */
   let fixesApplied: number = 0;
+
   if (cliArgs.fix && allResults.length > 0) {
     const fixesByFile: Map<string, LintFix[]> = new Map();
+
     for (const result of allResults) {
       if (!result.fix) {
         continue;
       }
+
       const existing: LintFix[] = fixesByFile.get(result.file) ?? [];
       existing.push(result.fix);
       fixesByFile.set(result.file, existing);
@@ -1900,9 +1977,11 @@ export async function _runLintCore(
     const fixReads: Array<PromiseSettledResult<string>> = await Promise.allSettled(
       fixEntries.map(([fp]: [string, LintFix[]]): Promise<string> => readFile(fp, 'utf8')),
     );
+
     for (let i: number = 0; i < fixEntries.length; i++) {
       const [filePath, fixes] = fixEntries[i] ?? ['', []];
       const fixRead: PromiseSettledResult<string> | undefined = fixReads[i];
+
       if (fixRead?.status !== 'fulfilled') {
         output.stderr(`${format(strings.errors.fixFailed, { filePath })}\n`);
         continue;
@@ -1916,6 +1995,7 @@ export async function _runLintCore(
           ? translateFixes(fixes, extractScriptBlocks(original), original)
           : fixes;
         const fixed: string = applyFixes(original, translatedFixes);
+
         if (fixed !== original) {
           writeFileSync(filePath, fixed, 'utf8');
           fixesApplied++;
@@ -2020,6 +2100,7 @@ export async function runLinter(
   /* Validate config against known rule IDs — emit warnings for suspect entries */
   const knownRuleIds: Set<string> = new Set<string>();
   const optionsSchemas: Map<string, OptionsSchema> = new Map();
+
   for (const r of loaded.typescript) {
     knownRuleIds.add(r.id);
     if (r.optionsSchema) {
@@ -2038,7 +2119,9 @@ export async function runLinter(
       optionsSchemas.set(r.id, r.optionsSchema);
     }
   }
+
   const configWarnings: ConfigWarning[] = validateConfig(config, knownRuleIds, optionsSchemas);
+
   for (const w of configWarnings) {
     output.stderr(`[error] ${w.path}: ${w.message}\n`);
   }
@@ -2123,6 +2206,7 @@ export async function runLinter(
     core.ruleDescs,
     strings,
   );
+
   if (formatted.length > 0) {
     output.stdout(formatted);
   }
@@ -2131,6 +2215,7 @@ export async function runLinter(
 
   /* Exit with error if any errors found (unless --warn-only) */
   const hasErrors: boolean = core.results.some((r: LintResult): boolean => r.severity === 'error');
+
   if (cliArgs.warnOnly) {
     return 0;
   }

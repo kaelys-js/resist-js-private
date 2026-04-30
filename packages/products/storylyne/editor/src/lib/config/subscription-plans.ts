@@ -123,5 +123,6 @@ export function getPresetForPlan(plan: Str): Partial<FeatureFlags> {
  */
 export function applyPlanPreset(plan: Str): FeatureFlags {
   const preset: Partial<FeatureFlags> = getPresetForPlan(plan);
+
   return { ...ALL_ENABLED, ...preset };
 }

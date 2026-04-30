@@ -42,6 +42,7 @@
   const validated: PhoneMockupProps = $derived.by(() => {
     const rawProps: PhoneMockupProps = stripSvelteProps(allProps);
     const result = safeParse(PhoneMockupPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

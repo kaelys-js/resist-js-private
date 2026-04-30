@@ -42,6 +42,7 @@
   const validated: DataExportProps = $derived.by(() => {
     const rawProps: DataExportProps = stripSvelteProps(allProps);
     const result = safeParse(DataExportPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

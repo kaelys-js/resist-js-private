@@ -44,6 +44,7 @@
   const validated: CopyImportProps = $derived.by(() => {
     const rawProps: CopyImportProps = stripSvelteProps(restProps);
     const result = safeParse(CopyImportPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

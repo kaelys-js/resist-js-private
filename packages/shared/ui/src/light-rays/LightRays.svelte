@@ -42,6 +42,7 @@
   const validated: LightRaysProps = $derived.by(() => {
     const rawProps: LightRaysProps = stripSvelteProps(allProps);
     const result = safeParse(LightRaysPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

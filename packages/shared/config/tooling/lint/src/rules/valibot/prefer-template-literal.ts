@@ -84,6 +84,7 @@ const rule: TypeScriptRule = {
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const callee = node.callee as AstNode | undefined;
+
       if (!callee) {
         return [];
       }
@@ -94,16 +95,20 @@ const rule: TypeScriptRule = {
         (callee.property as AstNode | undefined)?.name === 'pipe'
       ) {
         const pipeArgs = node.arguments as AstNode[] | undefined;
+
         if (!pipeArgs || pipeArgs.length < 2) {
           return [];
         }
 
         // First arg must be v.string()
         const [firstArg]: Array<AstNode | undefined> = pipeArgs;
+
         if (!firstArg) {
           return [];
         }
+
         const firstArgText: string = context.content.slice(firstArg.start, firstArg.end);
+
         if (!firstArgText.includes('string()')) {
           return [];
         }
@@ -111,9 +116,11 @@ const rule: TypeScriptRule = {
         // Find v.regex() in the remaining args
         for (let i: number = 1; i < pipeArgs.length; i++) {
           const arg = pipeArgs[i] as AstNode | undefined;
+
           if (!arg) {
             continue;
           }
+
           const argText: string = context.content.slice(arg.start, arg.end);
 
           if (!argText.includes('regex(')) {
@@ -124,6 +131,7 @@ const rule: TypeScriptRule = {
           const regexMatch: RegExpMatchArray | null = argText.match(
             /regex\s*\(\s*\/(.+?)\/[gimsuy]*\s*[,)]/,
           );
+
           if (!regexMatch) {
             continue;
           }

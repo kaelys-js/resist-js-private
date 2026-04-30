@@ -40,6 +40,7 @@ const rule: WorkspaceRule = {
 
     const openedAt: string | undefined = process.env['MR_OPENED_AT'];
     const nowUtc: string | undefined = process.env['NOW_UTC'];
+
     if (openedAt === undefined || nowUtc === undefined) {
       return Promise.resolve(results);
     }

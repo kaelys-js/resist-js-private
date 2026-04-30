@@ -43,6 +43,7 @@
   const validated: TransitionProps = $derived.by(() => {
     const rawProps: TransitionProps = stripSvelteProps(allProps);
     const result = safeParse(TransitionPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

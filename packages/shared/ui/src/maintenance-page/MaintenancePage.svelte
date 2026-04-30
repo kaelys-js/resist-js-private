@@ -42,6 +42,7 @@
   const validated: MaintenancePageProps = $derived.by(() => {
     const rawProps: MaintenancePageProps = stripSvelteProps(allProps);
     const result = safeParse(MaintenancePagePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

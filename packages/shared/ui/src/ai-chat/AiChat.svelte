@@ -42,6 +42,7 @@
   const validated: AiChatProps = $derived.by(() => {
     const rawProps: AiChatProps = stripSvelteProps(allProps);
     const result = safeParse(AiChatPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: LevelIndicatorProps = $derived.by(() => {
     const rawProps: LevelIndicatorProps = stripSvelteProps(allProps);
     const result = safeParse(LevelIndicatorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -85,6 +85,7 @@
     const setterName: Str = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
     // Dynamic setter access — store type doesn't expose string-indexed setters
     const setter = (debugStore as unknown as Record<Str, (v: unknown) => unknown>)[setterName];
+
     if (typeof setter === 'function') {
       setter(value);
     }
@@ -153,10 +154,12 @@
   }
 
   const buildInfoResult: Result<BuildInfo> = getBuildInfo();
+
   if (!buildInfoResult.ok) {
     log.warn(`Build info error: ${buildInfoResult.error.code}`);
   }
   // UI boundary — build info error logged, fallback used
+
   const buildInfo: BuildInfo | null = buildInfoResult.ok ? buildInfoResult.data : null;
 
   async function copyBuildInfo(): Promise<Void> {
@@ -195,6 +198,7 @@
     const entry = (localeStore.t.devToolbar.labels as unknown as Record<Str, () => Result<Str>>)[
       key
     ];
+
     return entry === undefined ? humanizeKey(key) : t(entry, humanizeKey(key));
   }
 
@@ -205,6 +209,7 @@
       const entry = (localeStore.t.devToolbar as unknown as Record<Str, () => Result<Str>>)[
         logLevelKey
       ];
+
       return entry === undefined
         ? humanizeOption(key, value)
         : t(entry, humanizeOption(key, value));

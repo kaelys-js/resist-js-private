@@ -21,6 +21,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -45,6 +46,7 @@ const rule: WorkspaceRule = {
     const workspaceFile: string = join(ctx.rootDir, 'pnpm-workspace.yaml');
 
     const exists: boolean = await ctx.fileExists(workspaceFile);
+
     if (!exists) {
       return [];
     }

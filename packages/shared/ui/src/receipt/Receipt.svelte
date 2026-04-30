@@ -42,6 +42,7 @@
   const validated: ReceiptProps = $derived.by(() => {
     const rawProps: ReceiptProps = stripSvelteProps(allProps);
     const result = safeParse(ReceiptPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

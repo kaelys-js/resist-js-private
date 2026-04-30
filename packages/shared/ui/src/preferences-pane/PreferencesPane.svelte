@@ -41,6 +41,7 @@
   const validated: PreferencesPaneProps = $derived.by(() => {
     const rawProps: PreferencesPaneProps = stripSvelteProps(allProps);
     const result = safeParse(PreferencesPanePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

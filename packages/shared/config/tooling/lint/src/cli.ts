@@ -20,9 +20,11 @@ import { format } from '@/lint/locale/schema.ts';
  * tsgo, svelte-check) installed via pnpm are discoverable by child processes
  * that look up commands by bare name. Mirrors what `pnpm run` does. */
 const __workspaceRoot: string | null = findWorkspaceRoot(process.cwd());
+
 if (__workspaceRoot !== null) {
   const binDir: string = join(__workspaceRoot, 'node_modules', '.bin');
   const currentPath: string = process.env['PATH'] ?? '';
+
   if (!currentPath.split(delimiter).includes(binDir)) {
     process.env['PATH'] = `${binDir}${delimiter}${currentPath}`;
   }
@@ -55,12 +57,14 @@ try {
 
   /* Read stdin when --stdin-filename is set */
   let stdinContent: string | undefined;
+
   if (args.stdinFilename) {
     stdinContent = await readStdin();
   }
 
   /* Resolve locale from --locale flag */
   const localeResult: LocaleResult = resolveLocale(args.locale);
+
   if (!localeResult.ok) {
     process.stderr.write(`${localeResult.error}\n`);
     process.exit(1);

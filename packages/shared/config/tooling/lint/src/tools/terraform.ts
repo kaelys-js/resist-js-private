@@ -35,6 +35,7 @@ const DIFF_FILE: RegExp = /^(?:---\s+a\/|diff\s+--git\s+a\/)(.+?)(?:\s|$)/;
  */
 export function transformTerraformOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -45,11 +46,13 @@ export function transformTerraformOutput(output: string, strings: LintStrings): 
 
   for (const line of lines) {
     const match: RegExpMatchArray | null = DIFF_FILE.exec(line.trim());
+
     if (!match) {
       continue;
     }
 
     const file: string = match[1] ?? '';
+
     if (file.length === 0 || seen.has(file)) {
       continue;
     }

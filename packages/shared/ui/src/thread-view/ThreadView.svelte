@@ -42,6 +42,7 @@
   const validated: ThreadViewProps = $derived.by(() => {
     const rawProps: ThreadViewProps = stripSvelteProps(allProps);
     const result = safeParse(ThreadViewPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

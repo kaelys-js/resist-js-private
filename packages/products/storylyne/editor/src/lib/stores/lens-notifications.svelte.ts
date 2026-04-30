@@ -111,6 +111,7 @@ let preferences: NotificationPreferences = $state({ ...DEFAULT_PREFERENCES });
 export function loadNotifications(): void {
   try {
     const stored: Str | null = localStorage.getItem(NOTIFICATIONS_KEY);
+
     if (stored) {
       notifications = JSON.parse(stored) as LensNotification[];
     }
@@ -119,6 +120,7 @@ export function loadNotifications(): void {
   }
   try {
     const stored: Str | null = localStorage.getItem(PREFERENCES_KEY);
+
     if (stored) {
       preferences = { ...DEFAULT_PREFERENCES, ...(JSON.parse(stored) as NotificationPreferences) };
     }
@@ -378,6 +380,7 @@ export function getGroupedNotifications(): {
 
   for (const n of notifications) {
     const age: number = now - new Date(n.timestamp).getTime();
+
     if (age < dayMs) {
       today.push(n);
     } else if (age < weekMs) {

@@ -42,6 +42,7 @@
   const validated: WindowProps = $derived.by(() => {
     const rawProps: WindowProps = stripSvelteProps(allProps);
     const result = safeParse(WindowPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

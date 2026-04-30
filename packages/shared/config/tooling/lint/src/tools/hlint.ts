@@ -37,11 +37,13 @@ import { createResult, type LintResult } from '@/lint/framework/types.ts';
  */
 export function transformHlintOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
 
   let items: unknown[];
+
   try {
     items = JSON.parse(trimmed) as unknown[];
   } catch {
@@ -61,6 +63,7 @@ export function transformHlintOutput(output: string): LintResult[] {
     const to: string | undefined = obj.to as string | undefined;
 
     let severity: 'error' | 'warning' | 'info' = 'warning';
+
     if (rawSeverity === 'Error') {
       severity = 'error';
     } else if (rawSeverity === 'Suggestion') {
@@ -68,6 +71,7 @@ export function transformHlintOutput(output: string): LintResult[] {
     }
 
     let tip: string | undefined;
+
     if (from && to) {
       tip = `Replace: "${from}" with "${to}"`;
     }

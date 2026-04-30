@@ -42,6 +42,7 @@
   const validated: SplineChartProps = $derived.by(() => {
     const rawProps: SplineChartProps = stripSvelteProps(allProps);
     const result = safeParse(SplineChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

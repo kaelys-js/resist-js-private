@@ -42,6 +42,7 @@
   const validated: SkeletonTextProps = $derived.by(() => {
     const rawProps: SkeletonTextProps = stripSvelteProps(allProps);
     const result = safeParse(SkeletonTextPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

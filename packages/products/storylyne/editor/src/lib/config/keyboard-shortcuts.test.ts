@@ -46,6 +46,7 @@ function mockEvent(
   } = {},
 ): KeyboardEvent {
   const target = opts.target ?? document.createElement('div');
+
   return {
     key,
     ctrlKey: opts.ctrlKey ?? false,
@@ -185,6 +186,7 @@ describe('DEFAULT_SHORTCUTS', () => {
       'DEV_COPY_STATE',
       'DEV_RESET_ALL',
     ];
+
     for (let i = 0; i < panelIds.length; i++) {
       const s = DEFAULT_SHORTCUTS[panelIds[i]!]!;
       expect(s.key).toBe(String(i + 1));
@@ -392,6 +394,7 @@ describe('formatShortcut', () => {
   it('formats Ctrl+1 correctly for the current platform', () => {
     const s = testShortcut({ key: '1', modifiers: ['ctrl'] });
     const result = formatShortcut(s);
+
     if (IS_MAC) {
       expect(result).toBe('⌃+1');
     } else {
@@ -402,6 +405,7 @@ describe('formatShortcut', () => {
   it('formats Ctrl+Shift+D correctly', () => {
     const s = testShortcut({ key: 'D', modifiers: ['ctrl', 'shift'] });
     const result = formatShortcut(s);
+
     if (IS_MAC) {
       expect(result).toBe('⌃+Shift+D');
     } else {
@@ -412,6 +416,7 @@ describe('formatShortcut', () => {
   it('formats Meta+B correctly', () => {
     const s = testShortcut({ key: 'b', modifiers: ['meta'] });
     const result = formatShortcut(s);
+
     if (IS_MAC) {
       expect(result).toBe('⌘+b');
     } else {
@@ -422,6 +427,7 @@ describe('formatShortcut', () => {
   it('formats cmdOrCtrl+B as Cmd on Mac, Ctrl on PC', () => {
     const s = testShortcut({ key: 'b', modifiers: ['cmdOrCtrl'] });
     const result = formatShortcut(s);
+
     if (IS_MAC) {
       expect(result).toBe('⌘+b');
     } else {
@@ -432,6 +438,7 @@ describe('formatShortcut', () => {
   it('formats cmdOrCtrl+Shift combination', () => {
     const s = testShortcut({ key: 'z', modifiers: ['cmdOrCtrl', 'shift'] });
     const result = formatShortcut(s);
+
     if (IS_MAC) {
       expect(result).toBe('⌘+Shift+z');
     } else {
@@ -447,6 +454,7 @@ describe('formatShortcut', () => {
   it('formats Space key', () => {
     const s = testShortcut({ key: ' ', modifiers: ['ctrl'] });
     const result = formatShortcut(s);
+
     if (IS_MAC) {
       expect(result).toBe('⌃+Space');
     } else {
@@ -457,6 +465,7 @@ describe('formatShortcut', () => {
   it('formats all four modifiers in correct order', () => {
     const s = testShortcut({ key: 'x', modifiers: ['alt', 'ctrl', 'meta', 'shift'] });
     const result = formatShortcut(s);
+
     if (IS_MAC) {
       // Order: ctrl, meta, shift, alt
       expect(result).toBe('⌃+⌘+Shift+⌥+x');
@@ -568,6 +577,7 @@ describe('getAllShortcuts', () => {
     const all = getAllShortcuts(DEFAULT_SHORTCUTS);
     // Group by context and verify label order within each group
     const byContext = new Map<Str, Str[]>();
+
     for (const s of all) {
       const labels = byContext.get(s.context) ?? [];
       labels.push(s.label);
@@ -677,6 +687,7 @@ describe('resetShortcut', () => {
 describe('resetAllShortcuts', () => {
   it('returns a registry matching DEFAULT_SHORTCUTS', () => {
     const fresh = resetAllShortcuts();
+
     for (const id of SHORTCUT_IDS) {
       expect(fresh[id].key).toBe(DEFAULT_SHORTCUTS[id].key);
       expect(fresh[id].modifiers).toEqual(DEFAULT_SHORTCUTS[id].modifiers);
@@ -740,6 +751,7 @@ describe('integration: full customization workflow', () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       const formatted = formatShortcut(result.data.DEV_FLAGS_PANEL);
+
       if (IS_MAC) {
         expect(formatted).toBe('⌃+Shift+F');
       } else {

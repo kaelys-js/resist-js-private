@@ -83,6 +83,7 @@ const TAIL_PATTERNS: readonly string[] = [
  */
 function isTailTask(name: string): boolean {
   const lower: string = name.toLowerCase();
+
   return TAIL_PATTERNS.some((p: string): boolean => lower.includes(p));
 }
 
@@ -99,14 +100,19 @@ function parseHeader(lines: string[]): PlanHeader {
 
   for (const line of lines) {
     const datMatch: RegExpMatchArray | null = line.match(/^\*\*Date\*\*:\s*(.+)/);
+
     if (datMatch && datMatch[1]) {
       date = datMatch[1].trim();
     }
+
     const pkgMatch: RegExpMatchArray | null = line.match(/^\*\*Package\*\*:.*\(`([^)]+)`\)/);
+
     if (pkgMatch && pkgMatch[1]) {
       packagePath = pkgMatch[1].trim();
     }
+
     const goalMatch: RegExpMatchArray | null = line.match(/^\*\*Goal\*\*:\s*(.+)/);
+
     if (goalMatch && goalMatch[1]) {
       goal = goalMatch[1].trim();
     }
@@ -128,8 +134,10 @@ function parseTasks(content: string, lines: string[]): PlanTask[] {
 
   /* Find all task header positions */
   const taskPositions: Array<{ index: number; number: number; name: string; line: number }> = [];
+
   for (let i: number = 0; i < lines.length; i++) {
     const m: RegExpMatchArray | null = (lines[i] ?? '').match(taskHeaderRe);
+
     if (m && m[1] && m[2]) {
       taskPositions.push({
         index: i,
@@ -150,6 +158,7 @@ function parseTasks(content: string, lines: string[]): PlanTask[] {
     /* Status */
     let status: TaskStatus = '[ ]';
     const statusMatch: RegExpMatchArray | null = section.match(/\*\*Status\*\*:\s*(\[[ x~]\])/);
+
     if (statusMatch && statusMatch[1]) {
       status = statusMatch[1] as TaskStatus;
     }
@@ -157,6 +166,7 @@ function parseTasks(content: string, lines: string[]): PlanTask[] {
     /* Gap */
     let gap: string = '';
     const gapMatch: RegExpMatchArray | null = section.match(/\*\*Gap\*\*:\s*(.+)/);
+
     if (gapMatch && gapMatch[1]) {
       gap = gapMatch[1].trim();
     }
@@ -166,9 +176,11 @@ function parseTasks(content: string, lines: string[]): PlanTask[] {
     const planStart: number = sectionLines.findIndex((l: string): boolean =>
       l.trim().startsWith('**Plan**'),
     );
+
     if (planStart >= 0) {
       for (let i: number = planStart + 1; i < sectionLines.length; i++) {
         const line: string = (sectionLines[i] ?? '').trim();
+
         if (line.startsWith('- ')) {
           planBullets.push(line.slice(2).trim());
         } else if (
@@ -185,18 +197,22 @@ function parseTasks(content: string, lines: string[]): PlanTask[] {
     const filesStart: number = sectionLines.findIndex(
       (l: string): boolean => l.trim().startsWith('**Files**') || l.trim().startsWith('**File'),
     );
+
     if (filesStart >= 0) {
       for (let i: number = filesStart + 1; i < sectionLines.length; i++) {
         const line: string = (sectionLines[i] ?? '').trim();
+
         if (!line.startsWith('- ')) {
           if (files.length > 0 || line.startsWith('**') || line === '---') {
             break;
           }
           continue;
         }
+
         const fileMatch: RegExpMatchArray | null = line.match(
           /^-\s+(Create|Edit|Test):\s*`?([^`\n]+)`?/i,
         );
+
         if (fileMatch && fileMatch[1] && fileMatch[2]) {
           const action: string = fileMatch[1].toLowerCase();
           files.push({
@@ -212,17 +228,20 @@ function parseTasks(content: string, lines: string[]): PlanTask[] {
     const verStart: number = sectionLines.findIndex((l: string): boolean =>
       l.trim().startsWith('**Verification**'),
     );
+
     if (verStart >= 0) {
       const verLines: string[] = [];
       /* Include inline text after **Verification**: */
       const inlineMatch: RegExpMatchArray | null = (sectionLines[verStart] ?? '').match(
         /\*\*Verification\*\*:\s*(.+)/,
       );
+
       if (inlineMatch && inlineMatch[1]) {
         verLines.push(inlineMatch[1].trim());
       }
       for (let i: number = verStart + 1; i < sectionLines.length; i++) {
         const line: string = (sectionLines[i] ?? '').trim();
+
         if (line.startsWith('**') || line === '---') {
           break;
         }
@@ -295,12 +314,15 @@ function parseDependencies(lines: string[]): TaskDependency[] {
 
       if (!Number.isNaN(taskNum)) {
         const dependsOn: number[] = [];
+
         if (depStr !== '--' && depStr !== '-') {
           /* Parse "1-3" as [1,2,3], "1,3" as [1,3], "1" as [1] */
           const rangeMatch: RegExpMatchArray | null = depStr.match(/^(\d+)-(\d+)$/);
+
           if (rangeMatch && rangeMatch[1] && rangeMatch[2]) {
             const start: number = Number.parseInt(rangeMatch[1], 10);
             const end: number = Number.parseInt(rangeMatch[2], 10);
+
             for (let i: number = start; i <= end; i++) {
               dependsOn.push(i);
             }
@@ -308,6 +330,7 @@ function parseDependencies(lines: string[]): TaskDependency[] {
             /* Comma-separated or single number */
             for (const part of depStr.split(/[,\s]+/)) {
               const n: number = Number.parseInt(part.trim(), 10);
+
               if (!Number.isNaN(n)) {
                 dependsOn.push(n);
               }
@@ -358,6 +381,7 @@ export async function discoverPlanFiles(ctx: {
   filesByExtension(ext: string): Promise<readonly string[]>;
 }): Promise<readonly string[]> {
   const mdFiles: readonly string[] = await ctx.filesByExtension('.md');
+
   return mdFiles.filter(
     (f: string): boolean => f.includes('/docs/plans/') && !f.endsWith('TEMPLATE.md'),
   );
@@ -371,9 +395,12 @@ export async function discoverPlanFiles(ctx: {
  */
 export function parsePlanDate(filename: string): Date | undefined {
   const m: RegExpMatchArray | null = filename.match(/(\d{4}-\d{2}-\d{2})/);
+
   if (!m || !m[1]) {
     return undefined;
   }
+
   const d: Date = new Date(`${m[1]}T00:00:00`);
+
   return Number.isNaN(d.getTime()) ? undefined : d;
 }

@@ -42,6 +42,7 @@
   const validated: CtaBannerProps = $derived.by(() => {
     const rawProps: CtaBannerProps = stripSvelteProps(allProps);
     const result = safeParse(CtaBannerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

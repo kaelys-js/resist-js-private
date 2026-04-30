@@ -42,6 +42,7 @@
   const validated: TypewriterEffectProps = $derived.by(() => {
     const rawProps: TypewriterEffectProps = stripSvelteProps(allProps);
     const result = safeParse(TypewriterEffectPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

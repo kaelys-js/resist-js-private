@@ -27,6 +27,7 @@ const checkLoop = (node: AstNode, context: VisitorContext): LintResult[] => {
   const results: LintResult[] = [];
 
   const parseCall: AstNode | undefined = findStaticMemberCallInBody(node, 'JSON', 'parse');
+
   if (parseCall) {
     results.push({
       file: context.file,
@@ -41,6 +42,7 @@ const checkLoop = (node: AstNode, context: VisitorContext): LintResult[] => {
   }
 
   const stringifyCall: AstNode | undefined = findStaticMemberCallInBody(node, 'JSON', 'stringify');
+
   if (stringifyCall) {
     results.push({
       file: context.file,

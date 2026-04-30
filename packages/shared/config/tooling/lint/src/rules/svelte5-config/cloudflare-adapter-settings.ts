@@ -32,16 +32,19 @@ function hasRoutesConfig(adapterNode: AstNode): boolean {
   }
 
   const args: AstNode[] | undefined = adapterNode.arguments as AstNode[] | undefined;
+
   if (!args || args.length === 0) {
     return false;
   }
 
   const [firstArg] = args;
+
   if (!firstArg || firstArg.type !== 'ObjectExpression') {
     return false;
   }
 
   const routesValue: AstNode | undefined = getNestedValue(firstArg, 'routes');
+
   if (!routesValue) {
     return false;
   }
@@ -49,6 +52,7 @@ function hasRoutesConfig(adapterNode: AstNode): boolean {
   // Empty routes object `{}` is not sufficient
   if (routesValue.type === 'ObjectExpression') {
     const props: AstNode[] | undefined = routesValue.properties as AstNode[] | undefined;
+
     if (!props || props.length === 0) {
       return false;
     }
@@ -68,6 +72,7 @@ const rule: TypeScriptRule = {
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const adapterPkg: string | undefined = getAdapterImport(context.imports);
+
       if (!adapterPkg || !CLOUDFLARE_ADAPTERS.has(adapterPkg)) {
         return [];
       }
@@ -78,11 +83,13 @@ const rule: TypeScriptRule = {
       }
 
       const configObj: AstNode | undefined = getDefaultExportObject(context.ast);
+
       if (!configObj) {
         return [];
       }
 
       const adapterValue: AstNode | undefined = getNestedValue(configObj, 'kit.adapter');
+
       if (!adapterValue) {
         return [];
       }

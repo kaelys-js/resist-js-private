@@ -57,6 +57,7 @@ function resetFs(): void {
 
 vi.mock('node:url', async () => {
   const actual = await vi.importActual<typeof NodeUrlModule>('node:url');
+
   return {
     ...actual,
     fileURLToPath: vi.fn(
@@ -68,14 +69,17 @@ vi.mock('node:url', async () => {
 
 vi.mock('node:fs', async () => {
   const actual = await vi.importActual<typeof NodeFsModule>('node:fs');
+
   return {
     ...actual,
     readFileSync: vi.fn((p: unknown, _enc?: unknown): string => {
       const key: string = String(p);
       const entry: string | undefined = FS.get(key);
+
       if (entry && entry.startsWith('FILE:')) {
         return entry.slice('FILE:'.length);
       }
+
       const err = new Error(`ENOENT: ${key}`);
       (err as NodeJS.ErrnoException).code = 'ENOENT';
       throw err;
@@ -83,11 +87,14 @@ vi.mock('node:fs', async () => {
     readdirSync: vi.fn((p: unknown): string[] => {
       const prefix: string = `${String(p)}/`;
       const out: string[] = [];
+
       for (const key of FS.keys()) {
         if (!key.startsWith(prefix)) {
           continue;
         }
+
         const rest: string = key.slice(prefix.length);
+
         if (rest.includes('/')) {
           continue;
         }
@@ -103,12 +110,15 @@ vi.mock('node:fs', async () => {
     statSync: vi.fn((p: unknown): { isDirectory(): boolean; isFile(): boolean } => {
       const key: string = String(p);
       const entry: string | undefined = FS.get(key);
+
       if (!entry) {
         const err = new Error(`ENOENT: ${key}`);
         (err as NodeJS.ErrnoException).code = 'ENOENT';
         throw err;
       }
+
       const isDir: boolean = entry === 'DIR';
+
       return { isDirectory: (): boolean => isDir, isFile: (): boolean => !isDir };
     }),
   };

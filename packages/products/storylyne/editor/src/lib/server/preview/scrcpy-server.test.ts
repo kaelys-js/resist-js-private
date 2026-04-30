@@ -76,6 +76,7 @@ vi.mock('node:child_process', (): Record<string, unknown> => {
     execFile: mockExecFile,
     spawn: mockSpawn,
   };
+
   return { ...module, default: module };
 });
 

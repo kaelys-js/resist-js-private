@@ -42,6 +42,7 @@
   const validated: EmojiPickerProps = $derived.by(() => {
     const rawProps: EmojiPickerProps = stripSvelteProps(allProps);
     const result = safeParse(EmojiPickerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

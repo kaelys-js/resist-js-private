@@ -42,6 +42,7 @@
   const validated: QueryEditorProps = $derived.by(() => {
     const rawProps: QueryEditorProps = stripSvelteProps(allProps);
     const result = safeParse(QueryEditorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

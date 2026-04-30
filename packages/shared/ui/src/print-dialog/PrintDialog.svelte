@@ -41,6 +41,7 @@
   const validated: PrintDialogProps = $derived.by(() => {
     const rawProps: PrintDialogProps = stripSvelteProps(allProps);
     const result = safeParse(PrintDialogPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

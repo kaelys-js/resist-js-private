@@ -232,6 +232,7 @@ describe('preference-cookie', () => {
 
     it('accepts all supported themes', () => {
       const namedThemes: readonly Str[] = TEST_THEMES.filter((t: Str) => t !== ('' as Str));
+
       for (const theme of namedThemes) {
         expect(sanitizeTheme(theme, TEST_THEMES)).toBe(theme);
       }

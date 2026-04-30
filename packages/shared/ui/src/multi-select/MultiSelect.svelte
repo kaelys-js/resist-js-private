@@ -42,6 +42,7 @@
   const validated: MultiSelectProps = $derived.by(() => {
     const rawProps: MultiSelectProps = stripSvelteProps(allProps);
     const result = safeParse(MultiSelectPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

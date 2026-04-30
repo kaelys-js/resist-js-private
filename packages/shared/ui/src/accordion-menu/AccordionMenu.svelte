@@ -43,6 +43,7 @@
   const validated: AccordionMenuProps = $derived.by(() => {
     const rawProps: AccordionMenuProps = stripSvelteProps(allProps);
     const result = safeParse(AccordionMenuPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

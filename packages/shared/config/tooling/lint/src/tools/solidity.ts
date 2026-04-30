@@ -54,6 +54,7 @@ const SOLHINT_STYLISH: RegExp = /^\s+(\d+):(\d+)\s+(error|warning)\s+(.+?)\s{2,}
  */
 export function transformSolhintOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -63,12 +64,14 @@ export function transformSolhintOutput(output: string): LintResult[] {
 
   for (const line of trimmed.split('\n')) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     /* Try inline format first: filename:line:col: severity message [rule-id] */
     const inlineMatch: RegExpMatchArray | null = SOLHINT_INLINE.exec(stripped);
+
     if (inlineMatch) {
       const file: string = inlineMatch[1] ?? '';
       const lineNum: number = Number.parseInt(inlineMatch[2] ?? '1', 10);
@@ -84,6 +87,7 @@ export function transformSolhintOutput(output: string): LintResult[] {
 
     /* Try stylish table format: indented line:col severity message rule-id */
     const stylishMatch: RegExpMatchArray | null = SOLHINT_STYLISH.exec(line);
+
     if (stylishMatch) {
       const lineNum: number = Number.parseInt(stylishMatch[1] ?? '1', 10);
       const column: number = Number.parseInt(stylishMatch[2] ?? '1', 10);

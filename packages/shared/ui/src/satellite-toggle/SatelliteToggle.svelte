@@ -42,6 +42,7 @@
   const validated: SatelliteToggleProps = $derived.by(() => {
     const rawProps: SatelliteToggleProps = stripSvelteProps(allProps);
     const result = safeParse(SatelliteTogglePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

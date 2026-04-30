@@ -226,6 +226,7 @@ const KEY_MAP: Record<Str, Str> = {
  */
 function mapKeyToSimctl(key: Str): Str {
   const mapped: Str | undefined = KEY_MAP[key];
+
   if (mapped !== undefined) {
     return mapped;
   }

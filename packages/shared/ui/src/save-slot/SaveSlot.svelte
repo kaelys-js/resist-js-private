@@ -42,6 +42,7 @@
   const validated: SaveSlotProps = $derived.by(() => {
     const rawProps: SaveSlotProps = stripSvelteProps(allProps);
     const result = safeParse(SaveSlotPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

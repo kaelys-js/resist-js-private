@@ -43,6 +43,7 @@
   const validated: ScrollShadowProps = $derived.by(() => {
     const rawProps: ScrollShadowProps = stripSvelteProps(allProps);
     const result = safeParse(ScrollShadowPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

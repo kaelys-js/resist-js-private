@@ -42,6 +42,7 @@
   const validated: BattleMenuProps = $derived.by(() => {
     const rawProps: BattleMenuProps = stripSvelteProps(allProps);
     const result = safeParse(BattleMenuPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

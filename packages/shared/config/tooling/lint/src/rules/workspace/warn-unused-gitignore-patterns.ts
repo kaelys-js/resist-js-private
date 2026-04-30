@@ -21,6 +21,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -46,11 +47,13 @@ const rule: WorkspaceRule = {
 
     const gitignorePath: string = join(ctx.rootDir, '.gitignore');
     const exists: boolean = await ctx.fileExists(gitignorePath);
+
     if (!exists) {
       return results;
     }
 
     let content: string;
+
     try {
       content = await ctx.readFile(gitignorePath);
     } catch {
@@ -59,11 +62,13 @@ const rule: WorkspaceRule = {
 
     /** Collect all workspace file paths (relative) for substring matching. */
     const allPaths: Set<string> = new Set();
+
     for (const filePath of await ctx.allFiles()) {
       allPaths.add(relative(ctx.rootDir, filePath));
     }
 
     const lines: string[] = content.split('\n');
+
     for (let i: number = 0; i < lines.length; i++) {
       const raw: string = lines[i] ?? '';
       const trimmed: string = raw.trim();
@@ -78,6 +83,7 @@ const rule: WorkspaceRule = {
 
       /** Check if any file path contains the pattern as a substring. */
       let matched: boolean = false;
+
       for (const filePath of allPaths) {
         if (filePath.includes(pattern)) {
           matched = true;

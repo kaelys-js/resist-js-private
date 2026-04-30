@@ -42,6 +42,7 @@
   const validated: PricingSliderProps = $derived.by(() => {
     const rawProps: PricingSliderProps = stripSvelteProps(allProps);
     const result = safeParse(PricingSliderPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

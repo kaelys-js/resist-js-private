@@ -42,6 +42,7 @@
   const validated: MediaGridProps = $derived.by(() => {
     const rawProps: MediaGridProps = stripSvelteProps(allProps);
     const result = safeParse(MediaGridPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

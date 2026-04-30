@@ -42,6 +42,7 @@
   const validated: LogoCloudProps = $derived.by(() => {
     const rawProps: LogoCloudProps = stripSvelteProps(allProps);
     const result = safeParse(LogoCloudPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

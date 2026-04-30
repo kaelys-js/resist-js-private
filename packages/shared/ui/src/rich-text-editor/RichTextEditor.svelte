@@ -43,6 +43,7 @@
   const validated: RichTextEditorProps = $derived.by(() => {
     const rawProps: RichTextEditorProps = stripSvelteProps(allProps);
     const result = safeParse(RichTextEditorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

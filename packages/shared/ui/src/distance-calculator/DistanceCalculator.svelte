@@ -42,6 +42,7 @@
   const validated: DistanceCalculatorProps = $derived.by(() => {
     const rawProps: DistanceCalculatorProps = stripSvelteProps(allProps);
     const result = safeParse(DistanceCalculatorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

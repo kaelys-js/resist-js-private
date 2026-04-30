@@ -37,6 +37,7 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const declaration = node.declaration as AstNode | undefined;
+
       if (!declaration) {
         return results;
       }
@@ -47,12 +48,14 @@ const rule: TypeScriptRule = {
 
       const id = declaration.id as AstNode | undefined;
       const funcName: string = (id?.name as string) ?? '';
+
       if (!funcName) {
         return results;
       }
 
       // Check return type annotation — skip void/never functions
       const returnType = declaration.returnType as AstNode | undefined;
+
       if (returnType) {
         if (
           context.content.slice(returnType.start, returnType.end).includes('void') ||
@@ -66,6 +69,7 @@ const rule: TypeScriptRule = {
           (pattern: string): boolean =>
             context.content.slice(returnType.start, returnType.end).includes(pattern),
         );
+
         if (hasValidatedReturn) {
           return results;
         }
@@ -73,6 +77,7 @@ const rule: TypeScriptRule = {
 
       // Check function body for safeParse usage
       const body = declaration.body as AstNode | undefined;
+
       if (!body) {
         return results;
       }

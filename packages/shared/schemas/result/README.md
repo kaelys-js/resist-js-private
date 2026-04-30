@@ -11,8 +11,16 @@ Universal error handling for all runtimes (CLI, browser, Cloudflare Workers, Nod
 | `@/utils/result/safe` | `safeParse()`, `fromUnknownError()` |
 | `@/utils/result/combinators` | `map`, `andThen`, `orElse`, `match`, `combine`, `fromThrowable` |
 | `@/utils/result/format` | `formatErrorDisplay`, `formatErrorDebug`, `toRfc9457`, `toHttpResponse`, `formatErrorSafe` |
-| `@/utils/result/error-utils` | `isAppError`, `hasCode`, `getCauseChain`, `getDomain`, `isRetryable` |
-| `@/utils/result/breadcrumbs` | `addBreadcrumb`, `drainBreadcrumbs`, `clearBreadcrumbs` |
+| `@/utils/result/error-utils` | `isAppE
+r
+r
+o
+r`, `hasCode`, `getCauseChain`, `getDomain`, `isRetryable` |
+| `@/ut
+
+
+
+ils/result/breadcrumbs` | `addBreadcrumb`, `drainBreadcrumbs`, `clearBreadcrumbs` |
 | `@/utils/core/signal` | `setupGlobalErrorHandling()`, `reportError()` |
 
 ## Setup

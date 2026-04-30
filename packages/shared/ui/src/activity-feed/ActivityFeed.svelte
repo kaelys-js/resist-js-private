@@ -42,6 +42,7 @@
   const validated: ActivityFeedProps = $derived.by(() => {
     const rawProps: ActivityFeedProps = stripSvelteProps(allProps);
     const result = safeParse(ActivityFeedPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

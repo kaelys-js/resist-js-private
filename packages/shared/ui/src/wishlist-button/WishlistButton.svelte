@@ -42,6 +42,7 @@
   const validated: WishlistButtonProps = $derived.by(() => {
     const rawProps: WishlistButtonProps = stripSvelteProps(allProps);
     const result = safeParse(WishlistButtonPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

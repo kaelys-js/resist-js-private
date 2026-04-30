@@ -41,6 +41,7 @@
   const validated: PanoramaViewerProps = $derived.by(() => {
     const rawProps: PanoramaViewerProps = stripSvelteProps(allProps);
     const result = safeParse(PanoramaViewerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

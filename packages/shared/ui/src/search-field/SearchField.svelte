@@ -42,6 +42,7 @@
   const validated: SearchFieldProps = $derived.by(() => {
     const rawProps: SearchFieldProps = stripSvelteProps(allProps);
     const result = safeParse(SearchFieldPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

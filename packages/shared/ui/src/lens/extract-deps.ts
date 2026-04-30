@@ -78,14 +78,18 @@ function parseImport(clause: Str): ParsedImport {
   if (clause.startsWith('type ')) {
     const inner: Str = clause.slice(5).trim();
     const namedMatch: RegExpMatchArray | null = inner.match(NAMED_RE);
+
     if (namedMatch?.[1]) {
       const [, raw]: RegExpMatchArray = namedMatch;
+
       for (const part of raw.split(',')) {
         const trimmed: Str = part.trim();
+
         if (!trimmed) {
           continue;
         }
         // Handle `type X` prefix inside braces and `A as B` aliases
+
         const clean: Str = trimmed.replace(/^type\s+/, '');
         const asIdx: number = clean.indexOf(' as ');
         names.push(asIdx >= 0 ? clean.slice(asIdx + 4).trim() : clean);
@@ -100,6 +104,7 @@ function parseImport(clause: Str): ParsedImport {
   // Namespace: `* as X`
   if (clause.includes('* as ')) {
     const nsMatch: RegExpMatchArray | null = clause.match(/\*\s+as\s+(\w+)/);
+
     if (nsMatch?.[1]) {
       names.push(nsMatch[1]);
     }
@@ -108,13 +113,17 @@ function parseImport(clause: Str): ParsedImport {
 
   // Named imports: `{ A, B as C }`
   const namedMatch: RegExpMatchArray | null = clause.match(NAMED_RE);
+
   if (namedMatch?.[1]) {
     const [, raw]: RegExpMatchArray = namedMatch;
+
     for (const part of raw.split(',')) {
       const trimmed: Str = part.trim();
+
       if (!trimmed) {
         continue;
       }
+
       const clean: Str = trimmed.replace(/^type\s+/, '');
       const asIdx: number = clean.indexOf(' as ');
       names.push(asIdx >= 0 ? clean.slice(asIdx + 4).trim() : clean);
@@ -126,6 +135,7 @@ function parseImport(clause: Str): ParsedImport {
     .replace(/\{[^}]*\}/, '')
     .replaceAll(',', '')
     .trim();
+
   if (defaultPart && !defaultPart.startsWith('*')) {
     names.push(defaultPart);
     // If we have BOTH named and default, classify as 'named' since named is more useful
@@ -170,6 +180,7 @@ export function extractDeps(source: Str): DepTree {
   const scriptBlocks: Str[] = [];
   const scriptRe: RegExp = /<script[^>]*>([\s\S]*?)<\/script>/g;
   let scriptMatch: RegExpExecArray | null = scriptRe.exec(source);
+
   while (scriptMatch) {
     if (scriptMatch[1]) {
       scriptBlocks.push(scriptMatch[1]);
@@ -183,12 +194,15 @@ export function extractDeps(source: Str): DepTree {
   IMPORT_RE.lastIndex = 0;
 
   let match: RegExpExecArray | null = IMPORT_RE.exec(fullScript);
+
   while (match) {
     const [, clause, specifier]: RegExpExecArray = match;
+
     if (!clause || !specifier) {
       match = IMPORT_RE.exec(fullScript);
       continue;
     }
+
     const parsed: ParsedImport = parseImport(clause);
 
     const entry: DepEntry = {
@@ -258,11 +272,13 @@ export function extractReverseDeps(
   for (const [key, source] of Object.entries(allSources)) {
     const dir: Str = extractDirFn(key);
     // Skip the target component itself and already-processed dirs
+
     if (!dir || dir === targetComponent || seen.has(dir)) {
       continue;
     }
 
     const deps: DepTree = extractDeps(source);
+
     for (const dep of deps.internal) {
       if (dep.component === targetComponent && !seen.has(dir)) {
         seen.add(dir);

@@ -26,8 +26,10 @@ import { extractProps, buildBaseProps } from './extract-props.js';
 function readSvelteWithTypes(filePath: string): string {
   const sv: string = readFileSync(filePath, 'utf8');
   const typesPath: string = join(dirname(filePath), 'types.ts');
+
   if (existsSync(typesPath)) {
     const sep: string = '\n// --- adjacent types.ts ---\n';
+
     return sv + sep + readFileSync(typesPath, 'utf8');
   }
   return sv;
@@ -653,6 +655,7 @@ const validated = $derived.by(() => {
 </script>`;
     const props: PropMeta[] = extractProps(source);
     // Every prop should have @values — if any are missing, this test fails
+
     for (const prop of props) {
       expect(prop.mockValues, `Prop "${prop.name}" is missing @values annotation`).toBeDefined();
       expect(prop.mockValues?.length, `Prop "${prop.name}" has empty @values`).toBeGreaterThan(0);
@@ -666,6 +669,7 @@ const validated = $derived.by(() => {
     const uiDir: string = resolve(__dirname, '..');
     const dirs: string[] = readdirSync(uiDir).filter((d: string): boolean => {
       const full: string = join(uiDir, d);
+
       return statSync(full).isDirectory();
     });
 
@@ -687,6 +691,7 @@ const validated = $derived.by(() => {
         }
 
         const props: PropMeta[] = extractProps(source);
+
         for (const prop of props) {
           if (!prop.mockValues || prop.mockValues.length === 0) {
             failures.push(`${dir}/${file} → prop "${prop.name}" missing @values`);

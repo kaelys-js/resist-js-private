@@ -50,6 +50,7 @@ const rule: WorkspaceRule = {
       /* Build status map: task number -> status */
       const statusMap: Map<number, TaskStatus> = new Map();
       const taskMap: Map<number, PlanTask> = new Map();
+
       for (const task of plan.tasks) {
         statusMap.set(task.number, task.status);
         taskMap.set(task.number, task);
@@ -58,17 +59,20 @@ const rule: WorkspaceRule = {
       /* Check each dependency */
       for (const dep of plan.dependencies) {
         const taskStatus: TaskStatus | undefined = statusMap.get(dep.task);
+
         if (taskStatus !== '[x]') {
           continue;
         }
 
         const task: PlanTask | undefined = taskMap.get(dep.task);
+
         if (task === undefined) {
           continue;
         }
 
         for (const depNum of dep.dependsOn) {
           const depStatus: TaskStatus | undefined = statusMap.get(depNum);
+
           if (depStatus !== undefined && depStatus !== '[x]') {
             const depTask: PlanTask | undefined = taskMap.get(depNum);
             const depName: string = depTask === undefined ? `TASK ${String(depNum)}` : depTask.name;

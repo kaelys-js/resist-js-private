@@ -42,6 +42,7 @@
   const validated: HyperTextProps = $derived.by(() => {
     const rawProps: HyperTextProps = stripSvelteProps(allProps);
     const result = safeParse(HyperTextPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

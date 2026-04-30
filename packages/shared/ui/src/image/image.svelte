@@ -42,6 +42,7 @@
   const validated: ImageProps = $derived.by(() => {
     const rawProps: ImageProps = stripSvelteProps(allProps);
     const result = safeParse(ImagePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

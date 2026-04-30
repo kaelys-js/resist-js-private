@@ -42,6 +42,7 @@
   const validated: FooterNavigationProps = $derived.by(() => {
     const rawProps: FooterNavigationProps = stripSvelteProps(allProps);
     const result = safeParse(FooterNavigationPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

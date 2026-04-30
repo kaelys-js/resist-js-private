@@ -34,6 +34,7 @@ const ERLC_ERROR: RegExp = /^(.+?):(\d+):\s*error:\s*(.+)$/;
  */
 export function transformErlcOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -42,12 +43,14 @@ export function transformErlcOutput(output: string): LintResult[] {
 
   for (const line of trimmed.split('\n')) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     /* Try warning pattern first */
     const warnMatch: RegExpMatchArray | null = ERLC_WARNING.exec(stripped);
+
     if (warnMatch) {
       const file: string = warnMatch[1] ?? '';
       const lineNum: number = Number.parseInt(warnMatch[2] ?? '1', 10);
@@ -59,6 +62,7 @@ export function transformErlcOutput(output: string): LintResult[] {
 
     /* Try error pattern */
     const errMatch: RegExpMatchArray | null = ERLC_ERROR.exec(stripped);
+
     if (errMatch) {
       const file: string = errMatch[1] ?? '';
       const lineNum: number = Number.parseInt(errMatch[2] ?? '1', 10);

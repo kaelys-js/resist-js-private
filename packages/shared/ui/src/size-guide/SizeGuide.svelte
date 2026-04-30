@@ -42,6 +42,7 @@
   const validated: SizeGuideProps = $derived.by(() => {
     const rawProps: SizeGuideProps = stripSvelteProps(allProps);
     const result = safeParse(SizeGuidePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

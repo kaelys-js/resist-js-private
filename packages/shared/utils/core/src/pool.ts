@@ -32,9 +32,11 @@ import { safeParse } from '@/utils/result/safe';
 
 /** Pre-validated zero for NonNegativeInteger boundaries. */
 const _zeroResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, 0);
+
 if (!_zeroResult.ok) {
   throw new Error('Static literal 0 failed NonNegativeInteger validation');
 }
+
 const _ZERO_NNI: NonNegativeInteger = _zeroResult.data;
 
 // =============================================================================
@@ -241,6 +243,7 @@ export async function runPool<T>(
       currentIndex += 1;
 
       const task: PoolTask<T> | undefined = tasks[index];
+
       if (!task) {
         break;
       }
@@ -266,6 +269,7 @@ export async function runPool<T>(
             NonNegativeIntegerSchema,
             total,
           );
+
           if (completedResult.ok && totalResult.ok) {
             onTaskComplete(result, completedResult.data, totalResult.data);
           }
@@ -273,6 +277,7 @@ export async function runPool<T>(
       } catch (error: unknown) {
         const errInstance: Error = error instanceof Error ? error : new Error(String(error));
         const indexResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, index);
+
         if (indexResult.ok) {
           errors.push({ index: indexResult.data, error: errInstance });
 

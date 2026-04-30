@@ -42,6 +42,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     let logOutput: string;
+
     try {
       logOutput = execSync('git log --oneline', { cwd: ctx.rootDir, encoding: 'utf8' });
     } catch {
@@ -54,10 +55,13 @@ const rule: WorkspaceRule = {
     for (const line of lines) {
       /** git log --oneline format: "<hash> <message>" — check message portion */
       const spaceIdx: number = line.indexOf(' ');
+
       if (spaceIdx === -1) {
         continue;
       }
+
       const message: string = line.slice(spaceIdx + 1);
+
       if (message.startsWith('fixup!') || message.startsWith('squash!')) {
         fixupLines.push(line.trim());
       }

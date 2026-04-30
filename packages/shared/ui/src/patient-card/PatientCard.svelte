@@ -42,6 +42,7 @@
   const validated: PatientCardProps = $derived.by(() => {
     const rawProps: PatientCardProps = stripSvelteProps(allProps);
     const result = safeParse(PatientCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

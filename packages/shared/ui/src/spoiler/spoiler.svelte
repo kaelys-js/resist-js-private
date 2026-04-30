@@ -42,6 +42,7 @@
   const validated: SpoilerProps = $derived.by(() => {
     const rawProps: SpoilerProps = stripSvelteProps(allProps);
     const result = safeParse(SpoilerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

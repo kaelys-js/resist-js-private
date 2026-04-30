@@ -21,6 +21,7 @@ vi.mock('node:child_process', (): Record<string, unknown> => {
   const module: Record<string, unknown> = {
     execFile: vi.fn(),
   };
+
   return { ...module, default: module };
 });
 
@@ -29,6 +30,7 @@ vi.mock('node:fs/promises', (): Record<string, unknown> => {
     readFile: vi.fn(),
     unlink: vi.fn(),
   };
+
   return { ...module, default: module };
 });
 

@@ -42,6 +42,7 @@
   const validated: BodyMapProps = $derived.by(() => {
     const rawProps: BodyMapProps = stripSvelteProps(allProps);
     const result = safeParse(BodyMapPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

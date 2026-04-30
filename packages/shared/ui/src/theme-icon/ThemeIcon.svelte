@@ -42,6 +42,7 @@
   const validated: ThemeIconProps = $derived.by(() => {
     const rawProps: ThemeIconProps = stripSvelteProps(allProps);
     const result = safeParse(ThemeIconPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

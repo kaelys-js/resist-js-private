@@ -114,8 +114,10 @@ export type DeepReadonly<T> =
  */
 function _deepFreeze<T extends object>(obj: T): T {
   const propNames = Object.getOwnPropertyNames(obj) as Array<keyof T>;
+
   for (const name of propNames) {
     const value: T[keyof T] = obj[name];
+
     if (value && typeof value === 'object' && !Object.isFrozen(value)) {
       _deepFreeze(value as object);
     }
@@ -1340,6 +1342,7 @@ export type ErrOptions = v.InferOutput<typeof ErrOptionsSchema>;
  */
 function _captureCallerStack(message: string): string {
   const target: { stack?: string } = { stack: '' };
+
   if (typeof Error.captureStackTrace === 'function') {
     Error.captureStackTrace(target, err);
     return target.stack ? `Error: ${message}\n${target.stack.split('\n').slice(1).join('\n')}` : '';

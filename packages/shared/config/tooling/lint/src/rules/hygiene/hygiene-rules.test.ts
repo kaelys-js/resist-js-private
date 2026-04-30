@@ -29,6 +29,7 @@ function makeMockContext(
   ruleOptions?: Record<string, unknown>,
 ): WorkspaceContext & { ruleOptions?: Record<string, unknown> } {
   const filePaths: string[] = Object.keys(files);
+
   return {
     rootDir: '/mock',
     allFiles: async (): Promise<readonly string[]> => filePaths,
@@ -291,6 +292,7 @@ describe('hygiene — inputs() lifecycle smoke-coverage', () => {
       if (typeof rule.inputs !== 'function') {
         return;
       }
+
       const ctx = makeMockContext({
         '/mock/src/a.ts': 'export const a = 1;',
         '/mock/src/b.ts': 'export const b = 2;',

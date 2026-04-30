@@ -42,6 +42,7 @@
   const validated: SchemaViewerProps = $derived.by(() => {
     const rawProps: SchemaViewerProps = stripSvelteProps(allProps);
     const result = safeParse(SchemaViewerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

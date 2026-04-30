@@ -23,11 +23,13 @@ const METADATA_FIELDS: readonly string[] = ['author', 'homepage', 'repository', 
  */
 function extractFieldValue(parsed: Record<string, unknown>, field: string): string {
   const value: unknown = parsed[field];
+
   if (typeof value === 'string') {
     return value;
   }
   if (value !== null && typeof value === 'object') {
     const obj: Record<string, unknown> = value as Record<string, unknown>;
+
     if (field === 'author') {
       return typeof obj.name === 'string' ? obj.name : '';
     }
@@ -51,6 +53,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -76,6 +79,7 @@ const rule: WorkspaceRule = {
 
     const rootPkgPath: string = join(ctx.rootDir, 'package.json');
     const rootExists: boolean = await ctx.fileExists(rootPkgPath);
+
     if (!rootExists) {
       return results;
     }
@@ -84,8 +88,10 @@ const rule: WorkspaceRule = {
     const rootParsed: Record<string, unknown> = JSON.parse(rootContent) as Record<string, unknown>;
 
     const rootValues: Map<string, string> = new Map<string, string>();
+
     for (const field of METADATA_FIELDS) {
       const value: string = extractFieldValue(rootParsed, field);
+
       if (value.length > 0) {
         rootValues.set(field, value);
       }
@@ -97,6 +103,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const fileName: string = basename(filePath);
+
       if (fileName !== 'package.json') {
         continue;
       }
@@ -111,6 +118,7 @@ const rule: WorkspaceRule = {
 
       for (const [field, rootValue] of rootValues) {
         const pkgValue: string = extractFieldValue(parsed, field);
+
         if (pkgValue !== rootValue) {
           results.push(
             createResult(

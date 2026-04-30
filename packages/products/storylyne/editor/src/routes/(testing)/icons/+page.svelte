@@ -66,8 +66,10 @@
    * Built once from the glob result by extracting the filename.
    */
   const iconLoaders: Map<Str, () => Promise<{ default: Component }>> = new Map();
+
   for (const [path, loader] of Object.entries(iconModules)) {
     const match: RegExpMatchArray | null = path.match(/\/([^/]+)\.svelte$/);
+
     if (match) {
       iconLoaders.set(match[1] as Str, loader);
     }
@@ -305,6 +307,7 @@
    */
   function getIconCategories(name: Str): Str[] {
     const cats: Str[] = [];
+
     for (const rule of CATEGORY_RULES) {
       if (rule.test(name)) {
         cats.push(rule.category);
@@ -319,8 +322,10 @@
    */
   const categoryMap: Map<Str, Set<Str>> = new Map();
   const categorizedIcons: Set<Str> = new Set();
+
   for (const name of data.names) {
     const cats: Str[] = getIconCategories(name);
+
     if (cats.length > 0) {
       categorizedIcons.add(name);
       for (const cat of cats) {
@@ -334,6 +339,7 @@
 
   /* Add "Other" bucket for icons that match no category rules */
   const uncategorizedSet: Set<Str> = new Set(data.names.filter((n) => !categorizedIcons.has(n)));
+
   if (uncategorizedSet.size > 0) {
     categoryMap.set('Other' as Str, uncategorizedSet);
   }
@@ -564,8 +570,10 @@
     /* Category filter — union of all selected categories */
     if (activeCategories.length > 0) {
       const unionSet: Set<Str> = new Set();
+
       for (const cat of activeCategories) {
         const catIcons: Set<Str> | undefined = categoryMap.get(cat);
+
         if (catIcons) {
           for (const icon of catIcons) {
             unionSet.add(icon);
@@ -592,12 +600,14 @@
         const bCats: Str[] = [...categoryMap.entries()]
           .filter(([, icons]) => icons.has(b))
           .map(([cat]) => cat);
+
         return (aCats[0] ?? '').localeCompare(bCats[0] ?? '') as Num;
       });
     } else if (sortMode === 'popularity') {
       result = [...result].toSorted((a: Str, b: Str): Num => {
         const aCount: Num = [...categoryMap.values()].filter((icons) => icons.has(a)).length as Num;
         const bCount: Num = [...categoryMap.values()].filter((icons) => icons.has(b)).length as Num;
+
         return (bCount - aCount) as Num;
       });
     } else if (sortMode === 'recent') {
@@ -696,6 +706,7 @@
       ? THEME_PRESETS
       : THEME_PRESETS.filter((p) => {
           const q: Str = themeSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q) ||
             p.description.toLowerCase().includes(q) ||
@@ -714,7 +725,9 @@
     if (activeTheme === '') {
       return '' as Str;
     }
+
     const preset: ThemePreset | undefined = THEME_PRESETS.find((p) => p.id === activeTheme);
+
     return preset ? (preset.label as Str) : ('' as Str);
   });
 
@@ -722,6 +735,7 @@
   const headerSubtitle: Str = $derived.by((): Str => {
     if (searchQuery.length > 0 || activeCategories.length > 0) {
       const parts: Str[] = [];
+
       if (activeCategories.length > 0) {
         parts.push(activeCategories.join(', ') as Str);
       }
@@ -765,6 +779,7 @@
    */
   function highlightImport(name: Str): Str {
     const pascal: Str = toPascal(name);
+
     return `<span class="${SYN_KW}">import</span> ${pascal} <span class="${SYN_KW}">from</span> <span class="${SYN_STR}">'@lucide/svelte/icons/${name}'</span><span class="${SYN_PUNCT}">;</span>` as Str;
   }
 
@@ -776,6 +791,7 @@
    */
   function highlightUsage(name: Str): Str {
     const pascal: Str = toPascal(name);
+
     return `<span class="${SYN_PUNCT}">&lt;</span><span class="${SYN_TAG}">${pascal}</span> <span class="${SYN_ATTR}">class</span><span class="${SYN_PUNCT}">=</span><span class="${SYN_STR}">"size-4"</span> <span class="${SYN_PUNCT}">/&gt;</span>` as Str;
   }
 
@@ -794,7 +810,9 @@
     if (!selectedIcon) {
       return '' as Str;
     }
+
     const pascal: Str = toPascal(selectedIcon);
+
     return `import ${pascal} from '@lucide/svelte/icons/${selectedIcon}';` as Str;
   });
 
@@ -802,7 +820,9 @@
     if (!selectedIcon) {
       return '' as Str;
     }
+
     const pascal: Str = toPascal(selectedIcon);
+
     return `<${pascal} class="size-4" />` as Str;
   });
 
@@ -887,6 +907,7 @@
       ? PAGE_EXPORT_ITEMS
       : PAGE_EXPORT_ITEMS.filter((p: ExportItem): boolean => {
           const q: Str = exportSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q as string) ||
             p.description.toLowerCase().includes(q as string) ||
@@ -932,6 +953,7 @@
     }
 
     const params: URLSearchParams = new URLSearchParams();
+
     if (searchQuery) {
       params.set('q', searchQuery);
     }
@@ -1018,6 +1040,7 @@
    */
   function toggleCategory(cat: Str): void {
     const idx: Num = activeCategories.indexOf(cat) as Num;
+
     if ((idx as number) >= 0) {
       activeCategories = activeCategories.filter((c) => c !== cat) as Str[];
     } else {
@@ -1033,6 +1056,7 @@
    */
   function categorySamples(catName: Str): Str[] {
     const icons: Set<Str> | undefined = categoryMap.get(catName);
+
     if (!icons) {
       return [];
     }
@@ -1048,7 +1072,9 @@
     if (iconCache.has(name) || loadingIcons.has(name)) {
       return;
     }
+
     const loader = iconLoaders.get(name);
+
     if (!loader) {
       return;
     }
@@ -1074,6 +1100,7 @@
   function getIcon(name: Str): Component | undefined {
     /* Reference loadTick to trigger reactive updates when icons finish loading */
     const _tick: Num = loadTick;
+
     return iconCache.get(name);
   }
 
@@ -1163,6 +1190,7 @@
     if (!selectedIcon || !selectedSvgMarkup) {
       return;
     }
+
     const blob: Blob = new Blob([selectedSvgMarkup], { type: 'image/svg+xml' });
     const url: Str = URL.createObjectURL(blob) as Str;
     const a: HTMLAnchorElement = document.createElement('a');
@@ -1188,6 +1216,7 @@
     const observer: IntersectionObserver = new IntersectionObserver(
       async (entries) => {
         const visible: IntersectionObserverEntry[] = entries.filter((e) => e.isIntersecting);
+
         if (visible.length > 0) {
           await loadIcon(name);
           observer.unobserve(node);
@@ -1241,6 +1270,7 @@
     const raf: Num = requestAnimationFrame((): void => {
       node.style.minHeight = `${node.offsetHeight}px`;
     }) as Num;
+
     return {
       destroy(): void {
         cancelAnimationFrame(raf as number);
@@ -1331,6 +1361,7 @@
     } else if (e.key === 'Enter' && (focusedIndex as number) >= 0) {
       e.preventDefault();
       const name: Str | undefined = displayNames[focusedIndex as number];
+
       if (name) {
         selectIcon(name);
       }
@@ -1344,6 +1375,7 @@
     if ((focusedIndex as number) < 0) {
       return;
     }
+
     const card: HTMLElement | null = document.querySelector(`[data-grid-index="${focusedIndex}"]`);
     card?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   });

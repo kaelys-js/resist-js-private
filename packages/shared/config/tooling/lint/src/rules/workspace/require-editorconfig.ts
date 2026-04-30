@@ -87,6 +87,7 @@ const rule: WorkspaceRule = {
     }
 
     const hasRootTrue: boolean = /^root\s*=\s*true/m.test(rootContent);
+
     if (!hasRootTrue) {
       results.push(
         createResult(
@@ -106,6 +107,7 @@ const rule: WorkspaceRule = {
     const sectionRegex: RegExp = /^\[.*\]$/gm;
     const sections: string[] = [];
     let match: RegExpExecArray | null = sectionRegex.exec(rootContent);
+
     while (match !== null) {
       sections.push(match[0]);
       match = sectionRegex.exec(rootContent);
@@ -113,6 +115,7 @@ const rule: WorkspaceRule = {
 
     const seen: Set<string> = new Set<string>();
     const duplicates: string[] = [];
+
     for (const section of sections) {
       if (seen.has(section)) {
         duplicates.push(section);

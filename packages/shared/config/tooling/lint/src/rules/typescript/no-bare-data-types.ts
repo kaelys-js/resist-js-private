@@ -27,6 +27,7 @@ import type {
 function getFuncName(funcNode: AstNode, context: VisitorContext): string {
   // Named function declaration
   const id = funcNode.id as AstNode | undefined;
+
   if (id?.name) {
     return id.name as string;
   }
@@ -34,6 +35,7 @@ function getFuncName(funcNode: AstNode, context: VisitorContext): string {
   // Arrow/function expression assigned to a variable — look backwards for `const name =`
   const before: string = context.content.slice(Math.max(0, funcNode.start - 100), funcNode.start);
   const varMatch: RegExpMatchArray | null = before.match(/(?:const|let|var)\s+(\w+)\s*=\s*$/);
+
   if (varMatch) {
     return varMatch[1] ?? '<anonymous>';
   }
@@ -50,11 +52,13 @@ function getFuncName(funcNode: AstNode, context: VisitorContext): string {
  */
 function checkReturnType(funcNode: AstNode, context: VisitorContext): LintResult[] {
   const returnType = funcNode.returnType as AstNode | undefined;
+
   if (!returnType) {
     return [];
   }
 
   const typeAnnotation = returnType.typeAnnotation as AstNode | undefined;
+
   if (!typeAnnotation) {
     return [];
   }
@@ -92,6 +96,7 @@ function checkReturnType(funcNode: AstNode, context: VisitorContext): LintResult
 function checkParamTypes(funcNode: AstNode, context: VisitorContext): LintResult[] {
   const results: LintResult[] = [];
   const params = funcNode.params as AstNode[] | undefined;
+
   if (!params) {
     return results;
   }
@@ -100,6 +105,7 @@ function checkParamTypes(funcNode: AstNode, context: VisitorContext): LintResult
     const typeAnnotation = (param.typeAnnotation as AstNode | undefined)?.typeAnnotation as
       | AstNode
       | undefined; // cast safe: AST property chain
+
     if (!typeAnnotation) {
       continue;
     }
@@ -136,6 +142,7 @@ function checkParamTypes(funcNode: AstNode, context: VisitorContext): LintResult
  */
 function isAllMethodsType(typeNode: AstNode): boolean {
   const members = typeNode.members as AstNode[] | undefined;
+
   if (!members || members.length === 0) {
     return false;
   }
@@ -147,6 +154,7 @@ function isAllMethodsType(typeNode: AstNode): boolean {
       const memberType = (m.typeAnnotation as AstNode | undefined)?.typeAnnotation as
         | AstNode
         | undefined;
+
       if (memberType?.type === 'TSFunctionType') {
         return true;
       }
@@ -171,6 +179,7 @@ const rule: TypeScriptRule = {
         Math.max(0, node.start - 5),
         Math.min(context.content.length, node.end + 5),
       );
+
       if (/extends\s+.*(?:Base|Valibot|Schema)/.test(bodyText)) {
         return [];
       }
@@ -194,6 +203,7 @@ const rule: TypeScriptRule = {
 
     TSTypeAliasDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const typeAnnotation = node.typeAnnotation as AstNode | undefined; // cast safe: AST property
+
       if (!typeAnnotation) {
         return [];
       }
@@ -244,12 +254,14 @@ const rule: TypeScriptRule = {
     VariableDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const declarations = node.declarations as AstNode[] | undefined;
+
       if (!declarations) {
         return results;
       }
 
       for (const decl of declarations) {
         const id = decl.id as AstNode | undefined;
+
         if (!id) {
           continue;
         }
@@ -258,6 +270,7 @@ const rule: TypeScriptRule = {
         const annotation = (id.typeAnnotation as AstNode | undefined)?.typeAnnotation as
           | AstNode
           | undefined;
+
         if (!annotation || annotation.type !== 'TSTypeLiteral') {
           continue;
         }
@@ -287,6 +300,7 @@ const rule: TypeScriptRule = {
 
     TSAsExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const typeAnnotation = node.typeAnnotation as AstNode | undefined;
+
       if (!typeAnnotation || typeAnnotation.type !== 'TSTypeLiteral') {
         return [];
       }

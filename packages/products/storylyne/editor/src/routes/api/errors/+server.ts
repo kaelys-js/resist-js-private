@@ -35,6 +35,7 @@ const MAX_BODY_SIZE: Num = 65_536 as Num;
 export const POST: RequestHandler = async ({ request }) => {
   // Read body as text — sendBeacon sends text/plain
   let body: Str;
+
   try {
     body = (await request.text()) as Str;
   } catch {
@@ -54,6 +55,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
   // Parse JSON
   let parsed: unknown;
+
   try {
     parsed = JSON.parse(body);
   } catch {
@@ -63,6 +65,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
   // Validate against BeaconPayloadSchema (strict — rejects PII fields)
   const result: Result<BeaconPayload> = safeParse(BeaconPayloadSchema, parsed);
+
   if (!result.ok) {
     return new Response(null, { status: 400 });
   }

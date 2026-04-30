@@ -23,11 +23,13 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  */
 export function transformShellcheckOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
 
   let items: unknown[];
+
   try {
     items = JSON.parse(trimmed) as unknown[];
   } catch {
@@ -35,6 +37,7 @@ export function transformShellcheckOutput(output: string, strings: LintStrings):
   }
 
   const results: LintResult[] = [];
+
   for (const item of items) {
     const obj: Record<string, unknown> = item as Record<string, unknown>;
     const file: string = (obj.file as string) ?? '';
@@ -45,6 +48,7 @@ export function transformShellcheckOutput(output: string, strings: LintStrings):
     const message: string = (obj.message as string) ?? '';
 
     let severity: 'error' | 'warning' | 'info' = 'warning';
+
     if (level === 'error') {
       severity = 'error';
     } else if (level === 'info') {

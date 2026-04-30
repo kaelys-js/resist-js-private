@@ -42,6 +42,7 @@
   const validated: DatePickerProps = $derived.by(() => {
     const rawProps: DatePickerProps = stripSvelteProps(allProps);
     const result = safeParse(DatePickerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

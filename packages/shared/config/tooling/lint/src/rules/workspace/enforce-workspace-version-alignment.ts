@@ -41,8 +41,10 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     try {
       const packages = await ctx.getWorkspacePackages();
+
       return packages.map((p) => p.path);
     } catch {
       return [];
@@ -77,6 +79,7 @@ const rule: WorkspaceRule = {
     for (const pkg of workspacePackages) {
       const { name } = pkg;
       const { version } = pkg.packageJson;
+
       if (typeof name === 'string' && typeof version === 'string') {
         versionMap.set(name, version);
       }
@@ -88,6 +91,7 @@ const rule: WorkspaceRule = {
 
       for (const field of DEP_FIELDS) {
         const deps: unknown = pkg.packageJson[field];
+
         if (deps === undefined || deps === null || typeof deps !== 'object') {
           continue;
         }
@@ -100,6 +104,7 @@ const rule: WorkspaceRule = {
           }
 
           const actualVersion: string | undefined = versionMap.get(depName);
+
           if (actualVersion === undefined) {
             continue;
           }

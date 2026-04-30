@@ -30,6 +30,7 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const calleeRaw: unknown = node.callee;
+
       if (calleeRaw !== null && typeof calleeRaw === 'object') {
         const callee = calleeRaw as AstNode;
         const objectRaw: unknown = callee.object;

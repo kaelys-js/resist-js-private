@@ -43,6 +43,7 @@
   const validated: ConsentManagerProps = $derived.by(() => {
     const rawProps: ConsentManagerProps = stripSvelteProps(allProps);
     const result = safeParse(ConsentManagerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

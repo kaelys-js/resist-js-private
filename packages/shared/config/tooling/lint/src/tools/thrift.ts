@@ -41,6 +41,7 @@ const THRIFT_LINE: RegExp = /^\[ERROR:(.+?):(\d+)\]\s*(?:\(.*?\)\s*)?(.+)$/;
  */
 export function transformThriftOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -49,6 +50,7 @@ export function transformThriftOutput(output: string): LintResult[] {
 
   for (const line of trimmed.split('\n')) {
     const match: RegExpMatchArray | null = THRIFT_LINE.exec(line.trim());
+
     if (!match) {
       continue;
     }

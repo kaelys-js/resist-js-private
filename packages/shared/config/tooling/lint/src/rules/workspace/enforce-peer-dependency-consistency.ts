@@ -28,8 +28,10 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     try {
       const packages = await ctx.getWorkspacePackages();
+
       return packages.map((p) => p.path);
     } catch {
       return [];
@@ -78,6 +80,7 @@ const rule: WorkspaceRule = {
 
         const entries: PeerEntry[] | undefined = peerMap.get(depName);
         const entry: PeerEntry = { packageName: pkgName, version: depVersion };
+
         if (entries) {
           entries.push(entry);
         } else {
@@ -89,6 +92,7 @@ const rule: WorkspaceRule = {
     /* Check 1: inconsistent versions across packages */
     for (const [depName, entries] of peerMap) {
       const uniqueVersions: Set<string> = new Set(entries.map((e: PeerEntry): string => e.version));
+
       if (uniqueVersions.size > 1) {
         for (const entry of entries) {
           const matchingPkg: WorkspacePackage | undefined = packages.find(

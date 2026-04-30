@@ -166,14 +166,18 @@
   const activeOrientation: Str = $derived(active.orientation ?? 'default');
   const activeOrientationLabel: Str = $derived.by((): Str => {
     const id: Str = activeOrientation;
+
     if (id === 'default') {
       return '' as Str;
     }
     if (id === 'custom') {
       const deg: Num = active.customRotation ?? 0;
+
       return `${deg}°` as Str;
     }
+
     const preset = ORIENTATION_PRESETS.find((p) => p.id === id);
+
     return preset ? (`${preset.rotation}°` as Str) : ('' as Str);
   });
   const activeMode: Str = $derived(active.mode ?? 'auto');
@@ -181,14 +185,19 @@
   const activeSim: Str = $derived(active.sim ?? 'none');
   const activeSimLabel: Str = $derived.by((): Str => {
     const sim: Str = activeSim;
+
     if (sim === 'none') {
       return '' as Str;
     }
+
     const color = COLOR_VISION_ITEMS.find((i) => i.id === sim);
+
     if (color) {
       return color.label;
     }
+
     const vision = VISION_ITEMS.find((i) => i.id === sim);
+
     if (vision) {
       return vision.label;
     }
@@ -226,6 +235,7 @@
     const raf: Num = requestAnimationFrame((): void => {
       node.style.minHeight = `${node.offsetHeight}px`;
     });
+
     return {
       destroy(): void {
         cancelAnimationFrame(raf);
@@ -2620,6 +2630,7 @@
       ? ZOOM_PRESETS
       : ZOOM_PRESETS.filter((p) => {
           const q: Str = zoomSearchQuery.toLowerCase() as Str;
+
           return p.label.toLowerCase().includes(q) || p.description.toLowerCase().includes(q);
         }),
   );
@@ -2628,6 +2639,7 @@
       ? BG_PRESETS
       : BG_PRESETS.filter((p) => {
           const q: Str = bgSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q) ||
             p.description.toLowerCase().includes(q) ||
@@ -2645,7 +2657,9 @@
     if (activeBg.startsWith('#')) {
       return activeBg as Str;
     }
+
     const preset = BG_PRESETS.find((p) => p.id === activeBg);
+
     return preset ? (preset.label as Str) : ('' as Str);
   });
   const filteredOutlinePresets = $derived(
@@ -2653,6 +2667,7 @@
       ? OUTLINE_PRESETS
       : OUTLINE_PRESETS.filter((p) => {
           const q: Str = outlineSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q) ||
             p.description.toLowerCase().includes(q) ||
@@ -2670,7 +2685,9 @@
     if (activeOutline.startsWith('#')) {
       return activeOutline as Str;
     }
+
     const preset = OUTLINE_PRESETS.find((p) => p.id === activeOutline);
+
     return preset ? (preset.label as Str) : ('' as Str);
   });
   const filteredGridPresets = $derived(
@@ -2678,6 +2695,7 @@
       ? GRID_PRESETS
       : GRID_PRESETS.filter((p) => {
           const q: Str = gridSearchQuery.toLowerCase() as Str;
+
           return p.label.toLowerCase().includes(q) || p.description.toLowerCase().includes(q);
         }),
   );
@@ -2686,6 +2704,7 @@
       ? GRID_FILL_PRESETS
       : GRID_FILL_PRESETS.filter((p) => {
           const q: Str = gridSearchQuery.toLowerCase() as Str;
+
           return p.label.toLowerCase().includes(q) || p.description.toLowerCase().includes(q);
         }),
   );
@@ -2696,7 +2715,9 @@
     if (activeGrid.startsWith('#')) {
       return activeGrid as Str;
     }
+
     const preset = GRID_PRESETS.find((p) => p.id === activeGrid);
+
     return preset ? (preset.label as Str) : ('' as Str);
   });
   const filteredOrientationPresets = $derived(
@@ -2704,6 +2725,7 @@
       ? ORIENTATION_PRESETS
       : ORIENTATION_PRESETS.filter((p) => {
           const q: Str = orientationSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q) ||
             p.description.toLowerCase().includes(q) ||
@@ -2719,6 +2741,7 @@
       ? MODE_PRESETS
       : MODE_PRESETS.filter((p) => {
           const q: Str = modeSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q) ||
             p.description.toLowerCase().includes(q) ||
@@ -2730,7 +2753,9 @@
     if (activeMode === 'auto') {
       return '' as Str;
     }
+
     const preset = MODE_PRESETS.find((p) => p.id === activeMode);
+
     return preset ? (preset.label as Str) : ('' as Str);
   });
   const filteredThemePresets = $derived(
@@ -2738,6 +2763,7 @@
       ? THEME_PRESETS
       : THEME_PRESETS.filter((p) => {
           const q: Str = themeSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q) ||
             p.description.toLowerCase().includes(q) ||
@@ -2752,7 +2778,9 @@
     if (activeTheme === '') {
       return '' as Str;
     }
+
     const preset = THEME_PRESETS.find((p) => p.id === activeTheme);
+
     return preset ? (preset.label as Str) : ('' as Str);
   });
   const filteredMediaPrefGroups = $derived(
@@ -2760,6 +2788,7 @@
       ? MEDIA_PREF_GROUPS
       : MEDIA_PREF_GROUPS.filter((g) => {
           const q: Str = mediaPrefSearchQuery.toLowerCase() as Str;
+
           return (
             g.label.toLowerCase().includes(q) ||
             g.description.toLowerCase().includes(q) ||
@@ -2773,6 +2802,7 @@
   const activeMediaPrefCount: Num = $derived(
     MEDIA_PREF_GROUPS.filter((g) => {
       const val: Str = activeMediaPrefs[g.pref] ?? g.defaultValue;
+
       return val !== g.defaultValue;
     }).length as Num,
   );
@@ -2783,7 +2813,9 @@
           if (item.id === 'none') {
             return true;
           }
+
           const q: Str = networkSearchQuery.toLowerCase() as Str;
+
           return (
             item.label.toLowerCase().includes(q) ||
             item.description.toLowerCase().includes(q) ||
@@ -2801,7 +2833,9 @@
     if (activeNetworkSim === 'custom') {
       return `Custom ${activeCustomNetwork.delay}ms` as Str;
     }
+
     const found = NETWORK_PRESETS.find((p) => p.id === activeNetworkSim);
+
     return (found?.label ?? '') as Str;
   });
   const filteredViewportPresets = $derived(
@@ -2810,6 +2844,7 @@
       : VIEWPORT_PRESETS.filter((item) => {
           const q: Str = viewportSearchQuery.toLowerCase() as Str;
           const dims: Str = `${item.width}x${item.height}` as Str;
+
           return (
             item.label.toLowerCase().includes(q) ||
             item.description.toLowerCase().includes(q) ||
@@ -2828,12 +2863,15 @@
     if (activeViewport === 'custom') {
       return `${activeCustomViewport.w}×${activeCustomViewport.h}` as Str;
     }
+
     const found = VIEWPORT_PRESETS.find((p) => p.id === activeViewport);
+
     return found ? (found.label as Str) : ('' as Str);
   });
   const filteredColorItems = $derived(
     COLOR_VISION_ITEMS.filter((item) => {
       const q: Str = simSearchQuery.toLowerCase() as Str;
+
       return (
         item.label.toLowerCase().includes(q) ||
         item.description.toLowerCase().includes(q) ||
@@ -2847,6 +2885,7 @@
   const filteredVisionItems = $derived(
     VISION_ITEMS.filter((item) => {
       const q: Str = simSearchQuery.toLowerCase() as Str;
+
       return (
         item.label.toLowerCase().includes(q) ||
         item.description.toLowerCase().includes(q) ||
@@ -2862,6 +2901,7 @@
       ? DIR_PRESETS
       : DIR_PRESETS.filter((p) => {
           const q: Str = dirSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q) ||
             p.description.toLowerCase().includes(q) ||
@@ -2876,7 +2916,9 @@
     if (activeDir === 'auto') {
       return '' as Str;
     }
+
     const base = DIR_PRESETS.find((p) => p.category === 'Base' && p.dir === activeDir);
+
     return base ? (base.label as Str) : ('' as Str);
   });
   const filteredFontSizePresets = $derived(
@@ -2893,6 +2935,7 @@
       ? EXPORT_ITEMS
       : EXPORT_ITEMS.filter((p) => {
           const q: Str = exportSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q) ||
             p.description.toLowerCase().includes(q) ||

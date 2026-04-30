@@ -61,6 +61,7 @@ import { fromUnknownError, safeParse } from '@/utils/result/safe';
 export function cwd(): Result<Path> {
   try {
     const proc: OptionalNodeProcess = getProcess();
+
     if (!proc || typeof proc.cwd !== 'function') {
       return requireRuntime('cwd', 'node');
     }
@@ -92,10 +93,13 @@ export function cwd(): Result<Path> {
  */
 export function joinPath(segments: PathArray): Result<Path> {
   const path: OptionalNodePath = nodePath;
+
   if (!path) {
     return requireRuntime('joinPath', 'node');
   }
+
   const segmentsResult: Result<PathArray> = safeParse(PathArraySchema, segments);
+
   if (!segmentsResult.ok) {
     return segmentsResult;
   }
@@ -127,10 +131,13 @@ export function joinPath(segments: PathArray): Result<Path> {
  */
 export function pathExists(path: Path): Result<Bool> {
   const fs: OptionalNodeFs = nodeFs;
+
   if (!fs) {
     return requireRuntime('pathExists', 'node');
   }
+
   const pathResult: Result<Path> = safeParse(PathSchema, path);
+
   if (!pathResult.ok) {
     return pathResult;
   }
@@ -163,10 +170,13 @@ export function pathExists(path: Path): Result<Bool> {
 export function getDirFromImportMeta(importMetaUrl: UrlString): Result<Path> {
   const pathMod: OptionalNodePath = nodePath;
   const url: OptionalNodeUrl = nodeUrl;
+
   if (!pathMod || !url) {
     return requireRuntime('getDirFromImportMeta', 'node');
   }
+
   const urlResult: Result<UrlString> = safeParse(UrlStringSchema, importMetaUrl);
+
   if (!urlResult.ok) {
     return urlResult;
   }
@@ -197,6 +207,7 @@ export function getDirFromImportMeta(importMetaUrl: UrlString): Result<Path> {
  */
 export function getFileUrl(path: Path): Result<UrlString> {
   const pathResult: Result<Path> = safeParse(PathSchema, path);
+
   if (!pathResult.ok) {
     return pathResult;
   }
@@ -229,15 +240,19 @@ export function getFileUrl(path: Path): Result<UrlString> {
  */
 export function toRelativePath(absolutePath: Path): Result<Path> {
   const pathMod: OptionalNodePath = nodePath;
+
   if (!pathMod) {
     return requireRuntime('toRelativePath', 'node');
   }
+
   const pathResult: Result<Path> = safeParse(PathSchema, absolutePath);
+
   if (!pathResult.ok) {
     return pathResult;
   }
 
   const cwdResult: Result<Path> = cwd();
+
   if (!cwdResult.ok) {
     return cwdResult;
   }
@@ -256,6 +271,7 @@ export function toRelativePath(absolutePath: Path): Result<Path> {
   }
 
   const relativeResult: Result<Path> = safeParse(PathSchema, relativeStr as unknown as string);
+
   if (!relativeResult.ok) {
     return relativeResult;
   }
@@ -286,10 +302,13 @@ export function toRelativePath(absolutePath: Path): Result<Path> {
  */
 export function resolvePath(segments: PathArray): Result<Path> {
   const pathMod: OptionalNodePath = nodePath;
+
   if (!pathMod) {
     return requireRuntime('resolvePath', 'node');
   }
+
   const segmentsResult: Result<PathArray> = safeParse(PathArraySchema, segments);
+
   if (!segmentsResult.ok) {
     return segmentsResult;
   }
@@ -318,10 +337,13 @@ export function resolvePath(segments: PathArray): Result<Path> {
  */
 export function getFileExtension(path: Path): Result<Str> {
   const pathMod: OptionalNodePath = nodePath;
+
   if (!pathMod) {
     return requireRuntime('getFileExtension', 'node');
   }
+
   const pathResult: Result<Path> = safeParse(PathSchema, path);
+
   if (!pathResult.ok) {
     return pathResult;
   }
@@ -351,16 +373,20 @@ export function getFileExtension(path: Path): Result<Str> {
  */
 export function getBasename(path: Path, ext?: Str): Result<Str> {
   const pathMod: OptionalNodePath = nodePath;
+
   if (!pathMod) {
     return requireRuntime('getBasename', 'node');
   }
+
   const pathResult: Result<Path> = safeParse(PathSchema, path);
+
   if (!pathResult.ok) {
     return pathResult;
   }
 
   if (ext !== undefined) {
     const extResult: Result<Str> = safeParse(StrSchema, ext);
+
     if (!extResult.ok) {
       return extResult;
     }
@@ -389,10 +415,13 @@ export function getBasename(path: Path, ext?: Str): Result<Str> {
  */
 export function getDirname(path: Path): Result<Path> {
   const pathMod: OptionalNodePath = nodePath;
+
   if (!pathMod) {
     return requireRuntime('getDirname', 'node');
   }
+
   const pathResult: Result<Path> = safeParse(PathSchema, path);
+
   if (!pathResult.ok) {
     return pathResult;
   }
@@ -422,6 +451,7 @@ export function getDirname(path: Path): Result<Path> {
  */
 export function getTempDir(): Result<Path> {
   const os: OptionalNodeOs = nodeOs;
+
   if (!os) {
     return requireRuntime('getTempDir', 'node');
   }
@@ -453,6 +483,7 @@ export function getTempDir(): Result<Path> {
  */
 export function getHomedir(): Result<Path> {
   const os: OptionalNodeOs = nodeOs;
+
   if (!os) {
     return requireRuntime('getHomedir', 'node');
   }

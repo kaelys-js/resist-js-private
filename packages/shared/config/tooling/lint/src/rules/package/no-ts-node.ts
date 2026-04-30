@@ -26,8 +26,10 @@ const rule: PackageJsonRule = {
   fixable: false,
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
+
     for (const field of DEP_FIELDS) {
       const deps: Record<string, string> | undefined = context.pkg[field];
+
       if (!deps) {
         continue;
       }
@@ -46,7 +48,9 @@ const rule: PackageJsonRule = {
         }
       }
     }
+
     const { scripts } = context.pkg;
+
     if (scripts) {
       for (const [key, value] of Object.entries(scripts)) {
         if (value.includes('ts-node')) {

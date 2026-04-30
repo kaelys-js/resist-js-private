@@ -43,6 +43,7 @@
   const validated: DownloadButtonProps = $derived.by(() => {
     const rawProps: DownloadButtonProps = stripSvelteProps(allProps);
     const result = safeParse(DownloadButtonPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

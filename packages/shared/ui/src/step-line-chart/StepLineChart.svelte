@@ -42,6 +42,7 @@
   const validated: StepLineChartProps = $derived.by(() => {
     const rawProps: StepLineChartProps = stripSvelteProps(allProps);
     const result = safeParse(StepLineChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

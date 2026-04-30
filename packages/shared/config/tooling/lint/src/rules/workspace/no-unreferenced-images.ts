@@ -38,6 +38,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -64,11 +65,13 @@ const rule: WorkspaceRule = {
 
     /* Collect all image files. */
     const imageFiles: string[] = [];
+
     for (const filePath of allFiles) {
       const lowerPath: string = filePath.toLowerCase();
       const isImage: boolean = IMAGE_EXTENSIONS.some((ext: string): boolean =>
         lowerPath.endsWith(ext),
       );
+
       if (isImage) {
         imageFiles.push(filePath);
       }
@@ -80,11 +83,13 @@ const rule: WorkspaceRule = {
 
     /* Collect all source file contents. */
     const sourceContents: string[] = [];
+
     for (const filePath of allFiles) {
       const lowerPath: string = filePath.toLowerCase();
       const isSource: boolean = SOURCE_EXTENSIONS.some((ext: string): boolean =>
         lowerPath.endsWith(ext),
       );
+
       if (isSource) {
         try {
           const content: string = await ctx.readFile(filePath);
@@ -101,6 +106,7 @@ const rule: WorkspaceRule = {
     /* Check each image file for references. */
     for (const imageFile of imageFiles) {
       const imageName: string = basename(imageFile);
+
       if (!allSourceContent.includes(imageName)) {
         results.push(
           createResult(

@@ -243,6 +243,7 @@ describe('LensCategorySchema', () => {
       'typography',
       'utility',
     ];
+
     for (const cat of validCategories) {
       const result = v.safeParse(LensCategorySchema, cat);
       expect(result.success, `Category "${cat}" should be valid`).toBe(true);

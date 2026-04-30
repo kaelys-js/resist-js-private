@@ -42,6 +42,7 @@
   const validated: ItemTooltipProps = $derived.by(() => {
     const rawProps: ItemTooltipProps = stripSvelteProps(allProps);
     const result = safeParse(ItemTooltipPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: TransactionDetailProps = $derived.by(() => {
     const rawProps: TransactionDetailProps = stripSvelteProps(allProps);
     const result = safeParse(TransactionDetailPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

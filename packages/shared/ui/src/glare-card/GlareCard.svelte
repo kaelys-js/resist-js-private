@@ -42,6 +42,7 @@
   const validated: GlareCardProps = $derived.by(() => {
     const rawProps: GlareCardProps = stripSvelteProps(allProps);
     const result = safeParse(GlareCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

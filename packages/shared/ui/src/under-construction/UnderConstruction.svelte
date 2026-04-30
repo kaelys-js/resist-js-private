@@ -43,6 +43,7 @@
   const validated: UnderConstructionProps = $derived.by(() => {
     const rawProps: UnderConstructionProps = stripSvelteProps(allProps);
     const result = safeParse(UnderConstructionPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: LinearGaugeProps = $derived.by(() => {
     const rawProps: LinearGaugeProps = stripSvelteProps(allProps);
     const result = safeParse(LinearGaugePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: PhoneInputProps = $derived.by(() => {
     const rawProps: PhoneInputProps = stripSvelteProps(allProps);
     const result = safeParse(PhoneInputPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

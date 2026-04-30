@@ -42,6 +42,7 @@
   const validated: TextToSpeechProps = $derived.by(() => {
     const rawProps: TextToSpeechProps = stripSvelteProps(allProps);
     const result = safeParse(TextToSpeechPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

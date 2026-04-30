@@ -42,6 +42,7 @@
   const validated: CanvasRevealEffectProps = $derived.by(() => {
     const rawProps: CanvasRevealEffectProps = stripSvelteProps(allProps);
     const result = safeParse(CanvasRevealEffectPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

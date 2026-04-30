@@ -42,6 +42,7 @@
   const validated: NeonGradientCardProps = $derived.by(() => {
     const rawProps: NeonGradientCardProps = stripSvelteProps(allProps);
     const result = safeParse(NeonGradientCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

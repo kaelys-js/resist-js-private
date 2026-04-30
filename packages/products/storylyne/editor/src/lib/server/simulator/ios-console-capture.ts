@@ -141,6 +141,7 @@ export async function captureConsoleLogs(
   ws.on('message', (data: Buffer | string) => {
     const raw: Str = data.toString() as Str;
     const msg: CapturedConsoleMessage | null = parseConsoleMessage(raw);
+
     if (msg) {
       messages.push(msg);
     }

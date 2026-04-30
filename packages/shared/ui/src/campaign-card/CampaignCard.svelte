@@ -42,6 +42,7 @@
   const validated: CampaignCardProps = $derived.by(() => {
     const rawProps: CampaignCardProps = stripSvelteProps(allProps);
     const result = safeParse(CampaignCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

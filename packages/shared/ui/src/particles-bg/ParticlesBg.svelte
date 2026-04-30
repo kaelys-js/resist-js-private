@@ -41,6 +41,7 @@
   const validated: ParticlesBgProps = $derived.by(() => {
     const rawProps: ParticlesBgProps = stripSvelteProps(allProps);
     const result = safeParse(ParticlesBgPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

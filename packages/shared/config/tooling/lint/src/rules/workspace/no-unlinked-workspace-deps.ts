@@ -32,8 +32,10 @@ const rule: WorkspaceRule = {
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
     const all = await ctx.allFiles();
+
     try {
       const packages = await ctx.getWorkspacePackages();
+
       return [...all, ...packages.map((p) => p.path)];
     } catch {
       return all;
@@ -64,6 +66,7 @@ const rule: WorkspaceRule = {
     const workspacePackages: Awaited<ReturnType<typeof ctx.getWorkspacePackages>> =
       await ctx.getWorkspacePackages();
     const packageNames: Set<string> = new Set();
+
     for (const pkg of workspacePackages) {
       if (typeof pkg.name === 'string') {
         packageNames.add(pkg.name);
@@ -79,6 +82,7 @@ const rule: WorkspaceRule = {
 
       const relativePath: string = relative(ctx.rootDir, filePath);
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -86,6 +90,7 @@ const rule: WorkspaceRule = {
       }
 
       let pkg: Record<string, unknown>;
+
       try {
         pkg = JSON.parse(content) as Record<string, unknown>;
       } catch {
@@ -94,13 +99,16 @@ const rule: WorkspaceRule = {
 
       for (const field of DEP_FIELDS) {
         const deps: unknown = pkg[field];
+
         if (typeof deps !== 'object' || deps === null) {
           continue;
         }
 
         const depsObj: Record<string, unknown> = deps as Record<string, unknown>;
+
         for (const depName of Object.keys(depsObj)) {
           const version: unknown = depsObj[depName];
+
           if (typeof version !== 'string') {
             continue;
           }

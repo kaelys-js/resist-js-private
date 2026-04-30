@@ -42,6 +42,7 @@
   const validated: BulkEditProps = $derived.by(() => {
     const rawProps: BulkEditProps = stripSvelteProps(allProps);
     const result = safeParse(BulkEditPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

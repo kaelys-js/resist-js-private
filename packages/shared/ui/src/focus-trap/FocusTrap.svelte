@@ -42,6 +42,7 @@
   const validated: FocusTrapProps = $derived.by(() => {
     const rawProps: FocusTrapProps = stripSvelteProps(allProps);
     const result = safeParse(FocusTrapPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: FileDialogProps = $derived.by(() => {
     const rawProps: FileDialogProps = stripSvelteProps(allProps);
     const result = safeParse(FileDialogPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

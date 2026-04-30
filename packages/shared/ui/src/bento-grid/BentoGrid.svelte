@@ -43,6 +43,7 @@
   const validated: BentoGridProps = $derived.by(() => {
     const rawProps: BentoGridProps = stripSvelteProps(allProps);
     const result = safeParse(BentoGridPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

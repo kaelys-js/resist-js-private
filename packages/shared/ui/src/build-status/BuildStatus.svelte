@@ -42,6 +42,7 @@
   const validated: BuildStatusProps = $derived.by(() => {
     const rawProps: BuildStatusProps = stripSvelteProps(allProps);
     const result = safeParse(BuildStatusPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

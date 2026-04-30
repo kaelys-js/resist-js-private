@@ -34,6 +34,7 @@ function isConstantLikeInit(init: AstNode): boolean {
   // Negative number literal: -42
   if (init.type === 'UnaryExpression') {
     const argument = init.argument as AstNode | undefined;
+
     if (argument && LITERAL_TYPES.has(argument.type)) {
       return true;
     }
@@ -43,6 +44,7 @@ function isConstantLikeInit(init: AstNode): boolean {
   if (init.type === 'NewExpression') {
     const callee = init.callee as AstNode | undefined;
     const calleeName: string = (callee?.name as string) ?? '';
+
     if (calleeName === 'Set' || calleeName === 'Map') {
       return true;
     }
@@ -51,6 +53,7 @@ function isConstantLikeInit(init: AstNode): boolean {
   // Array of literals: [1, 2, 3]
   if (init.type === 'ArrayExpression') {
     const elements = init.elements as AstNode[] | undefined;
+
     if (elements && elements.every((el: AstNode): boolean => LITERAL_TYPES.has(el.type))) {
       return true;
     }
@@ -70,6 +73,7 @@ const rule: TypeScriptRule = {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const body = node.body as AstNode[] | undefined;
+
       if (!body) {
         return results;
       }
@@ -82,6 +86,7 @@ const rule: TypeScriptRule = {
         }
         if (stmt.type === 'ExportNamedDeclaration') {
           const declaration = stmt.declaration as AstNode | undefined;
+
           if (declaration?.type === 'VariableDeclaration' && declaration.kind === 'const') {
             varDecl = declaration;
           }
@@ -92,22 +97,26 @@ const rule: TypeScriptRule = {
         }
 
         const declarations = varDecl.declarations as AstNode[] | undefined;
+
         if (!declarations) {
           continue;
         }
 
         for (const decl of declarations) {
           const id = decl.id as AstNode | undefined;
+
           if (!id || id.type !== 'Identifier') {
             continue;
           }
 
           const name: string = (id.name as string) ?? '';
+
           if (!name) {
             continue;
           }
 
           const init = decl.init as AstNode | undefined;
+
           if (!init) {
             continue;
           }

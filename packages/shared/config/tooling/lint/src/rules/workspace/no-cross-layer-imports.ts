@@ -95,11 +95,13 @@ const rule: WorkspaceRule = {
       }
 
       const currentLayer: string | undefined = extractLayer(filePath);
+
       if (currentLayer === undefined) {
         continue;
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -113,6 +115,7 @@ const rule: WorkspaceRule = {
       );
 
       let match: RegExpExecArray | null = captureRe.exec(content);
+
       while (match !== null) {
         const targetLayer: string = match[1] ?? '';
 

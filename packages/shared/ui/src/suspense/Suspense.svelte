@@ -43,6 +43,7 @@
   const validated: SuspenseProps = $derived.by(() => {
     const rawProps: SuspenseProps = stripSvelteProps(allProps);
     const result = safeParse(SuspensePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

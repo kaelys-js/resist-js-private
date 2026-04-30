@@ -42,6 +42,7 @@ const CLANG_TIDY_LINE: RegExp = /^(.+?):(\d+):(\d+): (warning|error|note): (.+?)
  */
 export function transformClangTidyOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -50,6 +51,7 @@ export function transformClangTidyOutput(output: string): LintResult[] {
 
   for (const line of trimmed.split('\n')) {
     const match: RegExpMatchArray | null = CLANG_TIDY_LINE.exec(line.trim());
+
     if (!match) {
       continue;
     }
@@ -62,6 +64,7 @@ export function transformClangTidyOutput(output: string): LintResult[] {
     const checkName: string = match[6] ?? 'diagnostic';
 
     let severity: 'error' | 'warning' | 'info' = 'warning';
+
     if (level === 'error') {
       severity = 'error';
     } else if (level === 'note') {

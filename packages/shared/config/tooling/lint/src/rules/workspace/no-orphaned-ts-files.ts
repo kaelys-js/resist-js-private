@@ -21,6 +21,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -51,6 +52,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of allFiles) {
       const name: string = basename(filePath);
+
       if (name.startsWith('tsconfig') && name.endsWith('.json')) {
         tsconfigDirs.push(dirname(filePath));
       }

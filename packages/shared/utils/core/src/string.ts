@@ -32,6 +32,7 @@ import { safeParse } from '@/utils/result/safe';
  */
 function stripAnsi(str: Str): Str {
   const ansiEscape = new RegExp(`${String.fromCodePoint(0x1b)}${String.raw`\[[0-9;]*m`}`, 'g');
+
   return str.replace(ansiEscape, '');
 }
 
@@ -54,11 +55,13 @@ function stripAnsi(str: Str): Str {
  */
 export function padRight(str: Str, length: NonNegativeInteger): Result<Str> {
   const strResult: Result<Str> = safeParse(StrSchema, str);
+
   if (!strResult.ok) {
     return strResult;
   }
 
   const lengthResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, length);
+
   if (!lengthResult.ok) {
     return lengthResult;
   }
@@ -68,6 +71,7 @@ export function padRight(str: Str, length: NonNegativeInteger): Result<Str> {
     0,
     (lengthResult.data as unknown as number) - strResult.data.length,
   );
+
   return ok(StrSchema, strResult.data + ' '.repeat(padding));
 }
 
@@ -93,11 +97,13 @@ export function padRight(str: Str, length: NonNegativeInteger): Result<Str> {
  */
 export function truncateLine(line: Str, maxWidth: NonNegativeInteger): Result<Str> {
   const lineResult: Result<Str> = safeParse(StrSchema, line);
+
   if (!lineResult.ok) {
     return lineResult;
   }
 
   const widthResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, maxWidth);
+
   if (!widthResult.ok) {
     return widthResult;
   }
@@ -117,6 +123,7 @@ export function truncateLine(line: Str, maxWidth: NonNegativeInteger): Result<St
   while (i < lineResult.data.length && visibleCount < targetLength) {
     if (lineResult.data[i] === '\u001B' && lineResult.data[i + 1] === '[') {
       const end: number = lineResult.data.indexOf('m', i);
+
       if (end !== -1) {
         i = end + 1;
         continue;
@@ -129,6 +136,7 @@ export function truncateLine(line: Str, maxWidth: NonNegativeInteger): Result<St
   // Include any trailing ANSI codes (like reset)
   while (i < lineResult.data.length && lineResult.data[i] === '\u001B') {
     const end: number = lineResult.data.indexOf('m', i);
+
     if (end === -1) {
       break;
     } else {
@@ -158,6 +166,7 @@ export function truncateLine(line: Str, maxWidth: NonNegativeInteger): Result<St
  */
 export function toCamelCase(name: Str): Result<CamelCaseString> {
   const input: Result<Str> = safeParse(StrSchema, name);
+
   if (!input.ok) {
     return input;
   }

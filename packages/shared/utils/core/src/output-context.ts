@@ -43,6 +43,7 @@ let currentOutputFormat: OutputFormat = DEFAULT_OUTPUT_FORMAT;
  */
 export function setOutputFormat(format: OutputFormat): Result<Void> {
   const input: Result<OutputFormat> = safeParse(OutputFormatSchema, format);
+
   if (!input.ok) {
     return input;
   }
@@ -79,5 +80,6 @@ export function getOutputFormat(): Result<OutputFormat> {
  */
 export function isMachineReadable(): Result<Bool> {
   const machineFormats: OutputFormat[] = ['json', 'junit', 'github'];
+
   return ok(BoolSchema, machineFormats.includes(currentOutputFormat));
 }

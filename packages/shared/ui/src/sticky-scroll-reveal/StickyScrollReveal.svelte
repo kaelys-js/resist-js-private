@@ -43,6 +43,7 @@
   const validated: StickyScrollRevealProps = $derived.by(() => {
     const rawProps: StickyScrollRevealProps = stripSvelteProps(allProps);
     const result = safeParse(StickyScrollRevealPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

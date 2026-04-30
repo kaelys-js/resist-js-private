@@ -51,6 +51,7 @@ const rule: TypeScriptRule = {
         }
 
         const { name } = node as { name?: string };
+
         if (name !== '$$slots') {
           return;
         }

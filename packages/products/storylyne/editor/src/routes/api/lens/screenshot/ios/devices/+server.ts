@@ -45,6 +45,7 @@ export const GET: RequestHandler = async () => {
 
   /* Check xcrun availability */
   const xcrunOk: boolean = await isXcrunAvailable();
+
   if (!xcrunOk) {
     return new Response(
       JSON.stringify({
@@ -92,6 +93,7 @@ export const GET: RequestHandler = async () => {
     const message: Str = (
       error instanceof Error ? error.message : 'Failed to list simulator devices'
     ) as Str;
+
     return new Response(
       JSON.stringify({
         available: false,

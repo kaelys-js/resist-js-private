@@ -42,6 +42,7 @@
   const validated: TermsOfServiceProps = $derived.by(() => {
     const rawProps: TermsOfServiceProps = stripSvelteProps(allProps);
     const result = safeParse(TermsOfServicePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

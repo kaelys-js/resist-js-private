@@ -47,6 +47,7 @@ const DOTNET_FORMAT_FILE: RegExp = /(\S+\.cs)/;
  */
 export function transformDotnetFormatOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -61,11 +62,13 @@ export function transformDotnetFormatOutput(output: string, strings: LintStrings
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = DOTNET_FORMAT_FILE.exec(stripped);
+
     if (match) {
       const file: string = match[1] ?? '';
 

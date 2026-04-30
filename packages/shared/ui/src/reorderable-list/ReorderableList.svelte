@@ -42,6 +42,7 @@
   const validated: ReorderableListProps = $derived.by(() => {
     const rawProps: ReorderableListProps = stripSvelteProps(allProps);
     const result = safeParse(ReorderableListPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -26,6 +26,7 @@ export const load: PageServerLoad = () => {
   });
 
   const result = safeParse(TestSchema, { name: '', age: -5, email: 'not-an-email' });
+
   if (!result.ok) {
     // Throw the actual AppError — not a plain Error wrapper.
     // handleError will detect the AppError shape and preserve its code,

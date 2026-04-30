@@ -42,6 +42,7 @@
   const validated: MarqueeProps = $derived.by(() => {
     const rawProps: MarqueeProps = stripSvelteProps(allProps);
     const result = safeParse(MarqueePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

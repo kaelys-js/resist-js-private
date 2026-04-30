@@ -43,6 +43,7 @@
   const validated: AnimatedBackgroundProps = $derived.by(() => {
     const rawProps: AnimatedBackgroundProps = stripSvelteProps(allProps);
     const result = safeParse(AnimatedBackgroundPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

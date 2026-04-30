@@ -30,6 +30,7 @@ import { createResult, type LintResult } from '@/lint/framework/types.ts';
  */
 export function transformNomadOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -44,6 +45,7 @@ export function transformNomadOutput(output: string): LintResult[] {
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }

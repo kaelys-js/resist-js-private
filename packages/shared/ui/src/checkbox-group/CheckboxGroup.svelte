@@ -43,6 +43,7 @@
   const validated: CheckboxGroupProps = $derived.by(() => {
     const rawProps: CheckboxGroupProps = stripSvelteProps(allProps);
     const result = safeParse(CheckboxGroupPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -43,6 +43,7 @@ function getParamName(param: AstNode): string | null {
   // AssignmentPattern: param = defaultValue — extract left side
   if (param.type === 'AssignmentPattern') {
     const left = param.left as AstNode | undefined;
+
     if (left?.type === 'Identifier') {
       return (left.name as string) ?? null;
     }
@@ -73,11 +74,13 @@ function isCallbackParam(param: AstNode, context: VisitorContext): boolean {
   const typeAnnotation = (param.typeAnnotation as AstNode | undefined)?.typeAnnotation as
     | AstNode
     | undefined;
+
   if (!typeAnnotation) {
     return false;
   }
 
   const typeText: string = context.content.slice(typeAnnotation.start, typeAnnotation.end);
+
   if (CALLBACK_PATTERN.test(typeText)) {
     return true;
   }
@@ -102,6 +105,7 @@ function isParamValidated(paramName: string, bodyText: string): boolean {
     new RegExp(`\\.safeParse\\s*\\(\\s*${paramName}\\s*[),]`),
     new RegExp(`\\.parse\\s*\\(\\s*${paramName}\\s*[),]`),
   ];
+
   return patterns.some((p: RegExp): boolean => p.test(bodyText));
 }
 
@@ -124,16 +128,19 @@ function checkFunction(
 
   // Only check exported functions and handler-pattern functions
   const isHandler: boolean = HANDLER_PATTERNS.some((p: RegExp): boolean => p.test(name));
+
   if (!isHandler && !isExported) {
     return results;
   }
 
   const params = node.params as AstNode[] | undefined;
+
   if (!params || params.length === 0) {
     return results;
   }
 
   const body = node.body as AstNode | undefined;
+
   if (!body) {
     return results;
   }
@@ -156,6 +163,7 @@ function checkFunction(
     const typeAnnotationNode = (param.typeAnnotation as AstNode | undefined)?.typeAnnotation as
       | AstNode
       | undefined;
+
     if (typeAnnotationNode) {
       const typeStr: string = context.content.slice(
         typeAnnotationNode.start,
@@ -173,6 +181,7 @@ function checkFunction(
       // Check if param type is a generic type param that extends a schema type
       // e.g., schema: TSchema where <TSchema extends v.GenericSchema>
       const typeParams = node.typeParameters as AstNode | undefined;
+
       if (typeParams) {
         const typeParamsText: string = context.content.slice(typeParams.start, typeParams.end);
 
@@ -183,6 +192,7 @@ function checkFunction(
     }
 
     const paramName: string | null = getParamName(param);
+
     if (!paramName) {
       continue;
     }
@@ -263,6 +273,7 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const declaration = node.declaration as AstNode | undefined;
+
       if (!declaration) {
         return results;
       }
@@ -274,12 +285,14 @@ const rule: TypeScriptRule = {
 
       if (declaration.type === 'VariableDeclaration') {
         const declarations = declaration.declarations as AstNode[] | undefined;
+
         if (!declarations) {
           return results;
         }
 
         for (const decl of declarations) {
           const init = decl.init as AstNode | undefined;
+
           if (
             init &&
             (init.type === 'ArrowFunctionExpression' || init.type === 'FunctionExpression')
@@ -295,12 +308,14 @@ const rule: TypeScriptRule = {
 
     FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const name: string = ((node.id as AstNode)?.name as string) ?? '';
+
       if (!name) {
         return [];
       }
 
       // Skip if this function is inside an export — already handled by ExportNamedDeclaration
       const before: string = context.content.slice(Math.max(0, node.start - 20), node.start);
+
       if (/export\s+(default\s+)?$/.test(before)) {
         return [];
       }
@@ -312,18 +327,21 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const declarations = node.declarations as AstNode[] | undefined;
+
       if (!declarations) {
         return results;
       }
 
       for (const declarator of declarations) {
         const init = declarator.init as AstNode | undefined;
+
         if (!init) {
           continue;
         }
 
         if (init.type === 'ArrowFunctionExpression' || init.type === 'FunctionExpression') {
           const name: string = ((declarator.id as AstNode)?.name as string) ?? '';
+
           if (name && HANDLER_PATTERNS.some((p: RegExp): boolean => p.test(name))) {
             results.push(...checkFunction(init, name, context, false));
           }

@@ -42,6 +42,7 @@
   const validated: LongPressProps = $derived.by(() => {
     const rawProps: LongPressProps = stripSvelteProps(allProps);
     const result = safeParse(LongPressPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -39,6 +39,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     const automergeEnabled: string | undefined = process.env['MR_AUTOMERGE_ENABLED'];
+
     if (automergeEnabled === undefined) {
       return Promise.resolve(results);
     }
@@ -48,6 +49,7 @@ const rule: WorkspaceRule = {
     }
 
     const pipelineStatus: string | undefined = process.env['MR_PIPELINE_STATUS'];
+
     if (pipelineStatus !== 'success') {
       results.push(
         createResult(
@@ -65,6 +67,7 @@ const rule: WorkspaceRule = {
     }
 
     const approved: string | undefined = process.env['MR_APPROVED'];
+
     if (approved !== '1') {
       results.push(
         createResult(

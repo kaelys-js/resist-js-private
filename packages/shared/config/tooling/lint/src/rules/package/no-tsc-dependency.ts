@@ -23,21 +23,28 @@ const rule: PackageJsonRule = {
   fixable: false,
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
+
     if (context.isRoot) {
       return results;
     }
+
     const name: string = context.pkg.name ?? '';
+
     if (name.includes('vscode')) {
       return results;
     }
     /* Exempt SvelteKit packages — they need typescript for svelte-check */
+
     const deps: Record<string, string> = context.pkg.devDependencies ?? {};
+
     if (deps['svelte-check']) {
       return results;
     }
+
     const hasTsDep: boolean = Boolean(
       context.pkg.devDependencies?.['typescript'] ?? context.pkg.dependencies?.['typescript'],
     );
+
     if (hasTsDep) {
       results.push({
         file: context.file,

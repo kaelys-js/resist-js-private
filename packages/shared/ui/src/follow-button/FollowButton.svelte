@@ -42,6 +42,7 @@
   const validated: FollowButtonProps = $derived.by(() => {
     const rawProps: FollowButtonProps = stripSvelteProps(allProps);
     const result = safeParse(FollowButtonPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

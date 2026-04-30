@@ -42,6 +42,7 @@
   const validated: PricingCardProps = $derived.by(() => {
     const rawProps: PricingCardProps = stripSvelteProps(allProps);
     const result = safeParse(PricingCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

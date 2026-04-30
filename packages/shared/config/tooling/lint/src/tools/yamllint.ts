@@ -27,6 +27,7 @@ export function transformYamllintOutput(output: string): LintResult[] {
 
   for (const line of output.split('\n')) {
     const match: RegExpMatchArray | null = YAMLLINT_LINE.exec(line.trim());
+
     if (!match) {
       continue;
     }

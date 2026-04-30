@@ -23,5 +23,6 @@ export async function vscodeRuleInputs(ctx: WorkspaceContext): Promise<readonly 
   const tsFiles: readonly string[] = await ctx.filesByExtension('.ts');
   const packages: WorkspacePackage[] = await ctx.getWorkspacePackages();
   const pkgPaths: string[] = packages.map((p: WorkspacePackage): string => p.path);
+
   return [...tsFiles, ...pkgPaths];
 }

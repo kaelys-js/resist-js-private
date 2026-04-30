@@ -39,6 +39,7 @@ const rule: TypeScriptRule = {
       }
 
       const adapterPkg: string | undefined = getAdapterImport(context.imports);
+
       if (!adapterPkg || STATIC_ADAPTERS.has(adapterPkg)) {
         return [];
       }

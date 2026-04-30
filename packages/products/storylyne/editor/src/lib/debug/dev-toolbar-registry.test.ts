@@ -85,6 +85,7 @@ describe('discoverFeatureFlags', () => {
 
   it('each entry has key and default fields', () => {
     const flags = discoverFeatureFlags(flagEntries);
+
     for (const flag of flags) {
       expect(flag).toHaveProperty('key');
       expect(flag).toHaveProperty('default');
@@ -249,6 +250,7 @@ describe('generateDebugUrl', () => {
   it('builds URL with app-prefixed params from store state', () => {
     const editorResult = createEditorStore();
     const debugResult = createDebugStore();
+
     if (!editorResult.ok || !debugResult.ok) {
       throw new Error('Store creation failed');
     }
@@ -263,6 +265,7 @@ describe('generateDebugUrl', () => {
   it('includes feature flag overrides for non-default flags', () => {
     const editorResult = createEditorStore();
     const debugResult = createDebugStore();
+
     if (!editorResult.ok || !debugResult.ok) {
       throw new Error('Store creation failed');
     }
@@ -277,6 +280,7 @@ describe('generateDebugUrl', () => {
   it('uses provided base URL', () => {
     const editorResult = createEditorStore();
     const debugResult = createDebugStore();
+
     if (!editorResult.ok || !debugResult.ok) {
       throw new Error('Store creation failed');
     }
@@ -293,6 +297,7 @@ describe('generateDebugUrl', () => {
   it('uses window.location.href as default base when available', () => {
     const editorResult = createEditorStore();
     const debugResult = createDebugStore();
+
     if (!editorResult.ok || !debugResult.ok) {
       throw new Error('Store creation failed');
     }

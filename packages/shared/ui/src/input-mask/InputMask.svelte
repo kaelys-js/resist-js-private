@@ -42,6 +42,7 @@
   const validated: InputMaskProps = $derived.by(() => {
     const rawProps: InputMaskProps = stripSvelteProps(allProps);
     const result = safeParse(InputMaskPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

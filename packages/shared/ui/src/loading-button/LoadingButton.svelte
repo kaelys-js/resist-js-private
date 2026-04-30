@@ -42,6 +42,7 @@
   const validated: LoadingButtonProps = $derived.by(() => {
     const rawProps: LoadingButtonProps = stripSvelteProps(allProps);
     const result = safeParse(LoadingButtonPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

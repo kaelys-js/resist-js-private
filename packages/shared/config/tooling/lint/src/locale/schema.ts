@@ -29,6 +29,7 @@ import * as v from 'valibot';
  */
 export function format(template: string, params: Record<string, string | number>): string {
   let result: string = template;
+
   for (const [key, value] of Object.entries(params)) {
     result = result.replaceAll(`{${key}}`, String(value));
   }

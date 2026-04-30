@@ -807,6 +807,7 @@ describe('defensive IIFE validation branches', () => {
     vi.doMock('valibot', async (importOriginal) => {
       const actual = await importOriginal<typeof v>();
       const origSafeParse = actual.safeParse;
+
       return {
         ...actual,
         safeParse(...args: Parameters<typeof origSafeParse>) {
@@ -834,6 +835,7 @@ describe('defensive IIFE validation branches', () => {
     vi.doMock('valibot', async (importOriginal) => {
       const actual = await importOriginal<typeof v>();
       const origSafeParse = actual.safeParse;
+
       return {
         ...actual,
         safeParse(...args: Parameters<typeof origSafeParse>) {
@@ -861,6 +863,7 @@ describe('defensive IIFE validation branches', () => {
     vi.doMock('valibot', async (importOriginal) => {
       const actual = await importOriginal<typeof v>();
       const origSafeParse = actual.safeParse;
+
       return {
         ...actual,
         safeParse(...args: Parameters<typeof origSafeParse>) {
@@ -888,6 +891,7 @@ describe('defensive IIFE validation branches', () => {
     vi.doMock('valibot', async (importOriginal) => {
       const actual = await importOriginal<typeof v>();
       const origSafeParse = actual.safeParse;
+
       return {
         ...actual,
         safeParse(...args: Parameters<typeof origSafeParse>) {
@@ -915,6 +919,7 @@ describe('defensive IIFE validation branches', () => {
     vi.doMock('valibot', async (importOriginal) => {
       const actual = await importOriginal<typeof v>();
       const origSafeParse = actual.safeParse;
+
       return {
         ...actual,
         safeParse(...args: Parameters<typeof origSafeParse>) {

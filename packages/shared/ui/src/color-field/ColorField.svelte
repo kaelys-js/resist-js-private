@@ -42,6 +42,7 @@
   const validated: ColorFieldProps = $derived.by(() => {
     const rawProps: ColorFieldProps = stripSvelteProps(allProps);
     const result = safeParse(ColorFieldPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

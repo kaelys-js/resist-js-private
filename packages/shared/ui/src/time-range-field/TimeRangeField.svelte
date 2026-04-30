@@ -42,6 +42,7 @@
   const validated: TimeRangeFieldProps = $derived.by(() => {
     const rawProps: TimeRangeFieldProps = stripSvelteProps(allProps);
     const result = safeParse(TimeRangeFieldPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

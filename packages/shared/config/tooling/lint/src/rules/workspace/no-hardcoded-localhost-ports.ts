@@ -65,6 +65,7 @@ const rule: WorkspaceRule = {
       const hasSourceExt: boolean = [...SOURCE_EXTENSIONS].some((ext: string): boolean =>
         filePath.endsWith(ext),
       );
+
       if (!hasSourceExt) {
         continue;
       }
@@ -74,11 +75,13 @@ const rule: WorkspaceRule = {
       const isExcluded: boolean = EXCLUDED_PATTERNS.some(
         (pattern: string): boolean => name.includes(pattern) || filePath.includes(pattern),
       );
+
       if (isExcluded) {
         continue;
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {

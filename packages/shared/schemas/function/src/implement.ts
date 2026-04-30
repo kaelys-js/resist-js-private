@@ -69,6 +69,7 @@ export function implement<TArgs extends unknown[], TReturn>(
       // If a wrapper was created by preceding args()/returns() actions,
       // re-create it with the new implementation
       const existingMeta: WrapperMeta | undefined = getWrapperMeta(pipeInput);
+
       if (existingMeta) {
         return createWrapper<TArgs, TReturn>(
           fn,

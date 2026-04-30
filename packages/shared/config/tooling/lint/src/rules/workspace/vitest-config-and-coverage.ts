@@ -19,6 +19,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -51,6 +52,7 @@ const rule: WorkspaceRule = {
           f.endsWith(`/shared/utils/test/${c}`) || f.endsWith(`shared/utils/test/${c}`),
       ),
     );
+
     if (!hasConfig) {
       results.push(
         createResult(
@@ -94,6 +96,7 @@ const rule: WorkspaceRule = {
       ) {
         try {
           const content: string = await ctx.readFile(file);
+
           if (/\b(describe|it|test)\s*\(/.test(content) && /\bexpect\s*\(/.test(content)) {
             results.push(
               createResult(
@@ -119,6 +122,7 @@ const rule: WorkspaceRule = {
         try {
           const content: string = await ctx.readFile(file);
           const lines: string[] = content.split('\n');
+
           for (let i: number = 0; i < lines.length; i++) {
             if (/\b(it|test|describe)\.(skip|only|todo)\b/.test(lines[i] ?? '')) {
               results.push(

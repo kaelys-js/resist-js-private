@@ -42,6 +42,7 @@
   const validated: TreeViewProps = $derived.by(() => {
     const rawProps: TreeViewProps = stripSvelteProps(allProps);
     const result = safeParse(TreeViewPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -43,6 +43,7 @@
   const validated: AngleSliderProps = $derived.by(() => {
     const rawProps: AngleSliderProps = stripSvelteProps(allProps);
     const result = safeParse(AngleSliderPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

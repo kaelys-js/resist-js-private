@@ -42,6 +42,7 @@
   const validated: CrossSellProps = $derived.by(() => {
     const rawProps: CrossSellProps = stripSvelteProps(allProps);
     const result = safeParse(CrossSellPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -65,6 +65,7 @@ describe('getAbortSignal', () => {
 
   it('signal is not aborted initially', () => {
     const result = getAbortSignal();
+
     if (result.ok) {
       expect(result.data.aborted).toBe(false);
     }
@@ -74,6 +75,7 @@ describe('getAbortSignal', () => {
     const before = getAbortSignal();
     resetSignalHandlers();
     const after = getAbortSignal();
+
     if (before.ok && after.ok) {
       expect(after.data).not.toBe(before.data);
       expect(after.data.aborted).toBe(false);
@@ -123,6 +125,7 @@ describe('reportError', () => {
 
   it('respects fatal=false override', () => {
     const result = reportError(makeAppError(), false as Bool);
+
     if (result.ok) {
       expect(result.data.fatal).toBe(false);
     }
@@ -144,6 +147,7 @@ describe('reportError', () => {
       message: 'custom message' as Str,
     });
     const result = reportError(input);
+
     if (result.ok) {
       expect(result.data.error).toBe(input);
       expect(result.data.original).toBe(input);
@@ -159,6 +163,7 @@ describe('reportError', () => {
       serverName: 'svc-a',
     });
     const result = reportError(makeAppError());
+
     if (result.ok) {
       expect(result.data.release).toBe('1.2.3');
       expect(result.data.serverName).toBe('svc-a');
@@ -416,9 +421,11 @@ describe('wrapAsync', () => {
   it('resolves with value on success', async () => {
     const onError = vi.fn();
     const result = wrapAsync(incrementNumber, onError);
+
     if (!result.ok) {
       throw new Error('wrapAsync failed');
     }
+
     const value = await result.data(41);
     expect(value).toBe(42);
     expect(onError).not.toHaveBeenCalled();
@@ -427,6 +434,7 @@ describe('wrapAsync', () => {
   it('routes error through onError and re-throws', async () => {
     const onError = vi.fn();
     const result = wrapAsync(throwKaboom, onError);
+
     if (!result.ok) {
       throw new Error('wrapAsync failed');
     }
@@ -440,6 +448,7 @@ describe('wrapAsync', () => {
   it('captured has correct error message', async () => {
     const onError = vi.fn();
     const result = wrapAsync(throwSpecific, onError);
+
     if (!result.ok) {
       throw new Error('wrapAsync failed');
     }
@@ -448,6 +457,7 @@ describe('wrapAsync', () => {
     } catch {
       /* expected */
     }
+
     const captured = onError.mock.calls[0]?.[0] as CapturedError;
     expect(captured.error.message).toContain('specific error');
   });
@@ -456,6 +466,7 @@ describe('wrapAsync', () => {
     const spy = vi.fn(sumTwoNumbers);
     const onError = vi.fn();
     const result = wrapAsync(spy, onError);
+
     if (!result.ok) {
       throw new Error('wrapAsync failed');
     }
@@ -483,9 +494,11 @@ describe('wrapFetchHandler', () => {
   it('passes through successful responses', async () => {
     const onError = vi.fn();
     const wrapped = wrapFetchHandler(okHandler, onError);
+
     if (!wrapped.ok) {
       throw new Error('wrapFetchHandler failed');
     }
+
     const req = new Request('https://example.com/');
     const res = await wrapped.data(req, {}, {});
     expect(res.status).toBe(200);
@@ -495,9 +508,11 @@ describe('wrapFetchHandler', () => {
   it('returns 500 Response and invokes onError on throw', async () => {
     const onError = vi.fn();
     const wrapped = wrapFetchHandler(throwingHandlerBoom, onError);
+
     if (!wrapped.ok) {
       throw new Error('wrapFetchHandler failed');
     }
+
     const req = new Request('https://example.com/api');
     const res = await wrapped.data(req, {}, {});
     expect(res.status).toBe(500);
@@ -508,9 +523,11 @@ describe('wrapFetchHandler', () => {
   it('captured error includes request meta', async () => {
     const onError = vi.fn();
     const wrapped = wrapFetchHandler(throwingHandlerX, onError);
+
     if (!wrapped.ok) {
       throw new Error('wrapFetchHandler failed');
     }
+
     const req = new Request('https://example.com/users', { method: 'POST' });
     await wrapped.data(req, {}, {});
     const captured = onError.mock.calls[0]?.[0] as CapturedError;
@@ -543,12 +560,14 @@ function makeMockWs(url = 'ws://localhost/'): WebSocket {
     },
     dispatchEvent: (event: Event): boolean => {
       const list = listeners.get(event.type) ?? [];
+
       for (const fn of list) {
         fn(event);
       }
       return true;
     },
   } as unknown as WebSocket;
+
   return ws;
 }
 
@@ -579,6 +598,7 @@ describe('captureWebSocketErrors', () => {
     const ws = makeMockWs();
     const onError = vi.fn();
     const setup = captureWebSocketErrors(ws, onError);
+
     if (!setup.ok) {
       throw new Error('setup failed');
     }

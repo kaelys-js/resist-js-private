@@ -42,6 +42,7 @@
   const validated: ViolinPlotProps = $derived.by(() => {
     const rawProps: ViolinPlotProps = stripSvelteProps(allProps);
     const result = safeParse(ViolinPlotPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -19,6 +19,7 @@ vi.mock('node:child_process', () => {
     cb: (e: Error | null, r?: { stdout: string; stderr: string }) => void,
   ): unknown => {
     const next = state.queue.shift();
+
     if (!next) {
       cb(new Error('no exec response queued'));
       return null;
@@ -30,6 +31,7 @@ vi.mock('node:child_process', () => {
     }
     return null;
   };
+
   return { default: { execFile: wrap }, execFile: wrap };
 });
 

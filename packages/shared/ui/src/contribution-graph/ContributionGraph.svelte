@@ -42,6 +42,7 @@
   const validated: ContributionGraphProps = $derived.by(() => {
     const rawProps: ContributionGraphProps = stripSvelteProps(allProps);
     const result = safeParse(ContributionGraphPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

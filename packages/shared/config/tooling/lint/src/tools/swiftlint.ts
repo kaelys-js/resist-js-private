@@ -33,11 +33,13 @@ import { createResult, type LintResult } from '@/lint/framework/types.ts';
  */
 export function transformSwiftlintOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
 
   let items: unknown[];
+
   try {
     items = JSON.parse(trimmed) as unknown[];
   } catch {
@@ -45,6 +47,7 @@ export function transformSwiftlintOutput(output: string): LintResult[] {
   }
 
   const results: LintResult[] = [];
+
   for (const item of items) {
     const obj: Record<string, unknown> = item as Record<string, unknown>;
     const file: string = (obj.file as string) ?? '';
@@ -55,6 +58,7 @@ export function transformSwiftlintOutput(output: string): LintResult[] {
     const ruleId: string = (obj.rule_id as string) ?? 'unknown';
 
     let severity: 'error' | 'warning' | 'info' = 'warning';
+
     if (severityRaw.toLowerCase() === 'error') {
       severity = 'error';
     }

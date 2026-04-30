@@ -29,6 +29,7 @@ const state = vi.hoisted(() => ({ okCallCount: 0 }));
 
 vi.mock('@/schemas/result/result', async (importOriginal) => {
   const original = await importOriginal<typeof ResultModule>();
+
   return {
     ...original,
     ok: (...args: unknown[]): Result<unknown> => {

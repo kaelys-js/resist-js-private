@@ -42,6 +42,7 @@
   const validated: CommandPaletteProps = $derived.by(() => {
     const rawProps: CommandPaletteProps = stripSvelteProps(allProps);
     const result = safeParse(CommandPalettePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -41,6 +41,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     let output: string;
+
     try {
       output = execSync('git log -1 --pretty=%ct', {
         cwd: ctx.rootDir,

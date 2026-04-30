@@ -23,6 +23,7 @@ import type {
  */
 function isFloatLiteral(node: AstNode): boolean {
   const { value } = node;
+
   return node.type === 'Literal' && typeof value === 'number' && value % 1 !== 0;
 }
 

@@ -27,6 +27,7 @@ vi.mock('./scrcpy-server', (): Record<string, unknown> => {
     SCRCPY_SERVER_PATH: '/data/local/tmp/scrcpy-server.jar' as Str,
     SCRCPY_VERSION: '3.1' as Str,
   };
+
   return { ...module, default: module };
 });
 
@@ -35,6 +36,7 @@ vi.mock('./scrcpy-transcode', (): Record<string, unknown> => {
     createTranscoder: vi.fn(),
     isFfmpegAvailable: vi.fn().mockResolvedValue(true),
   };
+
   return { ...module, default: module };
 });
 
@@ -54,6 +56,7 @@ vi.mock('./ios-preview-pool', (): Record<string, unknown> => {
     DEFAULT_POOL_SIZE: 3,
     DEFAULT_TARGET_FPS: 20,
   };
+
   return { ...module, default: module };
 });
 
@@ -75,6 +78,7 @@ vi.mock('./ios-input', (): Record<string, unknown> => {
     IOS_INPUT_METHOD_SIMCTL: 'simctl',
     IOS_INPUT_METHOD_APPLESCRIPT: 'applescript',
   };
+
   return { ...module, default: module };
 });
 
@@ -107,6 +111,7 @@ function createMockPage(): Record<Str, unknown> {
     newCDPSession: vi.fn().mockResolvedValue(cdp),
     close: vi.fn().mockResolvedValue(undefined),
   };
+
   return {
     goto: vi.fn().mockResolvedValue(undefined),
     close: vi.fn().mockResolvedValue(undefined),
@@ -129,6 +134,7 @@ function createMockBrowser(): Record<Str, unknown> {
     close: vi.fn().mockResolvedValue(undefined),
     newCDPSession: vi.fn().mockResolvedValue(page._mockCdp),
   };
+
   return {
     newContext: vi.fn().mockResolvedValue(context),
     isConnected: vi.fn().mockReturnValue(true as Bool),
@@ -145,6 +151,7 @@ function createMockBrowser(): Record<Str, unknown> {
  */
 function createMockWs(): Record<Str, unknown> {
   const listeners: Map<Str, Array<(...args: unknown[]) => void>> = new Map();
+
   return {
     send: vi.fn(),
     close: vi.fn(),
@@ -158,6 +165,7 @@ function createMockWs(): Record<Str, unknown> {
     _listeners: listeners,
     _emit(event: Str, ...args: unknown[]): void {
       const handlers = listeners.get(event) ?? [];
+
       for (const handler of handlers) {
         handler(...args);
       }

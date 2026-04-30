@@ -42,6 +42,7 @@
   const validated: CoolModeProps = $derived.by(() => {
     const rawProps: CoolModeProps = stripSvelteProps(allProps);
     const result = safeParse(CoolModePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

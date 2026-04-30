@@ -38,6 +38,7 @@ import { fromUnknownError, safeParse } from '@/utils/result/safe';
 function _okResult<T>(data: T): Result<T> {
   const frozen: T =
     typeof data === 'object' && data !== null ? (deepFreeze(data as object) as T) : data;
+
   return Object.freeze({ ok: true as const, data: frozen, error: null }) as Result<T>;
 }
 
@@ -69,11 +70,13 @@ export async function withTimeout<T>(
     NonNegativeIntegerSchema,
     timeoutMs,
   );
+
   if (!timeoutMsResult.ok) {
     return timeoutMsResult;
   }
 
   const errorMessageResult: Result<Message> = safeParse(MessageSchema, errorMessage);
+
   if (!errorMessageResult.ok) {
     return errorMessageResult;
   }
@@ -81,6 +84,7 @@ export async function withTimeout<T>(
   if ((timeoutMsResult.data as unknown as number) <= 0) {
     try {
       const result: T = await promise;
+
       return _okResult<T>(result);
     } catch (error: unknown) {
       return err(ERRORS.IO.TIMEOUT, errorMessageResult.data as unknown as string, {

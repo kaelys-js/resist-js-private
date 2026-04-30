@@ -42,6 +42,7 @@
   const validated: RelatedPostsProps = $derived.by(() => {
     const rawProps: RelatedPostsProps = stripSvelteProps(allProps);
     const result = safeParse(RelatedPostsPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

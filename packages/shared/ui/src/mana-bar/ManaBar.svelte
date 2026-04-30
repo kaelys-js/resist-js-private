@@ -41,6 +41,7 @@
   const validated: ManaBarProps = $derived.by(() => {
     const rawProps: ManaBarProps = stripSvelteProps(allProps);
     const result = safeParse(ManaBarPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

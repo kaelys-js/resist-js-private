@@ -96,15 +96,18 @@ async function ensureSvelteCompiler(): Promise<boolean> {
  */
 export async function parseSvelteTemplate(content: string): Promise<SvelteParseResult> {
   const hasCompiler: boolean = await ensureSvelteCompiler();
+
   if (!hasCompiler || !svelteParse) {
     return { ok: false, error: compilerLoadError };
   }
 
   try {
     const result: { fragment: unknown } = svelteParse(content, { modern: true });
+
     return { ok: true, ast: result.fragment as AstNode };
   } catch (error: unknown) {
     const message: string = error instanceof Error ? error.message : String(error);
+
     return {
       ok: false,
       error: `Svelte template parse error: ${message}`,

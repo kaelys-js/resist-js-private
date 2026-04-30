@@ -41,6 +41,7 @@
   const validated: PanelMenuProps = $derived.by(() => {
     const rawProps: PanelMenuProps = stripSvelteProps(allProps);
     const result = safeParse(PanelMenuPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

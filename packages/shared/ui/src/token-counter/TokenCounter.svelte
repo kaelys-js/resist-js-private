@@ -42,6 +42,7 @@
   const validated: TokenCounterProps = $derived.by(() => {
     const rawProps: TokenCounterProps = stripSvelteProps(allProps);
     const result = safeParse(TokenCounterPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

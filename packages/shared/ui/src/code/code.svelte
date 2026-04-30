@@ -42,6 +42,7 @@
   const validated: CodeProps = $derived.by(() => {
     const rawProps: CodeProps = stripSvelteProps(allProps);
     const result = safeParse(CodePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -23,6 +23,7 @@ describe('styles', () => {
       'valueText',
       'reset',
     ];
+
     for (const key of expected) {
       expect(styles).toHaveProperty(key);
     }
@@ -37,6 +38,7 @@ describe('styles', () => {
 
   it('has vitals style keys', () => {
     const vitalsKeys = ['vitalPrefix', 'metricName', 'ratingGood', 'ratingWarn', 'ratingPoor'];
+
     for (const key of vitalsKeys) {
       expect(styles).toHaveProperty(key);
       expect(typeof (styles as Record<string, unknown>)[key]).toBe('string');

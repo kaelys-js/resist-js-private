@@ -21,6 +21,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -49,6 +50,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
+
       if (!name.startsWith('tsconfig') || !name.endsWith('.json')) {
         continue;
       }
@@ -101,6 +103,7 @@ const rule: WorkspaceRule = {
         visited.add(current);
 
         const next: string | undefined = extendsMap.get(current);
+
         if (next === undefined) {
           break;
         }
@@ -111,6 +114,7 @@ const rule: WorkspaceRule = {
         } else {
           // Try with .json suffix
           const withJson: string = `${next}.json`;
+
           if (extendsMap.has(withJson)) {
             current = withJson;
           } else {

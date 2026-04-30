@@ -43,6 +43,7 @@
   const validated: ResourceCalendarProps = $derived.by(() => {
     const rawProps: ResourceCalendarProps = stripSvelteProps(allProps);
     const result = safeParse(ResourceCalendarPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

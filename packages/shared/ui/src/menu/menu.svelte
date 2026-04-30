@@ -42,6 +42,7 @@
   const validated: MenuProps = $derived.by(() => {
     const rawProps: MenuProps = stripSvelteProps(allProps);
     const result = safeParse(MenuPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

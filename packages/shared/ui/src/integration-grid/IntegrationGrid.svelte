@@ -42,6 +42,7 @@
   const validated: IntegrationGridProps = $derived.by(() => {
     const rawProps: IntegrationGridProps = stripSvelteProps(allProps);
     const result = safeParse(IntegrationGridPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

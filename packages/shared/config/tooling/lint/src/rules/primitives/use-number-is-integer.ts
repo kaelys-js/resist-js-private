@@ -28,6 +28,7 @@ function isModOneCheck(side: AstNode): boolean {
       ? (sideRightRaw as AstNode)
       : undefined;
   const sideRightValue: unknown = sideRightNode?.value;
+
   return (
     side.type === 'BinaryExpression' &&
     sideOp === '%' &&
@@ -46,6 +47,7 @@ function isModOneCheck(side: AstNode): boolean {
  */
 function isZeroLiteral(side: AstNode): boolean {
   const sideValue: unknown = side.value;
+
   return side.type === 'Literal' && typeof sideValue === 'number' && sideValue === 0;
 }
 
@@ -63,6 +65,7 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const operator = node.operator as string;
+
       if (operator !== '===') {
         return results;
       }

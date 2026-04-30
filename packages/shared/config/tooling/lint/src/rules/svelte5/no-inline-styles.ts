@@ -28,12 +28,14 @@ const rule: TypeScriptRule = {
   visitor: {
     Attribute(node: AstNode, context: VisitorContext): LintResult[] {
       const attrName: string | undefined = (node as { name?: string }).name;
+
       if (attrName !== 'style') {
         return [];
       }
 
       // Check if the value is a literal string (hardcoded)
       const { value } = node;
+
       if (!Array.isArray(value)) {
         return [];
       }

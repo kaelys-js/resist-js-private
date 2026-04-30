@@ -42,6 +42,7 @@
   const validated: FilePreviewProps = $derived.by(() => {
     const rawProps: FilePreviewProps = stripSvelteProps(allProps);
     const result = safeParse(FilePreviewPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

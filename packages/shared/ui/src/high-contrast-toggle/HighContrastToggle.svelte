@@ -42,6 +42,7 @@
   const validated: HighContrastToggleProps = $derived.by(() => {
     const rawProps: HighContrastToggleProps = stripSvelteProps(allProps);
     const result = safeParse(HighContrastTogglePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

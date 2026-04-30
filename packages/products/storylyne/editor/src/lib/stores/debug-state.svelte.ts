@@ -58,6 +58,7 @@ let _singleton: DebugStore | null = null;
  */
 export function initDebugStore(url?: URL): DebugStore {
   const result = createDebugStore(url);
+
   if (!result.ok) {
     throw new Error(`DebugStore creation failed: ${result.error.message}`);
   }

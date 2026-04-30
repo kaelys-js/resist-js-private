@@ -85,6 +85,7 @@ let _nodeNet: OptionalNodeNet;
 let _nodeChildProcess: OptionalNodeChildProcess;
 
 const hasNode: Result<Bool> = hasNodeProcess();
+
 if (hasNode.ok && hasNode.data) {
   _nodeOs = await tryImport<NodeOs>('node:os');
   _nodeFs = await tryImport<NodeFs>('node:fs');

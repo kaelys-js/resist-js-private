@@ -43,6 +43,7 @@
   const validated: ComboboxProps = $derived.by(() => {
     const rawProps: ComboboxProps = stripSvelteProps(allProps);
     const result = safeParse(ComboboxPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -37,6 +37,7 @@ const checkLoop = (node: AstNode, context: VisitorContext): LintResult[] => {
 
   for (const method of DOM_METHODS) {
     const found: AstNode | undefined = findStaticMemberCallInBody(node, 'document', method);
+
     if (found) {
       results.push({
         file: context.file,

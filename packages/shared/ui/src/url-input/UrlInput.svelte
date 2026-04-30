@@ -42,6 +42,7 @@
   const validated: UrlInputProps = $derived.by(() => {
     const rawProps: UrlInputProps = stripSvelteProps(allProps);
     const result = safeParse(UrlInputPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

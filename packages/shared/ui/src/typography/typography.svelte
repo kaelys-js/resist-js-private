@@ -42,6 +42,7 @@
   const validated: TypographyProps = $derived.by(() => {
     const rawProps: TypographyProps = stripSvelteProps(allProps);
     const result = safeParse(TypographyPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

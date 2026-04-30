@@ -42,6 +42,7 @@
   const validated: BackgroundBeamsProps = $derived.by(() => {
     const rawProps: BackgroundBeamsProps = stripSvelteProps(allProps);
     const result = safeParse(BackgroundBeamsPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

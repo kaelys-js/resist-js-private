@@ -42,6 +42,7 @@
   const validated: ConfettiProps = $derived.by(() => {
     const rawProps: ConfettiProps = stripSvelteProps(allProps);
     const result = safeParse(ConfettiPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

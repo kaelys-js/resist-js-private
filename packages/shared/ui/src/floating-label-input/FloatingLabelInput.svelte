@@ -42,6 +42,7 @@
   const validated: FloatingLabelInputProps = $derived.by(() => {
     const rawProps: FloatingLabelInputProps = stripSvelteProps(allProps);
     const result = safeParse(FloatingLabelInputPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

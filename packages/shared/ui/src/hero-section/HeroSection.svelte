@@ -42,6 +42,7 @@
   const validated: HeroSectionProps = $derived.by(() => {
     const rawProps: HeroSectionProps = stripSvelteProps(allProps);
     const result = safeParse(HeroSectionPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

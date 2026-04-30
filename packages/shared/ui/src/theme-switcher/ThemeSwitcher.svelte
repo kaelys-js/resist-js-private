@@ -72,6 +72,7 @@
   const validated: ThemeSwitcherProps = $derived.by(() => {
     const rawProps: ThemeSwitcherProps = stripSvelteProps(restProps);
     const result = safeParse(ThemeSwitcherPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }
@@ -105,6 +106,7 @@
     const raf: Num = requestAnimationFrame((): void => {
       node.style.minHeight = `${node.offsetHeight}px`;
     });
+
     return {
       destroy(): void {
         cancelAnimationFrame(raf);

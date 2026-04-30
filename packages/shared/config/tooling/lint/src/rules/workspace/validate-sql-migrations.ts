@@ -25,6 +25,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -79,6 +80,7 @@ const rule: WorkspaceRule = {
 
       /* Check for duplicate names. */
       const existingPath: string | undefined = migrationNames.get(name);
+
       if (existingPath === undefined) {
         migrationNames.set(name, filePath);
       } else {
@@ -100,6 +102,7 @@ const rule: WorkspaceRule = {
 
       /* Check for BOM. */
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {

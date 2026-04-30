@@ -42,6 +42,7 @@
   const validated: SimpleGridProps = $derived.by(() => {
     const rawProps: SimpleGridProps = stripSvelteProps(allProps);
     const result = safeParse(SimpleGridPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

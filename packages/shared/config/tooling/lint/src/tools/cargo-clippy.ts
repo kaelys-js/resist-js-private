@@ -38,6 +38,7 @@ const CLIPPY_LINE: RegExp = /^(.+?):(\d+):(\d+): (warning|error|note|help): (.+)
  */
 export function transformCargoClippyOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -46,6 +47,7 @@ export function transformCargoClippyOutput(output: string): LintResult[] {
 
   for (const line of trimmed.split('\n')) {
     const match: RegExpMatchArray | null = CLIPPY_LINE.exec(line.trim());
+
     if (!match) {
       continue;
     }
@@ -57,6 +59,7 @@ export function transformCargoClippyOutput(output: string): LintResult[] {
     const message: string = match[5] ?? '';
 
     let severity: 'error' | 'warning' | 'info' = 'warning';
+
     if (level === 'error') {
       severity = 'error';
     } else if (level === 'note' || level === 'help') {

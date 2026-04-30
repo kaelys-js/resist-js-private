@@ -40,11 +40,13 @@ import { createResult, type LintResult } from '@/lint/framework/types.ts';
  */
 export function transformPowershellOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
 
   let items: unknown[];
+
   try {
     items = JSON.parse(trimmed) as unknown[];
   } catch {
@@ -57,6 +59,7 @@ export function transformPowershellOutput(output: string): LintResult[] {
   }
 
   const results: LintResult[] = [];
+
   for (const item of items) {
     const obj: Record<string, unknown> = item as Record<string, unknown>;
     const file: string = (obj.ScriptPath as string) ?? '';
@@ -67,6 +70,7 @@ export function transformPowershellOutput(output: string): LintResult[] {
     const message: string = (obj.Message as string) ?? '';
 
     let severity: 'error' | 'warning' | 'info' = 'warning';
+
     if (rawSeverity === 'Error') {
       severity = 'error';
     } else if (rawSeverity === 'Information') {

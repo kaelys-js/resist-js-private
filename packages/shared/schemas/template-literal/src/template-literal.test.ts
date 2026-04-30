@@ -193,6 +193,7 @@ describe('templateLiteral() runtime validation', () => {
     if (!keyResult.ok) {
       return;
     }
+
     const schema = v.record(asSchema(keyResult.data), v.string());
     const parseResult = v.safeParse(schema, { env_NODE_ENV: 'production' });
     expect(parseResult.success).toBe(true);
@@ -204,6 +205,7 @@ describe('templateLiteral() runtime validation', () => {
     if (!result.ok) {
       return;
     }
+
     const parseResult = v.safeParse(asSchema(result.data), 'id_abc');
     expect(parseResult.success).toBe(false);
     if (parseResult.success) {
@@ -219,6 +221,7 @@ describe('templateLiteral() runtime validation', () => {
     if (!result.ok) {
       return;
     }
+
     const parseResult = v.safeParse(asSchema(result.data), 'bad');
     expect(parseResult.success).toBe(false);
     if (parseResult.success) {
@@ -233,6 +236,7 @@ describe('templateLiteral() runtime validation', () => {
     if (!innerResult.ok) {
       return;
     }
+
     const outerResult = templateLiteral(asParts(['app_', innerResult.data, '_release']));
     expect(outerResult.ok).toBe(true);
     if (!outerResult.ok) {
@@ -494,6 +498,7 @@ describe('templateLiteral() pipe introspection', () => {
 describe('templateLiteral() type inference', () => {
   it('infers plain string literal', () => {
     const result = templateLiteral(['hello']);
+
     if (!result.ok) {
       return;
     }
@@ -502,6 +507,7 @@ describe('templateLiteral() type inference', () => {
 
   it('infers string interpolation', () => {
     const result = templateLiteral(['user_', v.string()]);
+
     if (!result.ok) {
       return;
     }
@@ -510,6 +516,7 @@ describe('templateLiteral() type inference', () => {
 
   it('infers number interpolation', () => {
     const result = templateLiteral(['id_', v.number()]);
+
     if (!result.ok) {
       return;
     }
@@ -518,6 +525,7 @@ describe('templateLiteral() type inference', () => {
 
   it('infers boolean interpolation', () => {
     const result = templateLiteral(['is_', v.boolean()]);
+
     if (!result.ok) {
       return;
     }
@@ -526,6 +534,7 @@ describe('templateLiteral() type inference', () => {
 
   it('infers literal interpolation', () => {
     const result = templateLiteral([v.literal('GET'), ' /api']);
+
     if (!result.ok) {
       return;
     }
@@ -534,6 +543,7 @@ describe('templateLiteral() type inference', () => {
 
   it('infers picklist distribution', () => {
     const result = templateLiteral([v.picklist(['a', 'b']), '_suffix']);
+
     if (!result.ok) {
       return;
     }
@@ -542,6 +552,7 @@ describe('templateLiteral() type inference', () => {
 
   it('infers multiple slots', () => {
     const result = templateLiteral([v.string(), ':', v.number()]);
+
     if (!result.ok) {
       return;
     }

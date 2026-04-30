@@ -320,6 +320,7 @@ export function detectBrowserSupport(
 
     for (const [filename, content] of Object.entries(sources)) {
       const matches: RegExpMatchArray | null = content.match(feature.pattern);
+
       if (matches && matches.length > 0) {
         totalCount = ((totalCount as number) + matches.length) as Num;
         fileList.push(filename as Str);

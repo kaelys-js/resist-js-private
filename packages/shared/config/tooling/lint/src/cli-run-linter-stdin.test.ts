@@ -49,6 +49,7 @@ function makeCliArgs(overrides: Partial<CliArgs> = {}): CliArgs {
 function captureOutput(): { stdoutLines: string[]; stderrLines: string[]; output: CliOutput } {
   const stdoutLines: string[] = [];
   const stderrLines: string[] = [];
+
   return {
     stdoutLines,
     stderrLines,
@@ -132,6 +133,7 @@ export function greet(name: string): string {
 
     expect([0, 1]).toContain(code);
     const combined: string = stdoutLines.join('');
+
     if (combined.trim().length > 2) {
       const results: LintResult[] = JSON.parse(combined) as LintResult[];
       // Should find the missing {Type} error from the stdin content
@@ -175,6 +177,7 @@ export function bad(x: number): number {
 
     expect(code).toBe(0); // warnOnly
     const combined: string = stdoutLines.join('');
+
     if (combined.trim().length > 2) {
       const results: LintResult[] = JSON.parse(combined) as LintResult[];
       // Should lint the stdin content, not disk
@@ -214,8 +217,10 @@ export function convert(val: number): string {
     );
 
     const combined: string = stdoutLines.join('');
+
     if (combined.trim().length > 2) {
       const results: LintResult[] = JSON.parse(combined) as LintResult[];
+
       for (const r of results) {
         expect(r.file).toBe(filePath);
       }
@@ -253,6 +258,7 @@ export function greet(name: string): string {
 
     expect(code).toBe(0);
     const combined: string = stdoutLines.join('');
+
     if (combined.trim().length > 2) {
       const results: LintResult[] = JSON.parse(combined) as LintResult[];
       const paramErrors: LintResult[] = results.filter(
@@ -307,6 +313,7 @@ export function greet(name: string): string {
 
     expect(code).toBe(0);
     const combined: string = stdoutLines.join('');
+
     if (combined.trim().length > 0) {
       // Should be valid JSON
       expect(() => JSON.parse(combined)).not.toThrow();
@@ -356,9 +363,11 @@ export function greet(name: string): string {
 
     expect([0, 1]).toContain(code);
     const combined: string = stdoutLines.join('');
+
     if (combined.trim().length > 2) {
       const results: LintResult[] = JSON.parse(combined) as LintResult[];
       // Results should reference the actual file
+
       for (const r of results) {
         expect(r.file).toBe(filePath);
       }
@@ -399,6 +408,7 @@ export function injectedForTest(value: string): string {
 
     expect(code).toBe(0); // warnOnly
     const combined: string = stdoutLines.join('');
+
     if (combined.trim().length > 2) {
       const results: LintResult[] = JSON.parse(combined) as LintResult[];
       // The injected function should trigger a missing {Type} error

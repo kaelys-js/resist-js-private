@@ -43,6 +43,7 @@
   const validated: StatefulButtonProps = $derived.by(() => {
     const rawProps: StatefulButtonProps = stripSvelteProps(allProps);
     const result = safeParse(StatefulButtonPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

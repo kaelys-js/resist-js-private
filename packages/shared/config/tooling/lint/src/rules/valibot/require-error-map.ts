@@ -31,6 +31,7 @@ const rule: TypeScriptRule = {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const body = node.body as AstNode[] | undefined;
+
       if (!body) {
         return results;
       }
@@ -46,6 +47,7 @@ const rule: TypeScriptRule = {
         if (stmt.type === 'ImportDeclaration') {
           const source = stmt.source as AstNode | undefined;
           const sourceValue: string = (source as { value?: string })?.value ?? '';
+
           if (sourceValue.includes('.errors') || sourceValue.includes('error-map')) {
             hasErrorMapImport = true;
           }
@@ -59,6 +61,7 @@ const rule: TypeScriptRule = {
         }
         if (stmt.type === 'ExportNamedDeclaration') {
           const declaration = stmt.declaration as AstNode | undefined;
+
           if (declaration?.type === 'VariableDeclaration') {
             varDecl = declaration;
             stmtNode = stmt;
@@ -70,6 +73,7 @@ const rule: TypeScriptRule = {
         }
 
         const declarations = varDecl.declarations as AstNode[] | undefined;
+
         if (!declarations) {
           continue;
         }
@@ -77,6 +81,7 @@ const rule: TypeScriptRule = {
         for (const decl of declarations) {
           const id = decl.id as AstNode | undefined;
           const init = decl.init as AstNode | undefined;
+
           if (!id || !init) {
             continue;
           }

@@ -15,6 +15,7 @@ describe('getBuildInfo', () => {
 
   it('version is a non-empty string', () => {
     const result = getBuildInfo();
+
     if (!result.ok) {
       throw new Error('Expected ok result');
     }
@@ -24,6 +25,7 @@ describe('getBuildInfo', () => {
 
   it('commit is a non-empty string', () => {
     const result = getBuildInfo();
+
     if (!result.ok) {
       throw new Error('Expected ok result');
     }
@@ -33,6 +35,7 @@ describe('getBuildInfo', () => {
 
   it('commitFull is a non-empty string', () => {
     const result = getBuildInfo();
+
     if (!result.ok) {
       throw new Error('Expected ok result');
     }
@@ -42,6 +45,7 @@ describe('getBuildInfo', () => {
 
   it('branch is a non-empty string', () => {
     const result = getBuildInfo();
+
     if (!result.ok) {
       throw new Error('Expected ok result');
     }
@@ -51,6 +55,7 @@ describe('getBuildInfo', () => {
 
   it('dirty is a boolean', () => {
     const result = getBuildInfo();
+
     if (!result.ok) {
       throw new Error('Expected ok result');
     }
@@ -59,6 +64,7 @@ describe('getBuildInfo', () => {
 
   it('buildTimestamp is an ISO timestamp string', () => {
     const result = getBuildInfo();
+
     if (!result.ok) {
       throw new Error('Expected ok result');
     }
@@ -70,9 +76,11 @@ describe('getBuildInfo', () => {
 
   it('returns all six fields', () => {
     const result = getBuildInfo();
+
     if (!result.ok) {
       throw new Error('Expected ok result');
     }
+
     const keys = Object.keys(result.data);
     expect(keys).toHaveLength(6);
     expect(keys).toContain('version');
@@ -106,6 +114,7 @@ describe('getBuildInfo', () => {
 
   it('data is deep-frozen (safeParse freezes output)', () => {
     const result = getBuildInfo();
+
     if (!result.ok) {
       throw new Error('Expected ok result');
     }

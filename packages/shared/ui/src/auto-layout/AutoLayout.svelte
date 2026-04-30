@@ -43,6 +43,7 @@
   const validated: AutoLayoutProps = $derived.by(() => {
     const rawProps: AutoLayoutProps = stripSvelteProps(allProps);
     const result = safeParse(AutoLayoutPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

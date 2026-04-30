@@ -42,6 +42,7 @@
   const validated: ReplyFormProps = $derived.by(() => {
     const rawProps: ReplyFormProps = stripSvelteProps(allProps);
     const result = safeParse(ReplyFormPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

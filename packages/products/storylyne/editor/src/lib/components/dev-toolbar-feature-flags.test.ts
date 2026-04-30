@@ -65,6 +65,7 @@ describe('DevToolbarFeatureFlags', () => {
     const { container } = render(DevToolbarFeatureFlagsTest);
     const switches: NodeListOf<HTMLButtonElement> =
       container.querySelectorAll('button[role="switch"]');
+
     for (const toggle of switches) {
       expect((toggle as HTMLElement).dataset.state).toBe('checked');
     }

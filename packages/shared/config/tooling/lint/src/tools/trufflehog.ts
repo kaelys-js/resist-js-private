@@ -70,6 +70,7 @@ type TrufflehogEntry = {
  */
 export function transformTrufflehogOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -79,11 +80,13 @@ export function transformTrufflehogOutput(output: string): LintResult[] {
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     let entry: Record<string, unknown>;
+
     try {
       entry = JSON.parse(stripped) as Record<string, unknown>;
     } catch {

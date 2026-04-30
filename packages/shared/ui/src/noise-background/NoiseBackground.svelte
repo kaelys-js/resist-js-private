@@ -42,6 +42,7 @@
   const validated: NoiseBackgroundProps = $derived.by(() => {
     const rawProps: NoiseBackgroundProps = stripSvelteProps(allProps);
     const result = safeParse(NoiseBackgroundPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

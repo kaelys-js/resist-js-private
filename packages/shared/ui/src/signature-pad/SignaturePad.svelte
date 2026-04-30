@@ -42,6 +42,7 @@
   const validated: SignaturePadProps = $derived.by(() => {
     const rawProps: SignaturePadProps = stripSvelteProps(allProps);
     const result = safeParse(SignaturePadPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

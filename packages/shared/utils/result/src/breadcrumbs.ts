@@ -54,6 +54,7 @@ export function addBreadcrumb(
   };
 
   const validated: Result<Breadcrumb> = safeParse(BreadcrumbSchema, complete);
+
   if (!validated.ok) {
     return validated;
   }

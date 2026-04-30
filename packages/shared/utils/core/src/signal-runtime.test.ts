@@ -67,6 +67,7 @@ function setupBrowserGlobals(): () => void {
     },
     dispatchEvent(event: Event): boolean {
       const list = listeners.get(event.type) ?? [];
+
       for (const fn of list) {
         fn(event);
       }
@@ -88,6 +89,7 @@ function setupBrowserGlobals(): () => void {
     },
     dispatchEvent(event: Event): boolean {
       const list = listeners.get(`doc:${event.type}`) ?? [];
+
       for (const fn of list) {
         fn(event);
       }
@@ -185,6 +187,7 @@ function setupWorkerGlobals(): () => void {
     },
     dispatchEvent(event: Event): boolean {
       const list = listeners.get(event.type) ?? [];
+
       for (const fn of list) {
         fn(event);
       }
@@ -250,6 +253,7 @@ describe('setupGlobalErrorHandling — browser runtime', () => {
   it('routes window.error ErrorEvent through onError', () => {
     detectRuntimeMock.mockReturnValue(mockOk('browser'));
     const cleanup = setupBrowserGlobals();
+
     try {
       const onError = vi.fn();
       const setup = setupGlobalErrorHandling({ onError, exitTimeoutMs: 0 });
@@ -284,6 +288,7 @@ describe('setupGlobalErrorHandling — browser runtime', () => {
   it('ignores non-ErrorEvent emissions (resource errors)', () => {
     detectRuntimeMock.mockReturnValue(mockOk('browser'));
     const cleanup = setupBrowserGlobals();
+
     try {
       const onError = vi.fn();
       setupGlobalErrorHandling({ onError, exitTimeoutMs: 0 });
@@ -303,6 +308,7 @@ describe('setupGlobalErrorHandling — browser runtime', () => {
   it('routes unhandledrejection through onError', () => {
     detectRuntimeMock.mockReturnValue(mockOk('browser'));
     const cleanup = setupBrowserGlobals();
+
     try {
       const onError = vi.fn();
       setupGlobalErrorHandling({ onError, exitTimeoutMs: 0 });
@@ -322,6 +328,7 @@ describe('setupGlobalErrorHandling — browser runtime', () => {
   it('detects CORS script error via crossOriginBlocked meta flag', () => {
     detectRuntimeMock.mockReturnValue(mockOk('browser'));
     const cleanup = setupBrowserGlobals();
+
     try {
       const onError = vi.fn();
       setupGlobalErrorHandling({ onError, exitTimeoutMs: 0 });
@@ -350,6 +357,7 @@ describe('setupGlobalErrorHandling — browser runtime', () => {
   it('captures CSP violations when captureCSP !== false', () => {
     detectRuntimeMock.mockReturnValue(mockOk('browser'));
     const cleanup = setupBrowserGlobals();
+
     try {
       const onError = vi.fn();
       setupGlobalErrorHandling({ onError, exitTimeoutMs: 0, captureCSP: true });
@@ -376,12 +384,14 @@ describe('setupGlobalErrorHandling — browser runtime', () => {
   it('rate-limits CSP violations after 5 of the same key', () => {
     detectRuntimeMock.mockReturnValue(mockOk('browser'));
     const cleanup = setupBrowserGlobals();
+
     try {
       const onError = vi.fn();
       setupGlobalErrorHandling({ onError, exitTimeoutMs: 0 });
       const doc = (globalThis as Record<string, unknown>).document as {
         dispatchEvent: (e: Event) => boolean;
       };
+
       for (let i = 0; i < 10; i++) {
         const evt = new Event('securitypolicyviolation');
         Object.assign(evt, {
@@ -402,6 +412,7 @@ describe('setupGlobalErrorHandling — browser runtime', () => {
   it('skips CSP handler when captureCSP=false', () => {
     detectRuntimeMock.mockReturnValue(mockOk('browser'));
     const cleanup = setupBrowserGlobals();
+
     try {
       const onError = vi.fn();
       setupGlobalErrorHandling({ onError, exitTimeoutMs: 0, captureCSP: false });
@@ -425,6 +436,7 @@ describe('setupGlobalErrorHandling — browser runtime', () => {
   it('captures resource load errors with raw src attribute', () => {
     detectRuntimeMock.mockReturnValue(mockOk('browser'));
     const cleanup = setupBrowserGlobals();
+
     try {
       const onError = vi.fn();
       setupGlobalErrorHandling({ onError, exitTimeoutMs: 0 });
@@ -452,6 +464,7 @@ describe('setupGlobalErrorHandling — browser runtime', () => {
   it('skips resource error capture when captureResourceErrors=false', () => {
     detectRuntimeMock.mockReturnValue(mockOk('browser'));
     const cleanup = setupBrowserGlobals();
+
     try {
       const onError = vi.fn();
       setupGlobalErrorHandling({ onError, exitTimeoutMs: 0, captureResourceErrors: false });
@@ -475,6 +488,7 @@ describe('setupGlobalErrorHandling — browser runtime', () => {
   it('skips resource error when target has no src/href', () => {
     detectRuntimeMock.mockReturnValue(mockOk('browser'));
     const cleanup = setupBrowserGlobals();
+
     try {
       const onError = vi.fn();
       setupGlobalErrorHandling({ onError, exitTimeoutMs: 0 });
@@ -501,6 +515,7 @@ describe('setupGlobalErrorHandling — browser runtime', () => {
       mockOk({ ...defaultEnvConfig, isElectronRenderer: true }),
     );
     const cleanup = setupBrowserGlobals();
+
     try {
       const onError = vi.fn();
       const setup = setupGlobalErrorHandling({ onError, exitTimeoutMs: 0 });
@@ -521,6 +536,7 @@ describe('setupGlobalErrorHandling — worker runtimes', () => {
     it(`routes ${kind} error via self.error`, () => {
       detectRuntimeMock.mockReturnValue(mockOk(kind));
       const cleanup = setupWorkerGlobals();
+
       try {
         const onError = vi.fn();
         setupGlobalErrorHandling({ onError, exitTimeoutMs: 0 });
@@ -542,6 +558,7 @@ describe('setupGlobalErrorHandling — worker runtimes', () => {
   it('worker unhandledrejection is captured', () => {
     detectRuntimeMock.mockReturnValue(mockOk('web-worker'));
     const cleanup = setupWorkerGlobals();
+
     try {
       const onError = vi.fn();
       setupGlobalErrorHandling({ onError, exitTimeoutMs: 0 });
@@ -562,6 +579,7 @@ describe('setupGlobalErrorHandling — worker runtimes', () => {
     for (const kind of ['worker', 'edge-light', 'fastly', 'netlify'] as const) {
       detectRuntimeMock.mockReturnValue(mockOk(kind));
       const cleanup = setupWorkerGlobals();
+
       try {
         const onError = vi.fn();
         const setup = setupGlobalErrorHandling({ onError, exitTimeoutMs: 0 });
@@ -580,6 +598,7 @@ describe('setupGlobalErrorHandling — deno runtime', () => {
   it('uses Deno.addSignalListener for SIGINT and SIGTERM', () => {
     detectRuntimeMock.mockReturnValue(mockOk('deno'));
     const cleanup = setupDenoGlobals();
+
     try {
       const onError = vi.fn();
       setupGlobalErrorHandling({ onError, exitTimeoutMs: 0, onFatalExit: vi.fn() });
@@ -593,6 +612,7 @@ describe('setupGlobalErrorHandling — deno runtime', () => {
   it('teardown removes Deno signal listeners', () => {
     detectRuntimeMock.mockReturnValue(mockOk('deno'));
     const cleanup = setupDenoGlobals();
+
     try {
       const onError = vi.fn();
       const setup = setupGlobalErrorHandling({ onError, exitTimeoutMs: 0 });

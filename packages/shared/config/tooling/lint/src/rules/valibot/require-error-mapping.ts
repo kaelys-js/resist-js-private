@@ -28,6 +28,7 @@ const rule: TypeScriptRule = {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const callee = node.callee as AstNode | undefined;
+
       if (!callee) {
         return results;
       }
@@ -38,12 +39,14 @@ const rule: TypeScriptRule = {
       if (callee.type === 'StaticMemberExpression' || callee.type === 'MemberExpression') {
         const property = callee.property as AstNode | undefined;
         const propName: string = (property?.name as string) ?? '';
+
         if (propName === 'safeParse') {
           isSafeParse = true;
         }
       }
       if (callee.type === 'Identifier') {
         const calleeName: string = (callee.name as string) ?? '';
+
         if (calleeName === 'safeParse') {
           isSafeParse = true;
         }

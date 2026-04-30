@@ -75,10 +75,13 @@
 
   /** Metadata lookup by component name. */
   const metaByName: Map<Str, LensMeta> = new Map();
+
   for (const [key, mod] of Object.entries(lensMetaModules)) {
     const dir: Str = extractDir(key);
+
     if (mod.meta) {
       const result: Result<LensMeta> = parseLensMeta(mod.meta);
+
       if (result.ok) {
         metaByName.set(dir, {
           ...result.data,
@@ -98,6 +101,7 @@
       label: catLabel(cat),
       components: componentNames.filter((n: Str): boolean => {
         const m: LensMeta | undefined = metaByName.get(n);
+
         return (m?.category ?? 'display') === cat;
       }),
     }),
@@ -176,6 +180,7 @@
   $effect(() => {
     try {
       const stored: Str | null = localStorage.getItem(storageKey('lens-view-mode'));
+
       if (stored === 'list' || stored === 'grid' || stored === 'compact' || stored === 'table') {
         viewMode = stored;
       }
@@ -242,6 +247,7 @@
               .toLowerCase()
               .includes(q as string),
           );
+
           if (nameMatch) {
             return g;
           }
@@ -261,6 +267,7 @@
       const mul: Num = (sortDir === 'desc' ? -1 : 1) as Num;
       groups = [...groups].toSorted((a: CategoryGroup, b: CategoryGroup): Num => {
         const raw: Num = getSortValue(a, b);
+
         return (raw * mul) as Num;
       });
     }
@@ -357,6 +364,7 @@
       ? PAGE_EXPORT_ITEMS
       : PAGE_EXPORT_ITEMS.filter((p: ExportItem): boolean => {
           const q: Str = exportSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q as string) ||
             p.description.toLowerCase().includes(q as string) ||

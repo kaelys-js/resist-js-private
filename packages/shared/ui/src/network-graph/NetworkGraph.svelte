@@ -42,6 +42,7 @@
   const validated: NetworkGraphProps = $derived.by(() => {
     const rawProps: NetworkGraphProps = stripSvelteProps(allProps);
     const result = safeParse(NetworkGraphPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

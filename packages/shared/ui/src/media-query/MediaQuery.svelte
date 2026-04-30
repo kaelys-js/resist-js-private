@@ -42,6 +42,7 @@
   const validated: MediaQueryProps = $derived.by(() => {
     const rawProps: MediaQueryProps = stripSvelteProps(allProps);
     const result = safeParse(MediaQueryPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

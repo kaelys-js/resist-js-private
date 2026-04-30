@@ -70,6 +70,7 @@ function isLikelyResultVariable(name: string, content: string): boolean {
   const typePattern: RegExp = new RegExp(
     `(?:const|let|var)\\s+${name}\\s*:\\s*(?:Promise\\s*<\\s*)?Result\\s*<`,
   );
+
   return typePattern.test(content);
 }
 
@@ -88,6 +89,7 @@ function hasOkCheckBefore(varName: string, node: AstNode, context: VisitorContex
   // Find where the variable was declared (handles optional type annotations)
   const declPattern: RegExp = new RegExp(`(?:const|let|var)\\s+${varName}\\s*(?::[^=]*)?=`, 'g');
   const declMatch: RegExpExecArray | null = declPattern.exec(beforeCode);
+
   if (!declMatch) {
     return false;
   }
@@ -98,6 +100,7 @@ function hasOkCheckBefore(varName: string, node: AstNode, context: VisitorContex
   // Check for .ok checks
   for (const pattern of CHECK_PATTERNS) {
     const checkPattern: RegExp = new RegExp(`${varName}${pattern.source}`);
+
     if (checkPattern.test(codeSinceDeclare)) {
       return true;
     }
@@ -105,6 +108,7 @@ function hasOkCheckBefore(varName: string, node: AstNode, context: VisitorContex
 
   // Check for if statements that check .ok
   const ifCheckPattern: RegExp = new RegExp(`if\\s*\\([^)]*${varName}\\.ok[^)]*\\)`, 'i');
+
   if (ifCheckPattern.test(codeSinceDeclare)) {
     return true;
   }
@@ -117,6 +121,7 @@ function hasOkCheckBefore(varName: string, node: AstNode, context: VisitorContex
   const earlyReturnNoBraces: RegExp = new RegExp(
     `if\\s*\\([^)]*!${varName}\\.ok[^)]*\\)\\s*return\\b`,
   );
+
   if (earlyReturnWithBraces.test(codeSinceDeclare) || earlyReturnNoBraces.test(codeSinceDeclare)) {
     return true;
   }
@@ -153,16 +158,19 @@ function checkAccess(node: AstNode, context: VisitorContext): LintResult[] {
   const results: LintResult[] = [];
 
   const property = node.property as AstNode | undefined;
+
   if (!property) {
     return results;
   }
 
   const propertyName: string = (property.name as string) ?? (property.value as string) ?? '';
+
   if (propertyName !== 'data' && propertyName !== 'error') {
     return results;
   }
 
   const object = node.object as AstNode | undefined;
+
   if (!object) {
     return results;
   }
@@ -174,6 +182,7 @@ function checkAccess(node: AstNode, context: VisitorContext): LintResult[] {
     if (object.type === 'CallExpression') {
       const callee = object.callee as AstNode | undefined;
       const calleeName: string | null = callee ? getIdentifierName(callee) : null;
+
       if (calleeName && /^(safeParse|ok|err|okUnchecked)$/.test(calleeName)) {
         results.push({
           file: context.file,
@@ -198,6 +207,7 @@ function checkAccess(node: AstNode, context: VisitorContext): LintResult[] {
   const hasResultImport: boolean = context.imports.some(
     (imp): boolean => imp.source.includes('result') || imp.source.includes('Result'),
   );
+
   if (!hasResultImport) {
     return results;
   }

@@ -29,6 +29,7 @@ const rule: TypeScriptRule = {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const callee = node.callee as AstNode | undefined;
+
       if (!callee) {
         return results;
       }
@@ -44,6 +45,7 @@ const rule: TypeScriptRule = {
         ) {
           // Get the transform callback text to check for common patterns
           const args = node.arguments as AstNode[] | undefined;
+
           if (!args || args.length === 0) {
             return results;
           }
@@ -52,6 +54,7 @@ const rule: TypeScriptRule = {
 
           // Detect common patterns that have built-in equivalents
           let suggestion: string = '';
+
           if (context.content.slice(callbackArg.start, callbackArg.end).includes('.trim()')) {
             suggestion = 'v.trim()';
           } else if (

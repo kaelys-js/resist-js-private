@@ -44,6 +44,7 @@ const rule: WorkspaceRule = {
     const ctx: WorkspaceContext = context as WorkspaceContext;
     const planFiles: readonly string[] = await discoverPlanFiles(ctx);
     const today: string = new Date().toISOString().slice(0, 10);
+
     return [...planFiles, `__daily_rollover__/${today}`];
   },
 
@@ -62,9 +63,11 @@ const rule: WorkspaceRule = {
       /* Check age from filename date */
       const filename: string = file.split('/').pop() ?? '';
       const planDate: Date | undefined = parsePlanDate(filename);
+
       if (planDate !== undefined) {
         const ageMs: number = now.getTime() - planDate.getTime();
         const ageDays: number = ageMs / (1000 * 60 * 60 * 24);
+
         if (ageDays < maxAgeDays) {
           continue;
         }

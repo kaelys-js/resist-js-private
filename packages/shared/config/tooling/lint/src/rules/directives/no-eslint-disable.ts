@@ -38,6 +38,7 @@ const rule: TypeScriptRule = {
 
       for (const comment of context.comments) {
         const match: RegExpMatchArray | null = PATTERN.exec(comment.value);
+
         if (match) {
           const lineNumber: number = offsetToLineNumber(comment.start, lineStarts);
           results.push({

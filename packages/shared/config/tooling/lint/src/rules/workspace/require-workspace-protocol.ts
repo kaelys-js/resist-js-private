@@ -29,8 +29,10 @@ const rule: WorkspaceRule = {
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
     const all = await ctx.allFiles();
+
     try {
       const packages = await ctx.getWorkspacePackages();
+
       return [...all, ...packages.map((p) => p.path)];
     } catch {
       return all;
@@ -67,6 +69,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const fileName: string = basename(filePath);
+
       if (fileName !== 'package.json') {
         continue;
       }
@@ -77,6 +80,7 @@ const rule: WorkspaceRule = {
 
       for (const field of DEP_FIELDS) {
         const deps: unknown = parsed[field];
+
         if (deps === undefined || deps === null || typeof deps !== 'object') {
           continue;
         }

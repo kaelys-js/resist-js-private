@@ -42,6 +42,7 @@
   const validated: CitationProps = $derived.by(() => {
     const rawProps: CitationProps = stripSvelteProps(allProps);
     const result = safeParse(CitationPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

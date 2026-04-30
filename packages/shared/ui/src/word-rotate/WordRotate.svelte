@@ -42,6 +42,7 @@
   const validated: WordRotateProps = $derived.by(() => {
     const rawProps: WordRotateProps = stripSvelteProps(allProps);
     const result = safeParse(WordRotatePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

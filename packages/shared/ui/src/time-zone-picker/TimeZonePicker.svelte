@@ -42,6 +42,7 @@
   const validated: TimeZonePickerProps = $derived.by(() => {
     const rawProps: TimeZonePickerProps = stripSvelteProps(allProps);
     const result = safeParse(TimeZonePickerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

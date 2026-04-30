@@ -43,6 +43,7 @@
   const validated: DependencyGraphProps = $derived.by(() => {
     const rawProps: DependencyGraphProps = stripSvelteProps(allProps);
     const result = safeParse(DependencyGraphPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

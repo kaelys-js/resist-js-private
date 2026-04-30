@@ -53,6 +53,7 @@ function listTsgoInputs(pkgDir: string): string[] {
    */
   function walk(dir: string): void {
     let entries: Dirent[];
+
     try {
       entries = readdirSync(dir, { withFileTypes: true });
     } catch {
@@ -62,7 +63,9 @@ function listTsgoInputs(pkgDir: string): string[] {
       if (FINGERPRINT_SKIP_DIRS.has(entry.name)) {
         continue;
       }
+
       const full: string = join(dir, entry.name);
+
       if (entry.isDirectory()) {
         walk(full);
         continue;
@@ -70,7 +73,9 @@ function listTsgoInputs(pkgDir: string): string[] {
       if (!entry.isFile()) {
         continue;
       }
+
       const { name } = entry;
+
       if (
         name.endsWith('.ts') ||
         name.endsWith('.tsx') ||
@@ -113,6 +118,7 @@ const SVELTE_AMBIENT_PARSE_SUPPRESSION: RegExp = /svelte\.d\.ts$/;
  */
 export function transformTsgoOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -121,6 +127,7 @@ export function transformTsgoOutput(output: string): LintResult[] {
 
   for (const line of trimmed.split('\n')) {
     const match: RegExpExecArray | null = DIAGNOSTIC_RE.exec(line);
+
     if (!match) {
       continue;
     }
@@ -167,6 +174,7 @@ const SVELTEKIT_EXTENDS_RE: RegExp = /\.svelte-kit[/\\]tsconfig\.json/;
 function isSvelteKitTsconfig(dir: string): boolean {
   try {
     const content: string = readFileSync(join(dir, 'tsconfig.json'), 'utf8');
+
     return SVELTEKIT_EXTENDS_RE.test(content);
   } catch {
     return false;
@@ -186,6 +194,7 @@ function isSvelteKitTsconfig(dir: string): boolean {
  */
 export function discoverTsconfigDirs(cwd: string): string[] {
   const packagesDir: string = join(cwd, 'packages');
+
   if (!existsSync(packagesDir)) {
     return [];
   }
@@ -194,6 +203,7 @@ export function discoverTsconfigDirs(cwd: string): string[] {
 
   function walk(dir: string): void {
     let entries: Dirent[];
+
     try {
       entries = readdirSync(dir, { withFileTypes: true });
     } catch {
@@ -203,7 +213,9 @@ export function discoverTsconfigDirs(cwd: string): string[] {
       if (!entry.isDirectory() || SKIP_DIRS.has(entry.name)) {
         continue;
       }
+
       const full: string = join(dir, entry.name);
+
       if (existsSync(join(full, 'tsconfig.json')) && !isSvelteKitTsconfig(full)) {
         found.push(full);
       }
@@ -233,10 +245,12 @@ export function scopeTsconfigDirsToFiles(tsconfigDirs: string[], files: string[]
     return tsconfigDirs;
   }
   /* Sort dirs by length descending so deepest prefix wins. */
+
   const sorted: string[] = [...tsconfigDirs].toSorted(
     (a: string, b: string): number => b.length - a.length,
   );
   const owning: Set<string> = new Set();
+
   for (const file of files) {
     for (const dir of sorted) {
       if (file === dir || file.startsWith(`${dir}/`)) {
@@ -290,6 +304,7 @@ export async function runTsgoAllPackages(
       const inputHash: string = fingerprintFiles(inputs);
 
       const cached: LintResult[] | null = lintCache?.getTool('tsgo', pkgDir, inputHash) ?? null;
+
       if (cached !== null) {
         return cached;
       }
@@ -300,6 +315,7 @@ export async function runTsgoAllPackages(
        * change. Measured: 0.43s -> 0.11s warm per package. */
       const tsBuildInfoFile: string = join(pkgDir, 'node_modules', '.cache', 'tsgo.tsbuildinfo');
       let pkgResults: LintResult[];
+
       try {
         const { stdout } = await execFileAsync(
           'tsgo',
@@ -319,6 +335,7 @@ export async function runTsgoAllPackages(
         }
       } catch (error: unknown) {
         const execError = error as { stdout?: string };
+
         if (execError.stdout && typeof execError.stdout === 'string') {
           pkgResults = transformTsgoOutput(execError.stdout);
           for (const r of pkgResults) {
@@ -329,6 +346,7 @@ export async function runTsgoAllPackages(
         } else {
           const message: string = error instanceof Error ? error.message : String(error);
           /* Don't cache crash results — they're transient and a re-run might succeed. */
+
           return [
             {
               file: pkgDir,

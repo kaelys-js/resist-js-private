@@ -22,6 +22,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -47,11 +48,13 @@ const rule: WorkspaceRule = {
 
     const tsconfigPath: string = join(ctx.rootDir, 'tsconfig.json');
     const exists: boolean = await ctx.fileExists(tsconfigPath);
+
     if (!exists) {
       return results;
     }
 
     let tsconfig: Record<string, unknown>;
+
     try {
       tsconfig = JSON.parse(await ctx.readFile(tsconfigPath)) as Record<string, unknown>;
     } catch {
@@ -73,6 +76,7 @@ const rule: WorkspaceRule = {
 
     /* Build flat list of alias+target pairs to check */
     const checks: Array<{ alias: string; target: string }> = [];
+
     for (const [alias, targets] of Object.entries(paths)) {
       if (!Array.isArray(targets)) {
         continue;
@@ -98,6 +102,7 @@ const rule: WorkspaceRule = {
         if (!fileOk && !dirOk) {
           /* Find line number */
           let lineNum: number = 1;
+
           for (let i: number = 0; i < lines.length; i++) {
             if (lines[i]?.includes(`"${check.alias}"`) || lines[i]?.includes(check.target)) {
               lineNum = i + 1;

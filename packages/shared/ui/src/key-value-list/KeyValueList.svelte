@@ -42,6 +42,7 @@
   const validated: KeyValueListProps = $derived.by(() => {
     const rawProps: KeyValueListProps = stripSvelteProps(allProps);
     const result = safeParse(KeyValueListPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

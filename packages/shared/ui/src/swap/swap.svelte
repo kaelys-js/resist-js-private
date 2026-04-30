@@ -42,6 +42,7 @@
   const validated: SwapProps = $derived.by(() => {
     const rawProps: SwapProps = stripSvelteProps(allProps);
     const result = safeParse(SwapPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

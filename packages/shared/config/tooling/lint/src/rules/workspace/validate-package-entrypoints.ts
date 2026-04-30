@@ -41,6 +41,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -66,6 +67,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
+
       if (name !== 'package.json') {
         continue;
       }
@@ -77,9 +79,11 @@ const rule: WorkspaceRule = {
 
       for (const key of ['main', 'module'] as const) {
         const entryValue: unknown = parsed[key];
+
         if (typeof entryValue === 'string' && entryValue.length > 0) {
           const resolvedPath: string = join(pkgDir, entryValue);
           const exists: boolean = await ctx.fileExists(resolvedPath);
+
           if (!exists) {
             results.push(
               createResult(
@@ -99,6 +103,7 @@ const rule: WorkspaceRule = {
       }
 
       const exportsValue: unknown = parsed.exports;
+
       if (exportsValue !== undefined && exportsValue !== null) {
         const exportPaths: string[] = [];
         collectExportPaths(exportsValue, exportPaths);
@@ -107,6 +112,7 @@ const rule: WorkspaceRule = {
           if (exportPath.startsWith('./')) {
             const resolvedPath: string = join(pkgDir, exportPath);
             const exists: boolean = await ctx.fileExists(resolvedPath);
+
             if (!exists) {
               results.push(
                 createResult(

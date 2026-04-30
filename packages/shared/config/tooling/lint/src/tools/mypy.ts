@@ -56,6 +56,7 @@ const MYPY_CODE: RegExp = /\s*\[([^\]]+)\]\s*$/;
  */
 export function transformMypyOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -65,11 +66,13 @@ export function transformMypyOutput(output: string): LintResult[] {
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = MYPY_LINE.exec(stripped);
+
     if (!match) {
       continue;
     }
@@ -83,6 +86,7 @@ export function transformMypyOutput(output: string): LintResult[] {
     /* Extract optional error code from message */
     const codeMatch: RegExpMatchArray | null = MYPY_CODE.exec(message);
     let tip: string | undefined;
+
     if (codeMatch) {
       const code: string = codeMatch[1] ?? '';
       message = message.replace(MYPY_CODE, '').trim();
@@ -90,6 +94,7 @@ export function transformMypyOutput(output: string): LintResult[] {
     }
 
     let severity: 'error' | 'warning' | 'info' = 'error';
+
     if (level === 'warning') {
       severity = 'warning';
     } else if (level === 'note') {

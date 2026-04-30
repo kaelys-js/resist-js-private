@@ -43,6 +43,7 @@
   const validated: BankAccountCardProps = $derived.by(() => {
     const rawProps: BankAccountCardProps = stripSvelteProps(allProps);
     const result = safeParse(BankAccountCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

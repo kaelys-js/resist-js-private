@@ -112,6 +112,7 @@ export async function readSourceSnippet(
   try {
     const content: string = await readFile(filePath, 'utf8');
     const lines: SourceLine[] = extractSourceLines(content, line, contextLines);
+
     return lines.length > 0 ? lines : undefined;
   } catch {
     return undefined;
@@ -144,5 +145,6 @@ export function buildCaretMarker(column: number, endColumn?: number): string {
   const end: number = endColumn ? Math.max(start + 1, endColumn - 1) : start + 1;
   const padding: string = ' '.repeat(start);
   const carets: string = '^'.repeat(end - start);
+
   return `${padding}${carets}`;
 }

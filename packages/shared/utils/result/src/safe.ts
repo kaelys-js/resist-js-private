@@ -53,8 +53,10 @@ import {
  */
 function _deepFreeze<T extends object>(obj: T): T {
   const propNames: Array<keyof T> = Object.getOwnPropertyNames(obj) as Array<keyof T>;
+
   for (const name of propNames) {
     const value: T[keyof T] = obj[name];
+
     if (value && typeof value === 'object' && !Object.isFrozen(value)) {
       _deepFreeze(value as object);
     }
@@ -190,12 +192,14 @@ export function fromUnknownError(thrown: unknown): AppError {
     'timestamp' in thrown
   ) {
     const maybeAppError = thrown as Record<string, unknown>;
+
     if (typeof maybeAppError.code === 'string' && typeof maybeAppError.message === 'string') {
       return Object.freeze(thrown as AppError);
     }
   }
 
   let message: Str;
+
   if (thrown instanceof Error) {
     ({ message } = thrown);
   } else if (typeof thrown === 'string') {

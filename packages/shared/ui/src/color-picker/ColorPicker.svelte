@@ -60,6 +60,7 @@
     const target: HTMLInputElement = e.target as HTMLInputElement;
     const raw: Str = target.value.trim();
     const hex: Str = raw.startsWith('#') ? raw : `#${raw}`;
+
     if (/^#[\da-fA-F]{3,8}$/.test(hex)) {
       value = hex;
       onValueChange?.(hex);

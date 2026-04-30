@@ -60,6 +60,7 @@ import type * as _nodeAsyncHooks from 'node:async_hooks';
 
 /** Preloaded `node:async_hooks` module, or `undefined` in non-Node runtimes. */
 let _asyncHooksModule: typeof _nodeAsyncHooks | undefined;
+
 try {
   if (globalThis.process) {
     _asyncHooksModule = await import('node:async_hooks');
@@ -102,6 +103,7 @@ let currentLogLevel: LogLevel = DEFAULT_LOG_LEVEL;
  */
 export function setLogLevel(level: LogLevel): Result<Void> {
   const input: Result<LogLevel> = safeParse(LogLevelSchema, level);
+
   if (!input.ok) {
     return input;
   }
@@ -144,12 +146,14 @@ export function getLogLevel(): Result<LogLevel> {
  */
 export function shouldLog(level: LogLevel): Result<Bool> {
   const input: Result<LogLevel> = safeParse(LogLevelSchema, level);
+
   if (!input.ok) {
     return input;
   }
 
   const currentIndex: number = LOG_LEVEL_ORDER.indexOf(currentLogLevel);
   const messageIndex: number = LOG_LEVEL_ORDER.indexOf(input.data);
+
   return ok(BoolSchema, messageIndex <= currentIndex && input.data !== 'silent');
 }
 
@@ -187,6 +191,7 @@ let currentContext: LogContext = {};
  */
 export function setContext(context: LogContext): Result<Void> {
   const input: Result<LogContext> = safeParse(LogContextSchema, context);
+
   if (!input.ok) {
     return input;
   }
@@ -209,6 +214,7 @@ export function getContext(): Result<LogContext> {
   // Check async-scoped context first (request-scoped)
   if (_asyncLocalStorage) {
     const asyncCtx: LogContext | undefined = _asyncLocalStorage.getStore();
+
     if (asyncCtx) {
       return ok(LogContextSchema, asyncCtx);
     }
@@ -233,11 +239,14 @@ export function getContext(): Result<LogContext> {
  */
 export function mergeContext(partial: LogContext): Result<Void> {
   const input: Result<LogContext> = safeParse(LogContextSchema, partial);
+
   if (!input.ok) {
     return input;
   }
+
   const merged: LogContext = { ...currentContext, ...input.data };
   const mergedResult: Result<LogContext> = safeParse(LogContextSchema, merged);
+
   if (!mergedResult.ok) {
     return mergedResult;
   }
@@ -304,6 +313,7 @@ let _transports: TransportConfig[] = [];
  */
 export function addTransport(config: TransportConfig): Result<Void> {
   const input: Result<TransportConfig> = safeParse(TransportConfigSchema, config);
+
   if (!input.ok) {
     return input;
   }
@@ -319,9 +329,11 @@ export function addTransport(config: TransportConfig): Result<Void> {
  */
 export function removeTransport(name: Str): Result<Bool> {
   const input: Result<Str> = safeParse(StrSchema, name);
+
   if (!input.ok) {
     return input;
   }
+
   const before: number = _transports.length;
   _transports = _transports.filter((t) => t.name !== input.data);
   return ok(BoolSchema, _transports.length < before);
@@ -347,6 +359,7 @@ function dispatchToTransports(entry: LogEntry): void {
     if (config.level !== undefined) {
       const configIndex: number = LOG_LEVEL_ORDER.indexOf(config.level);
       const entryIndex: number = LOG_LEVEL_ORDER.indexOf(entry.level);
+
       if (entryIndex > configIndex) {
         continue;
       }
@@ -421,6 +434,7 @@ let _redactionConfig: RedactionConfig = {
  */
 export function setRedaction(config: RedactionConfig): Result<Void> {
   const input: Result<RedactionConfig> = safeParse(RedactionConfigSchema, config);
+
   if (!input.ok) {
     return input;
   }
@@ -446,11 +460,14 @@ function redactObject(obj: unknown): unknown {
   }
 
   const result: Record<string, unknown> = {};
+
   for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
     const shouldRedact: boolean = _redactionConfig.paths.some((path) => {
       const pathParts: string[] = path.split('.');
+
       return pathParts.at(-1) === key;
     });
+
     if (shouldRedact && (typeof value === 'string' || typeof value === 'number')) {
       result[key] = _redactionConfig.censor ?? '[REDACTED]';
     } else if (typeof value === 'object' && value !== null) {
@@ -498,6 +515,7 @@ let _samplingConfig: SamplingConfig | undefined;
  */
 export function setSampling(config: SamplingConfig): Result<Void> {
   const input: Result<SamplingConfig> = safeParse(SamplingConfigSchema, config);
+
   if (!input.ok) {
     return input;
   }
@@ -525,7 +543,9 @@ function shouldSample(level: LogLevel): boolean {
   if (!_samplingConfig) {
     return true;
   }
+
   const alwaysSample: LogLevel[] = _samplingConfig.alwaysSample ?? ['error'];
+
   if (alwaysSample.includes(level)) {
     return true;
   }
@@ -573,12 +593,14 @@ let _flushInterval: ReturnType<typeof setInterval> | null = null;
  */
 export function enableBuffer(config: BufferConfig): Result<Void> {
   const input: Result<BufferConfig> = safeParse(BufferConfigSchema, config);
+
   if (!input.ok) {
     return input;
   }
   _bufferConfig = input.data as BufferConfig;
 
   const interval: number = input.data.flushIntervalMs ?? 5000;
+
   if (interval > 0) {
     _flushInterval = setInterval(() => {
       flushBuffer();
@@ -636,6 +658,7 @@ function bufferEntry(entry: LogEntry): void {
   }
   _buffer.push(entry);
   const maxSize: number = _bufferConfig.maxSize ?? 100;
+
   if (_buffer.length >= maxSize) {
     flushBuffer();
   }
@@ -652,6 +675,7 @@ function bufferEntry(entry: LogEntry): void {
  */
 function isJsonOutput(): Bool {
   const formatResult: Result<OutputFormat> = getOutputFormat();
+
   if (!formatResult.ok) {
     return false;
   }
@@ -707,6 +731,7 @@ function emitStructured(
   }
 
   const jsonResult: Result<Str> = safeStringify(redactedEntry);
+
   if (!jsonResult.ok) {
     return jsonResult;
   }
@@ -726,6 +751,7 @@ function emitStructured(
 function getResolvedContext(): LogContext {
   if (_asyncLocalStorage) {
     const asyncCtx: LogContext | undefined = _asyncLocalStorage.getStore();
+
     if (asyncCtx) {
       return asyncCtx;
     }
@@ -747,6 +773,7 @@ function dispatchNonJson(level: LogLevel, message: Str, data?: unknown): void {
   if (_transports.length === 0) {
     return;
   }
+
   const ctx: LogContext = getResolvedContext();
   const entry: LogEntry = {
     level,
@@ -802,10 +829,13 @@ export const log = {
    */
   info: (message: Str, data?: JsonData): Result<Void> => {
     const input: Result<Str> = safeParse(StrSchema, message);
+
     if (!input.ok) {
       return input;
     }
+
     const allowed: Result<Bool> = shouldLog('info');
+
     if (!allowed.ok) {
       return allowed;
     }
@@ -836,10 +866,13 @@ export const log = {
    */
   debug: (message: Str, data?: JsonData): Result<Void> => {
     const input: Result<Str> = safeParse(StrSchema, message);
+
     if (!input.ok) {
       return input;
     }
+
     const allowed: Result<Bool> = shouldLog('debug');
+
     if (!allowed.ok) {
       return allowed;
     }
@@ -870,10 +903,13 @@ export const log = {
    */
   error: (message: Str, data?: JsonData): Result<Void> => {
     const input: Result<Str> = safeParse(StrSchema, message);
+
     if (!input.ok) {
       return input;
     }
+
     const allowed: Result<Bool> = shouldLog('error');
+
     if (!allowed.ok) {
       return allowed;
     }
@@ -904,10 +940,13 @@ export const log = {
    */
   warn: (message: Str, data?: JsonData): Result<Void> => {
     const input: Result<Str> = safeParse(StrSchema, message);
+
     if (!input.ok) {
       return input;
     }
+
     const allowed: Result<Bool> = shouldLog('warn');
+
     if (!allowed.ok) {
       return allowed;
     }
@@ -938,10 +977,13 @@ export const log = {
    */
   success: (message: Str, data?: JsonData): Result<Void> => {
     const input: Result<Str> = safeParse(StrSchema, message);
+
     if (!input.ok) {
       return input;
     }
+
     const allowed: Result<Bool> = shouldLog('info');
+
     if (!allowed.ok) {
       return allowed;
     }
@@ -974,7 +1016,9 @@ export const log = {
     if (isJsonOutput()) {
       return emitStructured('info', 'json', 'stdout', data);
     }
+
     const jsonResult: Result<Str> = safeStringify(data, indent ?? DEFAULT_JSON_INDENT);
+
     if (!jsonResult.ok) {
       return jsonResult;
     }
@@ -1000,10 +1044,13 @@ export const log = {
    */
   trace: (message: Str, data?: JsonData): Result<Void> => {
     const input: Result<Str> = safeParse(StrSchema, message);
+
     if (!input.ok) {
       return input;
     }
+
     const allowed: Result<Bool> = shouldLog('trace');
+
     if (!allowed.ok) {
       return allowed;
     }
@@ -1043,6 +1090,7 @@ export const log = {
    */
   errorObject: (error: AppError): Result<Void> => {
     const allowed: Result<Bool> = shouldLog('error');
+
     if (!allowed.ok) {
       return allowed;
     }
@@ -1075,6 +1123,7 @@ export const log = {
     console.error(`[${error.code}] ${error.message}`);
     if (error.stack) {
       const stackLines: Str[] = error.stack.split('\n').slice(0, 5);
+
       for (const line of stackLines) {
         console.error(`  ${line.trim()}`);
       }
@@ -1154,6 +1203,7 @@ export type ChildLogger = {
  */
 export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogger> {
   const input: Result<ChildLoggerOptions> = safeParse(ChildLoggerOptionsSchema, options);
+
   if (!input.ok) {
     return input;
   }
@@ -1165,6 +1215,7 @@ export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogg
     if (childLevel !== undefined) {
       const currentIndex: number = LOG_LEVEL_ORDER.indexOf(childLevel);
       const messageIndex: number = LOG_LEVEL_ORDER.indexOf(level);
+
       return ok(BoolSchema, messageIndex <= currentIndex && level !== 'silent');
     }
     return shouldLog(level);
@@ -1173,6 +1224,7 @@ export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogg
   function getMergedContext(): Result<LogContext> {
     const globalCtx: LogContext = getResolvedContext();
     const merged: LogContext = { ...globalCtx, ...childContext };
+
     return safeParse(LogContextSchema, merged);
   }
 
@@ -1183,9 +1235,11 @@ export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogg
     data?: unknown,
   ): Result<Void> {
     const ctx: Result<LogContext> = getMergedContext();
+
     if (!ctx.ok) {
       return ctx;
     }
+
     const entry: LogEntry = {
       level,
       message,
@@ -1197,13 +1251,16 @@ export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogg
       ...entry,
       ...(entry.data !== undefined && { data: redactObject(entry.data) }),
     };
+
     if (_transports.length > 0) {
       dispatchToTransports(redactedEntry);
     }
     if (_bufferConfig) {
       bufferEntry(redactedEntry);
     }
+
     const jsonResult: Result<Str> = safeStringify(redactedEntry);
+
     if (!jsonResult.ok) {
       return jsonResult;
     }
@@ -1218,10 +1275,13 @@ export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogg
   const childLogger: ChildLogger = {
     info: (message: Str, data?: JsonData): Result<Void> => {
       const msgInput: Result<Str> = safeParse(StrSchema, message);
+
       if (!msgInput.ok) {
         return msgInput;
       }
+
       const allowed: Result<Bool> = shouldLogChild('info');
+
       if (!allowed.ok) {
         return allowed;
       }
@@ -1243,10 +1303,13 @@ export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogg
 
     debug: (message: Str, data?: JsonData): Result<Void> => {
       const msgInput: Result<Str> = safeParse(StrSchema, message);
+
       if (!msgInput.ok) {
         return msgInput;
       }
+
       const allowed: Result<Bool> = shouldLogChild('debug');
+
       if (!allowed.ok) {
         return allowed;
       }
@@ -1268,10 +1331,13 @@ export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogg
 
     error: (message: Str, data?: JsonData): Result<Void> => {
       const msgInput: Result<Str> = safeParse(StrSchema, message);
+
       if (!msgInput.ok) {
         return msgInput;
       }
+
       const allowed: Result<Bool> = shouldLogChild('error');
+
       if (!allowed.ok) {
         return allowed;
       }
@@ -1293,10 +1359,13 @@ export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogg
 
     warn: (message: Str, data?: JsonData): Result<Void> => {
       const msgInput: Result<Str> = safeParse(StrSchema, message);
+
       if (!msgInput.ok) {
         return msgInput;
       }
+
       const allowed: Result<Bool> = shouldLogChild('warn');
+
       if (!allowed.ok) {
         return allowed;
       }
@@ -1318,10 +1387,13 @@ export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogg
 
     success: (message: Str, data?: JsonData): Result<Void> => {
       const msgInput: Result<Str> = safeParse(StrSchema, message);
+
       if (!msgInput.ok) {
         return msgInput;
       }
+
       const allowed: Result<Bool> = shouldLogChild('info');
+
       if (!allowed.ok) {
         return allowed;
       }
@@ -1343,10 +1415,13 @@ export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogg
 
     trace: (message: Str, data?: JsonData): Result<Void> => {
       const msgInput: Result<Str> = safeParse(StrSchema, message);
+
       if (!msgInput.ok) {
         return msgInput;
       }
+
       const allowed: Result<Bool> = shouldLogChild('trace');
+
       if (!allowed.ok) {
         return allowed;
       }
@@ -1370,7 +1445,9 @@ export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogg
       if (isJsonOutput()) {
         return emitChildStructured('info', 'json', 'stdout', data);
       }
+
       const jsonResult: Result<Str> = safeStringify(data, indent ?? DEFAULT_JSON_INDENT);
+
       if (!jsonResult.ok) {
         return jsonResult;
       }
@@ -1380,6 +1457,7 @@ export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogg
 
     errorObject: (error: AppError): Result<Void> => {
       const allowed: Result<Bool> = shouldLogChild('error');
+
       if (!allowed.ok) {
         return allowed;
       }
@@ -1400,6 +1478,7 @@ export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogg
       console.error(`[${error.code}] ${error.message}`);
       if (error.stack) {
         const stackLines: Str[] = error.stack.split('\n').slice(0, 5);
+
         for (const line of stackLines) {
           console.error(`  ${line.trim()}`);
         }
@@ -1409,10 +1488,13 @@ export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogg
 
     child: (childOpts: ChildLoggerOptions): Result<ChildLogger> => {
       const childInput: Result<ChildLoggerOptions> = safeParse(ChildLoggerOptionsSchema, childOpts);
+
       if (!childInput.ok) {
         return childInput;
       }
+
       const mergedChildContext: LogContext = { ...childContext, ...childInput.data.context };
+
       return createChildLogger({
         context: mergedChildContext,
         level: childInput.data.level ?? childLevel,
@@ -1452,6 +1534,7 @@ export function startTimer(
   options?: { level?: LogLevel },
 ): Result<{ done: (message?: Str) => Result<Void> }> {
   const input: Result<Str> = safeParse(StrSchema, label);
+
   if (!input.ok) {
     return input;
   }
@@ -1473,13 +1556,16 @@ export function startTimer(
           durationMs: elapsed,
           ...(Object.keys(ctx).length > 0 && { context: ctx }),
         };
+
         if (_transports.length > 0) {
           dispatchToTransports(entry);
         }
         if (_bufferConfig) {
           bufferEntry(entry);
         }
+
         const jsonResult: Result<Str> = safeStringify(entry);
+
         if (!jsonResult.ok) {
           return jsonResult;
         }
@@ -1493,6 +1579,7 @@ export function startTimer(
 
       // Pretty mode
       const allowed: Result<Bool> = shouldLog(level);
+
       if (!allowed.ok) {
         return allowed;
       }
@@ -1540,15 +1627,19 @@ export function initLogLevelFromEnv(): Result<LogLevel> {
     EnvRecordWithUndefinedSchema,
     proc?.env ?? {},
   );
+
   if (!envResult.ok) {
     return ok(LogLevelSchema, DEFAULT_LOG_LEVEL);
   }
 
   const envLevel: string | undefined = envResult.data.LOG_LEVEL;
+
   if (envLevel !== undefined) {
     const parsed: Result<LogLevel> = safeParse(LogLevelSchema, envLevel.toLowerCase());
+
     if (parsed.ok) {
       const setResult: Result<Void> = setLogLevel(parsed.data);
+
       if (!setResult.ok) {
         return setResult;
       }
@@ -1557,8 +1648,10 @@ export function initLogLevelFromEnv(): Result<LogLevel> {
   }
 
   const debugFlag: string | undefined = envResult.data.DEBUG;
+
   if (debugFlag !== undefined) {
     const setResult: Result<Void> = setLogLevel('debug');
+
     if (!setResult.ok) {
       return setResult;
     }
@@ -1587,16 +1680,19 @@ export function initLogLevelFromEnv(): Result<LogLevel> {
  */
 export function withLogLevel<T>(level: LogLevel, fn: () => T): Result<T> {
   const levelResult: Result<LogLevel> = safeParse(LogLevelSchema, level);
+
   if (!levelResult.ok) {
     return levelResult;
   }
 
   const previousResult: Result<LogLevel> = getLogLevel();
+
   if (!previousResult.ok) {
     return previousResult;
   }
 
   const setResult: Result<Void> = setLogLevel(levelResult.data);
+
   if (!setResult.ok) {
     return setResult;
   }
@@ -1666,6 +1762,7 @@ export function initAsyncContext(): Result<Void> {
  */
 export function withContext<T>(context: LogContext, fn: () => T): Result<T> {
   const input: Result<LogContext> = safeParse(LogContextSchema, context);
+
   if (!input.ok) {
     return input;
   }
@@ -1673,8 +1770,10 @@ export function withContext<T>(context: LogContext, fn: () => T): Result<T> {
   if (_asyncLocalStorage) {
     const globalCtx: LogContext = getResolvedContext();
     const merged: LogContext = { ...globalCtx, ...input.data };
+
     try {
       const value: T = _asyncLocalStorage.run(merged, fn);
+
       return okUnchecked<T>(value);
     } catch (error: unknown) {
       return err(ERRORS.INTERNAL.UNEXPECTED, {
@@ -1746,6 +1845,7 @@ export type JUnitTestCase = v.InferOutput<typeof JUnitTestCaseSchema>;
  */
 export function formatJUnit(testCases: JUnitTestCase[], suiteName: Str): Result<Str> {
   const input: Result<Str> = safeParse(StrSchema, suiteName);
+
   if (!input.ok) {
     return input;
   }
@@ -1869,6 +1969,7 @@ export type LoggingOptions = v.InferOutput<typeof LoggingOptionsSchema>;
  */
 export function setupLogging(options: LoggingOptions): Result<TeardownFn> {
   const input: Result<LoggingOptions> = safeParse(LoggingOptionsSchema, options);
+
   if (!input.ok) {
     return input;
   }
@@ -1878,11 +1979,13 @@ export function setupLogging(options: LoggingOptions): Result<TeardownFn> {
   // 1. Log level: explicit → env var → default
   if (opts.level !== undefined) {
     const levelResult: Result<Void> = setLogLevel(opts.level);
+
     if (!levelResult.ok) {
       return levelResult;
     }
   } else if (opts.initFromEnv !== false) {
     const envResult: Result<LogLevel> = initLogLevelFromEnv();
+
     if (!envResult.ok) {
       return envResult;
     }
@@ -1891,6 +1994,7 @@ export function setupLogging(options: LoggingOptions): Result<TeardownFn> {
   // 2. Output format
   if (opts.format !== undefined) {
     const formatResult: Result<Void> = setOutputFormat(opts.format);
+
     if (!formatResult.ok) {
       return formatResult;
     }
@@ -1901,8 +2005,10 @@ export function setupLogging(options: LoggingOptions): Result<TeardownFn> {
     ...opts.context,
     ...(opts.service !== undefined && { service: opts.service }),
   };
+
   if (Object.keys(contextToSet).length > 0) {
     const ctxResult: Result<Void> = setContext(contextToSet);
+
     if (!ctxResult.ok) {
       return ctxResult;
     }
@@ -1911,6 +2017,7 @@ export function setupLogging(options: LoggingOptions): Result<TeardownFn> {
   // 4. Redaction
   if (opts.redaction !== undefined) {
     const redactResult: Result<Void> = setRedaction(opts.redaction);
+
     if (!redactResult.ok) {
       return redactResult;
     }
@@ -1919,6 +2026,7 @@ export function setupLogging(options: LoggingOptions): Result<TeardownFn> {
   // 5. Sampling
   if (opts.sampling !== undefined) {
     const sampleResult: Result<Void> = setSampling(opts.sampling);
+
     if (!sampleResult.ok) {
       return sampleResult;
     }
@@ -1928,6 +2036,7 @@ export function setupLogging(options: LoggingOptions): Result<TeardownFn> {
   if (opts.transports !== undefined) {
     for (const transport of opts.transports) {
       const transportResult: Result<Void> = addTransport(transport);
+
       if (!transportResult.ok) {
         return transportResult;
       }
@@ -1937,6 +2046,7 @@ export function setupLogging(options: LoggingOptions): Result<TeardownFn> {
   // 7. Buffering
   if (opts.buffer !== undefined) {
     const bufferResult: Result<Void> = enableBuffer(opts.buffer);
+
     if (!bufferResult.ok) {
       return bufferResult;
     }
@@ -1946,6 +2056,7 @@ export function setupLogging(options: LoggingOptions): Result<TeardownFn> {
   if (opts.asyncContext) {
     const asyncResult: Result<Void> = initAsyncContext();
     // Non-fatal — async context is a nice-to-have (unavailable in browser)
+
     if (!asyncResult.ok) {
       log.debug(`AsyncLocalStorage unavailable: ${asyncResult.error.message}`);
     }

@@ -46,6 +46,7 @@ describe('DevToolbarDebug', () => {
   it('renders accessible labels for boolean debug fields', () => {
     render(DevToolbarDebugTest);
     const booleanFields = debugFields.filter((f) => f.type === 'boolean');
+
     for (const field of booleanFields) {
       const label: HTMLElement | null = document.querySelector(`label[for="debug-${field.key}"]`);
       expect(label).toBeInTheDocument();

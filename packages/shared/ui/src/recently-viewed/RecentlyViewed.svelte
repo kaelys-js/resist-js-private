@@ -42,6 +42,7 @@
   const validated: RecentlyViewedProps = $derived.by(() => {
     const rawProps: RecentlyViewedProps = stripSvelteProps(allProps);
     const result = safeParse(RecentlyViewedPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

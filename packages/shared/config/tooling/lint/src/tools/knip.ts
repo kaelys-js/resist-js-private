@@ -58,11 +58,13 @@ type KnipIssue = {
  */
 export function transformKnipOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
 
   let parsed: Record<string, unknown>;
+
   try {
     parsed = JSON.parse(trimmed) as Record<string, unknown>;
   } catch {
@@ -73,8 +75,10 @@ export function transformKnipOutput(output: string, strings: LintStrings): LintR
 
   /* Process unused files */
   const files: unknown[] = (parsed.files as unknown[]) ?? [];
+
   for (const file of files) {
     const filePath: string = typeof file === 'string' ? file : '';
+
     if (filePath.length > 0) {
       results.push(
         createResult('knip/unused-file', filePath, 1, 1, 'warning', strings.tools.knipUnusedFile, {
@@ -86,6 +90,7 @@ export function transformKnipOutput(output: string, strings: LintStrings): LintR
 
   /* Process issues (unused exports, types, dependencies, etc.) */
   const issues: unknown[] = (parsed.issues as unknown[]) ?? [];
+
   for (const issue of issues) {
     const obj: KnipIssue = issue as KnipIssue;
     const filePath: string = obj.filePath ?? '';

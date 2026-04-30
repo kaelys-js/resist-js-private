@@ -41,6 +41,7 @@
   const validated: PdfViewerProps = $derived.by(() => {
     const rawProps: PdfViewerProps = stripSvelteProps(allProps);
     const result = safeParse(PdfViewerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

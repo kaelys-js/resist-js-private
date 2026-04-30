@@ -55,11 +55,13 @@
   /** Decoded card styles from the `s` base64 JSON param. */
   const cardStyles: Record<Str, Str> = $derived.by((): Record<Str, Str> => {
     const raw: Str = page.url.searchParams.get('s') ?? '';
+
     if (!raw) {
       return {};
     }
     try {
       const parsed: unknown = JSON.parse(atob(raw));
+
       if (typeof parsed === 'object' && parsed !== null) {
         return parsed as Record<Str, Str>;
       }
@@ -94,6 +96,7 @@
     (async (): Promise<void> => {
       try {
         const sourceKey: Str | undefined = findPrimaryKey(currentName, rawSources);
+
         if (!sourceKey) {
           if (!cancelled) {
             loadError = `No source found for "${currentName}"`;
@@ -116,10 +119,12 @@
 
         if (compKey) {
           const mod: unknown = await componentModules[compKey]?.();
+
           if (cancelled) {
             return;
           }
           // Glob modules export { default: Component } — cast from unknown
+
           const m = mod as Record<Str, unknown>;
           PrimaryComponent = m.default as Component;
         } else if (!cancelled) {
@@ -195,6 +200,7 @@
   /** Inline styles for the content wrapper (zoom, orientation, outline, sim filter, font size). */
   const contentStyle: Str = $derived.by((): Str => {
     const parts: Str[] = [];
+
     if (cardStyles.zoom) {
       parts.push(cardStyles.zoom);
     }
@@ -213,6 +219,7 @@
     /* fontSize is stored as "14px (0.88x)" — extract the px value */
     if (cardStyles.fontSize) {
       const pxMatch: RegExpMatchArray | null = cardStyles.fontSize.match(/^(\d+(?:\.\d+)?)px/);
+
       if (pxMatch) {
         parts.push(`font-size: ${pxMatch[1]}px`);
       }
@@ -224,6 +231,7 @@
   const textDir: 'auto' | 'ltr' | 'rtl' | undefined = $derived.by(
     (): 'auto' | 'ltr' | 'rtl' | undefined => {
       const d: Str = cardStyles.dir ?? '';
+
       if (d === 'rtl' || d === 'ltr' || d === 'auto') {
         return d;
       }
@@ -234,12 +242,15 @@
   /** Viewport width × height from state. */
   const vpDimensions: { w: Num; h: Num } | null = $derived.by((): { w: Num; h: Num } | null => {
     const { vp } = cardStyles;
+
     if (!vp) {
       return null;
     }
+
     const [wStr, hStr] = vp.split('x');
     const w: Num = Number(wStr);
     const h: Num = Number(hStr);
+
     if (Number.isNaN(w) || Number.isNaN(h)) {
       return null;
     }

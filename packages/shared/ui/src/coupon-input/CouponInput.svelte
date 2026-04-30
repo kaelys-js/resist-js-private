@@ -42,6 +42,7 @@
   const validated: CouponInputProps = $derived.by(() => {
     const rawProps: CouponInputProps = stripSvelteProps(allProps);
     const result = safeParse(CouponInputPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

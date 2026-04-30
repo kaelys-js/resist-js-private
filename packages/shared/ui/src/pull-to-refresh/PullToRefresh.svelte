@@ -42,6 +42,7 @@
   const validated: PullToRefreshProps = $derived.by(() => {
     const rawProps: PullToRefreshProps = stripSvelteProps(allProps);
     const result = safeParse(PullToRefreshPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

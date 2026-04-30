@@ -95,6 +95,7 @@ describe('VitalsMetricSchema', () => {
 
   it('accepts all valid ratings', () => {
     const ratings: readonly Str[] = ['good', 'needsImprovement', 'poor'];
+
     for (const rating of ratings) {
       const result: Result<VitalsMetric> = safeParse(
         VitalsMetricSchema,

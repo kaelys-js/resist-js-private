@@ -28,6 +28,7 @@ const rule: TypeScriptRule = {
     VariableDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const declarations = node.declarations as AstNode[] | undefined;
+
       if (!declarations) {
         return results;
       }
@@ -35,11 +36,13 @@ const rule: TypeScriptRule = {
       for (const decl of declarations) {
         const id = decl.id as AstNode | undefined;
         const init = decl.init as AstNode | undefined;
+
         if (!id || !init) {
           continue;
         }
 
         const name: string = (id.name as string) ?? '';
+
         if (!name.endsWith('Schema')) {
           continue;
         }
@@ -50,6 +53,7 @@ const rule: TypeScriptRule = {
         }
 
         const callee = init.callee as AstNode | undefined;
+
         if (!callee) {
           continue;
         }
@@ -71,6 +75,7 @@ const rule: TypeScriptRule = {
 
         // Check if v.pipe(...) arguments include v.description(...)
         const pipeText: string = context.content.slice(init.start, init.end);
+
         if (!pipeText.includes('description(')) {
           results.push({
             column: node.loc.start.column + 1,

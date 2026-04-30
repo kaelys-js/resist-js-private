@@ -61,6 +61,7 @@ function isInsideLoop(content: string, position: number): boolean {
 
     for (let j: number = line.length - 1; j >= 0; j--) {
       const ch: string = line[j] ?? '';
+
       if (ch === '}') {
         braceDepth++;
       }
@@ -69,6 +70,7 @@ function isInsideLoop(content: string, position: number): boolean {
         if (braceDepth < 0) {
           // We found an unmatched opening brace — check if this line starts a loop
           const trimmedLine: string = line.trimStart();
+
           if (
             trimmedLine.startsWith('for ') ||
             trimmedLine.startsWith('for(') ||
@@ -101,6 +103,7 @@ const rule: TypeScriptRule = {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const callee = node.callee as AstNode | undefined;
+
       if (!callee) {
         return results;
       }

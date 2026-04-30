@@ -62,12 +62,14 @@ const rule: WorkspaceRule = {
     for (const pkg of packages) {
       const pkgJson = pkg.packageJson as Record<string, unknown>;
       const contributes = pkgJson['contributes'] as Record<string, unknown> | undefined;
+
       if (!contributes || !contributes['commands']) {
         continue;
       }
 
       const pkgDir: string = dirname(pkg.path);
       const brandPath: string = join(pkgDir, BRAND_PATH);
+
       if (!(await ctx.fileExists(brandPath))) {
         continue;
       }

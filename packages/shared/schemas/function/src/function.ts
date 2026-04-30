@@ -89,6 +89,7 @@ export function functionSchema<
     // Reject class constructors — they look like functions but
     // have different semantics (must be called with `new`)
     const str: Str = val.toString();
+
     if (str.startsWith('class ') || str.startsWith('class{')) {
       return false;
     }

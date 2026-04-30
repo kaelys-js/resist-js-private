@@ -42,6 +42,7 @@
   const validated: AvailabilityPickerProps = $derived.by(() => {
     const rawProps: AvailabilityPickerProps = stripSvelteProps(allProps);
     const result = safeParse(AvailabilityPickerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

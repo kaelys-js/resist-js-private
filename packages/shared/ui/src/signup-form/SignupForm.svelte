@@ -42,6 +42,7 @@
   const validated: SignupFormProps = $derived.by(() => {
     const rawProps: SignupFormProps = stripSvelteProps(allProps);
     const result = safeParse(SignupFormPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

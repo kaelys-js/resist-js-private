@@ -30,6 +30,7 @@ const rule: TypeScriptRule = {
 
       const id = node.id as AstNode | undefined;
       const typeName: string = (id?.name as string) ?? '';
+
       if (!typeName) {
         return results;
       }

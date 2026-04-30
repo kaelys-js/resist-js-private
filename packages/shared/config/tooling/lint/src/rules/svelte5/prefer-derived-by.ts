@@ -31,6 +31,7 @@ function countCallChainDepth(node: AstNode): number {
 
   while (current?.type === 'CallExpression') {
     const callee: AstNode | undefined = current.callee as AstNode | undefined;
+
     if (callee?.type === 'StaticMemberExpression' || callee?.type === 'MemberExpression') {
       depth++;
       const object: AstNode | undefined = callee.object as AstNode | undefined;
@@ -54,6 +55,7 @@ const rule: TypeScriptRule = {
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const callee: AstNode | undefined = node.callee as AstNode | undefined;
+
       if (!callee) {
         return [];
       }
@@ -64,11 +66,13 @@ const rule: TypeScriptRule = {
       }
 
       const args: AstNode[] | undefined = node.arguments as AstNode[] | undefined;
+
       if (!args || args.length === 0) {
         return [];
       }
 
       const [arg] = args;
+
       if (!arg) {
         return [];
       }
@@ -76,6 +80,7 @@ const rule: TypeScriptRule = {
       // Check if the argument has 3+ chained method calls
       if (arg.type === 'CallExpression') {
         const chainDepth: number = countCallChainDepth(arg);
+
         if (chainDepth >= 3) {
           return [
             {

@@ -42,6 +42,7 @@
   const validated: QuizProps = $derived.by(() => {
     const rawProps: QuizProps = stripSvelteProps(allProps);
     const result = safeParse(QuizPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

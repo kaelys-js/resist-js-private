@@ -42,6 +42,7 @@
   const validated: FigureCaptionProps = $derived.by(() => {
     const rawProps: FigureCaptionProps = stripSvelteProps(allProps);
     const result = safeParse(FigureCaptionPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

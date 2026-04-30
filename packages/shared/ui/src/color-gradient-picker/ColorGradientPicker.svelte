@@ -43,6 +43,7 @@
   const validated: ColorGradientPickerProps = $derived.by(() => {
     const rawProps: ColorGradientPickerProps = stripSvelteProps(allProps);
     const result = safeParse(ColorGradientPickerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

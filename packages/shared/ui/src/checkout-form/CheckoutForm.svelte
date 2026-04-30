@@ -43,6 +43,7 @@
   const validated: CheckoutFormProps = $derived.by(() => {
     const rawProps: CheckoutFormProps = stripSvelteProps(allProps);
     const result = safeParse(CheckoutFormPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

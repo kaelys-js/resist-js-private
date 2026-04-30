@@ -42,6 +42,7 @@
   const validated: VideoThumbnailProps = $derived.by(() => {
     const rawProps: VideoThumbnailProps = stripSvelteProps(allProps);
     const result = safeParse(VideoThumbnailPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

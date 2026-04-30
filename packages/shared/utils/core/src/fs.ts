@@ -68,21 +68,26 @@ export function readFile(
   encoding: FileEncoding = DEFAULT_FILE_ENCODING,
 ): Result<FileContent> {
   const fs: OptionalNodeFs = nodeFs;
+
   if (!fs) {
     return requireRuntime('readFile', 'node');
   }
+
   const pathResult: Result<Path> = safeParse(PathSchema, path);
+
   if (!pathResult.ok) {
     return pathResult;
   }
 
   const encResult: Result<FileEncoding> = safeParse(FileEncodingSchema, encoding);
+
   if (!encResult.ok) {
     return encResult;
   }
 
   try {
     const content: FileContent = fs.readFileSync(pathResult.data, { encoding });
+
     return ok(FileContentSchema, content);
   } catch (error: unknown) {
     return err(ERRORS.IO.READ_FAILED, {
@@ -115,20 +120,25 @@ export function writeFile(
   encoding: FileEncoding = DEFAULT_FILE_ENCODING,
 ): Result<Void> {
   const fs: OptionalNodeFs = nodeFs;
+
   if (!fs) {
     return requireRuntime('writeFile', 'node');
   }
+
   const pathResult: Result<Path> = safeParse(PathSchema, path);
+
   if (!pathResult.ok) {
     return pathResult;
   }
 
   const contentResult: Result<FileContent> = safeParse(FileContentSchema, content);
+
   if (!contentResult.ok) {
     return contentResult;
   }
 
   const encResult: Result<FileEncoding> = safeParse(FileEncodingSchema, encoding);
+
   if (!encResult.ok) {
     return encResult;
   }
@@ -162,10 +172,13 @@ export function writeFile(
  */
 export function deleteFile(path: Path): Result<Void> {
   const fs: OptionalNodeFs = nodeFs;
+
   if (!fs) {
     return requireRuntime('deleteFile', 'node');
   }
+
   const pathResult: Result<Path> = safeParse(PathSchema, path);
+
   if (!pathResult.ok) {
     return pathResult;
   }
@@ -203,10 +216,13 @@ export function deleteFile(path: Path): Result<Void> {
  */
 export function mkdirRecursive(path: Path): Result<Void> {
   const fs: OptionalNodeFs = nodeFs;
+
   if (!fs) {
     return requireRuntime('mkdirRecursive', 'node');
   }
+
   const pathResult: Result<Path> = safeParse(PathSchema, path);
+
   if (!pathResult.ok) {
     return pathResult;
   }
@@ -239,10 +255,13 @@ export function mkdirRecursive(path: Path): Result<Void> {
 export function ensureDir(path: Path): Result<Void> {
   const fs: OptionalNodeFs = nodeFs;
   const pathMod: OptionalNodePath = nodePath;
+
   if (!fs || !pathMod) {
     return requireRuntime('ensureDir', 'node');
   }
+
   const pathResult: Result<Path> = safeParse(PathSchema, path);
+
   if (!pathResult.ok) {
     return pathResult;
   }
@@ -250,8 +269,10 @@ export function ensureDir(path: Path): Result<Void> {
   const isLikelyFile: Bool = /\.[^/\\]+$/.test(pathResult.data);
 
   let dirPath: Path;
+
   if (isLikelyFile) {
     const dirResult: Result<Path> = safeParse(PathSchema, pathMod.dirname(pathResult.data));
+
     if (!dirResult.ok) {
       return dirResult;
     }
@@ -286,15 +307,19 @@ export function ensureDir(path: Path): Result<Void> {
  */
 export function copyDir(src: Path, dest: Path): Result<Void> {
   const fs: OptionalNodeFs = nodeFs;
+
   if (!fs) {
     return requireRuntime('copyDir', 'node');
   }
+
   const srcResult: Result<Path> = safeParse(PathSchema, src);
+
   if (!srcResult.ok) {
     return srcResult;
   }
 
   const destResult: Result<Path> = safeParse(PathSchema, dest);
+
   if (!destResult.ok) {
     return destResult;
   }
@@ -325,10 +350,13 @@ export function copyDir(src: Path, dest: Path): Result<Void> {
  */
 export function readDir(path: Path): Result<StrArray> {
   const fs: OptionalNodeFs = nodeFs;
+
   if (!fs) {
     return requireRuntime('readDir', 'node');
   }
+
   const pathResult: Result<Path> = safeParse(PathSchema, path);
+
   if (!pathResult.ok) {
     return pathResult;
   }
@@ -336,6 +364,7 @@ export function readDir(path: Path): Result<StrArray> {
   try {
     const entries: StrArray = fs.readdirSync(pathResult.data, { encoding: 'utf8' });
     const entriesResult: Result<StrArray> = safeParse(StrArraySchema, entries);
+
     if (!entriesResult.ok) {
       return entriesResult;
     }
@@ -367,16 +396,20 @@ export function readDir(path: Path): Result<StrArray> {
  */
 export function isDirectory(path: Path): Result<Bool> {
   const fs: OptionalNodeFs = nodeFs;
+
   if (!fs) {
     return requireRuntime('isDirectory', 'node');
   }
+
   const pathResult: Result<Path> = safeParse(PathSchema, path);
+
   if (!pathResult.ok) {
     return pathResult;
   }
 
   try {
     const result: Bool = fs.statSync(pathResult.data).isDirectory();
+
     return ok(BoolSchema, result);
   } catch {
     // File doesn't exist or isn't accessible — treat as "not a directory"
@@ -402,10 +435,13 @@ export function isDirectory(path: Path): Result<Bool> {
  */
 export function getFileMtimeMs(path: Path): Result<NonNegativeNumber> {
   const fs: OptionalNodeFs = nodeFs;
+
   if (!fs) {
     return requireRuntime('getFileMtimeMs', 'node');
   }
+
   const pathResult: Result<Path> = safeParse(PathSchema, path);
+
   if (!pathResult.ok) {
     return pathResult;
   }
@@ -413,6 +449,7 @@ export function getFileMtimeMs(path: Path): Result<NonNegativeNumber> {
   try {
     const { mtimeMs } = fs.statSync(pathResult.data);
     const result: Result<NonNegativeNumber> = safeParse(NonNegativeNumberSchema, mtimeMs);
+
     if (!result.ok) {
       return result;
     }
@@ -445,6 +482,7 @@ export function getFileMtimeMs(path: Path): Result<NonNegativeNumber> {
  */
 export function parseJsonWithComments<T = unknown>(content: FileContent): Result<T> {
   const contentResult: Result<FileContent> = safeParse(FileContentSchema, content);
+
   if (!contentResult.ok) {
     return contentResult;
   }
@@ -454,6 +492,7 @@ export function parseJsonWithComments<T = unknown>(content: FileContent): Result
   try {
     const parsed: unknown = JSON.parse(cleaned);
     // Generic T has no schema — caller is responsible for validating the parsed value
+
     return okUnchecked<T>(parsed as T);
   } catch (error: unknown) {
     return err(ERRORS.VALIDATION.INVALID_FORMAT, {

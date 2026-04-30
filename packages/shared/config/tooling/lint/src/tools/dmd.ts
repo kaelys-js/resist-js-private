@@ -46,6 +46,7 @@ const DMD_LINE: RegExp = /^(.+?)\((\d+)\):\s*(Error|Warning|Deprecation):\s*(.+)
  */
 export function transformDmdOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -55,11 +56,13 @@ export function transformDmdOutput(output: string): LintResult[] {
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = DMD_LINE.exec(stripped);
+
     if (!match) {
       continue;
     }
@@ -70,6 +73,7 @@ export function transformDmdOutput(output: string): LintResult[] {
     const message: string = match[4] ?? '';
 
     let severity: 'error' | 'warning' | 'info' = 'warning';
+
     if (level === 'Error') {
       severity = 'error';
     } else if (level === 'Deprecation') {

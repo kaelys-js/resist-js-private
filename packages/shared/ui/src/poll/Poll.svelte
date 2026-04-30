@@ -41,6 +41,7 @@
   const validated: PollProps = $derived.by(() => {
     const rawProps: PollProps = stripSvelteProps(allProps);
     const result = safeParse(PollPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

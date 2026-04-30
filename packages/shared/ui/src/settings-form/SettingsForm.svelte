@@ -42,6 +42,7 @@
   const validated: SettingsFormProps = $derived.by(() => {
     const rawProps: SettingsFormProps = stripSvelteProps(allProps);
     const result = safeParse(SettingsFormPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -36,6 +36,7 @@ import type { LintStrings } from '@/lint/locale/schema.ts';
  */
 export function transformJsonlintOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -61,6 +62,7 @@ export function transformJsonlintOutput(output: string, strings: LintStrings): L
 
     /* Try compact format first */
     const compactMatch: RegExpMatchArray | null = line.match(compactPattern);
+
     if (compactMatch) {
       const file: string = compactMatch[1] ?? '';
       const lineNum: number = Number.parseInt(compactMatch[2] ?? '1', 10);
@@ -83,13 +85,16 @@ export function transformJsonlintOutput(output: string, strings: LintStrings): L
 
     /* Try standard format */
     const standardMatch: RegExpMatchArray | null = line.match(standardPattern);
+
     if (standardMatch) {
       const lineNum: number = Number.parseInt(standardMatch[1] ?? '1', 10);
 
       /* Grab the next non-empty line as context/message */
       let message: string = strings.errors.jsonParseError;
+
       for (let j: number = i + 1; j < lines.length; j++) {
         const nextLine: string = (lines[j] ?? '').trim();
+
         if (nextLine.length > 0) {
           message = nextLine;
           break;

@@ -42,6 +42,7 @@
   const validated: PricingTableProps = $derived.by(() => {
     const rawProps: PricingTableProps = stripSvelteProps(allProps);
     const result = safeParse(PricingTablePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

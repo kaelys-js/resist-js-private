@@ -68,6 +68,7 @@ function makeBrowserStub(engine: string): unknown {
               return Buffer.from('PNGDATA');
             }),
           };
+
           return page;
         },
         async close(): Promise<void> {

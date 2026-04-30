@@ -42,6 +42,7 @@
   const validated: ScatterChartProps = $derived.by(() => {
     const rawProps: ScatterChartProps = stripSvelteProps(allProps);
     const result = safeParse(ScatterChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

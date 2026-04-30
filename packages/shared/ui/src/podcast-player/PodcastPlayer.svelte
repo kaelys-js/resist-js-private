@@ -42,6 +42,7 @@
   const validated: PodcastPlayerProps = $derived.by(() => {
     const rawProps: PodcastPlayerProps = stripSvelteProps(allProps);
     const result = safeParse(PodcastPlayerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

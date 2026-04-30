@@ -105,6 +105,7 @@ export class PlaywrightInputForwarder {
       case 'touchStart': {
         // Playwright touchscreen.tap() is the closest equivalent
         const [firstTouch] = msg.touches;
+
         if (firstTouch) {
           await this.page.touchscreen.tap(firstTouch.x as number, firstTouch.y as number);
         }

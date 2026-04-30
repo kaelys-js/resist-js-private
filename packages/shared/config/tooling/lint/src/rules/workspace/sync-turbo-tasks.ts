@@ -85,12 +85,14 @@ const rule: WorkspaceRule = {
     /* Read both files — return empty if either is missing */
     const pkgExists: boolean = await ctx.fileExists(pkgPath);
     const turboExists: boolean = await ctx.fileExists(turboPath);
+
     if (!pkgExists || !turboExists) {
       return results;
     }
 
     let pkg: Record<string, unknown>;
     let turbo: Record<string, unknown>;
+
     try {
       pkg = JSON.parse(await ctx.readFile(pkgPath)) as Record<string, unknown>;
       turbo = JSON.parse(await ctx.readFile(turboPath)) as Record<string, unknown>;
@@ -103,6 +105,7 @@ const rule: WorkspaceRule = {
 
     /* Build set of valid turbo task names (strip //#  root-task prefix) */
     const validTasks: Set<string> = new Set();
+
     for (const taskName of Object.keys(tasks)) {
       validTasks.add(taskName);
       /* Root tasks like //#qa:format → also valid as qa:format */
@@ -121,6 +124,7 @@ const rule: WorkspaceRule = {
       }
 
       const referencedTasks: string[] = extractTurboTasks(scriptValue);
+
       for (const task of referencedTasks) {
         /* Strip //#  prefix for lookup */
         const lookupTask: string = task.startsWith('//#') ? task.slice(3) : task;
@@ -129,6 +133,7 @@ const rule: WorkspaceRule = {
         if (!validTasks.has(fullTask) && !validTasks.has(lookupTask)) {
           /* Find line number */
           let lineNum: number = 1;
+
           for (let i: number = 0; i < pkgLines.length; i++) {
             if (
               pkgLines[i]?.includes(`"${scriptName}"`) &&

@@ -42,6 +42,7 @@
   const validated: NumberInputProps = $derived.by(() => {
     const rawProps: NumberInputProps = stripSvelteProps(allProps);
     const result = safeParse(NumberInputPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

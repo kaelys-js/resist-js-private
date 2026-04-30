@@ -42,6 +42,7 @@
   const validated: JsonInputProps = $derived.by(() => {
     const rawProps: JsonInputProps = stripSvelteProps(allProps);
     const result = safeParse(JsonInputPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

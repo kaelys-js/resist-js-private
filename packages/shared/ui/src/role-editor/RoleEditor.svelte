@@ -42,6 +42,7 @@
   const validated: RoleEditorProps = $derived.by(() => {
     const rawProps: RoleEditorProps = stripSvelteProps(allProps);
     const result = safeParse(RoleEditorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

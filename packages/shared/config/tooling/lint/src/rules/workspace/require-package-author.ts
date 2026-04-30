@@ -21,6 +21,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -46,6 +47,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const fileName: string = basename(filePath);
+
       if (fileName !== 'package.json') {
         continue;
       }
@@ -61,6 +63,7 @@ const rule: WorkspaceRule = {
         hasValidAuthor = true;
       } else if (author !== null && typeof author === 'object') {
         const authorObj: Record<string, unknown> = author as Record<string, unknown>;
+
         if (typeof authorObj.name === 'string' && authorObj.name.trim().length > 0) {
           hasValidAuthor = true;
         }

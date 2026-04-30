@@ -55,6 +55,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of svgFiles) {
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -62,6 +63,7 @@ const rule: WorkspaceRule = {
       }
 
       let match: RegExpExecArray | null = ID_ATTR_RE.exec(content);
+
       while (match !== null) {
         const idValue: string = match[1] ?? '';
         const existingFile: string | undefined = seenIds.get(idValue);

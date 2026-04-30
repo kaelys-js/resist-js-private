@@ -42,6 +42,7 @@
   const validated: SurveyFormProps = $derived.by(() => {
     const rawProps: SurveyFormProps = stripSvelteProps(allProps);
     const result = safeParse(SurveyFormPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: CandlestickChartProps = $derived.by(() => {
     const rawProps: CandlestickChartProps = stripSvelteProps(allProps);
     const result = safeParse(CandlestickChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

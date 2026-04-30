@@ -42,6 +42,7 @@
   const validated: MobileStepperProps = $derived.by(() => {
     const rawProps: MobileStepperProps = stripSvelteProps(allProps);
     const result = safeParse(MobileStepperPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

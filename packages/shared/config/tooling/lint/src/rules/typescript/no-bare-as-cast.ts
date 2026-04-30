@@ -28,6 +28,7 @@ function hasExplanatoryComment(content: string, line: number): boolean {
   // Check same line for trailing // comment
   if (lineIdx >= 0 && lineIdx < lines.length) {
     const currentLine: string = lines[lineIdx] ?? '';
+
     if (/\/\/.*\b(cast|safe|irreducible|workaround|required|integration)\b/i.test(currentLine)) {
       return true;
     }
@@ -39,6 +40,7 @@ function hasExplanatoryComment(content: string, line: number): boolean {
   // Check preceding line for a // comment
   if (lineIdx > 0) {
     const prevLine: string = (lines[lineIdx - 1] ?? '').trim();
+
     if (prevLine.startsWith('//')) {
       return true;
     }
@@ -60,8 +62,10 @@ const rule: TypeScriptRule = {
 
       // Skip `as const` — that's a const assertion, not a type cast
       const typeAnnotation = node.typeAnnotation as AstNode | undefined;
+
       if (typeAnnotation?.type === 'TSTypeReference') {
         const typeName = typeAnnotation.typeName as AstNode | undefined;
+
         if ((typeName?.name as string) === 'const') {
           return results;
         }

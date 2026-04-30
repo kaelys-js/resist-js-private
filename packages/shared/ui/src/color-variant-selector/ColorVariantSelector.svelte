@@ -43,6 +43,7 @@
   const validated: ColorVariantSelectorProps = $derived.by(() => {
     const rawProps: ColorVariantSelectorProps = stripSvelteProps(allProps);
     const result = safeParse(ColorVariantSelectorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

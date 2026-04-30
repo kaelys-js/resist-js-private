@@ -42,6 +42,7 @@
   const validated: TrustBadgesProps = $derived.by(() => {
     const rawProps: TrustBadgesProps = stripSvelteProps(allProps);
     const result = safeParse(TrustBadgesPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

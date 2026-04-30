@@ -34,6 +34,7 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  */
 export function transformSyncpackOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -56,12 +57,14 @@ export function transformSyncpackOutput(output: string, strings: LintStrings): L
 
   for (const line of lines) {
     const lineStr: string = line.trim();
+
     if (lineStr.length === 0) {
       continue;
     }
 
     /* Try the specific mismatch pattern first */
     let match: RegExpMatchArray | null = lineStr.match(mismatchPattern);
+
     if (match) {
       const pkgName: string = match[1] ?? 'unknown';
 

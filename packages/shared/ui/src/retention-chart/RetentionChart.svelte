@@ -42,6 +42,7 @@
   const validated: RetentionChartProps = $derived.by(() => {
     const rawProps: RetentionChartProps = stripSvelteProps(allProps);
     const result = safeParse(RetentionChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

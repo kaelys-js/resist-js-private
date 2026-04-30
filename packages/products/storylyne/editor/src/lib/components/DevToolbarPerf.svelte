@@ -131,6 +131,7 @@
         : Math.round(thresholds.poor).toString();
     const goodLabel: Str = t(localeStore.t.devToolbar.thresholdGood, 'good');
     const poorLabel: Str = t(localeStore.t.devToolbar.thresholdPoor, 'poor');
+
     return `${goodLabel} < ${goodVal}${suffix} · ${poorLabel} > ${poorVal}${suffix}`;
   }
 
@@ -167,8 +168,10 @@
     };
     const resolver = map[trimmed];
     // Preserve leading whitespace (indented "  Resource" labels)
+
     if (resolver) {
       const indent: Str = label.slice(0, label.length - trimmed.length);
+
       return `${indent}${resolver()}`;
     }
     return label;
@@ -182,6 +185,7 @@
    */
   function localizeValue(value: Str): Str {
     const dt = localeStore.t.devToolbar;
+
     if (value === 'No interactions recorded yet — interact with the page first') {
       return t(dt.diagNoInteractions, value);
     }
@@ -202,6 +206,7 @@
    */
   function toggleDiagnostics(name: Str): Void {
     const next: Set<Str> = new Set<Str>(expandedMetrics);
+
     if (next.has(name)) {
       next.delete(name);
     } else {
@@ -298,9 +303,11 @@
      */
     function refreshBeaconStatus(): Void {
       const result = getBeaconStatus();
+
       if (!result.ok) {
         return;
       }
+
       const status = result.data;
       beaconQueued = status.queued;
       beaconQueuedItems = status.queuedItems as unknown as Array<{
@@ -315,6 +322,7 @@
 
     refreshBeaconStatus();
     const interval: ReturnType<typeof setInterval> = setInterval(refreshBeaconStatus, 2000);
+
     return () => clearInterval(interval);
   });
 </script>

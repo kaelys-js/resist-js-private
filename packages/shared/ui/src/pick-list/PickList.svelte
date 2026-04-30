@@ -42,6 +42,7 @@
   const validated: PickListProps = $derived.by(() => {
     const rawProps: PickListProps = stripSvelteProps(allProps);
     const result = safeParse(PickListPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -33,11 +33,13 @@ function getOkAccessObject(node: AstNode): string | null {
 
   const property = node.property as AstNode | undefined;
   const propName: string = (property?.name as string) ?? '';
+
   if (propName !== 'ok') {
     return null;
   }
 
   const object = node.object as AstNode | undefined;
+
   if (!object) {
     return null;
   }
@@ -63,11 +65,13 @@ function isDataAccess(node: AstNode, objectName: string): boolean {
 
   const property = node.property as AstNode | undefined;
   const propName: string = (property?.name as string) ?? '';
+
   if (propName !== 'data') {
     return false;
   }
 
   const object = node.object as AstNode | undefined;
+
   if (!object || object.type !== 'Identifier') {
     return false;
   }
@@ -92,7 +96,9 @@ function containsDataAccess(node: AstNode, objectName: string): boolean {
     if (key === 'type' || key === 'start' || key === 'end' || key === 'loc') {
       continue;
     }
+
     const child: unknown = node[key];
+
     if (
       child &&
       typeof child === 'object' &&
@@ -129,18 +135,21 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const test = node.test as AstNode | undefined;
+
       if (!test) {
         return results;
       }
 
       // Check if test is `x.ok`
       const objectName: string | null = getOkAccessObject(test);
+
       if (!objectName) {
         return results;
       }
 
       // Check if consequent accesses `x.data`
       const consequent = node.consequent as AstNode | undefined;
+
       if (!consequent) {
         return results;
       }

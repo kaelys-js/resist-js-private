@@ -43,6 +43,7 @@
   const validated: AppointmentCardProps = $derived.by(() => {
     const rawProps: AppointmentCardProps = stripSvelteProps(allProps);
     const result = safeParse(AppointmentCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

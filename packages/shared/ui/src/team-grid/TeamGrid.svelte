@@ -42,6 +42,7 @@
   const validated: TeamGridProps = $derived.by(() => {
     const rawProps: TeamGridProps = stripSvelteProps(allProps);
     const result = safeParse(TeamGridPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

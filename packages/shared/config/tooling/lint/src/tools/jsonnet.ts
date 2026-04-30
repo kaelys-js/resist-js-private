@@ -43,6 +43,7 @@ const JSONNET_LINE: RegExp = /^(.+?):(\d+):(\d+):\s*(.+)$/;
  */
 export function transformJsonnetOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -52,11 +53,13 @@ export function transformJsonnetOutput(output: string): LintResult[] {
 
   for (const line of trimmed.split('\n')) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = JSONNET_LINE.exec(stripped);
+
     if (!match) {
       continue;
     }

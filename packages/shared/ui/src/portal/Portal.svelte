@@ -42,6 +42,7 @@
   const validated: PortalProps = $derived.by(() => {
     const rawProps: PortalProps = stripSvelteProps(allProps);
     const result = safeParse(PortalPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

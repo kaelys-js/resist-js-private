@@ -42,6 +42,7 @@
   const validated: InspectorPanelProps = $derived.by(() => {
     const rawProps: InspectorPanelProps = stripSvelteProps(allProps);
     const result = safeParse(InspectorPanelPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

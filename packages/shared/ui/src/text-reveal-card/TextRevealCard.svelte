@@ -43,6 +43,7 @@
   const validated: TextRevealCardProps = $derived.by(() => {
     const rawProps: TextRevealCardProps = stripSvelteProps(allProps);
     const result = safeParse(TextRevealCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

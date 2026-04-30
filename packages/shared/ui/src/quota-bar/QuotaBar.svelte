@@ -42,6 +42,7 @@
   const validated: QuotaBarProps = $derived.by(() => {
     const rawProps: QuotaBarProps = stripSvelteProps(allProps);
     const result = safeParse(QuotaBarPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

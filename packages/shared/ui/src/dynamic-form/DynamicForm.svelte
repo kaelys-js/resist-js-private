@@ -42,6 +42,7 @@
   const validated: DynamicFormProps = $derived.by(() => {
     const rawProps: DynamicFormProps = stripSvelteProps(allProps);
     const result = safeParse(DynamicFormPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

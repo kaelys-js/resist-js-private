@@ -42,6 +42,7 @@
   const validated: InvoiceTableProps = $derived.by(() => {
     const rawProps: InvoiceTableProps = stripSvelteProps(allProps);
     const result = safeParse(InvoiceTablePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

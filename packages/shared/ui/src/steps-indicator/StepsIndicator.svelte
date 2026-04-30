@@ -43,6 +43,7 @@
   const validated: StepsIndicatorProps = $derived.by(() => {
     const rawProps: StepsIndicatorProps = stripSvelteProps(allProps);
     const result = safeParse(StepsIndicatorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

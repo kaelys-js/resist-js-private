@@ -1,6 +1,10 @@
 # @/config
 
-Loads, validates, and caches `resist.config.ts` as a frozen singleton. All fallible functions return `Result<T>`.
+Loads, validates, and caches `resist.config.ts` as a frozen singleton. All fallible functions
+
+
+
+ return `Result<T>`.
 
 ## Files
 

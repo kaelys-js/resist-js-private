@@ -44,6 +44,7 @@
   const validated: BrowserFrameProps = $derived.by(() => {
     const rawProps: BrowserFrameProps = stripSvelteProps(allProps);
     const result = safeParse(BrowserFramePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

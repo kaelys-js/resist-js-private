@@ -41,21 +41,25 @@ const rule: TypeScriptRule = {
       }
 
       const { callee } = node;
+
       if (callee === null || typeof callee !== 'object') {
         return results;
       }
 
       const calleeNode: AstNode = callee as AstNode;
+
       if (calleeNode.type !== 'StaticMemberExpression' && calleeNode.type !== 'MemberExpression') {
         return results;
       }
 
       const obj: unknown = calleeNode.object;
+
       if (obj === null || typeof obj !== 'object') {
         return results;
       }
 
       const objNode: AstNode = obj as AstNode;
+
       if (objNode.type !== 'CallExpression') {
         return results;
       }

@@ -42,6 +42,7 @@
   const validated: QuestLogProps = $derived.by(() => {
     const rawProps: QuestLogProps = stripSvelteProps(allProps);
     const result = safeParse(QuestLogPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

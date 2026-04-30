@@ -42,6 +42,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     const target: string | undefined = process.env['CI_MERGE_REQUEST_TARGET_BRANCH_NAME'];
+
     if (target === undefined) {
       return Promise.resolve(results);
     }

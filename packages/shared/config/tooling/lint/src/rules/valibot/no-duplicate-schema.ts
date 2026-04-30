@@ -49,9 +49,11 @@ const rule: TypeScriptRule = {
           line: number;
           column: number;
         }>;
+
         if (locations.length === 0) {
           continue;
         }
+
         const firstLocation = locations[0] as { file: string; line: number; column: number }; // cast safe: length checked above
         const fileList: string = [...files]
           .map((f: string): string => f.replace(/.*packages\//, 'packages/'))
@@ -84,6 +86,7 @@ const rule: TypeScriptRule = {
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const callee = node.callee as AstNode | undefined;
+
       if (!callee) {
         return [];
       }
@@ -104,16 +107,19 @@ const rule: TypeScriptRule = {
       }
 
       const args = node.arguments as AstNode[] | undefined;
+
       if (!args || args.length === 0) {
         return [];
       }
 
       const schemaObj = args[0] as AstNode; // cast safe: length checked above
+
       if (schemaObj.type !== 'ObjectExpression') {
         return [];
       }
 
       const properties = schemaObj.properties as AstNode[] | undefined;
+
       if (!properties) {
         return [];
       }
@@ -124,16 +130,19 @@ const rule: TypeScriptRule = {
         }
 
         const key = prop.key as AstNode | undefined;
+
         if (!key) {
           continue;
         }
 
         const keyName: string = (key.name as string) ?? '';
+
         if (!keyName) {
           continue;
         }
 
         const value = prop.value as AstNode | undefined;
+
         if (!value) {
           continue;
         }

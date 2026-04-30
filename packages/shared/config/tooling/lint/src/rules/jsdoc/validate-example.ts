@@ -59,12 +59,14 @@ await ensureParser();
 function getJsDoc(node: AstNode, content: string): string | null {
   const before: string = content.slice(0, node.start);
   const trimmed: string = before.trimEnd();
+
   if (!trimmed.endsWith('*/')) {
     return null;
   }
 
   const closeIdx: number = trimmed.lastIndexOf('*/');
   const openIdx: number = trimmed.lastIndexOf('/**');
+
   if (openIdx === -1 || openIdx >= closeIdx) {
     return null;
   }
@@ -92,6 +94,7 @@ function extractTypescriptBlocks(docComment: string): string[] {
 
   while (match !== null) {
     const [, rawBlock]: RegExpExecArray = match;
+
     if (rawBlock) {
       // Strip JSDoc `* ` prefix from each line
       const cleaned: string = rawBlock
@@ -134,6 +137,7 @@ function extractUnfencedBlocks(docComment: string): string[] {
       // Flush any previous block
       if (currentBlock.length > 0) {
         const code: string = currentBlock.join('\n').trim();
+
         if (code.length > 0) {
           blocks.push(code);
         }
@@ -149,6 +153,7 @@ function extractUnfencedBlocks(docComment: string): string[] {
         collecting = false;
         if (currentBlock.length > 0) {
           const code: string = currentBlock.join('\n').trim();
+
           if (code.length > 0) {
             blocks.push(code);
           }
@@ -162,6 +167,7 @@ function extractUnfencedBlocks(docComment: string): string[] {
         collecting = false;
         if (currentBlock.length > 0) {
           const code: string = currentBlock.join('\n').trim();
+
           if (code.length > 0) {
             blocks.push(code);
           }
@@ -175,6 +181,7 @@ function extractUnfencedBlocks(docComment: string): string[] {
         collecting = false;
         if (currentBlock.length > 0) {
           const code: string = currentBlock.join('\n').trim();
+
           if (code.length > 0) {
             blocks.push(code);
           }
@@ -190,6 +197,7 @@ function extractUnfencedBlocks(docComment: string): string[] {
   // Flush remaining block
   if (currentBlock.length > 0) {
     const code: string = currentBlock.join('\n').trim();
+
     if (code.length > 0) {
       blocks.push(code);
     }
@@ -217,6 +225,7 @@ function checkFunction(
 ): LintResult[] {
   const results: LintResult[] = [];
   const docComment: string | null = getJsDoc(exportNode, context.content);
+
   if (!docComment) {
     return results;
   }
@@ -230,6 +239,7 @@ function checkFunction(
   const unfencedBlocks: string[] =
     fencedBlocks.length === 0 ? extractUnfencedBlocks(docComment) : [];
   const blocks: string[] = [...fencedBlocks, ...unfencedBlocks];
+
   if (blocks.length === 0) {
     return results;
   }
@@ -297,6 +307,7 @@ const rule: TypeScriptRule = {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const declaration = node.declaration as AstNode | undefined; // cast safe: AST property extraction
+
       if (!declaration) {
         return results;
       }
@@ -307,12 +318,14 @@ const rule: TypeScriptRule = {
 
       if (declaration.type === 'VariableDeclaration') {
         const declarations = declaration.declarations as AstNode[] | undefined; // cast safe: AST property extraction
+
         if (!declarations) {
           return results;
         }
 
         for (const decl of declarations) {
           const init = decl.init as AstNode | undefined; // cast safe: AST property extraction
+
           if (
             init &&
             (init.type === 'ArrowFunctionExpression' || init.type === 'FunctionExpression')

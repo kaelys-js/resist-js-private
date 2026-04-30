@@ -73,6 +73,7 @@ const rule: WorkspaceRule = {
 
       /* Only check files that reference nanostores. */
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -145,8 +146,10 @@ const rule: WorkspaceRule = {
 
       /* Validate persistentAtom key format. */
       let keyMatch: RegExpExecArray | null = PERSISTENT_ATOM_KEY_RE.exec(content);
+
       while (keyMatch !== null) {
         const key: string = keyMatch[1] ?? '';
+
         if (!PERSISTENT_KEY_RE.test(key)) {
           results.push(
             createResult(

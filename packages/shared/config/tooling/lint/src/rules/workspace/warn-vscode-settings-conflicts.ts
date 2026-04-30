@@ -47,6 +47,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const rel: string = relative(ctx.rootDir, filePath);
+
       if (rel === '.vscode/settings.json') {
         vscodeSettingsPath = filePath;
       } else if (rel === '.editorconfig') {
@@ -64,6 +65,7 @@ const rule: WorkspaceRule = {
     /* Parse VSCode settings. */
     const settingsContent: string = await ctx.readFile(vscodeSettingsPath);
     let settings: Record<string, unknown>;
+
     try {
       settings = JSON.parse(settingsContent) as Record<string, unknown>;
     } catch {
@@ -84,11 +86,14 @@ const rule: WorkspaceRule = {
       for (const line of lines) {
         const trimmed: string = line.trim();
         const sizeMatch: RegExpMatchArray | null = /^indent_size\s*=\s*(\d+)/.exec(trimmed);
+
         if (sizeMatch !== null) {
           const [, sizeStr] = sizeMatch;
           editorIndentSize = Number(sizeStr);
         }
+
         const styleMatch: RegExpMatchArray | null = /^indent_style\s*=\s*(space|tab)/.exec(trimmed);
+
         if (styleMatch !== null) {
           [, editorIndentStyle] = styleMatch;
         }
@@ -117,6 +122,7 @@ const rule: WorkspaceRule = {
       if (editorIndentStyle !== undefined && typeof vscodeInsertSpaces === 'boolean') {
         const vscodeUsesSpaces: boolean = vscodeInsertSpaces;
         const editorUsesSpaces: boolean = editorIndentStyle === 'space';
+
         if (vscodeUsesSpaces !== editorUsesSpaces) {
           results.push(
             createResult(
@@ -139,6 +145,7 @@ const rule: WorkspaceRule = {
     if (biomePath !== undefined) {
       const biomeContent: string = await ctx.readFile(biomePath);
       let biomeConfig: Record<string, unknown>;
+
       try {
         biomeConfig = JSON.parse(biomeContent) as Record<string, unknown>;
       } catch {
@@ -146,6 +153,7 @@ const rule: WorkspaceRule = {
       }
 
       const { formatter } = biomeConfig;
+
       if (formatter !== undefined && formatter !== null && typeof formatter === 'object') {
         const formatterObj: Record<string, unknown> = formatter as Record<string, unknown>;
         const biomeIndentWidth: unknown = formatterObj['indentWidth'];

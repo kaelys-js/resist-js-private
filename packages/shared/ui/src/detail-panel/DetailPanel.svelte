@@ -42,6 +42,7 @@
   const validated: DetailPanelProps = $derived.by(() => {
     const rawProps: DetailPanelProps = stripSvelteProps(allProps);
     const result = safeParse(DetailPanelPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

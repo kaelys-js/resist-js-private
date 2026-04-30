@@ -42,6 +42,7 @@
   const validated: PaymentMethodCardProps = $derived.by(() => {
     const rawProps: PaymentMethodCardProps = stripSvelteProps(allProps);
     const result = safeParse(PaymentMethodCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

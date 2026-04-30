@@ -42,6 +42,7 @@
   const validated: SnippetProps = $derived.by(() => {
     const rawProps: SnippetProps = stripSvelteProps(allProps);
     const result = safeParse(SnippetPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

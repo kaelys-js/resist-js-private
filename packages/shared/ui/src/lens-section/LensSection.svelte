@@ -70,6 +70,7 @@
   const rawProps: LensSectionProps = $props();
   const validated: LensSectionProps = $derived.by(() => {
     const result = safeParse(LensSectionPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }
@@ -91,7 +92,9 @@
     if (validated.codeText) {
       return validated.codeText;
     }
+
     const ref: HTMLDivElement | undefined = codeRef;
+
     return ref?.textContent ?? '';
   });
 
@@ -128,6 +131,7 @@
   >
     <div class="min-w-0 flex-1">
       <div class="flex items-center gap-2">
+
         {#if validated.collapsible}
           <ChevronRight
             class={cn(
@@ -202,3 +206,4 @@
     </div>
   {/if}
 </section>
+

@@ -23,6 +23,7 @@ describe('(testing)/icons +page.server load', () => {
     const result = (load as unknown as (event: Record<string, unknown>) => unknown)(
       {},
     ) as IconsData;
+
     if (result.names.length > 1) {
       const sorted = [...result.names].toSorted();
       expect(result.names).toEqual(sorted);

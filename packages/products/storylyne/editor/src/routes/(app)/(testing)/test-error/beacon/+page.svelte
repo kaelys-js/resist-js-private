@@ -40,6 +40,7 @@
       ERRORS.HTTP.SERVER_ERROR,
       'Simulated beacon test — verifies full error reporting pipeline',
     );
+
     if (!result.ok) {
       throw result.error;
     }

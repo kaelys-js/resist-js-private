@@ -50,6 +50,7 @@
   const validated: FinanceCardProps = $derived.by(() => {
     const rawProps: FinanceCardProps = stripSvelteProps(restProps);
     const result = safeParse(FinanceCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

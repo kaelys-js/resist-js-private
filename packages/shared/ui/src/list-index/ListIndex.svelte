@@ -42,6 +42,7 @@
   const validated: ListIndexProps = $derived.by(() => {
     const rawProps: ListIndexProps = stripSvelteProps(allProps);
     const result = safeParse(ListIndexPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

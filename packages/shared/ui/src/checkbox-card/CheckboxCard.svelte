@@ -43,6 +43,7 @@
   const validated: CheckboxCardProps = $derived.by(() => {
     const rawProps: CheckboxCardProps = stripSvelteProps(allProps);
     const result = safeParse(CheckboxCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -56,6 +56,7 @@ export function parseEvalResponse(raw: Str): boolean {
     const parsed: Record<string, unknown> = JSON.parse(raw as string) as Record<string, unknown>;
     const result: Record<string, unknown> = (parsed.result ?? {}) as Record<string, unknown>;
     const inner: Record<string, unknown> = (result.result ?? {}) as Record<string, unknown>;
+
     return inner.type === 'boolean' && inner.value === true;
   } catch {
     /* Invalid JSON */
@@ -141,6 +142,7 @@ export async function waitForPageReady(
   const storedInterval: ReturnType<typeof setInterval> | undefined = (
     ws as unknown as Record<string, ReturnType<typeof setInterval>>
   ).__interval;
+
   if (storedInterval) {
     clearInterval(storedInterval);
   }

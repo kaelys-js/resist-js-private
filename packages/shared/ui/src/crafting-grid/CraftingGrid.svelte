@@ -42,6 +42,7 @@
   const validated: CraftingGridProps = $derived.by(() => {
     const rawProps: CraftingGridProps = stripSvelteProps(allProps);
     const result = safeParse(CraftingGridPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

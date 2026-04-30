@@ -52,6 +52,7 @@ function makeConfig(overrides: Partial<LintConfig> = {}): LintConfig {
 function captureOutput(): { stdoutLines: string[]; stderrLines: string[]; output: CliOutput } {
   const stdoutLines: string[] = [];
   const stderrLines: string[] = [];
+
   return {
     stdoutLines,
     stderrLines,
@@ -334,6 +335,7 @@ describe.concurrent('runLinter', () => {
     );
     const combined: string = stdoutLines.join('');
     const results: LintResult[] = JSON.parse(combined) as LintResult[];
+
     for (const result of results) {
       expect(result.ruleId).toMatch(/^naming\//);
     }
@@ -1315,6 +1317,7 @@ describe.concurrent('runLinter — format output branches', () => {
 
     expect(code).toBe(0);
     const combined: string = stdoutLines.join('');
+
     if (combined.trim().length > 0) {
       expect(combined).toContain('<?xml');
     }
@@ -1351,6 +1354,7 @@ describe.concurrent('runLinter — format output branches', () => {
     );
 
     const combined: string = stdoutLines.join('');
+
     if (combined.trim().length > 0) {
       expect(() => JSON.parse(combined)).not.toThrow();
     }
@@ -1372,8 +1376,10 @@ describe.concurrent('runLinter — severity override branches', () => {
     );
 
     const combined: string = stdoutLines.join('');
+
     if (combined.trim().length > 2) {
       const results: LintResult[] = JSON.parse(combined) as LintResult[];
+
       for (const r of results) {
         expect(r.severity).toBe('error');
       }
@@ -1488,6 +1494,7 @@ describe.concurrent('runLinter — --quiet with JSON and text', () => {
     );
 
     const combined: string = stdoutLines.join('');
+
     if (combined.trim().length > 0) {
       expect(() => JSON.parse(combined)).not.toThrow();
     }
@@ -1542,6 +1549,7 @@ describe.concurrent('runLinter — --stage filtering', () => {
     );
 
     const combined: string = stdoutLines.join('');
+
     if (combined.trim().length > 2) {
       const results: LintResult[] = JSON.parse(combined) as LintResult[];
       // All results should come from pre-commit stage rules

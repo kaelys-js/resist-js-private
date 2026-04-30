@@ -30,11 +30,13 @@ const rule: TypeScriptRule = {
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const configObj: AstNode | undefined = getDefaultExportObject(context.ast);
+
       if (!configObj) {
         return [];
       }
 
       const preprocessValue: AstNode | undefined = getPropertyValueNode(configObj, 'preprocess');
+
       if (!preprocessValue) {
         return [];
       }
@@ -44,6 +46,7 @@ const rule: TypeScriptRule = {
       // Check array elements
       if (preprocessValue.type === 'ArrayExpression') {
         const elements: AstNode[] | undefined = preprocessValue.elements as AstNode[] | undefined;
+
         if (!elements) {
           return [];
         }
@@ -53,6 +56,7 @@ const rule: TypeScriptRule = {
             const hasHook: boolean = [...PREPROCESS_HOOKS].some((hook: string): boolean =>
               hasProperty(el, hook),
             );
+
             if (hasHook) {
               results.push({
                 file: context.file,
@@ -74,6 +78,7 @@ const rule: TypeScriptRule = {
         const hasHook: boolean = [...PREPROCESS_HOOKS].some((hook: string): boolean =>
           hasProperty(preprocessValue, hook),
         );
+
         if (hasHook) {
           results.push({
             file: context.file,

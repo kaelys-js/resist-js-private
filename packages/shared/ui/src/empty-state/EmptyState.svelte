@@ -42,6 +42,7 @@
   const validated: EmptyStateProps = $derived.by(() => {
     const rawProps: EmptyStateProps = stripSvelteProps(allProps);
     const result = safeParse(EmptyStatePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

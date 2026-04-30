@@ -34,6 +34,7 @@ const STRIP_KEYS: ReadonlySet<Str> = new Set(['children', 'child']);
  */
 export function stripSvelteProps<T extends Record<Str, unknown>>(props: T): T {
   const result: Record<Str, unknown> = {};
+
   for (const [key, value] of Object.entries(props)) {
     if (STRIP_KEYS.has(key)) {
       continue;
@@ -63,6 +64,7 @@ export function stripSvelteProps<T extends Record<Str, unknown>>(props: T): T {
  */
 export function extractDir(key: Str): Str {
   const parts: Str[] = key.split('/');
+
   return parts.at(-2) ?? '';
 }
 
@@ -80,6 +82,7 @@ export function extractDir(key: Str): Str {
  */
 export function extractStem(key: Str): Str {
   const file: Str = key.split('/').pop() ?? '';
+
   return file.replace(/\.svelte$/, '');
 }
 
@@ -117,6 +120,7 @@ export function toTitle(name: Str): Str {
  */
 export function isInternalFile(key: Str): boolean {
   const stem: Str = extractStem(key);
+
   return stem === 'Demo' || stem === 'index';
 }
 
@@ -139,6 +143,7 @@ export function findPrimaryKey(dir: Str, rawSources: Record<Str, unknown>): Str 
   const keys: Str[] = Object.keys(rawSources).filter(
     (k: Str): boolean => extractDir(k) === dir && !isInternalFile(k),
   );
+
   return keys.find((k: Str): boolean => extractStem(k) === dir) ?? keys[0];
 }
 
@@ -173,13 +178,16 @@ const INSTANCE_JSDOC_RE: RegExp = /<script\s+lang="ts">\s*\/\*\*\s*([\s\S]*?)\*\
  */
 export function extractComponentDescription(src: Str): Str | undefined {
   const match: RegExpExecArray | null = INSTANCE_JSDOC_RE.exec(src);
+
   if (!match?.[1]) {
     return undefined;
   }
+
   const firstLine: Str | undefined = match[1]
     .split('\n')
     .map((l: Str): Str => l.replace(/^\s*\*\s?/, '').trim())
     .find((l: Str): boolean => l.length > 0);
+
   return firstLine;
 }
 
@@ -280,8 +288,10 @@ function findTypeBlocks(source: Str): TypeBlock[] {
 
     let depth: Num = 0 as Num;
     let braceIdx: Num = -1 as Num;
+
     for (let i: Num = afterEq; (i as number) < source.length; i = ((i as number) + 1) as Num) {
       const ch: Str = source[i as number] ?? '';
+
       if (ch === '<' || ch === '(') {
         depth = ((depth as number) + 1) as Num;
       } else if (ch === '>' || ch === ')') {
@@ -297,7 +307,9 @@ function findTypeBlocks(source: Str): TypeBlock[] {
     if ((braceIdx as number) === -1) {
       continue;
     }
+
     const closeIdx: Num = matchBrace(source, braceIdx);
+
     if ((closeIdx as number) === -1) {
       continue;
     }
@@ -329,6 +341,7 @@ function parseFields(body: Str): FieldInfo[] {
 
   for (const line of lines) {
     const t: Str = line.trim() as Str;
+
     if (!t) {
       continue;
     }
@@ -352,6 +365,7 @@ function parseFields(body: Str): FieldInfo[] {
       inJSDoc = true;
       jsdocBuf = [];
       const after: Str = t.slice(3).trim() as Str;
+
       if (after) {
         jsdocBuf.push(after);
       }
@@ -364,6 +378,7 @@ function parseFields(body: Str): FieldInfo[] {
           .slice(0, -2)
           .replace(/^\*\s*/, '')
           .trim() as Str;
+
         if (before) {
           jsdocBuf.push(before);
         }
@@ -372,6 +387,7 @@ function parseFields(body: Str): FieldInfo[] {
         jsdocBuf = [];
       } else {
         const content: Str = t.replace(/^\*\s*/, '').trim() as Str;
+
         if (content) {
           jsdocBuf.push(content);
         }
@@ -380,6 +396,7 @@ function parseFields(body: Str): FieldInfo[] {
     }
 
     const singleMatch: RegExpMatchArray | null = t.match(/^\/\*\*\s*(.*?)\s*\*\/$/);
+
     if (singleMatch) {
       pendingJSDoc = (singleMatch[1] ?? '') as Str;
       continue;
@@ -391,11 +408,13 @@ function parseFields(body: Str): FieldInfo[] {
     }
 
     const fieldMatch: RegExpMatchArray | null = t.match(/^(\w+)\??\s*:\s*(.+?)\s*[;,]?\s*$/);
+
     if (fieldMatch) {
       const fieldName: Str = (fieldMatch[1] ?? '') as Str;
       const fieldType: Str = (fieldMatch[2] ?? '').trim() as Str;
 
       let bal: Num = 0 as Num;
+
       for (const ch of fieldType) {
         if (ch === '{' || ch === '(') {
           bal = ((bal as number) + 1) as Num;
@@ -415,6 +434,7 @@ function parseFields(body: Str): FieldInfo[] {
     }
 
     let lineBal: Num = 0 as Num;
+
     for (const ch of t) {
       if (ch === '{' || ch === '(') {
         lineBal = ((lineBal as number) + 1) as Num;
@@ -535,6 +555,7 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
   if (!hasConvertMarker && input.source) {
     // Rule 1: @values on Str/Num fields in type definitions
     const r1Blocks: TypeBlock[] = findTypeBlocks(input.source);
+
     for (const block of r1Blocks) {
       for (const field of parseFields(block.body)) {
         if (
@@ -552,14 +573,18 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
 
     // Rule 2: No inline object types in Props
     const r2Blocks: TypeBlock[] = findTypeBlocks(input.source);
+
     for (const block of r2Blocks) {
       if (!block.name.endsWith('Props')) {
         continue;
       }
+
       const lines: Str[] = block.body.split('\n');
       let skipDepth: Num = 0 as Num;
+
       for (const line of lines) {
         const t: Str = line.trim() as Str;
+
         if (!t) {
           continue;
         }
@@ -573,7 +598,9 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
           }
           continue;
         }
+
         const fieldMatch: RegExpMatchArray | null = t.match(/^(\w+)\??\s*:\s*\{/);
+
         if (fieldMatch) {
           violations.push({
             rule: 2 as Num,
@@ -586,6 +613,7 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
 
     // Rule 3: JSDoc on every type definition field
     const r3Blocks: TypeBlock[] = findTypeBlocks(input.source);
+
     for (const block of r3Blocks) {
       for (const field of parseFields(block.body)) {
         if (!field.jsdoc) {
@@ -599,12 +627,15 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
 
     // Rule 4: Component description JSDoc
     const r4Blocks: TypeBlock[] = findTypeBlocks(input.source);
+
     if (r4Blocks.length > 0) {
       const scriptMatch: RegExpMatchArray | null = input.source.match(
         /<script\s+lang=["']ts["']>([\s\S]*?)<\/script>/,
       );
+
       if (scriptMatch) {
         const content: Str = (scriptMatch[1] ?? '') as Str;
+
         if (!/\/\*\*[\s\S]*?\*\//.test(content)) {
           violations.push({
             rule: 4 as Num,
@@ -627,6 +658,7 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
 
   // Rule 7: JSDoc on every extracted prop
   const typedProps: PropMeta[] = input.props as PropMeta[];
+
   for (const prop of typedProps) {
     if (!prop.description) {
       violations.push({
@@ -638,6 +670,7 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
 
   // Rule 8: @values on extracted Str/Num props
   const NEEDS_VALUES: ReadonlySet<Str> = new Set(['Str', 'Num', 'string', 'number']);
+
   for (const prop of typedProps) {
     if (NEEDS_VALUES.has(prop.type) && (!prop.mockValues || prop.mockValues.length === 0)) {
       violations.push({
@@ -677,6 +710,7 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
 
     // Rule 13: No bare v.object()
     const cleaned: Str = input.source.replaceAll('v.strictObject(', '') as Str;
+
     if (cleaned.includes('v.object(')) {
       violations.push({
         rule: 13 as Num,
@@ -687,6 +721,7 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
     // Rule 14: safeParse + stripSvelteProps
     if (input.source.includes('v.strictObject(')) {
       const missing: Str[] = [];
+
       if (!input.source.includes('safeParse(')) {
         missing.push('safeParse' as Str);
       }
@@ -705,12 +740,15 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
     const moduleMatch: RegExpMatchArray | null = input.source.match(
       /<script[^>]*\bmodule\b[^>]*>[\s\S]*?<\/script>/,
     );
+
     if (moduleMatch) {
       const moduleSrc: Str = moduleMatch[0] as Str;
       const bareMatch: RegExpMatchArray | null = moduleSrc.match(BARE_PRIMITIVE_RE);
+
       if (bareMatch) {
         const primitive: Str = (bareMatch[1] ?? '') as Str;
         let schema: Str = 'NumSchema' as Str;
+
         if (primitive === 'string') {
           schema = 'StrSchema' as Str;
         } else if (primitive === 'boolean') {
@@ -727,6 +765,7 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
   // Rule 16: Example names match filesystem
   for (const exName of input.declaredExampleNames) {
     const expectedFile: Str = `${exName}.svelte` as Str;
+
     if (!input.existingExampleFiles.includes(expectedFile)) {
       violations.push({
         rule: 16 as Num,
@@ -754,8 +793,10 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
   if (!hasConvertMarker && input.source) {
     // Rule 18: @values must not contain quoted strings
     const valuesMatches: RegExpMatchArray[] = [...input.source.matchAll(/@values\s+(.+)/g)];
+
     for (const vm of valuesMatches) {
       const valuesStr: Str = ((vm[1] ?? '') as string).trim() as Str;
+
       if ((valuesStr as string).startsWith('{') || (valuesStr as string).startsWith('(')) {
         continue;
       }
@@ -774,10 +815,13 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
     // Rule 19: v.optional() picklist/boolean must have default value
     if (input.source.includes('v.strictObject(')) {
       const srcLines: string[] = input.source.split('\n');
+
       for (let li: number = 0; li < srcLines.length; li++) {
         const srcLine: string = srcLines[li] ?? '';
+
         if (/v\.optional\(\s*v\.picklist\(/.test(srcLine)) {
           const chunk: string = srcLines.slice(li, li + 5).join(' ');
+
           if (/\]\)\s*\)/.test(chunk) && !/\]\)\s*,/.test(chunk)) {
             violations.push({
               rule: 19 as Num,
@@ -807,8 +851,10 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
     // Rule 21: Root element must spread {...restProps}
     if (input.source.includes('...restProps')) {
       const templateStart: number = input.source.lastIndexOf('</script>');
+
       if (templateStart !== -1) {
         const template: Str = input.source.slice(templateStart) as Str;
+
         if (!(template as string).includes('{...restProps}')) {
           violations.push({
             rule: 21 as Num,
@@ -822,12 +868,14 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
     if (input.source.includes('stripSvelteProps(')) {
       const stripCallRe: RegExp = /stripSvelteProps\(\{([^}]+)\}\)/gs;
       let stripMatch: RegExpExecArray | null = stripCallRe.exec(input.source);
+
       while (stripMatch) {
         const args: Str = (stripMatch[1] ?? '') as string as Str;
         const snippetNames: string[] = ['children', 'icon', 'footer', 'child', 'header', 'trigger'];
         const found: string[] = snippetNames.filter((p: string): boolean =>
           new RegExp(`\\b${p}\\b`).test(args as string),
         );
+
         if (found.length > 0) {
           violations.push({
             rule: 22 as Num,
@@ -860,14 +908,18 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
     // Props always present in usage: 'class' (renamed to className), 'children'/'child' (slot content)
     const alwaysUsedProps: ReadonlySet<string> = new Set(['class', 'children', 'child']);
     const deadProps: string[] = [];
+
     for (const prop of input.props) {
       const propName: string = (prop as { name: string }).name;
+
       if (!propName || alwaysUsedProps.has(propName)) {
         continue;
       }
       // Check if prop name appears in instance script or template via validated.propName,
       // direct propName reference, or Snippet render ({@render propName()})
+
       const nameRe: RegExp = new RegExp(`\\b${propName}\\b`);
+
       if (!nameRe.test(usageSource)) {
         deadProps.push(propName);
       }
@@ -884,6 +936,7 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
   if (!hasConvertMarker && input.props.length > 0) {
     const propNames: Set<string> = new Set(input.props.map((p) => p.name as string));
     const invalidRequires: string[] = [];
+
     for (const prop of input.props) {
       if (!prop.requires || prop.requires.length === 0) {
         continue;

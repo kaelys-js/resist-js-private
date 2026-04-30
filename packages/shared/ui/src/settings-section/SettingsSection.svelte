@@ -42,6 +42,7 @@
   const validated: SettingsSectionProps = $derived.by(() => {
     const rawProps: SettingsSectionProps = stripSvelteProps(allProps);
     const result = safeParse(SettingsSectionPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

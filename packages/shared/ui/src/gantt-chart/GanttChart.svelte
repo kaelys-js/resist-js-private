@@ -42,6 +42,7 @@
   const validated: GanttChartProps = $derived.by(() => {
     const rawProps: GanttChartProps = stripSvelteProps(allProps);
     const result = safeParse(GanttChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

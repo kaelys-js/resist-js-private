@@ -42,6 +42,7 @@
   const validated: HeroCarouselProps = $derived.by(() => {
     const rawProps: HeroCarouselProps = stripSvelteProps(allProps);
     const result = safeParse(HeroCarouselPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

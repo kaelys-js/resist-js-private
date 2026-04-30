@@ -30,6 +30,7 @@ function extractBindingNames(
 
   for (const source of BINDING_SOURCES) {
     const items: unknown = config[source];
+
     if (!Array.isArray(items)) {
       continue;
     }
@@ -38,6 +39,7 @@ function extractBindingNames(
       if (typeof item === 'object' && item !== null) {
         const obj: Record<string, unknown> = item as Record<string, unknown>;
         const bindingName: unknown = obj.binding;
+
         if (typeof bindingName === 'string') {
           bindings.push({ name: bindingName, source, file: filePath });
         }
@@ -47,13 +49,16 @@ function extractBindingNames(
 
   /* durable_objects.bindings */
   const durableObjects: unknown = config.durable_objects;
+
   if (typeof durableObjects === 'object' && durableObjects !== null) {
     const doObj: Record<string, unknown> = durableObjects as Record<string, unknown>;
+
     if (Array.isArray(doObj.bindings)) {
       for (const item of doObj.bindings) {
         if (typeof item === 'object' && item !== null) {
           const obj: Record<string, unknown> = item as Record<string, unknown>;
           const bindingName: unknown = obj.name;
+
           if (typeof bindingName === 'string') {
             bindings.push({ name: bindingName, source: 'durable_objects', file: filePath });
           }
@@ -75,6 +80,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -103,11 +109,13 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
+
       if (name !== 'wrangler.json' && name !== 'wrangler.jsonc') {
         continue;
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -115,6 +123,7 @@ const rule: WorkspaceRule = {
       }
 
       let parsed: Record<string, unknown>;
+
       try {
         parsed = JSON.parse(content) as Record<string, unknown>;
       } catch {
@@ -133,6 +142,7 @@ const rule: WorkspaceRule = {
 
     for (const binding of allBindings) {
       const existing: { source: string; file: string } | undefined = seen.get(binding.name);
+
       if (existing === undefined) {
         seen.set(binding.name, { source: binding.source, file: binding.file });
       } else {

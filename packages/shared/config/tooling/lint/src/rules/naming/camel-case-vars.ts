@@ -39,17 +39,20 @@ const rule: TypeScriptRule = {
       // Skip top-level const — handled by constant-screaming-case rule
       // We only check let/var, and non-top-level const
       const declarations = node.declarations as AstNode[] | undefined;
+
       if (!declarations) {
         return results;
       }
 
       for (const decl of declarations) {
         const id = decl.id as AstNode | undefined;
+
         if (!id || id.type !== 'Identifier') {
           continue;
         }
 
         const name: string = (id.name as string) ?? '';
+
         if (!name || ALLOWED_NAMES.has(name)) {
           continue;
         }
@@ -68,9 +71,11 @@ const rule: TypeScriptRule = {
         const typeAnnotation = (id as AstNode & { typeAnnotation?: AstNode }).typeAnnotation as
           | AstNode
           | undefined;
+
         if (typeAnnotation) {
           const typeText: string = context.content.slice(typeAnnotation.start, typeAnnotation.end);
           // Direct constructor type: `new (...)`
+
           if (/\bnew\s*\(/.test(typeText)) {
             continue;
           }
@@ -103,11 +108,13 @@ const rule: TypeScriptRule = {
     FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const id = node.id as AstNode | undefined;
+
       if (!id || id.type !== 'Identifier') {
         return results;
       }
 
       const name: string = (id.name as string) ?? '';
+
       if (!name || ALLOWED_NAMES.has(name)) {
         return results;
       }

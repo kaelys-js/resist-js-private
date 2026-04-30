@@ -41,6 +41,7 @@ const ASCIIDOC_LINE: RegExp = /^asciidoctor:\s+(WARNING|ERROR):\s+(.+?):(\d+):\s
  */
 export function transformAsciidocOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -50,11 +51,13 @@ export function transformAsciidocOutput(output: string): LintResult[] {
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = ASCIIDOC_LINE.exec(stripped);
+
     if (!match) {
       continue;
     }

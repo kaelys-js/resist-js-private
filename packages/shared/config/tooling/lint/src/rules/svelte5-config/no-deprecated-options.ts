@@ -40,6 +40,7 @@ const rule: TypeScriptRule = {
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const configObj: AstNode | undefined = getDefaultExportObject(context.ast);
+
       if (!configObj) {
         return [];
       }
@@ -49,6 +50,7 @@ const rule: TypeScriptRule = {
 
       for (const path of allPaths) {
         const reason: string | undefined = DEPRECATED_OPTIONS.get(path);
+
         if (reason) {
           results.push({
             file: context.file,

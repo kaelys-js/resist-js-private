@@ -42,6 +42,7 @@
   const validated: GlowEffectProps = $derived.by(() => {
     const rawProps: GlowEffectProps = stripSvelteProps(allProps);
     const result = safeParse(GlowEffectPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

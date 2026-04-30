@@ -42,6 +42,7 @@
   const validated: ScreenReaderOnlyProps = $derived.by(() => {
     const rawProps: ScreenReaderOnlyProps = stripSvelteProps(allProps);
     const result = safeParse(ScreenReaderOnlyPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

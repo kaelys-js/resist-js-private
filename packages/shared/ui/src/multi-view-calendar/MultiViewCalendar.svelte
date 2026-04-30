@@ -42,6 +42,7 @@
   const validated: MultiViewCalendarProps = $derived.by(() => {
     const rawProps: MultiViewCalendarProps = stripSvelteProps(allProps);
     const result = safeParse(MultiViewCalendarPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

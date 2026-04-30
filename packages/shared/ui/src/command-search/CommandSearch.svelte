@@ -94,6 +94,7 @@
   $effect(() => {
     try {
       const stored: Str | null = localStorage.getItem(HISTORY_KEY);
+
       if (stored) {
         searchHistory = JSON.parse(stored) as SearchItem[];
       }
@@ -137,9 +138,11 @@
    */
   const groupedItems: Array<{ name: Str; items: SearchItem[] }> = $derived.by(() => {
     const groups: Map<Str, SearchItem[]> = new Map();
+
     for (const rawItem of items) {
       const key: Str = rawItem.group ?? '';
       const existing: SearchItem[] | undefined = groups.get(key);
+
       if (existing) {
         existing.push(rawItem);
       } else {

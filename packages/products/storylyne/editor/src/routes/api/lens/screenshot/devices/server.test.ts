@@ -84,6 +84,7 @@ describe('GET /api/lens/screenshot/devices', () => {
       mobile: boolean;
       touch: boolean;
     }> = await response.json();
+
     for (const d of body) {
       expect(typeof d.defaultBrowser).toBe('string');
       expect(typeof d.mobile).toBe('boolean');

@@ -41,6 +41,7 @@
   const validated: MindMapProps = $derived.by(() => {
     const rawProps: MindMapProps = stripSvelteProps(allProps);
     const result = safeParse(MindMapPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,43 +42,51 @@ const rule: TypeScriptRule = {
   visitor: {
     VariableDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
+
       if (isExempt(context.file)) {
         return results;
       }
 
       const declarations = node.declarations as AstNode[] | undefined;
+
       if (!declarations) {
         return results;
       }
 
       for (const decl of declarations) {
         const id = decl.id as AstNode | undefined;
+
         if (!id || id.type !== 'Identifier') {
           continue;
         }
 
         const typeAnnotation = (id.typeAnnotation ?? decl.typeAnnotation) as AstNode | undefined;
+
         if (!typeAnnotation) {
           continue;
         }
 
         const innerType = typeAnnotation.typeAnnotation as AstNode | undefined;
+
         if (!innerType) {
           continue;
         }
 
         const typeText: string = context.content.slice(innerType.start, innerType.end).trim();
+
         if (typeText !== 'Num') {
           continue;
         }
 
         const init = decl.init as AstNode | undefined;
+
         if (!init) {
           continue;
         }
 
         if (init.type === 'MemberExpression' || init.type === 'StaticMemberExpression') {
           const prop = init.property as AstNode | undefined;
+
           if ((prop?.name as string) === 'length') {
             const name: string = (id.name as string) ?? '?';
             results.push({

@@ -39,6 +39,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     const changedFilesRaw: string | undefined = process.env['MR_CHANGED_FILES'];
+
     if (changedFilesRaw === undefined) {
       return Promise.resolve(results);
     }

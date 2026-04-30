@@ -42,6 +42,7 @@
   const validated: DragHandleProps = $derived.by(() => {
     const rawProps: DragHandleProps = stripSvelteProps(allProps);
     const result = safeParse(DragHandlePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

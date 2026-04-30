@@ -42,6 +42,7 @@
   const validated: ForceDirectedGraphProps = $derived.by(() => {
     const rawProps: ForceDirectedGraphProps = stripSvelteProps(allProps);
     const result = safeParse(ForceDirectedGraphPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

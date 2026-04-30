@@ -30,16 +30,19 @@ const rule: TypeScriptRule = {
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const adapterPkg: string | undefined = getAdapterImport(context.imports);
+
       if (!adapterPkg || !STATIC_ADAPTERS.has(adapterPkg)) {
         return [];
       }
 
       const configObj: AstNode | undefined = getDefaultExportObject(context.ast);
+
       if (!configObj) {
         return [];
       }
 
       const prerenderValue: AstNode | undefined = getNestedValue(configObj, 'kit.prerender');
+
       if (prerenderValue) {
         return [];
       }

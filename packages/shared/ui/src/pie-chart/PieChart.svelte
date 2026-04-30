@@ -42,6 +42,7 @@
   const validated: PieChartProps = $derived.by(() => {
     const rawProps: PieChartProps = stripSvelteProps(allProps);
     const result = safeParse(PieChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

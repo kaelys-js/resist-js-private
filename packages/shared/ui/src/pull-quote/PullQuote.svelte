@@ -42,6 +42,7 @@
   const validated: PullQuoteProps = $derived.by(() => {
     const rawProps: PullQuoteProps = stripSvelteProps(allProps);
     const result = safeParse(PullQuotePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

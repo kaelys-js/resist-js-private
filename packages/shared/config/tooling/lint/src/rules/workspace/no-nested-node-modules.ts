@@ -21,8 +21,10 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     try {
       const packages = await ctx.getWorkspacePackages();
+
       return packages.map((p) => p.path);
     } catch {
       return [];
@@ -54,6 +56,7 @@ const rule: WorkspaceRule = {
     for (const pkg of packages) {
       const nodeModulesPath: string = join(pkg.dir, 'node_modules');
       const exists: boolean = await ctx.dirExists(nodeModulesPath);
+
       if (exists) {
         const relativePath: string = relative(ctx.rootDir, nodeModulesPath);
         results.push(

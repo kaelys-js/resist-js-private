@@ -31,8 +31,10 @@ const rule: PackageJsonRule = {
   fixable: false,
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
+
     for (const field of DEP_FIELDS) {
       const deps: Record<string, string> | undefined = context.pkg[field];
+
       if (!deps) {
         continue;
       }

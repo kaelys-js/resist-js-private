@@ -42,6 +42,7 @@
   const validated: LoadingOverlayProps = $derived.by(() => {
     const rawProps: LoadingOverlayProps = stripSvelteProps(allProps);
     const result = safeParse(LoadingOverlayPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -24,6 +24,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -71,6 +72,7 @@ const rule: WorkspaceRule = {
 
     /** Build concatenated reference content for substring matching. */
     const referenceChunks: string[] = [];
+
     for (const refFile of referenceFiles) {
       try {
         const content: string = await ctx.readFile(refFile);
@@ -79,10 +81,12 @@ const rule: WorkspaceRule = {
         continue;
       }
     }
+
     const referenceContent: string = referenceChunks.join('\n');
 
     for (const scriptPath of shellScripts) {
       const scriptBasename: string = basename(scriptPath);
+
       if (!referenceContent.includes(scriptBasename)) {
         const relativePath: string = relative(ctx.rootDir, scriptPath);
         results.push(

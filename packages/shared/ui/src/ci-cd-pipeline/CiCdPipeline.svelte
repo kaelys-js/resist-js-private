@@ -42,6 +42,7 @@
   const validated: CiCdPipelineProps = $derived.by(() => {
     const rawProps: CiCdPipelineProps = stripSvelteProps(allProps);
     const result = safeParse(CiCdPipelinePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

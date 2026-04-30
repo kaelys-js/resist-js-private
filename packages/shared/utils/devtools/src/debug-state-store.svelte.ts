@@ -108,12 +108,14 @@ function load(): Result<Void> {
   }
   try {
     const raw: Str | null = localStorage.getItem(_storageKey);
+
     if (raw === null) {
       return okUnchecked<Void>(undefined);
     }
 
     const parsed: unknown = JSON.parse(raw);
     const result = safeParse(DebugStateSchema, parsed);
+
     if (!result.ok) {
       return result;
     }
@@ -140,6 +142,7 @@ function load(): Result<Void> {
  */
 function setEnabled(enabled: Bool): Result<Void> {
   const result = safeParse(v.boolean(), enabled);
+
   if (!result.ok) {
     return result;
   }
@@ -156,6 +159,7 @@ function setEnabled(enabled: Bool): Result<Void> {
  */
 function setLogLevel(level: Str): Result<Void> {
   const result = safeParse(LogLevelSchema, level);
+
   if (!result.ok) {
     return result;
   }
@@ -198,6 +202,7 @@ export function createDebugStore(opts?: CreateDebugStoreOptions): Result<DebugSt
   // Parse URL params if provided
   if (opts?.url && opts.urlParamPrefix) {
     const parseResult = parsePrefixedParams(opts.url, opts.urlParamPrefix);
+
     if (parseResult.ok) {
       _urlOverrides = { ...parseResult.data };
     }

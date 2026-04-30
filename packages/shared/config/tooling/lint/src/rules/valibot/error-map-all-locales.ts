@@ -34,6 +34,7 @@ const rule: TypeScriptRule = {
     VariableDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const declarations = node.declarations as AstNode[] | undefined;
+
       if (!declarations) {
         return results;
       }
@@ -41,11 +42,13 @@ const rule: TypeScriptRule = {
       for (const decl of declarations) {
         const id = decl.id as AstNode | undefined;
         const init = decl.init as AstNode | undefined;
+
         if (!id || !init) {
           continue;
         }
 
         const name: string = (id.name as string) ?? '';
+
         if (!ERROR_MAP_PATTERN.test(name)) {
           continue;
         }
@@ -56,21 +59,27 @@ const rule: TypeScriptRule = {
         }
 
         const properties = init.properties as AstNode[] | undefined;
+
         if (!properties) {
           continue;
         }
 
         // Collect all keys in the object
         const keys: Set<string> = new Set();
+
         for (const prop of properties) {
           if (prop.type === 'SpreadElement') {
             continue;
           }
+
           const key = prop.key as AstNode | undefined;
+
           if (!key) {
             continue;
           }
+
           const keyName: string = (key.name as string) ?? (key as { value?: string }).value ?? '';
+
           if (keyName) {
             keys.add(keyName);
           }
@@ -78,6 +87,7 @@ const rule: TypeScriptRule = {
 
         // Check for missing locales
         const missingLocales: string[] = [];
+
         for (const locale of REQUIRED_LOCALES) {
           if (!keys.has(locale)) {
             missingLocales.push(locale);

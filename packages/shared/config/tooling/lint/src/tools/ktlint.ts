@@ -32,6 +32,7 @@ const KTLINT_LINE: RegExp = /^(.+?):(\d+):(\d+):\s*(.+?)\s+\((.+?)\)$/;
  */
 export function transformKtlintOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -41,11 +42,13 @@ export function transformKtlintOutput(output: string): LintResult[] {
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = KTLINT_LINE.exec(stripped);
+
     if (!match) {
       continue;
     }

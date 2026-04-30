@@ -45,6 +45,7 @@ const rule: TypeScriptRule = {
         }
 
         const { line } = node.loc.start;
+
         if (line >= moduleRange.startLine && line <= moduleRange.endLine) {
           results.push({
             file: context.file,

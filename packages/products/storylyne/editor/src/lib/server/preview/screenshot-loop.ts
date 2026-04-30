@@ -207,6 +207,7 @@ export class ScreenshotLoopProvider {
       // Check dirty detector if available
       if (this.dirtyDetector) {
         const dirty: boolean = await this.dirtyDetector.isDirty();
+
         if (!dirty) {
           this.scheduleNextCapture();
           return;

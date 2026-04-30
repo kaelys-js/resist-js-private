@@ -46,6 +46,7 @@ const rule: WorkspaceRule = {
 
     for (const file of tsFiles) {
       let content: string;
+
       try {
         content = await ctx.readFile(file);
       } catch {
@@ -56,11 +57,14 @@ const rule: WorkspaceRule = {
       const schemaMatches: RegExpMatchArray | null = content.match(
         /const\s+(\w+Schema)\s*=\s*v\.object/g,
       );
+
       if (schemaMatches !== null) {
         for (const match of schemaMatches) {
           const varName: string | undefined = /const\s+(\w+Schema)/.exec(match)?.[1];
+
           if (varName !== undefined) {
             const usagePattern: RegExp = new RegExp(`${varName}\\.(parse|safeParse)`);
+
             if (!usagePattern.test(content)) {
               results.push(
                 createResult(
@@ -97,11 +101,14 @@ const rule: WorkspaceRule = {
       const safeParseMatches: RegExpMatchArray | null = content.match(
         /const\s+(\w+)\s*=\s*\w+Schema\.safeParse/g,
       );
+
       if (safeParseMatches !== null) {
         for (const match of safeParseMatches) {
           const varName: string | undefined = /const\s+(\w+)/.exec(match)?.[1];
+
           if (varName !== undefined) {
             const usagePattern: RegExp = new RegExp(`${varName}\\.(success|data|error)`);
+
             if (!usagePattern.test(content)) {
               results.push(
                 createResult(
@@ -121,6 +128,7 @@ const rule: WorkspaceRule = {
 
       // 4. Inline anonymous v.object schemas (not assigned to const/export)
       const lines: string[] = content.split('\n');
+
       for (const [i, line] of lines.entries()) {
         if (
           /v\.object\(\{/.test(line) &&
@@ -157,11 +165,13 @@ const rule: WorkspaceRule = {
 
       // 6. Missing type inference from schema (Infer<> used inline without type alias)
       const inferMatches: RegExpMatchArray | null = content.match(/Infer<typeof\s+\w+Schema>/g);
+
       if (inferMatches !== null) {
         for (const match of inferMatches) {
           // Check if this Infer<> is part of a type alias declaration
           const escapedMatch: string = match.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
           const typeAliasPattern: RegExp = new RegExp(`type\\s+\\w+\\s*=\\s*${escapedMatch}`);
+
           if (!typeAliasPattern.test(content)) {
             results.push(
               createResult(

@@ -41,6 +41,7 @@
   const validated: LineChartProps = $derived.by(() => {
     const rawProps: LineChartProps = stripSvelteProps(allProps);
     const result = safeParse(LineChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

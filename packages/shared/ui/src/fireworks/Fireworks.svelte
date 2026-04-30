@@ -42,6 +42,7 @@
   const validated: FireworksProps = $derived.by(() => {
     const rawProps: FireworksProps = stripSvelteProps(allProps);
     const result = safeParse(FireworksPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

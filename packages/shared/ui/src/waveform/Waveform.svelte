@@ -42,6 +42,7 @@
   const validated: WaveformProps = $derived.by(() => {
     const rawProps: WaveformProps = stripSvelteProps(allProps);
     const result = safeParse(WaveformPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

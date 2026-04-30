@@ -122,6 +122,7 @@ export function mergeObjects<Sources extends readonly MaybeThunk<object>[]>(
   const findSourceWithKey = (key: PropertyKey) => {
     for (let i = sources.length - 1; i >= 0; i--) {
       const obj = resolveThunk(sources[i]);
+
       if (obj && key in obj) {
         return obj;
       }
@@ -141,8 +142,10 @@ export function mergeObjects<Sources extends readonly MaybeThunk<object>[]>(
 
     ownKeys(): Array<string | symbol> {
       const all: Set<string | symbol> = new Set<string | symbol>();
+
       for (const s of sources) {
         const obj = resolveThunk(s);
+
         if (obj) {
           for (const k of Reflect.ownKeys(obj) as Array<string | symbol>) {
             all.add(k);
@@ -154,6 +157,7 @@ export function mergeObjects<Sources extends readonly MaybeThunk<object>[]>(
 
     getOwnPropertyDescriptor(_, key) {
       const src = findSourceWithKey(key);
+
       if (!src) {
         return;
       }

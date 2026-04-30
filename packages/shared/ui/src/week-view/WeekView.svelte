@@ -42,6 +42,7 @@
   const validated: WeekViewProps = $derived.by(() => {
     const rawProps: WeekViewProps = stripSvelteProps(allProps);
     const result = safeParse(WeekViewPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

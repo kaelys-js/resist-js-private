@@ -43,6 +43,7 @@
   const validated: AnimatedCardProps = $derived.by(() => {
     const rawProps: AnimatedCardProps = stripSvelteProps(allProps);
     const result = safeParse(AnimatedCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

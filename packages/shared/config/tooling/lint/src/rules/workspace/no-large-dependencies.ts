@@ -40,6 +40,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -65,6 +66,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
+
       if (name !== 'package.json') {
         continue;
       }
@@ -75,6 +77,7 @@ const rule: WorkspaceRule = {
 
       for (const field of DEP_FIELDS) {
         const deps: unknown = parsed[field];
+
         if (deps === undefined || deps === null || typeof deps !== 'object') {
           continue;
         }

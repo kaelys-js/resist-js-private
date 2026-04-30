@@ -42,6 +42,7 @@
   const validated: TagProps = $derived.by(() => {
     const rawProps: TagProps = stripSvelteProps(allProps);
     const result = safeParse(TagPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

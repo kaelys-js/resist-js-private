@@ -42,6 +42,7 @@
   const validated: QrCodeProps = $derived.by(() => {
     const rawProps: QrCodeProps = stripSvelteProps(allProps);
     const result = safeParse(QrCodePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

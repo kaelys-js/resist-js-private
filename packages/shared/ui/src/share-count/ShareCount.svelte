@@ -42,6 +42,7 @@
   const validated: ShareCountProps = $derived.by(() => {
     const rawProps: ShareCountProps = stripSvelteProps(allProps);
     const result = safeParse(ShareCountPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

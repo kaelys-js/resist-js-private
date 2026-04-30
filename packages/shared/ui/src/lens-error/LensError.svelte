@@ -41,6 +41,7 @@
   const validated: LensErrorProps = $derived.by(() => {
     const rawProps: LensErrorProps = stripSvelteProps(restProps);
     const result = safeParse(LensErrorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

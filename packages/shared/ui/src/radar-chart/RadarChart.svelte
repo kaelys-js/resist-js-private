@@ -42,6 +42,7 @@
   const validated: RadarChartProps = $derived.by(() => {
     const rawProps: RadarChartProps = stripSvelteProps(allProps);
     const result = safeParse(RadarChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

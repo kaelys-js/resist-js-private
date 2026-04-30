@@ -42,6 +42,7 @@
   const validated: BranchSelectorProps = $derived.by(() => {
     const rawProps: BranchSelectorProps = stripSvelteProps(allProps);
     const result = safeParse(BranchSelectorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

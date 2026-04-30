@@ -41,6 +41,7 @@
   const validated: PaperProps = $derived.by(() => {
     const rawProps: PaperProps = stripSvelteProps(allProps);
     const result = safeParse(PaperPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

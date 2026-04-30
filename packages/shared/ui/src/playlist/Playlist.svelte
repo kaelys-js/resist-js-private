@@ -41,6 +41,7 @@
   const validated: PlaylistProps = $derived.by(() => {
     const rawProps: PlaylistProps = stripSvelteProps(allProps);
     const result = safeParse(PlaylistPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

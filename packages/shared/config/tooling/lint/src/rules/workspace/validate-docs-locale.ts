@@ -24,6 +24,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -50,8 +51,10 @@ const rule: WorkspaceRule = {
 
     /* Collect canonical files from docs/en-US/. */
     const canonicalFiles: Set<string> = new Set<string>();
+
     for (const filePath of allFiles) {
       const match: RegExpMatchArray | null = filePath.match(LOCALE_PATH_PATTERN);
+
       if (match !== null && match[1] === 'en-US' && match[2] !== undefined) {
         canonicalFiles.add(match[2]);
       }
@@ -59,8 +62,10 @@ const rule: WorkspaceRule = {
 
     /* Collect locale directories and their files. */
     const localeFiles: Map<string, Set<string>> = new Map<string, Set<string>>();
+
     for (const filePath of allFiles) {
       const match: RegExpMatchArray | null = filePath.match(LOCALE_PATH_PATTERN);
+
       if (
         match !== null &&
         match[1] !== 'en-US' &&
@@ -68,6 +73,7 @@ const rule: WorkspaceRule = {
         match[2] !== undefined
       ) {
         const [, locale] = match;
+
         if (!localeFiles.has(locale)) {
           localeFiles.set(locale, new Set<string>());
         }

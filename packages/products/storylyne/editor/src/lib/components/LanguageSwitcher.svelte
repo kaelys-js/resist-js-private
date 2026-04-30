@@ -27,6 +27,7 @@
       SUPPORTED_LOCALES,
       store.app.locale,
     );
+
     if (!result.ok) {
       return [];
     }
@@ -54,6 +55,7 @@
       setPreferenceCookie(STORAGE_PREFIX, 'locale', code);
       document.documentElement.lang = code;
       const dirResult: Result<TextDirection> = getTextDirection(code);
+
       if (!dirResult.ok) {
         log.warn(`Locale direction error: ${dirResult.error.code}`);
       }

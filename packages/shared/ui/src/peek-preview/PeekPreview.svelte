@@ -41,6 +41,7 @@
   const validated: PeekPreviewProps = $derived.by(() => {
     const rawProps: PeekPreviewProps = stripSvelteProps(allProps);
     const result = safeParse(PeekPreviewPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

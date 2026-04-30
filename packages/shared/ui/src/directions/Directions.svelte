@@ -42,6 +42,7 @@
   const validated: DirectionsProps = $derived.by(() => {
     const rawProps: DirectionsProps = stripSvelteProps(allProps);
     const result = safeParse(DirectionsPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

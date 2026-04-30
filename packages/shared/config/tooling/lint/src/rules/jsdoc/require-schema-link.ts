@@ -27,15 +27,20 @@ const INFER_OUTPUT_PATTERN: RegExp = /v\.InferOutput\s*<\s*typeof\s+(\w+)\s*>/;
 function hasSchemaLink(content: string, start: number, schemaName: string): boolean {
   const before: string = content.slice(0, start);
   const trimmed: string = before.trimEnd();
+
   if (!trimmed.endsWith('*/')) {
     return false;
   }
+
   const closeIdx: number = trimmed.lastIndexOf('*/');
   const openIdx: number = trimmed.lastIndexOf('/**');
+
   if (openIdx === -1 || openIdx >= closeIdx) {
     return false;
   }
+
   const jsDoc: string = trimmed.slice(openIdx, closeIdx + 2);
+
   return jsDoc.includes(`{@link ${schemaName}}`);
 }
 
@@ -53,22 +58,26 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const declaration = node.declaration as AstNode | undefined;
+
       if (!declaration || declaration.type !== 'TSTypeAliasDeclaration') {
         return results;
       }
 
       const typeAnnotation = declaration.typeAnnotation as AstNode | undefined;
+
       if (!typeAnnotation) {
         return results;
       }
 
       const nodeText: string = context.getNodeText(typeAnnotation);
       const match: RegExpMatchArray | null = INFER_OUTPUT_PATTERN.exec(nodeText);
+
       if (!match) {
         return results;
       }
 
       const schemaName: string = match[1] ?? '';
+
       if (!hasSchemaLink(context.content, node.start, schemaName)) {
         const typeName: string =
           ((declaration.id as AstNode | undefined)?.name as string) ?? '<anonymous>';

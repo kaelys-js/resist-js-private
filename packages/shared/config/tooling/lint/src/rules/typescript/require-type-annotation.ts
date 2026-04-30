@@ -46,6 +46,7 @@ function checkParams(params: AstNode[], funcName: string, context: VisitorContex
       insertPos = param.end;
     } else if (param.type === 'AssignmentPattern') {
       const left = param.left as AstNode | undefined; // cast safe: AST left property
+
       if (left?.type === 'Identifier') {
         paramName = (left.name as string) ?? null; // cast safe: AST name property
         hasType = Boolean(left.typeAnnotation);
@@ -53,6 +54,7 @@ function checkParams(params: AstNode[], funcName: string, context: VisitorContex
       }
     } else if (param.type === 'RestElement') {
       const arg = param.argument as AstNode | undefined; // cast safe: AST argument property
+
       if (arg?.type === 'Identifier') {
         paramName = (arg.name as string) ?? null; // cast safe: AST name property
         hasType = Boolean(param.typeAnnotation || arg.typeAnnotation);
@@ -98,12 +100,14 @@ const rule: TypeScriptRule = {
       }
 
       const declarations = node.declarations as AstNode[] | undefined;
+
       if (!declarations) {
         return results;
       }
 
       for (const decl of declarations) {
         const id = decl.id as AstNode | undefined;
+
         if (!id) {
           continue;
         }
@@ -116,6 +120,7 @@ const rule: TypeScriptRule = {
               .slice(Math.max(0, node.start - 20), node.start)
               .trimEnd();
             const isForOf: boolean = /for\s*(?:await\s*)?\(\s*$/.test(beforeDecl);
+
             if (!isForOf) {
               const kind: string = id.type === 'ArrayPattern' ? 'array' : 'object';
               results.push({
@@ -149,12 +154,14 @@ const rule: TypeScriptRule = {
         const beforeDecl: string = context.content
           .slice(Math.max(0, node.start - 20), node.start)
           .trimEnd();
+
         if (/for\s*(?:await\s*)?\(\s*$/.test(beforeDecl)) {
           continue;
         }
 
         // Skip if the init is a type assertion (as X) — the type is explicit
         const init = decl.init as AstNode | undefined;
+
         if (init?.type === 'TSAsExpression' || init?.type === 'TSSatisfiesExpression') {
           continue;
         }
@@ -184,20 +191,26 @@ const rule: TypeScriptRule = {
 
     FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const params = node.params as AstNode[] | undefined; // cast safe: AST params property
+
       if (!params) {
         return [];
       }
+
       const funcName: string = ((node.id as AstNode | undefined)?.name as string) ?? '<anonymous>'; // cast safe: AST id/name
+
       return checkParams(params, funcName, context);
     },
 
     FunctionExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const params = node.params as AstNode[] | undefined; // cast safe: AST params property
+
       if (!params) {
         return [];
       }
       // Derive name from parent property key if this is a method in an object literal
+
       const funcName: string = ((node.id as AstNode | undefined)?.name as string) ?? '<method>'; // cast safe: AST id/name
+
       return checkParams(params, funcName, context);
     },
   },

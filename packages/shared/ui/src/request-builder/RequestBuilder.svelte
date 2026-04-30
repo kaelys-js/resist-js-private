@@ -42,6 +42,7 @@
   const validated: RequestBuilderProps = $derived.by(() => {
     const rawProps: RequestBuilderProps = stripSvelteProps(allProps);
     const result = safeParse(RequestBuilderPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

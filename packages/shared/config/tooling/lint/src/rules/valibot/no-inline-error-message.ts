@@ -85,6 +85,7 @@ const rule: TypeScriptRule = {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const callee = node.callee as AstNode | undefined;
+
       if (!callee) {
         return results;
       }
@@ -99,12 +100,14 @@ const rule: TypeScriptRule = {
           context.isImportedFrom((object?.name as string) ?? '', 'valibot')
         ) {
           const args = node.arguments as AstNode[] | undefined;
+
           if (!args || args.length === 0) {
             return results;
           }
 
           // Check if the last argument is a string literal (the error message)
           const lastArg: AstNode | undefined = args.at(-1);
+
           if (lastArg && lastArg.type === 'StringLiteral') {
             results.push({
               column: node.loc.start.column + 1,

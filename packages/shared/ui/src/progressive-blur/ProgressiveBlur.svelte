@@ -42,6 +42,7 @@
   const validated: ProgressiveBlurProps = $derived.by(() => {
     const rawProps: ProgressiveBlurProps = stripSvelteProps(allProps);
     const result = safeParse(ProgressiveBlurPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: MegaMenuProps = $derived.by(() => {
     const rawProps: MegaMenuProps = stripSvelteProps(allProps);
     const result = safeParse(MegaMenuPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

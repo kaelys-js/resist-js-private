@@ -42,6 +42,7 @@
   const validated: KeyboardShortcutHelpProps = $derived.by(() => {
     const rawProps: KeyboardShortcutHelpProps = stripSvelteProps(allProps);
     const result = safeParse(KeyboardShortcutHelpPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

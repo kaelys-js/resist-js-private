@@ -30,17 +30,21 @@ function getWrapperMethod(valueNode: AstNode, context: VisitorContext): string |
   if (valueNode.type !== 'CallExpression') {
     return undefined;
   }
+
   const callee = valueNode.callee as AstNode | undefined;
+
   if (!callee) {
     return undefined;
   }
   if (callee.type !== 'StaticMemberExpression' && callee.type !== 'MemberExpression') {
     return undefined;
   }
+
   const obj = callee.object as AstNode | undefined;
   const prop = callee.property as AstNode | undefined;
   const objName: string = (obj?.name as string) ?? '';
   const methodName: string = (prop?.name as string) ?? '';
+
   if (context.isImportedFrom(objName, 'valibot')) {
     return methodName;
   }
@@ -59,6 +63,7 @@ const rule: TypeScriptRule = {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const callee = node.callee as AstNode | undefined;
+
       if (!callee) {
         return results;
       }
@@ -79,16 +84,19 @@ const rule: TypeScriptRule = {
       }
 
       const args = node.arguments as AstNode[] | undefined;
+
       if (!args || args.length === 0) {
         return results;
       }
 
       const schemaObj = args[0] as AstNode;
+
       if (schemaObj.type !== 'ObjectExpression') {
         return results;
       }
 
       const properties = schemaObj.properties as AstNode[] | undefined;
+
       if (!properties) {
         return results;
       }
@@ -102,11 +110,13 @@ const rule: TypeScriptRule = {
         }
 
         const value = prop.value as AstNode | undefined;
+
         if (!value) {
           continue;
         }
 
         const method: string | undefined = getWrapperMethod(value, context);
+
         if (method === 'optional') {
           hasOptional = true;
         }

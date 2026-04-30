@@ -58,6 +58,7 @@ function listSvelteCheckInputs(pkgDir: string): string[] {
    */
   function walk(dir: string): void {
     let entries: Dirent[];
+
     try {
       entries = readdirSync(dir, { withFileTypes: true });
     } catch {
@@ -67,7 +68,9 @@ function listSvelteCheckInputs(pkgDir: string): string[] {
       if (FINGERPRINT_SKIP_DIRS.has(entry.name)) {
         continue;
       }
+
       const full: string = join(dir, entry.name);
+
       if (entry.isDirectory()) {
         walk(full);
         continue;
@@ -75,7 +78,9 @@ function listSvelteCheckInputs(pkgDir: string): string[] {
       if (!entry.isFile()) {
         continue;
       }
+
       const { name } = entry;
+
       if (
         name.endsWith('.svelte') ||
         name.endsWith('.ts') ||
@@ -136,6 +141,7 @@ const SKIP_DIRS: ReadonlySet<string> = new Set([
  */
 export function discoverSveltePackageDirs(cwd: string): string[] {
   const packagesDir: string = join(cwd, 'packages');
+
   if (!existsSync(packagesDir)) {
     return [];
   }
@@ -150,6 +156,7 @@ export function discoverSveltePackageDirs(cwd: string): string[] {
    */
   function hasSvelteFile(dir: string): boolean {
     let entries: Dirent[];
+
     try {
       entries = readdirSync(dir, { withFileTypes: true });
     } catch {
@@ -171,6 +178,7 @@ export function discoverSveltePackageDirs(cwd: string): string[] {
 
   function walk(dir: string): void {
     let entries: Dirent[];
+
     try {
       entries = readdirSync(dir, { withFileTypes: true });
     } catch {
@@ -180,12 +188,14 @@ export function discoverSveltePackageDirs(cwd: string): string[] {
       if (!entry.isDirectory() || SKIP_DIRS.has(entry.name)) {
         continue;
       }
+
       const full: string = join(dir, entry.name);
       /* svelte-check requires a tsconfig.json — skip parent dirs that
        * only contain Svelte descendants (e.g. `packages/products` which
        * holds child packages). Without this filter, svelte-check is
        * spawned against a dir that has no resolvable tsconfig and
        * produces redundant work over the descendant package's run. */
+
       if (
         existsSync(join(full, 'package.json')) &&
         existsSync(join(full, 'tsconfig.json')) &&
@@ -212,6 +222,7 @@ export function discoverSveltePackageDirs(cwd: string): string[] {
  */
 export function transformSvelteCheckOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -220,6 +231,7 @@ export function transformSvelteCheckOutput(output: string): LintResult[] {
 
   for (const line of trimmed.split('\n')) {
     const match: RegExpExecArray | null = DIAGNOSTIC_RE.exec(line);
+
     if (!match) {
       continue;
     }
@@ -301,11 +313,13 @@ export async function runSvelteCheckAllPackages(
 
       const cached: LintResult[] | null =
         lintCache?.getTool('svelte-check', pkgDir, inputHash) ?? null;
+
       if (cached !== null) {
         return cached;
       }
 
       let pkgResults: LintResult[];
+
       try {
         const { stdout } = await execFileAsync('svelte-check', args, {
           cwd: pkgDir,
@@ -316,11 +330,13 @@ export async function runSvelteCheckAllPackages(
         pkgResults = transformSvelteCheckOutput(stdout);
       } catch (error: unknown) {
         const execError = error as { stdout?: string };
+
         if (execError.stdout && typeof execError.stdout === 'string') {
           pkgResults = transformSvelteCheckOutput(execError.stdout);
         } else {
           const message: string = error instanceof Error ? error.message : String(error);
           /* Don't cache crash results — they're transient and a re-run might succeed. */
+
           return [
             {
               file: pkgDir,

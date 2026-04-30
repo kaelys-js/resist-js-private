@@ -78,6 +78,7 @@ const SLUG_PATTERN: Str = '[a-z0-9]+(?:-[a-z0-9]+)*';
  */
 export function escapeRegex(str: Str): Result<Str> {
   const escaped: Str = str.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+
   return ok(v.string(), escaped);
 }
 
@@ -120,6 +121,7 @@ function _introspectPipe(pipe: readonly unknown[], basePattern: Str): Result<Str
         const { requirement }: { readonly requirement: unknown } = action as unknown as {
           readonly requirement: unknown;
         };
+
         if (requirement instanceof RegExp) {
           const { source }: RegExp = requirement;
           // Strip anchors — we add our own ^...$
@@ -177,6 +179,7 @@ function _introspectPipe(pipe: readonly unknown[], basePattern: Str): Result<Str
         const { requirement }: { readonly requirement: unknown } = action as unknown as {
           readonly requirement: unknown;
         };
+
         if (typeof requirement === 'number') {
           minLen = requirement;
         }
@@ -186,6 +189,7 @@ function _introspectPipe(pipe: readonly unknown[], basePattern: Str): Result<Str
         const { requirement }: { readonly requirement: unknown } = action as unknown as {
           readonly requirement: unknown;
         };
+
         if (typeof requirement === 'number') {
           maxLen = requirement;
         }
@@ -195,6 +199,7 @@ function _introspectPipe(pipe: readonly unknown[], basePattern: Str): Result<Str
         const { requirement }: { readonly requirement: unknown } = action as unknown as {
           readonly requirement: unknown;
         };
+
         if (typeof requirement === 'number') {
           minLen = requirement;
           maxLen = requirement;
@@ -206,8 +211,10 @@ function _introspectPipe(pipe: readonly unknown[], basePattern: Str): Result<Str
         const { requirement }: { readonly requirement: unknown } = action as unknown as {
           readonly requirement: unknown;
         };
+
         if (typeof requirement === 'string') {
           const escapedResult: Result<Str> = escapeRegex(requirement);
+
           if (!escapedResult.ok) {
             return escapedResult;
           }
@@ -219,8 +226,10 @@ function _introspectPipe(pipe: readonly unknown[], basePattern: Str): Result<Str
         const { requirement }: { readonly requirement: unknown } = action as unknown as {
           readonly requirement: unknown;
         };
+
         if (typeof requirement === 'string') {
           const escapedResult: Result<Str> = escapeRegex(requirement);
+
           if (!escapedResult.ok) {
             return escapedResult;
           }
@@ -274,6 +283,7 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
         const { pipe }: { readonly pipe: readonly unknown[] } = schema as {
           readonly pipe: readonly unknown[];
         };
+
         return _introspectPipe(pipe.slice(1), STRING_PATTERN);
       }
       return ok(v.string(), STRING_PATTERN);
@@ -284,6 +294,7 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
         const { pipe }: { readonly pipe: readonly unknown[] } = schema as {
           readonly pipe: readonly unknown[];
         };
+
         return _introspectPipe(pipe.slice(1), NUMBER_PATTERN);
       }
       return ok(v.string(), NUMBER_PATTERN);
@@ -309,6 +320,7 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
       const { literal }: { readonly literal: unknown } = schema as unknown as {
         readonly literal: unknown;
       };
+
       return escapeRegex(String(literal));
     }
 
@@ -317,8 +329,10 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
         readonly options: readonly unknown[];
       };
       const escapedParts: Str[] = [];
+
       for (const opt of options) {
         const escapedResult: Result<Str> = escapeRegex(String(opt));
+
         if (!escapedResult.ok) {
           return escapedResult;
         }
@@ -333,8 +347,10 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
       };
       const values: unknown[] = Object.values(enumObj);
       const escapedParts: Str[] = [];
+
       for (const val of values) {
         const escapedResult: Result<Str> = escapeRegex(String(val));
+
         if (!escapedResult.ok) {
           return escapedResult;
         }
@@ -348,8 +364,10 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
         readonly options: readonly v.GenericSchema[];
       };
       const unionParts: Str[] = [];
+
       for (const opt of options) {
         const optResult: Result<Str> = schemaToRegex(opt);
+
         if (!optResult.ok) {
           return optResult;
         }
@@ -363,6 +381,7 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
         readonly wrapped: v.GenericSchema;
       };
       const innerResult: Result<Str> = schemaToRegex(wrapped);
+
       if (!innerResult.ok) {
         return innerResult;
       }
@@ -374,6 +393,7 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
         readonly wrapped: v.GenericSchema;
       };
       const innerResult: Result<Str> = schemaToRegex(wrapped);
+
       if (!innerResult.ok) {
         return innerResult;
       }
@@ -385,6 +405,7 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
         readonly wrapped: v.GenericSchema;
       };
       const innerResult: Result<Str> = schemaToRegex(wrapped);
+
       if (!innerResult.ok) {
         return innerResult;
       }
@@ -399,6 +420,7 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
       // Strip ^...$ anchors from nested template literal
       const start: number = source.startsWith('^') ? 1 : 0;
       const end: number = source.endsWith('$') ? source.length - 1 : source.length;
+
       return ok(v.string(), source.slice(start, end));
     }
 
@@ -408,14 +430,18 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
         const { pipe }: { readonly pipe: readonly unknown[] } = schema as {
           readonly pipe: readonly unknown[];
         };
+
         if (pipe.length > 0) {
           const baseSchema: v.GenericSchema = pipe[0] as v.GenericSchema;
           const baseResult: Result<Str> = schemaToRegex(baseSchema);
+
           if (!baseResult.ok) {
             return baseResult;
           }
           // Introspect remaining pipe items for tighter patterns
+
           const pipeItems: readonly unknown[] = pipe.slice(1);
+
           return _introspectPipe(pipeItems, baseResult.data);
         }
       }
@@ -445,15 +471,18 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
  */
 export function buildRegex(parts: readonly TemplateLiteralPart[]): Result<RegExp> {
   let pattern: Str = '';
+
   for (const part of parts) {
     if (typeof part === 'string') {
       const escapedResult: Result<Str> = escapeRegex(part);
+
       if (!escapedResult.ok) {
         return escapedResult;
       }
       pattern += escapedResult.data;
     } else {
       const schemaResult: Result<Str> = schemaToRegex(part as v.GenericSchema);
+
       if (!schemaResult.ok) {
         return schemaResult;
       }
@@ -486,6 +515,7 @@ export function buildRegex(parts: readonly TemplateLiteralPart[]): Result<RegExp
  */
 export function buildExpects(parts: readonly TemplateLiteralPart[]): Result<Str> {
   let result: Str = '`';
+
   for (const part of parts) {
     if (typeof part === 'string') {
       result += part;

@@ -43,6 +43,7 @@
   const validated: CtaSectionProps = $derived.by(() => {
     const rawProps: CtaSectionProps = stripSvelteProps(allProps);
     const result = safeParse(CtaSectionPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

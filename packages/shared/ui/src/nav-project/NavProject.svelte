@@ -44,6 +44,7 @@
   const validated: NavProjectProps = $derived.by(() => {
     const rawProps: NavProjectProps = stripSvelteProps(restProps);
     const result = safeParse(NavProjectPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: AppShellProps = $derived.by(() => {
     const rawProps: AppShellProps = stripSvelteProps(allProps);
     const result = safeParse(AppShellPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

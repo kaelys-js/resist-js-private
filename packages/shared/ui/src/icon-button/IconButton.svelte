@@ -42,6 +42,7 @@
   const validated: IconButtonProps = $derived.by(() => {
     const rawProps: IconButtonProps = stripSvelteProps(allProps);
     const result = safeParse(IconButtonPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     const commits: string | undefined = process.env['MR_COMMITS'];
+
     if (commits === undefined) {
       return Promise.resolve(results);
     }

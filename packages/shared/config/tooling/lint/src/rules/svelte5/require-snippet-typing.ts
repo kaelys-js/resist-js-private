@@ -45,6 +45,7 @@ function collectRenderedProps(templateAst: AstNode): Set<string> {
     }
 
     const expression: AstNode | undefined = node.expression as AstNode | undefined;
+
     if (!expression) {
       return;
     }
@@ -52,6 +53,7 @@ function collectRenderedProps(templateAst: AstNode): Set<string> {
     // {@render children()} — expression is CallExpression with Identifier callee
     if (expression.type === 'CallExpression') {
       const callee: AstNode | undefined = expression.callee as AstNode | undefined;
+
       if (callee?.type === 'Identifier') {
         rendered.add((callee as unknown as { name: string }).name);
       }
@@ -60,8 +62,10 @@ function collectRenderedProps(templateAst: AstNode): Set<string> {
     // {@render children?.()} — expression is ChainExpression > CallExpression
     if (expression.type === 'ChainExpression') {
       const inner: AstNode | undefined = expression.expression as AstNode | undefined;
+
       if (inner?.type === 'CallExpression') {
         const callee: AstNode | undefined = inner.callee as AstNode | undefined;
+
         if (callee?.type === 'Identifier') {
           rendered.add((callee as unknown as { name: string }).name);
         }
@@ -88,23 +92,27 @@ function isPropTypedAsSnippet(ast: AstNode, propName: string): boolean {
     }
 
     const init: AstNode | undefined = node.init as AstNode | undefined;
+
     if (!init || !isRuneCall(init, '$props')) {
       return;
     }
 
     // Check for type annotation on the destructuring
     const id: AstNode | undefined = node.id as AstNode | undefined;
+
     if (!id) {
       return;
     }
 
     const typeAnnotation: AstNode | undefined = id.typeAnnotation as AstNode | undefined;
+
     if (!typeAnnotation) {
       return;
     }
 
     // Check if the type mentions 'Snippet' for this prop
     const typeText: string = JSON.stringify(typeAnnotation);
+
     if (typeText.includes('Snippet') && typeText.includes(propName)) {
       found = true;
     }
@@ -129,11 +137,13 @@ const rule: TypeScriptRule = {
 
       // Only check TypeScript files — use originalContent to see the script tag
       const fileContent: string = context.originalContent ?? context.content;
+
       if (!isTypeScriptFile(fileContent)) {
         return [];
       }
 
       const renderedProps: Set<string> = collectRenderedProps(context.templateAst);
+
       if (renderedProps.size === 0) {
         return [];
       }

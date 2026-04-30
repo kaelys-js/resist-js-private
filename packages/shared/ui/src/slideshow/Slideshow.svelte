@@ -42,6 +42,7 @@
   const validated: SlideshowProps = $derived.by(() => {
     const rawProps: SlideshowProps = stripSvelteProps(allProps);
     const result = safeParse(SlideshowPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

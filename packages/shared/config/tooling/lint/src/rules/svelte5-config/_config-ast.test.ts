@@ -61,6 +61,7 @@ function makeProperty(
   keyType: 'Identifier' | 'StringLiteral' = 'Identifier',
 ): AstNode {
   const key = keyType === 'Identifier' ? makeIdentifier(name) : makeStringLiteral(name);
+
   return makeNode({ type: 'ObjectProperty', key, value });
 }
 

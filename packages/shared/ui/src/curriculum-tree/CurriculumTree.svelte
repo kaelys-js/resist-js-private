@@ -42,6 +42,7 @@
   const validated: CurriculumTreeProps = $derived.by(() => {
     const rawProps: CurriculumTreeProps = stripSvelteProps(allProps);
     const result = safeParse(CurriculumTreePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

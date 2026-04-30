@@ -42,6 +42,7 @@
   const validated: BillingHistoryProps = $derived.by(() => {
     const rawProps: BillingHistoryProps = stripSvelteProps(allProps);
     const result = safeParse(BillingHistoryPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

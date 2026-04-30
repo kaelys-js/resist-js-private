@@ -40,6 +40,7 @@ const CUE_LINE: RegExp = /^(.+?):(\d+):(\d+):\s*(.+)$/;
  */
 export function transformCueOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -48,11 +49,13 @@ export function transformCueOutput(output: string): LintResult[] {
 
   for (const line of trimmed.split('\n')) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = CUE_LINE.exec(stripped);
+
     if (!match) {
       continue;
     }

@@ -42,6 +42,7 @@
   const validated: MagicCardProps = $derived.by(() => {
     const rawProps: MagicCardProps = stripSvelteProps(allProps);
     const result = safeParse(MagicCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

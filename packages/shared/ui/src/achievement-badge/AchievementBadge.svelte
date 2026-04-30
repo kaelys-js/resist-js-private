@@ -43,6 +43,7 @@
   const validated: AchievementBadgeProps = $derived.by(() => {
     const rawProps: AchievementBadgeProps = stripSvelteProps(allProps);
     const result = safeParse(AchievementBadgePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

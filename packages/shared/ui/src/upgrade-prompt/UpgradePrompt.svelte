@@ -42,6 +42,7 @@
   const validated: UpgradePromptProps = $derived.by(() => {
     const rawProps: UpgradePromptProps = stripSvelteProps(allProps);
     const result = safeParse(UpgradePromptPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

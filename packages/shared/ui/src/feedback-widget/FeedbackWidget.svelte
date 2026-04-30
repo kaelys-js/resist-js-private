@@ -42,6 +42,7 @@
   const validated: FeedbackWidgetProps = $derived.by(() => {
     const rawProps: FeedbackWidgetProps = stripSvelteProps(allProps);
     const result = safeParse(FeedbackWidgetPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

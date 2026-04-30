@@ -42,6 +42,7 @@
   const validated: FileTreeProps = $derived.by(() => {
     const rawProps: FileTreeProps = stripSvelteProps(allProps);
     const result = safeParse(FileTreePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

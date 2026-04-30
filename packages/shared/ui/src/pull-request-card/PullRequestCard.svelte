@@ -42,6 +42,7 @@
   const validated: PullRequestCardProps = $derived.by(() => {
     const rawProps: PullRequestCardProps = stripSvelteProps(allProps);
     const result = safeParse(PullRequestCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

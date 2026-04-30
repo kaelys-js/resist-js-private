@@ -43,6 +43,7 @@
   const validated: ResizeObserverProps = $derived.by(() => {
     const rawProps: ResizeObserverProps = stripSvelteProps(allProps);
     const result = safeParse(ResizeObserverPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

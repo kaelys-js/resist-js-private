@@ -43,6 +43,7 @@
   const validated: ColorBlindFilterProps = $derived.by(() => {
     const rawProps: ColorBlindFilterProps = stripSvelteProps(allProps);
     const result = safeParse(ColorBlindFilterPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

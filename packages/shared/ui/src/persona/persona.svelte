@@ -42,6 +42,7 @@
   const validated: PersonaProps = $derived.by(() => {
     const rawProps: PersonaProps = stripSvelteProps(allProps);
     const result = safeParse(PersonaPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

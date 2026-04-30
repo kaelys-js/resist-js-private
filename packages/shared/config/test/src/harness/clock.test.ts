@@ -13,6 +13,7 @@ describe('clock', () => {
   describe('createFakeClock', () => {
     it('installs fake timers and advances them', async () => {
       const clock = createFakeClock(vi);
+
       try {
         const spy = vi.fn();
         setTimeout(spy, 100);
@@ -27,6 +28,7 @@ describe('clock', () => {
     it('pins time to provided Date', () => {
       const fixed: Date = new Date('2024-06-15T12:00:00.000Z');
       const clock = createFakeClock(vi, fixed);
+
       try {
         expect(Date.now()).toBe(fixed.getTime());
       } finally {
@@ -36,6 +38,7 @@ describe('clock', () => {
 
     it('pins time to provided numeric timestamp', () => {
       const clock = createFakeClock(vi, 1_700_000_000_000);
+
       try {
         expect(Date.now()).toBe(1_700_000_000_000);
       } finally {
@@ -45,6 +48,7 @@ describe('clock', () => {
 
     it('runs all pending timers via runAll', async () => {
       const clock = createFakeClock(vi);
+
       try {
         const spy = vi.fn();
         setTimeout(spy, 1000);
@@ -66,6 +70,7 @@ describe('clock', () => {
     it('passes undefined options when no `now` argument provided', () => {
       const spy = vi.spyOn(vi, 'useFakeTimers');
       const clock = createFakeClock(vi);
+
       try {
         expect(spy).toHaveBeenCalledWith(undefined);
       } finally {
@@ -77,6 +82,7 @@ describe('clock', () => {
     it('passes numeric `now` through unchanged', () => {
       const spy = vi.spyOn(vi, 'useFakeTimers');
       const clock = createFakeClock(vi, 123_456_789);
+
       try {
         expect(spy).toHaveBeenCalledWith({ now: 123_456_789 });
       } finally {
@@ -89,6 +95,7 @@ describe('clock', () => {
       const spy = vi.spyOn(vi, 'useFakeTimers');
       const fixed: Date = new Date('2024-01-01T00:00:00.000Z');
       const clock = createFakeClock(vi, fixed);
+
       try {
         expect(spy).toHaveBeenCalledWith({ now: fixed.getTime() });
       } finally {

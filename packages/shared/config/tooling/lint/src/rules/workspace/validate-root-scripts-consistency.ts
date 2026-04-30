@@ -44,6 +44,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -72,6 +73,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const relativePath: string = relative(ctx.rootDir, filePath);
+
       if (relativePath === 'package.json') {
         rootPkgPath = filePath;
         break;
@@ -142,6 +144,7 @@ const rule: WorkspaceRule = {
       /* Check format for non-exempt scripts */
       if (!FORMAT_EXEMPT.has(name)) {
         const expectedValue: string = `pnpm -r run ${name}`;
+
         if (typeof scriptValue === 'string' && scriptValue !== expectedValue) {
           results.push(
             createResult(

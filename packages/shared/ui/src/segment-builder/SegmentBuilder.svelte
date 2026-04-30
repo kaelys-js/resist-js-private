@@ -42,6 +42,7 @@
   const validated: SegmentBuilderProps = $derived.by(() => {
     const rawProps: SegmentBuilderProps = stripSvelteProps(allProps);
     const result = safeParse(SegmentBuilderPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: LiveRegionProps = $derived.by(() => {
     const rawProps: LiveRegionProps = stripSvelteProps(allProps);
     const result = safeParse(LiveRegionPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

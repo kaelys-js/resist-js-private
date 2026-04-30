@@ -38,6 +38,7 @@ const rule: TypeScriptRule = {
         const propRaw: unknown = left.property;
         const propNode =
           propRaw !== null && typeof propRaw === 'object' ? (propRaw as AstNode) : undefined;
+
         if (propNode && propNode.type === 'Identifier' && (propNode.name as string) === 'length') {
           results.push({
             file: context.file,

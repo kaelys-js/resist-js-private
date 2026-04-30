@@ -42,6 +42,7 @@
   const validated: ProductCardProps = $derived.by(() => {
     const rawProps: ProductCardProps = stripSvelteProps(allProps);
     const result = safeParse(ProductCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

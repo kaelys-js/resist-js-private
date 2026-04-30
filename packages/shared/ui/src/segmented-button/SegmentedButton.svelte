@@ -42,6 +42,7 @@
   const validated: SegmentedButtonProps = $derived.by(() => {
     const rawProps: SegmentedButtonProps = stripSvelteProps(allProps);
     const result = safeParse(SegmentedButtonPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

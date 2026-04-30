@@ -66,6 +66,7 @@ describe('android-lifecycle', () => {
           cb: (e: Error | null, r?: { stdout: string; stderr: string }) => void,
         ) => {
           const next = state.execResponses.shift();
+
           if (!next) {
             cb(new Error('no exec response queued'));
           } else if (next.error) {
@@ -83,6 +84,7 @@ describe('android-lifecycle', () => {
         cb: (e: Error | null, r?: { stdout: string; stderr: string }) => void,
       ) => {
         const next = state.execResponses.shift();
+
         if (!next) {
           cb(new Error('no exec response queued'));
         } else if (next.error) {

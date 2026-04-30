@@ -73,6 +73,7 @@ const tsFiles: string[] = readdirSync(UI_SRC, { recursive: true })
  */
 function buildSources(): Record<string, string> {
   const sources: Record<string, string> = {};
+
   for (const file of [...svelteFiles, ...cssFiles, ...tsFiles]) {
     const relPath: string = relative(UI_SRC, file);
     sources[relPath] = readFileSync(file, 'utf8');
@@ -87,6 +88,7 @@ function buildSources(): Record<string, string> {
     const dir: string = sveltePath.slice(0, sveltePath.lastIndexOf('/'));
     const typesPath: string = `${dir}/types.ts`;
     const typesRel: string = relative(UI_SRC, typesPath);
+
     if (Object.hasOwn(sources, typesRel)) {
       sources[relPath] =
         `${sources[relPath]}\n/* --- adjacent types.ts --- */\n${sources[typesRel]}`;
@@ -103,6 +105,7 @@ function buildSources(): Record<string, string> {
  */
 function componentName(filePath: string): string {
   const parts: string[] = filePath.split('/');
+
   return parts[0] ?? filePath;
 }
 
@@ -180,8 +183,10 @@ describe('auditAccessibility — per-component regressions', () => {
    * Only components with at least one failure are included.
    */
   const componentFailures: Map<string, string[]> = new Map();
+
   for (const dir of componentDirs) {
     const failures: A11yRuleResult[] = failingRulesForComponent(dir);
+
     if (failures.length > 0) {
       componentFailures.set(dir, failures.map((r: A11yRuleResult): string => r.id).toSorted());
     }

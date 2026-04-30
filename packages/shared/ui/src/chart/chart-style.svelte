@@ -26,11 +26,13 @@
     }
 
     const parts = [];
+
     for (let [_theme, prefix] of Object.entries(THEMES)) {
       let content = `${prefix} [data-chart=${id}] {\n`;
       const lines = colorConfig.map(([key, itemConfig]) => {
         const theme = _theme as keyof typeof itemConfig.theme;
         const colorValue = itemConfig.theme?.[theme] || itemConfig.color;
+
         return colorValue ? `\t--color-${key}: ${colorValue};` : null;
       });
 

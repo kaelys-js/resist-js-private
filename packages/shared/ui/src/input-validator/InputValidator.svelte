@@ -42,6 +42,7 @@
   const validated: InputValidatorProps = $derived.by(() => {
     const rawProps: InputValidatorProps = stripSvelteProps(allProps);
     const result = safeParse(InputValidatorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

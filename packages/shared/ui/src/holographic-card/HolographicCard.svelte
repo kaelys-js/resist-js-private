@@ -42,6 +42,7 @@
   const validated: HolographicCardProps = $derived.by(() => {
     const rawProps: HolographicCardProps = stripSvelteProps(allProps);
     const result = safeParse(HolographicCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

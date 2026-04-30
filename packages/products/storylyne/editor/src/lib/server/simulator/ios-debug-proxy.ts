@@ -107,6 +107,7 @@ export async function startDebugProxy(udid: Str, port: Num = DEFAULT_PROXY_PORT)
   }
 
   const installed: Bool = await isDebugProxyInstalled();
+
   if (!installed) {
     throw new Error(
       'ios_webkit_debug_proxy is not installed. Install with: brew install ios-webkit-debug-proxy',
@@ -185,6 +186,7 @@ export function getProxyPort(): Num {
 export function parseInspectablePages(json: Str): InspectablePage[] {
   try {
     const parsed: unknown = JSON.parse(json as string);
+
     if (!Array.isArray(parsed)) {
       return [];
     }
@@ -223,10 +225,13 @@ export async function getInspectablePages(port: Num = proxyPort): Promise<Inspec
 
   try {
     const response: Response = await fetch(`http://localhost:${port}/json`);
+
     if (!response.ok) {
       return [];
     }
+
     const text: Str = (await response.text()) as Str;
+
     return parseInspectablePages(text);
   } catch {
     /* Proxy not reachable */

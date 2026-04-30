@@ -42,6 +42,7 @@
   const validated: DebouncedInputProps = $derived.by(() => {
     const rawProps: DebouncedInputProps = stripSvelteProps(allProps);
     const result = safeParse(DebouncedInputPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

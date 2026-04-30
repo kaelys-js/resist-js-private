@@ -42,6 +42,7 @@
   const validated: LootDropProps = $derived.by(() => {
     const rawProps: LootDropProps = stripSvelteProps(allProps);
     const result = safeParse(LootDropPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

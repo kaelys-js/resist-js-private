@@ -124,6 +124,7 @@ describe('Result system', () => {
 
     function outer(): Result<Str> {
       const result: Result<Str> = inner();
+
       if (!result.ok) {
         return result;
       }
@@ -448,6 +449,7 @@ describe('_deepFreeze (via ok/err immutability)', () => {
 
   it('err() error object is frozen', () => {
     const result = err(ERRORS.INTERNAL.UNEXPECTED, 'test');
+
     if (!result.ok) {
       expect(Object.isFrozen(result.error)).toBe(true);
     }
@@ -501,6 +503,7 @@ describe('ok() validation failure', () => {
 describe('err() constructor branches', () => {
   it('uses explicit string message', () => {
     const result = err(ERRORS.IO.READ_FAILED, 'explicit msg');
+
     if (!result.ok) {
       expect(result.error.message).toBe('explicit msg');
     }
@@ -508,6 +511,7 @@ describe('err() constructor branches', () => {
 
   it('uses ERROR_MESSAGES template when no message provided', () => {
     const result = err(ERRORS.INTERNAL.UNEXPECTED);
+
     if (!result.ok) {
       expect(result.error.message).toBe('An unexpected error occurred');
     }
@@ -515,6 +519,7 @@ describe('err() constructor branches', () => {
 
   it('uses options as second arg (shorthand)', () => {
     const result = err(ERRORS.IO.READ_FAILED, { meta: { path: '/app/config.ts' } });
+
     if (!result.ok) {
       expect(result.error.message).toContain('/app/config.ts');
     }
@@ -523,6 +528,7 @@ describe('err() constructor branches', () => {
   it('falls back to code string when no template exists and no message', () => {
     // NETWORK.PORT_UNAVAILABLE has no template in ERROR_MESSAGES
     const result = err(ERRORS.NETWORK.PORT_UNAVAILABLE);
+
     if (!result.ok) {
       expect(result.error.message).toBe('NETWORK.PORT_UNAVAILABLE');
     }
@@ -530,6 +536,7 @@ describe('err() constructor branches', () => {
 
   it('applies ERROR_DEFAULTS severity and httpStatus', () => {
     const result = err(ERRORS.AUTH.UNAUTHORIZED);
+
     if (!result.ok) {
       expect(result.error.severity).toBe('error');
       expect(result.error.httpStatus).toBe(401);
@@ -538,6 +545,7 @@ describe('err() constructor branches', () => {
 
   it('applies warning severity from defaults', () => {
     const result = err(ERRORS.AUTH.EXPIRED);
+
     if (!result.ok) {
       expect(result.error.severity).toBe('warning');
     }
@@ -545,6 +553,7 @@ describe('err() constructor branches', () => {
 
   it('applies fatal severity from defaults', () => {
     const result = err(ERRORS.DB.CONNECTION);
+
     if (!result.ok) {
       expect(result.error.severity).toBe('fatal');
       expect(result.error.httpStatus).toBe(503);
@@ -553,6 +562,7 @@ describe('err() constructor branches', () => {
 
   it('options severity overrides default', () => {
     const result = err(ERRORS.AUTH.UNAUTHORIZED, 'msg', { severity: 'fatal' });
+
     if (!result.ok) {
       expect(result.error.severity).toBe('fatal');
     }
@@ -560,6 +570,7 @@ describe('err() constructor branches', () => {
 
   it('options httpStatus overrides default', () => {
     const result = err(ERRORS.AUTH.UNAUTHORIZED, 'msg', { httpStatus: 500 });
+
     if (!result.ok) {
       expect(result.error.httpStatus).toBe(500);
     }
@@ -569,6 +580,7 @@ describe('err() constructor branches', () => {
     const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'msg', {
       validation: { issues: [{ message: 'bad' }], flattened: { root: ['bad'] } },
     });
+
     if (!result.ok) {
       expect(result.error.validation).toBeDefined();
       expect(result.error.validation!.issues).toHaveLength(1);
@@ -579,6 +591,7 @@ describe('err() constructor branches', () => {
     const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'msg', {
       source: { pointer: '/data/name' },
     });
+
     if (!result.ok) {
       expect(result.error.source!.pointer).toBe('/data/name');
     }
@@ -589,6 +602,7 @@ describe('err() constructor branches', () => {
     const result = err(ERRORS.IO.READ_FAILED, 'read failed', {
       cause: cause.ok ? undefined : cause.error,
     });
+
     if (!result.ok) {
       expect(result.error.cause).toBeDefined();
       expect(result.error.cause!.code).toBe(ERRORS.DB.NOT_FOUND);
@@ -597,6 +611,7 @@ describe('err() constructor branches', () => {
 
   it('propagates meta field', () => {
     const result = err(ERRORS.IO.READ_FAILED, 'msg', { meta: { path: '/file' } });
+
     if (!result.ok) {
       expect(result.error.meta!.path).toBe('/file');
     }
@@ -604,6 +619,7 @@ describe('err() constructor branches', () => {
 
   it('propagates help field', () => {
     const result = err(ERRORS.AUTH.EXPIRED, 'msg', { help: 'Refresh your token' });
+
     if (!result.ok) {
       expect(result.error.help).toBe('Refresh your token');
     }
@@ -613,6 +629,7 @@ describe('err() constructor branches', () => {
     const result = err(ERRORS.AUTH.EXPIRED, 'msg', {
       links: [{ description: 'docs', url: 'https://example.com' }],
     });
+
     if (!result.ok) {
       expect(result.error.links).toHaveLength(1);
     }
@@ -620,6 +637,7 @@ describe('err() constructor branches', () => {
 
   it('propagates tags field', () => {
     const result = err(ERRORS.IO.READ_FAILED, 'msg', { tags: { service: 'api' } });
+
     if (!result.ok) {
       expect(result.error.tags!.service).toBe('api');
     }
@@ -629,6 +647,7 @@ describe('err() constructor branches', () => {
     const result = err(ERRORS.HTTP.SERVER_ERROR, 'msg', {
       retry: { retryable: true, retryAfterMs: 1000, maxRetries: 3 },
     });
+
     if (!result.ok) {
       expect(result.error.retry!.retryable).toBe(true);
     }
@@ -639,6 +658,7 @@ describe('err() constructor branches', () => {
     const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'msg', {
       related: [related.ok ? makeAppError() : related.error],
     });
+
     if (!result.ok) {
       expect(result.error.related).toHaveLength(1);
     }
@@ -646,6 +666,7 @@ describe('err() constructor branches', () => {
 
   it('auto-generates valid UUID', () => {
     const result = err(ERRORS.INTERNAL.UNEXPECTED);
+
     if (!result.ok) {
       expect(result.error.id).toMatch(
         /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
@@ -655,6 +676,7 @@ describe('err() constructor branches', () => {
 
   it('auto-generates valid ISO timestamp', () => {
     const result = err(ERRORS.INTERNAL.UNEXPECTED);
+
     if (!result.ok) {
       expect(() => new Date(result.error.timestamp)).not.toThrow();
       expect(new Date(result.error.timestamp).toISOString()).toBe(result.error.timestamp);
@@ -663,6 +685,7 @@ describe('err() constructor branches', () => {
 
   it('auto-generates stack trace', () => {
     const result = err(ERRORS.INTERNAL.UNEXPECTED);
+
     if (!result.ok) {
       expect(result.error.stack).toBeTruthy();
       expect(typeof result.error.stack).toBe('string');
@@ -679,6 +702,7 @@ describe('ERROR_MESSAGES templates', () => {
   describe('VALIDATION', () => {
     it('SCHEMA_FAILED without meta', () => {
       const r = err(ERRORS.VALIDATION.SCHEMA_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toBe('Schema validation failed');
       }
@@ -686,6 +710,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('SCHEMA_FAILED with errors array', () => {
       const r = err(ERRORS.VALIDATION.SCHEMA_FAILED, { meta: { errors: ['e1', 'e2'] } });
+
       if (!r.ok) {
         expect(r.error.message).toBe('e1; e2');
       }
@@ -695,6 +720,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.VALIDATION.SCHEMA_FAILED, {
         meta: { flag: 'verbose', reason: 'too long' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain("flag 'verbose'");
       }
@@ -702,6 +728,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('MISSING_FIELD without meta', () => {
       const r = err(ERRORS.VALIDATION.MISSING_FIELD);
+
       if (!r.ok) {
         expect(r.error.message).toBe('Required field missing');
       }
@@ -711,6 +738,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.VALIDATION.MISSING_FIELD, {
         meta: { field: 'name', locale: 'en', location: 'config.json' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain('name');
         expect(r.error.message).toContain("locale 'en'");
@@ -720,6 +748,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('REQUIRED_FIELD without meta', () => {
       const r = err(ERRORS.VALIDATION.REQUIRED_FIELD);
+
       if (!r.ok) {
         expect(r.error.message).toBe('Required field is absent');
       }
@@ -729,6 +758,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.VALIDATION.REQUIRED_FIELD, {
         meta: { field: 'email', hint: 'Use a valid email' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain('email');
         expect(r.error.message).toContain('Use a valid email');
@@ -737,6 +767,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('INVALID_FORMAT without meta', () => {
       const r = err(ERRORS.VALIDATION.INVALID_FORMAT);
+
       if (!r.ok) {
         expect(r.error.message).toBe('Format mismatch');
       }
@@ -746,6 +777,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.VALIDATION.INVALID_FORMAT, {
         meta: { field: 'date', reason: 'bad', template: 'tpl', missingVariables: ['v1', 'v2'] },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain('date');
         expect(r.error.message).toContain('bad');
@@ -756,6 +788,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('INVALID_TYPE without meta', () => {
       const r = err(ERRORS.VALIDATION.INVALID_TYPE);
+
       if (!r.ok) {
         expect(r.error.message).toBe('Invalid type');
       }
@@ -765,6 +798,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.VALIDATION.INVALID_TYPE, {
         meta: { field: 'age', expected: 'number', received: 'string' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain('age');
         expect(r.error.message).toContain('number');
@@ -777,6 +811,7 @@ describe('ERROR_MESSAGES templates', () => {
   describe('CONFIG', () => {
     it('LOAD_FAILED without meta', () => {
       const r = err(ERRORS.CONFIG.LOAD_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toBe('Failed to load config');
       }
@@ -784,6 +819,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('LOAD_FAILED with meta', () => {
       const r = err(ERRORS.CONFIG.LOAD_FAILED, { meta: { configPath: '/app/config.ts' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain('/app/config.ts');
       }
@@ -791,6 +827,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('NOT_FOUND without meta', () => {
       const r = err(ERRORS.CONFIG.NOT_FOUND);
+
       if (!r.ok) {
         expect(r.error.message).toBe('Configuration not found');
       }
@@ -798,6 +835,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('NOT_FOUND with meta', () => {
       const r = err(ERRORS.CONFIG.NOT_FOUND, { meta: { path: '/missing' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain('/missing');
       }
@@ -805,6 +843,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('INVALID without meta', () => {
       const r = err(ERRORS.CONFIG.INVALID);
+
       if (!r.ok) {
         expect(r.error.message).toBe('Invalid configuration');
       }
@@ -812,6 +851,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('INVALID with meta', () => {
       const r = err(ERRORS.CONFIG.INVALID, { meta: { path: '/cfg', error: 'bad syntax' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain('/cfg');
         expect(r.error.message).toContain('bad syntax');
@@ -823,6 +863,7 @@ describe('ERROR_MESSAGES templates', () => {
   describe('AUTH', () => {
     it('INVALID_TOKEN', () => {
       const r = err(ERRORS.AUTH.INVALID_TOKEN);
+
       if (!r.ok) {
         expect(r.error.message).toContain('malformed');
       }
@@ -830,6 +871,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('EXPIRED', () => {
       const r = err(ERRORS.AUTH.EXPIRED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('expired');
       }
@@ -837,6 +879,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('UNAUTHORIZED without meta', () => {
       const r = err(ERRORS.AUTH.UNAUTHORIZED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('missing or invalid');
       }
@@ -844,6 +887,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('UNAUTHORIZED with meta', () => {
       const r = err(ERRORS.AUTH.UNAUTHORIZED, { meta: { tool: 'git', reason: 'no token' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain('git');
         expect(r.error.message).toContain('no token');
@@ -852,6 +896,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('FORBIDDEN without meta', () => {
       const r = err(ERRORS.AUTH.FORBIDDEN);
+
       if (!r.ok) {
         expect(r.error.message).toContain('Insufficient permissions');
       }
@@ -859,6 +904,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('FORBIDDEN with meta', () => {
       const r = err(ERRORS.AUTH.FORBIDDEN, { meta: { tool: 'deploy', reason: 'admin only' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain('deploy');
         expect(r.error.message).toContain('admin only');
@@ -867,6 +913,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('DUPLICATE without meta', () => {
       const r = err(ERRORS.AUTH.DUPLICATE);
+
       if (!r.ok) {
         expect(r.error.message).toContain('already exists');
       }
@@ -874,6 +921,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('DUPLICATE with meta', () => {
       const r = err(ERRORS.AUTH.DUPLICATE, { meta: { field: 'email' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain('email');
       }
@@ -884,6 +932,7 @@ describe('ERROR_MESSAGES templates', () => {
   describe('DB', () => {
     it('NOT_FOUND without meta', () => {
       const r = err(ERRORS.DB.NOT_FOUND);
+
       if (!r.ok) {
         expect(r.error.message).toBe('Record not found');
       }
@@ -891,6 +940,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('NOT_FOUND with meta', () => {
       const r = err(ERRORS.DB.NOT_FOUND, { meta: { id: 'usr-123' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain('usr-123');
       }
@@ -898,6 +948,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('CONSTRAINT without meta', () => {
       const r = err(ERRORS.DB.CONSTRAINT);
+
       if (!r.ok) {
         expect(r.error.message).toBe('Constraint violation');
       }
@@ -905,6 +956,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('CONSTRAINT with meta', () => {
       const r = err(ERRORS.DB.CONSTRAINT, { meta: { constraint: 'unique_email' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain('unique_email');
       }
@@ -912,6 +964,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('CONNECTION', () => {
       const r = err(ERRORS.DB.CONNECTION);
+
       if (!r.ok) {
         expect(r.error.message).toBe('Database connection failed');
       }
@@ -922,6 +975,7 @@ describe('ERROR_MESSAGES templates', () => {
   describe('IO', () => {
     it('READ_FAILED without meta', () => {
       const r = err(ERRORS.IO.READ_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toBe('Cannot read file');
       }
@@ -929,6 +983,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('READ_FAILED with meta', () => {
       const r = err(ERRORS.IO.READ_FAILED, { meta: { path: '/x', operation: 'open' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain('/x');
         expect(r.error.message).toContain('open');
@@ -937,6 +992,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('WRITE_FAILED without meta', () => {
       const r = err(ERRORS.IO.WRITE_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toBe('Cannot write file');
       }
@@ -944,6 +1000,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('WRITE_FAILED with meta', () => {
       const r = err(ERRORS.IO.WRITE_FAILED, { meta: { path: '/y' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain('/y');
       }
@@ -951,6 +1008,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('TIMEOUT without meta', () => {
       const r = err(ERRORS.IO.TIMEOUT);
+
       if (!r.ok) {
         expect(r.error.message).toBe('Operation timed out');
       }
@@ -958,6 +1016,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('TIMEOUT with meta', () => {
       const r = err(ERRORS.IO.TIMEOUT, { meta: { timeoutMs: 3000 } });
+
       if (!r.ok) {
         expect(r.error.message).toContain('3000ms');
       }
@@ -965,6 +1024,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('STAT_FAILED without meta', () => {
       const r = err(ERRORS.IO.STAT_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('not accessible');
       }
@@ -972,6 +1032,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('STAT_FAILED with meta', () => {
       const r = err(ERRORS.IO.STAT_FAILED, { meta: { path: '/z', reason: 'permission' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain('/z');
         expect(r.error.message).toContain('permission');
@@ -980,6 +1041,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('FETCH_FAILED without meta', () => {
       const r = err(ERRORS.IO.FETCH_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('fetch remote');
       }
@@ -989,6 +1051,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.IO.FETCH_FAILED, {
         meta: { url: 'https://api.example.com', reason: 'dns' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain('api.example.com');
         expect(r.error.message).toContain('dns');
@@ -1000,6 +1063,7 @@ describe('ERROR_MESSAGES templates', () => {
   describe('HTTP', () => {
     it('TIMEOUT', () => {
       const r = err(ERRORS.HTTP.TIMEOUT);
+
       if (!r.ok) {
         expect(r.error.message).toBe('Request timed out');
       }
@@ -1007,6 +1071,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('NOT_FOUND without meta', () => {
       const r = err(ERRORS.HTTP.NOT_FOUND);
+
       if (!r.ok) {
         expect(r.error.message).toBe('Resource not found');
       }
@@ -1014,6 +1079,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('NOT_FOUND with meta', () => {
       const r = err(ERRORS.HTTP.NOT_FOUND, { meta: { url: '/api/users/999' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain('/api/users/999');
       }
@@ -1021,6 +1087,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('SERVER_ERROR', () => {
       const r = err(ERRORS.HTTP.SERVER_ERROR);
+
       if (!r.ok) {
         expect(r.error.message).toBe('Server returned an error');
       }
@@ -1031,6 +1098,7 @@ describe('ERROR_MESSAGES templates', () => {
   describe('RUNTIME + FUNCTION', () => {
     it('UNSUPPORTED without meta (uses ?? fallback)', () => {
       const r = err(ERRORS.RUNTIME.UNSUPPORTED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('Operation');
       }
@@ -1040,6 +1108,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.RUNTIME.UNSUPPORTED, {
         meta: { function: 'WebGPU', requires: 'a modern browser' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain('WebGPU');
         expect(r.error.message).toContain('modern browser');
@@ -1048,6 +1117,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('NOT_CALLABLE', () => {
       const r = err(ERRORS.FUNCTION.NOT_CALLABLE);
+
       if (!r.ok) {
         expect(r.error.message).toContain('not a callable');
       }
@@ -1055,6 +1125,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('INVALID_ARITY without meta', () => {
       const r = err(ERRORS.FUNCTION.INVALID_ARITY);
+
       if (!r.ok) {
         expect(r.error.message).toBe('Function arity mismatch');
       }
@@ -1064,6 +1135,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.FUNCTION.INVALID_ARITY, {
         meta: { expected: '2', actual: '3' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain('expected 2');
       }
@@ -1071,6 +1143,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('NOT_ASYNC without meta', () => {
       const r = err(ERRORS.FUNCTION.NOT_ASYNC);
+
       if (!r.ok) {
         expect(r.error.message).toContain('not async');
       }
@@ -1078,6 +1151,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('NOT_ASYNC with meta', () => {
       const r = err(ERRORS.FUNCTION.NOT_ASYNC, { meta: { functionName: 'myFn' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain('myFn');
       }
@@ -1085,6 +1159,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('PARAM_VALIDATION_FAILED without meta', () => {
       const r = err(ERRORS.FUNCTION.PARAM_VALIDATION_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('Parameter validation');
       }
@@ -1094,6 +1169,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.FUNCTION.PARAM_VALIDATION_FAILED, {
         meta: { functionName: 'doStuff' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain('doStuff');
       }
@@ -1101,6 +1177,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('RETURN_VALIDATION_FAILED without meta', () => {
       const r = err(ERRORS.FUNCTION.RETURN_VALIDATION_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('Return value');
       }
@@ -1110,6 +1187,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.FUNCTION.RETURN_VALIDATION_FAILED, {
         meta: { functionName: 'getUser' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain('getUser');
       }
@@ -1120,6 +1198,7 @@ describe('ERROR_MESSAGES templates', () => {
   describe('LOCALE', () => {
     it('LOAD_FAILED without meta', () => {
       const r = err(ERRORS.LOCALE.LOAD_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('load locale');
       }
@@ -1129,6 +1208,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.LOCALE.LOAD_FAILED, {
         meta: { locale: 'fr', toolId: 'cli', component: 'messages' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain("'fr'");
         expect(r.error.message).toContain("'cli'");
@@ -1138,6 +1218,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('VALIDATION_FAILED without meta', () => {
       const r = err(ERRORS.LOCALE.VALIDATION_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('schema validation');
       }
@@ -1147,6 +1228,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.LOCALE.VALIDATION_FAILED, {
         meta: { locale: 'de', toolId: 'web', component: 'labels' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain("'de'");
         expect(r.error.message).toContain("'web'");
@@ -1156,6 +1238,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('BUILD_FAILED without meta', () => {
       const r = err(ERRORS.LOCALE.BUILD_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('build locale');
       }
@@ -1163,6 +1246,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('BUILD_FAILED with meta', () => {
       const r = err(ERRORS.LOCALE.BUILD_FAILED, { meta: { locale: 'ja', component: 'ui' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain("'ja'");
       }
@@ -1170,6 +1254,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('REGISTRY_MISMATCH without meta', () => {
       const r = err(ERRORS.LOCALE.REGISTRY_MISMATCH);
+
       if (!r.ok) {
         expect(r.error.message).toContain('registry mismatch');
       }
@@ -1179,6 +1264,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.LOCALE.REGISTRY_MISMATCH, {
         meta: { module: 'core', errors: ['missing key', 'extra key'] },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain('core');
         expect(r.error.message).toContain('missing key; extra key');
@@ -1187,6 +1273,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('MISSING_FLAG_DESCRIPTION without meta', () => {
       const r = err(ERRORS.LOCALE.MISSING_FLAG_DESCRIPTION);
+
       if (!r.ok) {
         expect(r.error.message).toContain('flag description');
       }
@@ -1196,6 +1283,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.LOCALE.MISSING_FLAG_DESCRIPTION, {
         meta: { field: 'verbose', locale: 'es', location: 'flags.json' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain("'verbose'");
         expect(r.error.message).toContain("'es'");
@@ -1205,6 +1293,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('INVALID_LOCALE without meta', () => {
       const r = err(ERRORS.LOCALE.INVALID_LOCALE);
+
       if (!r.ok) {
         expect(r.error.message).toContain('Invalid locale');
       }
@@ -1214,6 +1303,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.LOCALE.INVALID_LOCALE, {
         meta: { locale: 'xx', available: ['en', 'fr'] },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain("'xx'");
         expect(r.error.message).toContain('en, fr');
@@ -1222,6 +1312,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('INVALID_FALLBACK without meta', () => {
       const r = err(ERRORS.LOCALE.INVALID_FALLBACK);
+
       if (!r.ok) {
         expect(r.error.message).toContain('Fallback locale');
       }
@@ -1231,6 +1322,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.LOCALE.INVALID_FALLBACK, {
         meta: { locale: 'zz', available: ['en'] },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain("'zz'");
         expect(r.error.message).toContain('en');
@@ -1239,6 +1331,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('REMOVE_DENIED without meta', () => {
       const r = err(ERRORS.LOCALE.REMOVE_DENIED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('Cannot remove locale');
       }
@@ -1248,6 +1341,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.LOCALE.REMOVE_DENIED, {
         meta: { locale: 'en', reason: 'is default' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain("'en'");
         expect(r.error.message).toContain('is default');
@@ -1256,6 +1350,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('FORMAT_FAILED without meta', () => {
       const r = err(ERRORS.LOCALE.FORMAT_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('format');
       }
@@ -1265,6 +1360,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.LOCALE.FORMAT_FAILED, {
         meta: { type: 'date', locale: 'zh', reason: 'invalid pattern' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain('date');
         expect(r.error.message).toContain("'zh'");
@@ -1277,6 +1373,7 @@ describe('ERROR_MESSAGES templates', () => {
   describe('TEMPLATE', () => {
     it('UNDEFINED_VARIABLES without meta', () => {
       const r = err(ERRORS.TEMPLATE.UNDEFINED_VARIABLES);
+
       if (!r.ok) {
         expect(r.error.message).toContain('undefined variables');
       }
@@ -1286,6 +1383,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.TEMPLATE.UNDEFINED_VARIABLES, {
         meta: { template: 'greeting', missingVariables: ['name', 'age'] },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain('"greeting"');
         expect(r.error.message).toContain('name, age');
@@ -1294,6 +1392,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('PARAM_VALIDATION_FAILED without meta', () => {
       const r = err(ERRORS.TEMPLATE.PARAM_VALIDATION_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('param');
       }
@@ -1301,6 +1400,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('PARAM_VALIDATION_FAILED with meta', () => {
       const r = err(ERRORS.TEMPLATE.PARAM_VALIDATION_FAILED, { meta: { param: 'count' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain("'count'");
       }
@@ -1311,6 +1411,7 @@ describe('ERROR_MESSAGES templates', () => {
   describe('SCENE', () => {
     it('LOAD_FAILED without meta', () => {
       const r = err(ERRORS.SCENE.LOAD_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('load scene');
       }
@@ -1318,6 +1419,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('LOAD_FAILED with meta', () => {
       const r = err(ERRORS.SCENE.LOAD_FAILED, { meta: { scene: 'main', reason: 'corrupt' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain("'main'");
         expect(r.error.message).toContain('corrupt');
@@ -1326,6 +1428,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('RENDER_FAILED without meta', () => {
       const r = err(ERRORS.SCENE.RENDER_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('rendering failed');
       }
@@ -1333,6 +1436,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('RENDER_FAILED with meta', () => {
       const r = err(ERRORS.SCENE.RENDER_FAILED, { meta: { scene: 's1', reason: 'gpu' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain("'s1'");
         expect(r.error.message).toContain('gpu');
@@ -1341,6 +1445,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('ASSET_MISSING without meta', () => {
       const r = err(ERRORS.SCENE.ASSET_MISSING);
+
       if (!r.ok) {
         expect(r.error.message).toContain('asset missing');
       }
@@ -1348,6 +1453,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('ASSET_MISSING with meta', () => {
       const r = err(ERRORS.SCENE.ASSET_MISSING, { meta: { asset: 'texture.png', scene: 's2' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain('texture.png');
         expect(r.error.message).toContain("'s2'");
@@ -1359,6 +1465,7 @@ describe('ERROR_MESSAGES templates', () => {
   describe('PLUGIN', () => {
     it('LOAD_FAILED without meta', () => {
       const r = err(ERRORS.PLUGIN.LOAD_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('load plugin');
       }
@@ -1366,6 +1473,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('LOAD_FAILED with meta', () => {
       const r = err(ERRORS.PLUGIN.LOAD_FAILED, { meta: { plugin: 'foo', reason: 'missing' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain("'foo'");
         expect(r.error.message).toContain('missing');
@@ -1374,6 +1482,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('INIT_FAILED without meta', () => {
       const r = err(ERRORS.PLUGIN.INIT_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('initialization failed');
       }
@@ -1381,6 +1490,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('INIT_FAILED with meta', () => {
       const r = err(ERRORS.PLUGIN.INIT_FAILED, { meta: { plugin: 'bar', reason: 'timeout' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain("'bar'");
         expect(r.error.message).toContain('timeout');
@@ -1389,6 +1499,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('API_MISMATCH without meta', () => {
       const r = err(ERRORS.PLUGIN.API_MISMATCH);
+
       if (!r.ok) {
         expect(r.error.message).toContain('API version');
       }
@@ -1398,6 +1509,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.PLUGIN.API_MISMATCH, {
         meta: { plugin: 'baz', expected: '2.0', actual: '1.0' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain("'baz'");
         expect(r.error.message).toContain('2.0');
@@ -1407,6 +1519,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('SANDBOX_VIOLATION without meta', () => {
       const r = err(ERRORS.PLUGIN.SANDBOX_VIOLATION);
+
       if (!r.ok) {
         expect(r.error.message).toContain('sandbox violation');
       }
@@ -1416,6 +1529,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.PLUGIN.SANDBOX_VIOLATION, {
         meta: { plugin: 'evil', operation: 'fs.write' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain("'evil'");
         expect(r.error.message).toContain('fs.write');
@@ -1427,6 +1541,7 @@ describe('ERROR_MESSAGES templates', () => {
   describe('PROJECT', () => {
     it('LOAD_FAILED without meta', () => {
       const r = err(ERRORS.PROJECT.LOAD_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('load project');
       }
@@ -1434,6 +1549,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('LOAD_FAILED with meta', () => {
       const r = err(ERRORS.PROJECT.LOAD_FAILED, { meta: { path: '/p', reason: 'corrupt' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain('/p');
         expect(r.error.message).toContain('corrupt');
@@ -1442,6 +1558,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('SAVE_FAILED without meta', () => {
       const r = err(ERRORS.PROJECT.SAVE_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('save project');
       }
@@ -1449,6 +1566,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('SAVE_FAILED with meta', () => {
       const r = err(ERRORS.PROJECT.SAVE_FAILED, { meta: { path: '/q', reason: 'disk full' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain('/q');
         expect(r.error.message).toContain('disk full');
@@ -1457,6 +1575,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('CORRUPT without meta', () => {
       const r = err(ERRORS.PROJECT.CORRUPT);
+
       if (!r.ok) {
         expect(r.error.message).toContain('corrupt');
       }
@@ -1464,6 +1583,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('CORRUPT with meta', () => {
       const r = err(ERRORS.PROJECT.CORRUPT, { meta: { path: '/r', reason: 'bad json' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain('/r');
         expect(r.error.message).toContain('bad json');
@@ -1472,6 +1592,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('VERSION_MISMATCH without meta', () => {
       const r = err(ERRORS.PROJECT.VERSION_MISMATCH);
+
       if (!r.ok) {
         expect(r.error.message).toContain('version mismatch');
       }
@@ -1481,6 +1602,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.PROJECT.VERSION_MISMATCH, {
         meta: { path: '/s', expected: '2.0', actual: '1.0' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain('/s');
         expect(r.error.message).toContain('2.0');
@@ -1493,6 +1615,7 @@ describe('ERROR_MESSAGES templates', () => {
   describe('ASSET', () => {
     it('IMPORT_FAILED without meta', () => {
       const r = err(ERRORS.ASSET.IMPORT_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('import asset');
       }
@@ -1500,6 +1623,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('IMPORT_FAILED with meta', () => {
       const r = err(ERRORS.ASSET.IMPORT_FAILED, { meta: { asset: 'model.glb', reason: 'bad' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain('model.glb');
         expect(r.error.message).toContain('bad');
@@ -1508,6 +1632,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('FORMAT_UNSUPPORTED without meta', () => {
       const r = err(ERRORS.ASSET.FORMAT_UNSUPPORTED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('Unsupported');
       }
@@ -1517,6 +1642,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.ASSET.FORMAT_UNSUPPORTED, {
         meta: { format: '.abc', asset: 'file.abc' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain('.abc');
         expect(r.error.message).toContain('file.abc');
@@ -1525,6 +1651,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('TOO_LARGE without meta', () => {
       const r = err(ERRORS.ASSET.TOO_LARGE);
+
       if (!r.ok) {
         expect(r.error.message).toContain('size limit');
       }
@@ -1534,6 +1661,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.ASSET.TOO_LARGE, {
         meta: { asset: 'big.png', size: '50MB', limit: '10MB' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain('big.png');
         expect(r.error.message).toContain('50MB');
@@ -1546,6 +1674,7 @@ describe('ERROR_MESSAGES templates', () => {
   describe('RESOURCE', () => {
     it('ALREADY_EXISTS without meta', () => {
       const r = err(ERRORS.RESOURCE.ALREADY_EXISTS);
+
       if (!r.ok) {
         expect(r.error.message).toContain('already exists');
       }
@@ -1555,6 +1684,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.RESOURCE.ALREADY_EXISTS, {
         meta: { resource: 'user', id: 'usr-1' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain('user');
         expect(r.error.message).toContain('usr-1');
@@ -1563,6 +1693,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('PRECONDITION_FAILED without meta', () => {
       const r = err(ERRORS.RESOURCE.PRECONDITION_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('Precondition failed');
       }
@@ -1572,6 +1703,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.RESOURCE.PRECONDITION_FAILED, {
         meta: { condition: 'etag-match' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain('etag-match');
       }
@@ -1579,6 +1711,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('GONE without meta', () => {
       const r = err(ERRORS.RESOURCE.GONE);
+
       if (!r.ok) {
         expect(r.error.message).toContain('no longer available');
       }
@@ -1586,6 +1719,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('GONE with meta', () => {
       const r = err(ERRORS.RESOURCE.GONE, { meta: { resource: 'file' } });
+
       if (!r.ok) {
         expect(r.error.message).toContain('file');
       }
@@ -1593,6 +1727,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('CONFLICT without meta', () => {
       const r = err(ERRORS.RESOURCE.CONFLICT);
+
       if (!r.ok) {
         expect(r.error.message).toContain('Version conflict');
       }
@@ -1602,6 +1737,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.RESOURCE.CONFLICT, {
         meta: { resource: 'doc', expected: 'v2', actual: 'v1' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain('doc');
         expect(r.error.message).toContain('v2');
@@ -1611,6 +1747,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('QUOTA_EXCEEDED without meta', () => {
       const r = err(ERRORS.RESOURCE.QUOTA_EXCEEDED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('Quota exceeded');
       }
@@ -1620,6 +1757,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.RESOURCE.QUOTA_EXCEEDED, {
         meta: { quota: 'api-calls', limit: '1000/hr' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain('api-calls');
         expect(r.error.message).toContain('1000/hr');
@@ -1631,6 +1769,7 @@ describe('ERROR_MESSAGES templates', () => {
   describe('ENCODING', () => {
     it('JSON_FAILED without meta (uses ?? fallback)', () => {
       const r = err(ERRORS.ENCODING.JSON_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('JSON operation failed');
       }
@@ -1640,6 +1779,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.ENCODING.JSON_FAILED, {
         meta: { operation: 'parse', reason: 'unexpected token' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain('parse');
         expect(r.error.message).toContain('unexpected token');
@@ -1648,6 +1788,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('BASE64_FAILED without meta', () => {
       const r = err(ERRORS.ENCODING.BASE64_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('Base64 operation');
       }
@@ -1657,6 +1798,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.ENCODING.BASE64_FAILED, {
         meta: { operation: 'decode', reason: 'invalid chars' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain('decode');
         expect(r.error.message).toContain('invalid chars');
@@ -1665,6 +1807,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('URL_FAILED without meta', () => {
       const r = err(ERRORS.ENCODING.URL_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('URL operation');
       }
@@ -1674,6 +1817,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.ENCODING.URL_FAILED, {
         meta: { operation: 'encode', reason: 'malformed' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain('encode');
         expect(r.error.message).toContain('malformed');
@@ -1685,6 +1829,7 @@ describe('ERROR_MESSAGES templates', () => {
   describe('INTERNAL', () => {
     it('UNEXPECTED', () => {
       const r = err(ERRORS.INTERNAL.UNEXPECTED);
+
       if (!r.ok) {
         expect(r.error.message).toBe('An unexpected error occurred');
       }
@@ -1692,6 +1837,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('OUTPUT_VALIDATION_FAILED', () => {
       const r = err(ERRORS.INTERNAL.OUTPUT_VALIDATION_FAILED);
+
       if (!r.ok) {
         expect(r.error.message).toBe('Output validation failed');
       }
@@ -1699,6 +1845,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('SAFE_PARSE_THREW', () => {
       const r = err(ERRORS.INTERNAL.SAFE_PARSE_THREW);
+
       if (!r.ok) {
         expect(r.error.message).toContain('safeParse');
       }
@@ -1706,6 +1853,7 @@ describe('ERROR_MESSAGES templates', () => {
 
     it('INVARIANT_VIOLATED without meta', () => {
       const r = err(ERRORS.INTERNAL.INVARIANT_VIOLATED);
+
       if (!r.ok) {
         expect(r.error.message).toContain('invariant violated');
       }
@@ -1715,6 +1863,7 @@ describe('ERROR_MESSAGES templates', () => {
       const r = err(ERRORS.INTERNAL.INVARIANT_VIOLATED, {
         meta: { reason: 'null ptr', function: 'init' },
       });
+
       if (!r.ok) {
         expect(r.error.message).toContain('null ptr');
         expect(r.error.message).toContain('init');

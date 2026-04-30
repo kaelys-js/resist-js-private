@@ -27,12 +27,14 @@ const VOID_TYPES: ReadonlySet<string> = new Set(['void', 'Void', 'undefined', 'n
 function getJsDoc(node: AstNode, content: string): string | null {
   const before: string = content.slice(0, node.start);
   const trimmed: string = before.trimEnd();
+
   if (!trimmed.endsWith('*/')) {
     return null;
   }
 
   const docEnd: number = trimmed.length;
   const docStart: number = trimmed.lastIndexOf('/**');
+
   if (docStart === -1) {
     return null;
   }
@@ -50,6 +52,7 @@ function getJsDoc(node: AstNode, content: string): string | null {
 function getJsDocEndOffset(node: AstNode, content: string): number {
   const before: string = content.slice(0, node.start);
   const trimmed: string = before.trimEnd();
+
   if (!trimmed.endsWith('*/')) {
     return -1;
   }
@@ -65,11 +68,13 @@ function getJsDocEndOffset(node: AstNode, content: string): number {
  */
 function getReturnType(funcNode: AstNode, content: string): string | null {
   const returnType = funcNode.returnType as AstNode | undefined;
+
   if (!returnType) {
     return null;
   }
 
   const typeAnnotation = returnType.typeAnnotation as AstNode | undefined;
+
   if (!typeAnnotation) {
     return content.slice(returnType.start, returnType.end).replace(/^:\s*/, '');
   }
@@ -85,10 +90,13 @@ function getReturnType(funcNode: AstNode, content: string): string | null {
  */
 function requiresReturnsTag(returnType: string): boolean {
   const trimmed: string = returnType.trim();
+
   if (VOID_TYPES.has(trimmed)) {
     return false;
   }
+
   const promiseMatch: RegExpMatchArray | null = trimmed.match(/^Promise<(.+)>$/);
+
   if (promiseMatch && VOID_TYPES.has((promiseMatch[1] ?? '').trim())) {
     return false;
   }
@@ -107,6 +115,7 @@ function requiresReturnsTag(returnType: string): boolean {
  */
 function extractBracedType(text: string, openPos: number): { type: string; end: number } | null {
   let depth: number = 0;
+
   for (let i: number = openPos; i < text.length; i++) {
     if (text[i] === '{') {
       depth++;
@@ -131,11 +140,14 @@ function extractBracedType(text: string, openPos: number): { type: string; end: 
  */
 function extractReturnsType(jsDoc: string): string | null {
   const returnsMatch: RegExpExecArray | null = /@returns\s+\{/.exec(jsDoc);
+
   if (!returnsMatch) {
     return null;
   }
+
   const openPos: number = returnsMatch.index + returnsMatch[0].length - 1;
   const result = extractBracedType(jsDoc, openPos);
+
   return result ? result.type : null;
 }
 
@@ -164,11 +176,13 @@ function checkFunction(
 ): LintResult[] {
   const results: LintResult[] = [];
   const jsDoc: string | null = getJsDoc(exportNode, context.content);
+
   if (!jsDoc) {
     return results;
   }
 
   const returnType: string | null = getReturnType(funcNode, context.content);
+
   if (!returnType) {
     return results;
   }
@@ -200,6 +214,7 @@ function checkFunction(
 
   // @returns exists — check that it has a {Type} and it matches
   const docReturnsType: string | null = extractReturnsType(jsDoc);
+
   if (!docReturnsType) {
     // Find "@returns " in the JSDoc to compute the insert offset after it
     const before: string = context.content.slice(0, exportNode.start);
@@ -227,6 +242,7 @@ function checkFunction(
   // Check type match
   const normalizedDoc: string = normalizeType(docReturnsType);
   const normalizedActual: string = normalizeType(returnType);
+
   if (normalizedDoc !== normalizedActual) {
     // Find {WrongType} in the JSDoc to compute fix range
     const before: string = context.content.slice(0, exportNode.start);
@@ -268,6 +284,7 @@ const rule: TypeScriptRule = {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const declaration = node.declaration as AstNode | undefined;
+
       if (!declaration) {
         return results;
       }
@@ -278,12 +295,14 @@ const rule: TypeScriptRule = {
 
       if (declaration.type === 'VariableDeclaration') {
         const declarations = declaration.declarations as AstNode[] | undefined;
+
         if (!declarations) {
           return results;
         }
 
         for (const decl of declarations) {
           const init = decl.init as AstNode | undefined;
+
           if (
             init &&
             (init.type === 'ArrowFunctionExpression' || init.type === 'FunctionExpression')

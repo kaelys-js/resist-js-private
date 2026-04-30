@@ -104,6 +104,7 @@ function buildIsolateUrl(component: Str, config: SessionConfig): Str {
   }
 
   const qs: string = params.toString();
+
   if (qs) {
     return `${base}?${qs}` as Str;
   }
@@ -206,6 +207,7 @@ export class PreviewSessionManager {
 
     // Open CDP session for Chromium engines
     let cdp: CDPSession | undefined;
+
     if (engineType === 'cdp') {
       cdp = await context.newCDPSession(page);
     }
@@ -393,6 +395,7 @@ export class PreviewSessionManager {
    */
   async destroySession(id: Str): Promise<void> {
     const session: PreviewSession | undefined = this.sessions.get(id);
+
     if (!session) {
       return;
     }

@@ -44,6 +44,7 @@
   const validated: PushNotificationPreviewProps = $derived.by(() => {
     const rawProps: PushNotificationPreviewProps = stripSvelteProps(allProps);
     const result = safeParse(PushNotificationPreviewPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

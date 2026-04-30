@@ -27,17 +27,20 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const kind: string = (node.kind as string) ?? '';
+
       if (kind === 'const') {
         return results;
       }
 
       const declarations = node.declarations as AstNode[] | undefined;
+
       if (!declarations) {
         return results;
       }
 
       for (const decl of declarations) {
         const init = decl.init as AstNode | undefined;
+
         if (!init) {
           continue;
         }

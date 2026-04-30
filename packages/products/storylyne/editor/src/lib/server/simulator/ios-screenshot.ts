@@ -54,6 +54,7 @@ export async function captureSimulatorScreenshot(udid: Str): Promise<Buffer> {
 
     /* Read the captured image into a Buffer */
     const buffer: Buffer = await readFile(tempPath);
+
     return buffer;
   } finally {
     /* Clean up temp file regardless of success/failure */

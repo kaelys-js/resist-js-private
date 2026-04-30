@@ -42,6 +42,7 @@
   const validated: TransferProps = $derived.by(() => {
     const rawProps: TransferProps = stripSvelteProps(allProps);
     const result = safeParse(TransferPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

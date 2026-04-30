@@ -42,6 +42,7 @@
   const validated: FootnoteProps = $derived.by(() => {
     const rawProps: FootnoteProps = stripSvelteProps(allProps);
     const result = safeParse(FootnotePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

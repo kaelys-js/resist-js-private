@@ -23,17 +23,20 @@ import type {
 function isResultType(node: AstNode): boolean {
   if (node.type === 'TSTypeReference') {
     const typeName = node.typeName as AstNode | undefined;
+
     if (!typeName) {
       return false;
     }
 
     const name: string = (typeName.name as string) ?? '';
+
     return name === 'Result' || name === 'Ok' || name === 'Err';
   }
 
   // Handle union types like Ok<T> | Err
   if (node.type === 'TSUnionType') {
     const types = node.types as AstNode[] | undefined;
+
     if (!types) {
       return false;
     }
@@ -42,6 +45,7 @@ function isResultType(node: AstNode): boolean {
       if (t.type === 'TSTypeReference') {
         const typeName = t.typeName as AstNode | undefined;
         const name: string = (typeName?.name as string) ?? '';
+
         return name === 'Ok' || name === 'Err';
       }
       return false;
@@ -63,27 +67,32 @@ function isPromiseOfResult(node: AstNode): boolean {
   }
 
   const typeName = node.typeName as AstNode | undefined;
+
   if (!typeName) {
     return false;
   }
 
   const name: string = (typeName.name as string) ?? '';
+
   if (name !== 'Promise') {
     return false;
   }
 
   // oxc-parser uses `typeArguments` (not `typeParameters`) for generic args
   const typeArgs = (node.typeArguments ?? node.typeParameters) as AstNode | undefined;
+
   if (!typeArgs) {
     return false;
   }
 
   const params = typeArgs.params as AstNode[] | undefined;
+
   if (!params || params.length === 0) {
     return false;
   }
 
   const firstParam = params[0] as AstNode; // cast safe: length checked above
+
   return isResultType(firstParam);
 }
 
@@ -109,11 +118,13 @@ function checkFunctionReturnType(
   funcName: string | undefined,
 ): LintResult | null {
   const returnType = node.returnType as AstNode | undefined;
+
   if (!returnType) {
     return null;
   }
 
   const typeAnnotation = returnType.typeAnnotation as AstNode | undefined;
+
   if (!typeAnnotation) {
     return null;
   }
@@ -129,6 +140,7 @@ function checkFunctionReturnType(
 
   // Check if void/Promise<void> — these don't need Result
   const typeText: string = context.content.slice(typeAnnotation.start, typeAnnotation.end);
+
   if (typeText === 'void' || typeText === 'Promise<void>') {
     return null;
   }
@@ -145,6 +157,7 @@ function checkFunctionReturnType(
 
   // Exempt boolean return types from pure predicate functions (is*, has*, can*, should*)
   const isPredicate: boolean = PREDICATE_PATTERNS.some((p: RegExp): boolean => p.test(name));
+
   if (isPredicate && (typeText === 'boolean' || typeText === 'Bool')) {
     return null;
   }
@@ -153,16 +166,20 @@ function checkFunctionReturnType(
   // But NOT if the function matches predicate patterns (is*, has*, etc.) —
   // predicates returning non-boolean should still be flagged.
   const body = node.body as AstNode | undefined;
+
   if (!isPredicate && body?.type === 'BlockStatement') {
     const statements = (body as AstNode).body as AstNode[] | undefined;
     const firstStatement = statements?.[0] as AstNode | undefined; // cast safe: optional access
+
     if (statements && statements.length === 1 && firstStatement?.type === 'ReturnStatement') {
       const returnArg = firstStatement.argument as AstNode | undefined;
+
       if (returnArg?.type === 'Identifier') {
         const params = node.params as AstNode[] | undefined;
         const paramNames: string[] = (params ?? [])
           .map((p: AstNode): string => (p.name as string) ?? '')
           .filter(Boolean);
+
         if (paramNames.includes(returnArg.name as string)) {
           return null; // Identity function — cannot fail
         }
@@ -175,6 +192,7 @@ function checkFunctionReturnType(
   // The comment can appear with a throw (error propagation) or standalone (pure factory).
   if (body?.type === 'BlockStatement') {
     const bodySource: string = context.content.slice(body.start, body.end);
+
     if (/\/\/.*integration boundary:\s*\S+/i.test(bodySource)) {
       return null;
     }
@@ -207,12 +225,14 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const declaration = node.declaration as AstNode | undefined;
+
       if (!declaration) {
         return results;
       }
 
       if (declaration.type === 'FunctionDeclaration') {
         const result: LintResult | null = checkFunctionReturnType(declaration, context, undefined);
+
         if (result) {
           results.push(result);
         }
@@ -220,18 +240,21 @@ const rule: TypeScriptRule = {
 
       if (declaration.type === 'VariableDeclaration') {
         const declarations = declaration.declarations as AstNode[] | undefined;
+
         if (!declarations) {
           return results;
         }
 
         for (const decl of declarations) {
           const init = decl.init as AstNode | undefined;
+
           if (
             init &&
             (init.type === 'ArrowFunctionExpression' || init.type === 'FunctionExpression')
           ) {
             const funcName: string = ((decl.id as AstNode)?.name as string) ?? '';
             const result: LintResult | null = checkFunctionReturnType(init, context, funcName);
+
             if (result) {
               results.push(result);
             }
@@ -249,11 +272,13 @@ const rule: TypeScriptRule = {
       const beforeFunc: string = context.content
         .slice(Math.max(0, node.start - 20), node.start)
         .trim();
+
       if (beforeFunc.endsWith('export') || beforeFunc.endsWith('default')) {
         return results;
       }
 
       const result: LintResult | null = checkFunctionReturnType(node, context, undefined);
+
       if (result) {
         results.push(result);
       }
@@ -264,6 +289,7 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const declaration = node.declaration as AstNode | undefined;
+
       if (!declaration) {
         return results;
       }
@@ -274,6 +300,7 @@ const rule: TypeScriptRule = {
         declaration.type === 'FunctionExpression'
       ) {
         const result: LintResult | null = checkFunctionReturnType(declaration, context, undefined);
+
         if (result) {
           results.push(result);
         }

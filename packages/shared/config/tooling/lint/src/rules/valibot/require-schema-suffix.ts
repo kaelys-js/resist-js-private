@@ -65,6 +65,7 @@ const rule: TypeScriptRule = {
       }
 
       const declarations = node.declarations as AstNode[] | undefined;
+
       if (!declarations) {
         return results;
       }
@@ -95,6 +96,7 @@ const rule: TypeScriptRule = {
         }
 
         const callee = init.callee as AstNode | undefined;
+
         if (!callee) {
           continue;
         }

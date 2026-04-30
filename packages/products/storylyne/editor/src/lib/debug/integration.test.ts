@@ -35,6 +35,7 @@ import type { DevtoolsConfig } from '@/utils/devtools/types';
 // Mock state-logger to avoid $effect in tests
 vi.mock('@/utils/devtools/state-logger.svelte', async () => {
   const mod = await import('@/utils/devtools/state-logger.svelte');
+
   return {
     LOG_LEVEL_PRIORITY: mod.LOG_LEVEL_PRIORITY,
     shouldLog: mod.shouldLog,

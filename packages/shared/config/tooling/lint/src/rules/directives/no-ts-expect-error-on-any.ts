@@ -46,8 +46,10 @@ const rule: TypeScriptRule = {
         if (!DIRECTIVE_PATTERN.test(comment.value)) {
           continue;
         }
+
         const lineNumber: number = offsetToLineNumber(comment.start, lineStarts);
         const nextLine: string = lines[lineNumber] ?? '';
+
         if (ANY_TYPE_PATTERN.test(nextLine)) {
           results.push({
             file: context.file,

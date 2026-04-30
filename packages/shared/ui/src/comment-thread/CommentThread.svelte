@@ -42,6 +42,7 @@
   const validated: CommentThreadProps = $derived.by(() => {
     const rawProps: CommentThreadProps = stripSvelteProps(allProps);
     const result = safeParse(CommentThreadPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

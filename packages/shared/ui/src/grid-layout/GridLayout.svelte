@@ -42,6 +42,7 @@
   const validated: GridLayoutProps = $derived.by(() => {
     const rawProps: GridLayoutProps = stripSvelteProps(allProps);
     const result = safeParse(GridLayoutPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

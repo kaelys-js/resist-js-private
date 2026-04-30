@@ -62,6 +62,7 @@ describe('app.html meta tags use placeholders', () => {
   it('does not contain hardcoded app name in meta content attributes', () => {
     // Meta content attributes should use placeholders, not hardcoded values
     const metaContents: RegExpMatchArray | null = appHtml.match(/<meta[^>]*content="([^"]+)"/g);
+
     if (metaContents) {
       for (const meta of metaContents) {
         // Skip viewport, color-scheme, robots, format-detection, mobile-web-app-capable, status-bar-style

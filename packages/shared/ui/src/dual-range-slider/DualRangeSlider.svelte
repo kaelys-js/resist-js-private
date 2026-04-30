@@ -42,6 +42,7 @@
   const validated: DualRangeSliderProps = $derived.by(() => {
     const rawProps: DualRangeSliderProps = stripSvelteProps(allProps);
     const result = safeParse(DualRangeSliderPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -25,6 +25,7 @@ vi.mock('node:child_process', (): Record<string, unknown> => {
   const module: Record<string, unknown> = {
     execFile: vi.fn(),
   };
+
   return { ...module, default: module };
 });
 

@@ -22,6 +22,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -53,6 +54,7 @@ const rule: WorkspaceRule = {
 
       try {
         const statResult: Awaited<ReturnType<typeof stat>> = await stat(file);
+
         if ((statResult.mode & 0o111) !== 0) {
           const relativePath: string = relative(ctx.rootDir, file);
           results.push(

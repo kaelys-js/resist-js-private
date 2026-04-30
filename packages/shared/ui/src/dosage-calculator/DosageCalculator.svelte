@@ -42,6 +42,7 @@
   const validated: DosageCalculatorProps = $derived.by(() => {
     const rawProps: DosageCalculatorProps = stripSvelteProps(allProps);
     const result = safeParse(DosageCalculatorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

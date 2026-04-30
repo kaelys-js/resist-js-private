@@ -30,6 +30,7 @@ export function transformMarkdownlintOutput(output: string, strings: LintStrings
 
   for (const line of output.split('\n')) {
     const match: RegExpMatchArray | null = MARKDOWNLINT_LINE.exec(line.trim());
+
     if (!match) {
       continue;
     }

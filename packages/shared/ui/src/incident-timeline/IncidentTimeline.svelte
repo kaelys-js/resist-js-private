@@ -42,6 +42,7 @@
   const validated: IncidentTimelineProps = $derived.by(() => {
     const rawProps: IncidentTimelineProps = stripSvelteProps(allProps);
     const result = safeParse(IncidentTimelinePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

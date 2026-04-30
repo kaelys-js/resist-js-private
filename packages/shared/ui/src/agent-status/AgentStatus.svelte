@@ -42,6 +42,7 @@
   const validated: AgentStatusProps = $derived.by(() => {
     const rawProps: AgentStatusProps = stripSvelteProps(allProps);
     const result = safeParse(AgentStatusPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

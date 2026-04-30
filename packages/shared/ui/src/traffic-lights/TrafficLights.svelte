@@ -42,6 +42,7 @@
   const validated: TrafficLightsProps = $derived.by(() => {
     const rawProps: TrafficLightsProps = stripSvelteProps(allProps);
     const result = safeParse(TrafficLightsPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

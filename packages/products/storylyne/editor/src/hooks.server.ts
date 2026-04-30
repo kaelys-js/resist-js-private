@@ -95,8 +95,10 @@ setupGlobalErrorHandling({
  */
 function extractSource(stack: Str): Str {
   const lines: Str[] = stack.split('\n');
+
   for (const line of lines) {
     const trimmed: Str = line.trim();
+
     if (!trimmed.startsWith('at ')) {
       continue;
     }
@@ -107,13 +109,16 @@ function extractSource(stack: Str): Str {
     if (trimmed.includes('packages/shared/')) {
       continue;
     }
+
     const match: RegExpMatchArray | null = trimmed.match(/\(?(\/[^)]+):(\d+):(\d+)\)?$/);
+
     if (match) {
       const [, fullPath, lineNo, colNo] = match;
       // Strip everything up to and including 'packages/' for a project-relative path
       const safeFullPath: Str = fullPath ?? '';
       const pkgIdx: Num = safeFullPath.indexOf('packages/');
       const relativePath: Str = pkgIdx >= 0 ? safeFullPath.slice(pkgIdx) : safeFullPath;
+
       return `${relativePath}:${lineNo}:${colNo}`;
     }
   }
@@ -129,6 +134,7 @@ function extractSource(stack: Str): Str {
 function collectCauseChain(root: AppError): Array<{ code: Str; message: Str }> {
   const chain: Array<{ code: Str; message: Str }> = [];
   let current: AppError | undefined = root.cause;
+
   while (current) {
     chain.push({ code: current.code, message: current.message });
     current = current.cause;
@@ -193,6 +199,7 @@ function logCapturedError(captured: CapturedError): Void {
  */
 function resolveAuth(url: URL): ServerUser | null {
   const authParam: Str | null = url.searchParams.get(`${URL_PARAM_PREFIX}auth`);
+
   if (authParam === 'false') {
     return null;
   }
@@ -248,10 +255,12 @@ export const handle: Handle = async ({ event, resolve }) => {
   // Priority: cookie > Accept-Language > 'en' default
   const cookieMatch = matchLocale(localeCookie, available);
   let locale: Str = 'en';
+
   if (cookieMatch.ok && cookieMatch.data !== null) {
     locale = cookieMatch.data;
   } else if (acceptLang) {
     const headerMatch = detectFromAcceptLanguage(acceptLang, available);
+
     if (headerMatch.ok && headerMatch.data !== null) {
       locale = headerMatch.data;
     }
@@ -285,11 +294,13 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   const dirResult = getTextDirection(locale);
   // UI boundary — log direction lookup failure, fall back to LTR
+
   if (!dirResult.ok) {
     log.warn(
       `Failed to resolve text direction for locale "${locale}" (${dirResult.error.code}), defaulting to ltr`,
     );
   }
+
   const dir: Str = dirResult.ok ? dirResult.data : 'ltr';
 
   const sidebarAttr: Str =
@@ -332,6 +343,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   const contentType: Str = response.headers.get('content-type') ?? '';
   const isHtml: Bool = contentType.includes('text/html');
   const isImmutable: Bool = event.url.pathname.startsWith('/_app/immutable/');
+
   if (isHtml && !isImmutable) {
     response.headers.set('Cache-Control', 'private, no-cache');
   }
@@ -368,6 +380,7 @@ export const handleError: HandleServerError = ({ error, event, status, message }
   // If the extracted error is a generic INTERNAL.UNEXPECTED, wrap it with request context.
   // Otherwise it's already a domain-specific AppError — use it directly.
   let appError: AppError;
+
   if (extracted.code === ERRORS.INTERNAL.UNEXPECTED) {
     const result = err(
       ERRORS.INTERNAL.UNEXPECTED,
@@ -389,6 +402,7 @@ export const handleError: HandleServerError = ({ error, event, status, message }
       },
     );
     // err() always returns ok:false — narrow for type safety.
+
     if (result.ok) {
       return { message, errorId: '' };
     }

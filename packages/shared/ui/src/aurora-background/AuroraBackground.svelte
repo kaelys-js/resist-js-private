@@ -43,6 +43,7 @@
   const validated: AuroraBackgroundProps = $derived.by(() => {
     const rawProps: AuroraBackgroundProps = stripSvelteProps(allProps);
     const result = safeParse(AuroraBackgroundPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

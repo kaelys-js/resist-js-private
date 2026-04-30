@@ -21,6 +21,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -46,11 +47,13 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
+
       if (name !== 'tsconfig.json' && !/^tsconfig\..+\.json$/.test(name)) {
         continue;
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -58,6 +61,7 @@ const rule: WorkspaceRule = {
       }
 
       let parsed: Record<string, unknown>;
+
       try {
         parsed = JSON.parse(content) as Record<string, unknown>;
       } catch {
@@ -67,6 +71,7 @@ const rule: WorkspaceRule = {
       const compilerOptions: Record<string, unknown> | undefined = parsed['compilerOptions'] as
         | Record<string, unknown>
         | undefined;
+
       if (!compilerOptions) {
         continue;
       }
@@ -74,6 +79,7 @@ const rule: WorkspaceRule = {
       const paths: Record<string, string[]> | undefined = compilerOptions['paths'] as
         | Record<string, string[]>
         | undefined;
+
       if (!paths) {
         continue;
       }
@@ -91,6 +97,7 @@ const rule: WorkspaceRule = {
         const resolved: string = join(tsconfigDir, stripped);
 
         const exists: boolean = await ctx.fileExists(resolved);
+
         if (!exists) {
           results.push(
             createResult(

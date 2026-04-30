@@ -42,6 +42,7 @@
   const validated: AgeVerificationProps = $derived.by(() => {
     const rawProps: AgeVerificationProps = stripSvelteProps(allProps);
     const result = safeParse(AgeVerificationPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

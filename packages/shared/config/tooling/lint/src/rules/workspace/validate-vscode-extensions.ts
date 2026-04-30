@@ -53,6 +53,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -81,6 +82,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const rel: string = relative(ctx.rootDir, filePath);
+
       if (rel === '.vscode/extensions.json') {
         extensionsPath = filePath;
         break;
@@ -107,6 +109,7 @@ const rule: WorkspaceRule = {
     /* Parse JSON. */
     const content: string = await ctx.readFile(extensionsPath);
     let parsed: Record<string, unknown>;
+
     try {
       parsed = JSON.parse(content) as Record<string, unknown>;
     } catch {

@@ -42,6 +42,7 @@
   const validated: LikeButtonProps = $derived.by(() => {
     const rawProps: LikeButtonProps = stripSvelteProps(allProps);
     const result = safeParse(LikeButtonPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

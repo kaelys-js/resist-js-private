@@ -42,6 +42,7 @@
   const validated: DateRangeFieldProps = $derived.by(() => {
     const rawProps: DateRangeFieldProps = stripSvelteProps(allProps);
     const result = safeParse(DateRangeFieldPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

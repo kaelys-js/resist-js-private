@@ -42,6 +42,7 @@
   const validated: InAppMessageProps = $derived.by(() => {
     const rawProps: InAppMessageProps = stripSvelteProps(allProps);
     const result = safeParse(InAppMessagePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -43,6 +43,7 @@
   const validated: BottomNavigationProps = $derived.by(() => {
     const rawProps: BottomNavigationProps = stripSvelteProps(allProps);
     const result = safeParse(BottomNavigationPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

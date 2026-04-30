@@ -195,11 +195,13 @@
   $effect(() => {
     // Subscribe to `name` so this re-runs on navigation
     const _n: Str = name;
+
     if (!_n) {
       return;
     }
     try {
       const stored: Str | null = localStorage.getItem(storageKey('lens-pinned'));
+
       if (stored) {
         const pinned: Str[] = JSON.parse(stored) as Str[];
         isPinned = pinned.includes(_n) as Bool;
@@ -221,6 +223,7 @@
     function onPinChanged(e: Event): Void {
       const detail = (e as CustomEvent).detail as { name: Str; pinned: Bool };
       const currentName: Str = untrack(() => name);
+
       if (detail.name === currentName) {
         isPinned = detail.pinned;
       }
@@ -249,11 +252,13 @@
   // Read initial watch state from localStorage
   $effect(() => {
     const _n: Str = name;
+
     if (!_n) {
       return;
     }
     try {
       const stored: Str | null = localStorage.getItem(storageKey('lens-watched'));
+
       if (stored) {
         const watched: Str[] = JSON.parse(stored) as Str[];
         isWatched = watched.includes(_n) as Bool;
@@ -275,6 +280,7 @@
     function onWatchChanged(e: Event): Void {
       const detail = (e as CustomEvent).detail as { name: Str; watched: Bool };
       const currentName: Str = untrack(() => name);
+
       if (detail.name === currentName) {
         isWatched = detail.watched;
       }
@@ -304,12 +310,14 @@
   /** Previous component in the sorted list (null if first). */
   const prevComponent: Str | null = $derived.by((): Str | null => {
     const idx: number = componentNames.indexOf(name);
+
     return idx > 0 ? (componentNames[idx - 1] ?? null) : null;
   });
 
   /** Next component in the sorted list (null if last). */
   const nextComponent: Str | null = $derived.by((): Str | null => {
     const idx: number = componentNames.indexOf(name);
+
     return idx >= 0 && idx < componentNames.length - 1 ? (componentNames[idx + 1] ?? null) : null;
   });
 
@@ -345,6 +353,7 @@
     if (loading || !rawSource) {
       return null;
     }
+
     const currentName: Str = name;
     const hasLensTs: boolean = Object.keys(lensModules).some(
       (k: Str): boolean => extractDir(k) === currentName,
@@ -354,10 +363,12 @@
     );
     const existingFiles: Str[] = exampleFileKeys.map((k: Str): Str => {
       const parts: Str[] = k.split('/');
+
       return parts.at(-1) ?? '';
     });
     const declaredNames: Str[] = lensExamples.map((ex: LensExample): Str => ex.name);
     const usesTv: boolean = /\btv\s*\(\s*\{/.test(rawSource);
+
     return computeLensCompatibility({
       dir: currentName,
       source: rawSource,
@@ -424,6 +435,7 @@
       ? changelog
       : changelog.filter((e: ChangelogEntry): boolean => {
           const q: Str = changelogSearchQuery.toLowerCase() as Str;
+
           return (
             e.hash.toLowerCase().includes(q) ||
             e.message.toLowerCase().includes(q) ||
@@ -446,6 +458,7 @@
    */
   function relativeDate(dateStr: Str): Str {
     const delta: Num = (Date.now() - new Date(dateStr as string).getTime()) as Num;
+
     if (delta < 60_000) {
       return 'just now' as Str;
     }
@@ -471,6 +484,7 @@
    */
   function toggleChangelogRow(hash: Str): Void {
     const next: Set<Str> = new Set(selectedChangelogRows);
+
     if (next.has(hash)) {
       next.delete(hash);
     } else {
@@ -486,6 +500,7 @@
    */
   function toggleChangelogExpand(hash: Str): Void {
     const next: Set<Str> = new Set(expandedChangelogRows);
+
     if (next.has(hash)) {
       next.delete(hash);
     } else {
@@ -510,6 +525,7 @@
     (async (): Promise<void> => {
       try {
         const response: Response = await fetch(`/api/lens/changelog/${name}`);
+
         if (response.ok) {
           const data: unknown = await response.json();
           const body: {
@@ -552,8 +568,10 @@
     const lines: Str[] = entries.map((e: ChangelogEntry): Str => {
       const base: Str =
         `${e.hash} ${e.message} (${e.author}, ${new Date(e.date).toLocaleString()})` as Str;
+
       return e.body ? (`${base}\n${e.body}` as Str) : base;
     });
+
     try {
       await navigator.clipboard.writeText(lines.join('\n'));
       changelogCopyFeedback = true;
@@ -571,9 +589,11 @@
       showSkeleton = false;
       return;
     }
+
     const timer: ReturnType<typeof setTimeout> = setTimeout(() => {
       showSkeleton = true;
     }, 300);
+
     return () => clearTimeout(timer);
   });
 
@@ -606,6 +626,7 @@
       try {
         // 1. Load raw source for prop/variant extraction
         const sourceKey: Str | undefined = findPrimaryKey(currentName, rawSources);
+
         if (!sourceKey) {
           if (!cancelled) {
             loadError = `No source found for "${currentName}"`;
@@ -634,10 +655,12 @@
 
         if (compKey) {
           const mod: unknown = await componentModules[compKey]?.();
+
           if (cancelled) {
             return;
           }
           // Glob modules export { default: Component } — cast from unknown
+
           const m = mod as Record<Str, unknown>;
           PrimaryComponent = m.default as Component;
         }
@@ -646,19 +669,24 @@
         const lensKey: Str | undefined = Object.keys(lensModules).find(
           (k: Str): boolean => extractDir(k) === currentName,
         );
+
         if (lensKey) {
           const lensMod: unknown = await lensModules[lensKey]?.();
+
           if (cancelled) {
             return;
           }
+
           const lm = lensMod as Record<Str, unknown>;
           const examples: unknown = lm.default ?? lm.examples ?? [];
+
           if (Array.isArray(examples)) {
             lensExamples = examples as LensExample[];
           }
           // Validate component meta against LensMetaSchema
           if (lm.meta) {
             const metaResult: Result<LensMeta> = parseLensMeta(lm.meta);
+
             if (metaResult.ok) {
               // Spread to unfreeze — Result.data is deep-frozen but $state needs mutable shape
               lensMeta = {
@@ -695,16 +723,21 @@
             Object.keys(componentModules).find(
               (k: Str): boolean => extractDir(k) === childName && !isInternalFile(k),
             );
+
           if (childCompKey) {
             const childMod: unknown = await componentModules[childCompKey]?.();
+
             if (cancelled) {
               return;
             }
+
             const cm = childMod as Record<Str, unknown>;
             childComponent = cm.default as Component;
           }
           // Load child component raw source for prop extraction
+
           const childSourceKey: Str | undefined = findPrimaryKey(childName, rawSources);
+
           if (childSourceKey) {
             const childSrc: Str = rawSources[childSourceKey] ?? '';
             const childTsSources: Str[] = Object.values(rawTsSources);
@@ -728,9 +761,11 @@
             const stem: Str = extractStem(k);
 
             const mod: unknown = await exampleLiveModules[k]?.();
+
             if (cancelled) {
               return;
             }
+
             const m = mod as Record<Str, unknown>;
             newComponents.set(stem, m.default as Component);
 
@@ -738,8 +773,10 @@
             const rawKey: Str | undefined = Object.keys(exampleRawModules).find(
               (rk: Str): boolean => rk.includes(`/${currentName}/examples/${stem}.svelte`),
             );
+
             if (rawKey) {
               const rawStr: Str = exampleRawModules[rawKey] ?? '';
+
               if (rawStr) {
                 newSources.set(stem, rawStr);
               }
@@ -781,6 +818,7 @@
 
     // Build a lookup of @requires from props-based variants (TV variants don't parse @requires).
     const propsRequires: Map<Str, VariantKeyMeta['requires']> = new Map();
+
     for (const pk of propsKeys) {
       if (pk.requires && pk.requires.length > 0) {
         propsRequires.set(pk.key, pk.requires);
@@ -794,6 +832,7 @@
           ? { ...tv, requires: propsRequires.get(tv.key) }
           : tv,
     );
+
     for (const pk of propsKeys) {
       if (!tvKeyNames.has(pk.key)) {
         merged.push(pk);
@@ -838,9 +877,11 @@
     if (!name) {
       return null;
     }
+
     const key: Str | undefined = Object.keys(docsModules).find(
       (k: Str): boolean => extractDir(k) === name,
     );
+
     return key ? (docsModules[key] ?? null) : null;
   });
 
@@ -862,6 +903,7 @@
   const componentSizes: Record<Str, { source: Num; compiled?: Num; gzip?: Num }> = $derived.by(
     () => {
       const result: Record<Str, { source: Num; compiled?: Num; gzip?: Num }> = {};
+
       for (const [dir, source] of Object.entries(sourceSizes)) {
         const bundle = bundleSizes[dir];
         result[dir] = {
@@ -880,11 +922,13 @@
     (async (): Promise<void> => {
       try {
         const response: Response = await fetch('/api/lens/bundle-sizes');
+
         if (cancelled) {
           return;
         }
         if (response.ok) {
           const data: unknown = await response.json();
+
           if (cancelled) {
             return;
           }
@@ -903,9 +947,11 @@
   // Fetch changelog from server API (non-blocking, populates async)
   $effect(() => {
     const currentName: Str = name;
+
     if (!currentName) {
       return;
     }
+
     let cancelled: Bool = false;
     changelog = [];
     changelogTotal = 0 as Num;
@@ -921,15 +967,18 @@
     (async (): Promise<void> => {
       try {
         const response: Response = await fetch(`/api/lens/changelog/${currentName}`);
+
         if (cancelled) {
           return;
         }
         if (response.ok) {
           const data: unknown = await response.json();
+
           if (cancelled) {
             return;
           }
           // Server returns { entries, total, repoUrl, componentPath, diffAnchor }
+
           const body: {
             entries: ChangelogEntry[];
             total: Num;
@@ -1022,6 +1071,7 @@
    */
   function toggleVariantCard(key: Str): Void {
     const next: Set<Str> = new Set(collapsedVariants);
+
     if (next.has(key)) {
       next.delete(key);
     } else {
@@ -1058,6 +1108,7 @@
       const allLiterals: Bool = options.every(
         (o: Str): boolean => o.startsWith("'") || o === 'undefined' || o === 'null',
       );
+
       if (allLiterals) {
         return options
           .filter((o: Str): boolean => o !== 'undefined' && o !== 'null')
@@ -1071,6 +1122,7 @@
       const allLiterals: Bool = options.every(
         (o: Str): boolean => o.startsWith("'") || o === 'undefined' || o === 'null',
       );
+
       if (allLiterals) {
         return options
           .filter((o: Str): boolean => o !== 'undefined' && o !== 'null')
@@ -1147,6 +1199,7 @@
       filtered = filtered.toSorted((a, b) => {
         const aReq: Bool = !a.optional && !a.default;
         const bReq: Bool = !b.optional && !b.default;
+
         if (aReq && !bReq) {
           return -1;
         }
@@ -1159,6 +1212,7 @@
       filtered = filtered.toSorted((a, b) => {
         const aReq: Bool = !a.optional && !a.default;
         const bReq: Bool = !b.optional && !b.default;
+
         if (aReq && !bReq) {
           return 1;
         }
@@ -1179,6 +1233,7 @@
       filtered = filtered.toSorted((a, b) => {
         const aHas: Bool = Boolean(a.default);
         const bHas: Bool = Boolean(b.default);
+
         if (aHas && !bHas) {
           return -1;
         }
@@ -1191,6 +1246,7 @@
       filtered = filtered.toSorted((a, b) => {
         const aHas: Bool = Boolean(a.default);
         const bHas: Bool = Boolean(b.default);
+
         if (aHas && !bHas) {
           return 1;
         }
@@ -1375,6 +1431,7 @@
       ? PROPS_EXPORT_ITEMS
       : PROPS_EXPORT_ITEMS.filter((p) => {
           const q: Str = propsExportSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q) ||
             p.description.toLowerCase().includes(q) ||
@@ -1402,6 +1459,7 @@
       '|------|----------|------|---------|-------------|',
       ...propsData.map((p): Str => {
         let required: Str = 'Yes';
+
         if (p.optional) {
           required = 'No';
         } else if (p.default) {
@@ -1410,6 +1468,7 @@
         return `| ${p.name} | ${required} | ${p.type || '—'} | ${p.default || '—'} | ${p.description || '—'} |`;
       }),
     ];
+
     return lines.join('\n');
   }
 
@@ -1423,16 +1482,20 @@
     const header: Str = 'Name,Required,Type,Default,Description';
     const rows: Str[] = propsData.map((p): Str => {
       let required: Str = 'Yes';
+
       if (p.optional) {
         required = 'No';
       } else if (p.default) {
         required = 'No';
       }
+
       const desc: Str = (p.description || '').replaceAll('"', '""');
       const type: Str = (p.type || '').replaceAll('"', '""');
       const def: Str = (p.default || '').replaceAll('"', '""');
+
       return `${p.name},${required},"${type}","${def}","${desc}"`;
     });
+
     return [header, ...rows].join('\n');
   }
 
@@ -1449,10 +1512,12 @@
         const opt: Str = p.optional ? '?' : '';
         const type: Str = p.type || 'unknown';
         const comment: Str = p.description ? ` /** ${p.description} */` : '';
+
         return `${comment}\n  ${p.name}${opt}: ${type};`;
       }),
       '}',
     ];
+
     return lines.join('\n');
   }
 
@@ -1465,6 +1530,7 @@
   function propsToHtml(propsData: typeof props): Str {
     const rows: Str[] = propsData.map((p): Str => {
       let required: Str = 'Yes';
+
       if (p.optional) {
         required = 'No';
       } else if (p.default) {
@@ -1472,6 +1538,7 @@
       }
       return `<tr><td>${p.name}</td><td>${required}</td><td>${p.type || '—'}</td><td>${p.default || '—'}</td><td>${p.description || '—'}</td></tr>`;
     });
+
     return `<table>\n<thead><tr><th>Name</th><th>Required</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>\n<tbody>\n${rows.join('\n')}\n</tbody>\n</table>`;
   }
 
@@ -1494,12 +1561,14 @@
       };
       let schema: Str = typeMap[p.type] ?? `v.unknown() /* ${p.type || 'untyped'} */`;
       // Handle union types
+
       if (p.type?.includes(' | ')) {
         const members: Str[] = p.type
           .split(' | ')
           .map((m: Str): Str => m.trim())
           .filter((m: Str): boolean => m !== 'undefined' && m !== 'null');
         const allLiterals: Bool = members.every((m: Str): boolean => m.startsWith("'"));
+
         if (allLiterals) {
           schema = `v.picklist([${members.join(', ')}])`;
         }
@@ -1510,6 +1579,7 @@
       return `${comment}  ${p.name}: ${schema},`;
     });
     const typeName: Str = name.replaceAll(/[^a-zA-Z0-9]/g, '');
+
     return `import * as v from 'valibot';\n\nexport const ${typeName}PropsSchema = v.strictObject({\n${fields.join('\n')}\n});\n\nexport type ${typeName}Props = v.InferOutput<typeof ${typeName}PropsSchema>;`;
   }
 
@@ -1520,6 +1590,7 @@
    */
   async function handlePropsExport(formatId: Str): Promise<void> {
     const slug: Str = name.toLowerCase().replaceAll(/\s+/g, '-');
+
     if (formatId === 'copy-json') {
       await navigator.clipboard.writeText(JSON.stringify(props, null, 2));
     } else if (formatId === 'copy-markdown') {
@@ -1625,6 +1696,7 @@
       ? CHANGELOG_EXPORT_ITEMS
       : CHANGELOG_EXPORT_ITEMS.filter((p) => {
           const q: Str = changelogExportSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q) ||
             p.description.toLowerCase().includes(q) ||
@@ -1646,6 +1718,7 @@
    */
   function changelogToMarkdown(entries: ChangelogEntry[]): Str {
     const lines: Str[] = [`# Changelog — ${name}`, ''];
+
     for (const e of entries) {
       lines.push(
         `- **\`${e.hash}\`** ${e.message} — *${e.author}* (${new Date(e.date).toLocaleString()})`,
@@ -1674,8 +1747,10 @@
       const msg: Str = e.message.replaceAll('"', '""');
       const body: Str = e.body.replaceAll('"', '""');
       const author: Str = e.author.replaceAll('"', '""');
+
       return `${e.hash},"${msg}","${body}",${new Date(e.date).toLocaleString()},"${author}"`;
     });
+
     return [header, ...rows].join('\n');
   }
 
@@ -1686,6 +1761,7 @@
    */
   async function handleChangelogExport(formatId: Str): Promise<void> {
     const slug: Str = name.toLowerCase().replaceAll(/\s+/g, '-');
+
     if (formatId === 'copy-json') {
       await navigator.clipboard.writeText(JSON.stringify(changelog, null, 2));
     } else if (formatId === 'copy-markdown') {
@@ -1738,8 +1814,10 @@
     if (!name) {
       return [];
     }
+
     const files: RelatedFile[] = [];
     /* Co-located .ts files */
+
     for (const [key, src] of Object.entries(rawTsSources)) {
       if (extractDir(key) === name && src) {
         files.push({
@@ -1769,9 +1847,11 @@
     if (!activeSourceFile) {
       return rawSource;
     }
+
     const found: RelatedFile | undefined = relatedFiles.find(
       (f: RelatedFile): boolean => f.key === activeSourceFile,
     );
+
     return found?.source ?? rawSource;
   });
 
@@ -1780,9 +1860,11 @@
     if (!activeSourceFile) {
       return 'svelte' as Str;
     }
+
     const found: RelatedFile | undefined = relatedFiles.find(
       (f: RelatedFile): boolean => f.key === activeSourceFile,
     );
+
     return found?.lang ?? 'svelte';
   });
 
@@ -1791,9 +1873,11 @@
     if (!activeSourceFile) {
       return `${toTitle(name)}.svelte` as Str;
     }
+
     const found: RelatedFile | undefined = relatedFiles.find(
       (f: RelatedFile): boolean => f.key === activeSourceFile,
     );
+
     return found?.label ?? `${toTitle(name)}.svelte`;
   });
 
@@ -1808,6 +1892,7 @@
   async function handleSourceExport(action: Str): Promise<void> {
     const src: Str = activeFileSource;
     const label: Str = activeFileLabel;
+
     try {
       if (action === 'copy-source') {
         await navigator.clipboard.writeText(src);
@@ -1852,8 +1937,10 @@
    */
   async function handleDepsExport(action: Str): Promise<void> {
     let text: Str = '' as Str;
+
     if (action === 'copy-imports') {
       const lines: Str[] = [];
+
       for (const dep of [...deps.internal, ...deps.workspace, ...deps.external]) {
         if (dep.kind === 'namespace') {
           lines.push(`import * as ${dep.names[0] ?? dep.path} from '${dep.path}';` as Str);
@@ -1992,6 +2079,7 @@
       const test: ErrorBoundaryTest | undefined = errorBoundaryTests.find(
         (t: ErrorBoundaryTest): boolean => t.id === testId,
       );
+
       if (test) {
         test.passed = true;
         test.errorMessage = (error instanceof Error ? error.message : String(error)) as Str;
@@ -2045,6 +2133,7 @@
     const test: ErrorBoundaryTest | undefined = errorBoundaryTests.find(
       (t: ErrorBoundaryTest): boolean => t.id === testId,
     );
+
     if (test) {
       test.expanded = !test.expanded;
     }
@@ -2061,12 +2150,14 @@
     }
     try {
       const parsed: unknown = JSON.parse(customErrorPropsJson);
+
       if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
         customJsonError = 'Must be a JSON object (e.g., { "label": "test" })' as Str;
         customParsedProps = [];
         return;
       }
       /* Convert JSON object entries to PropMeta array for LensComponentRenderer */
+
       const entries: Array<[Str, unknown]> = Object.entries(parsed) as Array<[Str, unknown]>;
       customParsedProps = entries.map(
         ([key, val]: [Str, unknown]): PropMeta => ({
@@ -2173,10 +2264,13 @@
     if (!docsContent) {
       return [];
     }
+
     const headings: DocHeading[] = [];
     const lines: Str[] = docsContent.split('\n') as Str[];
+
     for (const line of lines) {
       const match: RegExpMatchArray | null = line.match(/^(#{2,3})\s+(.+)$/);
+
       if (match) {
         const level: Num = (match[1]?.length ?? 2) as Num;
         const text: Str = (match[2] ?? '') as Str;
@@ -2195,8 +2289,10 @@
     if (!docsContent) {
       return 0 as Num;
     }
+
     const wordCount: Num = docsContent.split(/\s+/).length as Num;
     /* Average reading speed: ~200 words per minute */
+
     return Math.max(1, Math.ceil((wordCount as number) / 200)) as Num;
   });
 
@@ -2223,6 +2319,7 @@
         .toLowerCase()
         .replaceAll(/[^\w\s-]/g, '')
         .replaceAll(/\s+/g, '-') as Str;
+
       return `<h3 id="${slug}" class="mt-6 mb-2 scroll-mt-60 text-base font-semibold">${text}</h3>`;
     }) as Str;
     html = html.replaceAll(/^## (.+)$/gm, (_, text: Str): Str => {
@@ -2230,6 +2327,7 @@
         .toLowerCase()
         .replaceAll(/[^\w\s-]/g, '')
         .replaceAll(/\s+/g, '-') as Str;
+
       return `<h2 id="${slug}" class="mt-8 mb-3 scroll-mt-60 text-lg font-semibold">${text}</h2>`;
     }) as Str;
     html = html.replaceAll(/^# (.+)$/gm, (_, text: Str): Str => {
@@ -2237,6 +2335,7 @@
         .toLowerCase()
         .replaceAll(/[^\w\s-]/g, '')
         .replaceAll(/\s+/g, '-') as Str;
+
       return `<h1 id="${slug}" class="mt-0 mb-4 scroll-mt-60 text-2xl font-bold">${text}</h1>`;
     }) as Str;
     /* Tables — must come before inline formatting to avoid mangling pipe chars */
@@ -2262,9 +2361,11 @@
               .filter((c: Str): boolean => c.length > 0)
               .map((c: Str): Str => `<td class="border border-border px-3 py-2 text-xs">${c}</td>`)
               .join('') as Str;
+
             return `<tr class="even:bg-muted/30">${cellHtml}</tr>`;
           })
           .join('') as Str;
+
         return `<div class="my-4 overflow-x-auto rounded-lg border border-border"><table class="w-full border-collapse text-sm"><thead class="bg-muted/50"><tr>${headerCells}</tr></thead><tbody>${bodyHtml}</tbody></table></div>`;
       },
     ) as Str;
@@ -2274,6 +2375,7 @@
         .replaceAll('&', '&amp;')
         .replaceAll('<', '&lt;')
         .replaceAll('>', '&gt;') as Str;
+
       return `<code class="rounded bg-muted px-1.5 py-0.5 font-mono text-[13px] break-words">${escaped}</code>`;
     }) as Str;
     /* Bold */
@@ -2297,6 +2399,7 @@
             `<li class="ml-4 list-decimal text-sm leading-relaxed">${line.replace(/^\d+\. /, '')}</li>`,
         )
         .join('') as Str;
+
       return `<ol class="my-3 space-y-1">${items}</ol>`;
     }) as Str;
     /* Unordered lists: consecutive `- ` lines become a <ul> */
@@ -2309,6 +2412,7 @@
             `<li class="ml-4 list-disc text-sm leading-relaxed">${line.replace(/^- /, '')}</li>`,
         )
         .join('') as Str;
+
       return `<ul class="my-3 space-y-1">${items}</ul>`;
     }) as Str;
     /* Paragraphs — wrap non-HTML, non-empty lines */
@@ -2328,13 +2432,16 @@
     if (!docsContent) {
       return [];
     }
+
     const segments: DocSegment[] = [];
     const fenceRegex: RegExp = /```(\w+)?\n([\s\S]*?)```/g;
     let lastIndex: Num = 0 as Num;
     let match: RegExpExecArray | null = fenceRegex.exec(docsContent);
+
     while (match !== null) {
       /* Text before this code fence */
       const textBefore: Str = docsContent.slice(lastIndex as number, match.index) as Str;
+
       if (textBefore.trim()) {
         segments.push({ type: 'text' as const, html: renderMarkdown(textBefore) });
       }
@@ -2348,7 +2455,9 @@
       match = fenceRegex.exec(docsContent);
     }
     /* Remaining text after last code fence */
+
     const remaining: Str = docsContent.slice(lastIndex as number) as Str;
+
     if (remaining.trim()) {
       segments.push({ type: 'text' as const, html: renderMarkdown(remaining) });
     }
@@ -2456,6 +2565,7 @@
       '',
     ] as Str[];
     const template: Str = lines.join('\n') as Str;
+
     try {
       await navigator.clipboard.writeText(template);
     } catch {
@@ -2525,6 +2635,7 @@
     if (props.length > 0) {
       const propsRows: Str[] = props.map((p): Str => {
         let required: Str = 'Yes';
+
         if (p.optional) {
           required = 'No';
         } else if (p.default) {
@@ -2628,6 +2739,7 @@
     async function scrollToAndHighlight(id: Str): Promise<void> {
       // Open the parent section if collapsed — map prefixed IDs to their section
       let sectionId: Str = id;
+
       if (id.startsWith('prop-')) {
         sectionId = 'props' as Str;
       } else if (id.startsWith('variant-')) {
@@ -2640,6 +2752,7 @@
       }
       await tick();
       const el: HTMLElement | null = document.querySelector(`#${CSS.escape(id)}`);
+
       if (!el) {
         return;
       }
@@ -2945,6 +3058,7 @@
             <TriangleAlert class="mt-0.5 size-4 shrink-0 text-amber-500" />
             <div class="min-w-0 flex-1">
               <p class="text-sm font-medium text-amber-600 dark:text-amber-400">
+
                 Deprecated dependenc{deprecatedDeps.length === 1 ? 'y' : 'ies'}
               </p>
               <p class="mt-0.5 text-xs text-muted-foreground">
@@ -4637,6 +4751,7 @@
                 {/if}
               </div>
             {/if}
+
           </section>
 
           <!-- ═══ Dependencies ═══ -->
@@ -5256,3 +5371,5 @@
     </div>
   {/if}
 </div>
+
+

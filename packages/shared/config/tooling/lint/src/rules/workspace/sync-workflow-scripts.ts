@@ -65,6 +65,7 @@ function extractWorkflowPnpmScripts(content: string): Array<{ script: string; li
 
     /* Match run: fields in YAML */
     const runMatch: RegExpMatchArray | null = line.match(/^\s*-?\s*run:\s*(.+)$/);
+
     if (!runMatch) {
       continue;
     }
@@ -79,6 +80,7 @@ function extractWorkflowPnpmScripts(content: string): Array<{ script: string; li
     while (pnpmMatch) {
       const script: string = pnpmMatch[1] ?? '';
       /* Skip flags, built-in commands, and empty strings */
+
       if (script.length > 0 && !script.startsWith('-') && !PNPM_BUILTINS.has(script)) {
         results.push({ script, line: i + 1 });
       }
@@ -120,11 +122,13 @@ const rule: WorkspaceRule = {
 
     /* Read package.json scripts */
     const pkgPath: string = join(ctx.rootDir, 'package.json');
+
     if (!(await ctx.fileExists(pkgPath))) {
       return results;
     }
 
     let pkg: Record<string, unknown>;
+
     try {
       pkg = JSON.parse(await ctx.readFile(pkgPath)) as Record<string, unknown>;
     } catch {
@@ -148,6 +152,7 @@ const rule: WorkspaceRule = {
     await Promise.all(
       workflowFiles.map(async (workflowFile: string): Promise<void> => {
         let content: string;
+
         try {
           content = await ctx.readFile(workflowFile);
         } catch {

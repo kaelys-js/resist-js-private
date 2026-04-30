@@ -40,6 +40,7 @@ test.describe('icon assets — HTTP responses', () => {
     test(`${asset.path} has correct Content-Type`, async ({ request }) => {
       const response = await request.get(asset.path);
       const contentType = response.headers()['content-type'] ?? '';
+
       if (asset.path.endsWith('.ico')) {
         // .ico MIME type varies by server — accept known types or empty
         // (Vite preview with adapter-cloudflare omits Content-Type for .ico)

@@ -144,6 +144,7 @@ export function extractTokens(cssSource: Str): ThemeTokenSet[] {
 
   // Match :root { ... }
   const rootMatch: RegExpExecArray | null = /:root\s*\{([^}]+)\}/s.exec(cssSource);
+
   if (rootMatch) {
     sets.push({
       selector: ':root',
@@ -154,6 +155,7 @@ export function extractTokens(cssSource: Str): ThemeTokenSet[] {
 
   // Match .dark { ... } (base dark, not theme-specific)
   const darkMatch: RegExpExecArray | null = /\.dark\s*\{([^}]+)\}/s.exec(cssSource);
+
   if (darkMatch) {
     sets.push({
       selector: '.dark',
@@ -165,6 +167,7 @@ export function extractTokens(cssSource: Str): ThemeTokenSet[] {
   // Match [data-theme='name'] { ... } and [data-theme='name'].dark { ... }
   const themeRegex: RegExp = /\[data-theme='([^']+)'\](\.dark)?\s*\{([^}]+)\}/g;
   let themeMatch: RegExpExecArray | null = themeRegex.exec(cssSource);
+
   while (themeMatch !== null) {
     const themeName: Str = themeMatch[1] ?? '';
     const isDark: boolean = themeMatch[2] === '.dark';
@@ -225,9 +228,11 @@ export function groupTokens(tokens: DesignToken[]): TokenGroup[] {
  */
 export function getThemeNames(sets: ThemeTokenSet[]): Str[] {
   const names: Set<Str> = new Set();
+
   for (const s of sets) {
     // Extract theme name from selectors like 'midnight', 'midnight.dark'
     const baseName: Str = s.selector.replace('.dark', '').trim();
+
     if (baseName !== ':root' && baseName !== '' && baseName !== '.dark') {
       names.add(baseName);
     }

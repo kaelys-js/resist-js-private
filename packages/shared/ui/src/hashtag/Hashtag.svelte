@@ -42,6 +42,7 @@
   const validated: HashtagProps = $derived.by(() => {
     const rawProps: HashtagProps = stripSvelteProps(allProps);
     const result = safeParse(HashtagPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

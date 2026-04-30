@@ -27,15 +27,19 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const { callee } = node;
+
       if (callee === null || typeof callee !== 'object') {
         return results;
       }
+
       const calleeNode = callee as AstNode;
+
       if (calleeNode.type !== 'Identifier' || (calleeNode.name as string) !== 'Date') {
         return results;
       }
 
       const args = node.arguments as AstNode[] | undefined;
+
       if (!args || args.length === 0) {
         return results;
       }

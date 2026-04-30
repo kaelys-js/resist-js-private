@@ -42,6 +42,7 @@
   const validated: MessageBubbleProps = $derived.by(() => {
     const rawProps: MessageBubbleProps = stripSvelteProps(allProps);
     const result = safeParse(MessageBubblePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

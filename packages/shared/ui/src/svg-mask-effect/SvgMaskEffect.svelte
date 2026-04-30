@@ -42,6 +42,7 @@
   const validated: SvgMaskEffectProps = $derived.by(() => {
     const rawProps: SvgMaskEffectProps = stripSvelteProps(allProps);
     const result = safeParse(SvgMaskEffectPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

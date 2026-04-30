@@ -38,9 +38,11 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const calleeRaw: unknown = node.callee;
+
       if (calleeRaw === null || typeof calleeRaw !== 'object') {
         return results;
       }
+
       const callee = calleeRaw as AstNode;
 
       if (callee.type !== 'MemberExpression' && callee.type !== 'StaticMemberExpression') {
@@ -53,6 +55,7 @@ const rule: TypeScriptRule = {
           ? (propertyRaw as AstNode)
           : undefined;
       let propertyName: string | undefined;
+
       if (propertyNode?.type === 'Identifier') {
         propertyName = propertyNode.name as string;
       } else if (propertyNode?.type === 'Literal') {

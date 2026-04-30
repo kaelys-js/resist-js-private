@@ -42,6 +42,7 @@
   const validated: TabMenuProps = $derived.by(() => {
     const rawProps: TabMenuProps = stripSvelteProps(allProps);
     const result = safeParse(TabMenuPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

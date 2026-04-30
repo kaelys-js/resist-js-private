@@ -43,6 +43,7 @@
   const validated: SpinningTextProps = $derived.by(() => {
     const rawProps: SpinningTextProps = stripSvelteProps(allProps);
     const result = safeParse(SpinningTextPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: LeaderboardProps = $derived.by(() => {
     const rawProps: LeaderboardProps = stripSvelteProps(allProps);
     const result = safeParse(LeaderboardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

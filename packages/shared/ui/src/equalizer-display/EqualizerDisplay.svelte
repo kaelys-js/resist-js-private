@@ -42,6 +42,7 @@
   const validated: EqualizerDisplayProps = $derived.by(() => {
     const rawProps: EqualizerDisplayProps = stripSvelteProps(allProps);
     const result = safeParse(EqualizerDisplayPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

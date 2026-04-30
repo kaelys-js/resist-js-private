@@ -42,6 +42,7 @@
   const validated: CombinationChartProps = $derived.by(() => {
     const rawProps: CombinationChartProps = stripSvelteProps(allProps);
     const result = safeParse(CombinationChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

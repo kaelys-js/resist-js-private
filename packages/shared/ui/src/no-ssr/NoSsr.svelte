@@ -42,6 +42,7 @@
   const validated: NoSsrProps = $derived.by(() => {
     const rawProps: NoSsrProps = stripSvelteProps(allProps);
     const result = safeParse(NoSsrPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

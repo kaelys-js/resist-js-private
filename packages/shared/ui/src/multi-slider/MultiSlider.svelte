@@ -42,6 +42,7 @@
   const validated: MultiSliderProps = $derived.by(() => {
     const rawProps: MultiSliderProps = stripSvelteProps(allProps);
     const result = safeParse(MultiSliderPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

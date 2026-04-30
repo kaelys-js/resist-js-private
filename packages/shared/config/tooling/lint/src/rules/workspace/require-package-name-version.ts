@@ -21,6 +21,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -46,6 +47,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const fileName: string = basename(filePath);
+
       if (fileName !== 'package.json') {
         continue;
       }
@@ -55,6 +57,7 @@ const rule: WorkspaceRule = {
       const relativePath: string = relative(ctx.rootDir, filePath);
 
       const pkgName: unknown = parsed.name;
+
       if (typeof pkgName !== 'string' || pkgName.trim().length === 0) {
         results.push(
           createResult(
@@ -72,6 +75,7 @@ const rule: WorkspaceRule = {
       }
 
       const { version } = parsed;
+
       if (typeof version !== 'string' || version.trim().length === 0) {
         results.push(
           createResult(

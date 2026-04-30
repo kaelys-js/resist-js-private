@@ -38,6 +38,7 @@ function parseWorkspacePatterns(content: string): Array<{ pattern: string; line:
 
       if (trimmed.startsWith('- ')) {
         const pattern: string = trimmed.slice(2).trim().replace(/^['"]/, '').replace(/['"]$/, '');
+
         if (pattern.length > 0) {
           results.push({ pattern, line: i + 1 });
         }
@@ -68,6 +69,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -92,11 +94,13 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     const workspacePath: string = join(ctx.rootDir, 'pnpm-workspace.yaml');
+
     if (!(await ctx.fileExists(workspacePath))) {
       return results;
     }
 
     let content: string;
+
     try {
       content = await ctx.readFile(workspacePath);
     } catch {
@@ -111,9 +115,11 @@ const rule: WorkspaceRule = {
           /* For glob patterns, check if the base directory exists.
            * e.g. 'packages/**' → check 'packages/' exists */
           const baseDir: string = entry.pattern.replace(/\/\*.*$/, '');
+
           if (baseDir.length > 0 && baseDir !== entry.pattern) {
             const resolvedBase: string = join(ctx.rootDir, baseDir);
             const baseDirExists: boolean = await ctx.dirExists(resolvedBase);
+
             if (!baseDirExists) {
               results.push(
                 createResult(
@@ -134,6 +140,7 @@ const rule: WorkspaceRule = {
           /* Non-glob pattern — directory must exist exactly */
           const resolvedPath: string = join(ctx.rootDir, entry.pattern);
           const dirOk: boolean = await ctx.dirExists(resolvedPath);
+
           if (!dirOk) {
             results.push(
               createResult(

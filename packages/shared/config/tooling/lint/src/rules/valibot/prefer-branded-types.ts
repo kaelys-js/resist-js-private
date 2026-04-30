@@ -31,6 +31,7 @@ const rule: TypeScriptRule = {
     VariableDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const declarations = node.declarations as AstNode[] | undefined;
+
       if (!declarations) {
         return results;
       }
@@ -38,6 +39,7 @@ const rule: TypeScriptRule = {
       for (const decl of declarations) {
         const id = decl.id as AstNode | undefined;
         const init = decl.init as AstNode | undefined;
+
         if (!id || !init) {
           continue;
         }
@@ -66,6 +68,7 @@ const rule: TypeScriptRule = {
 
         // Check that it's a valibot namespace call
         const callee = init.callee as AstNode | undefined;
+
         if (!callee) {
           continue;
         }
@@ -74,6 +77,7 @@ const rule: TypeScriptRule = {
         }
 
         const obj = callee.object as AstNode | undefined;
+
         if (!context.isImportedFrom((obj?.name as string) ?? '', 'valibot')) {
           continue;
         }

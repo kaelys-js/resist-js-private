@@ -117,6 +117,7 @@ describe('changelog handler — mocked branches', () => {
     if (opts.statSyncImpl !== undefined || opts.readdirSyncImpl !== undefined) {
       vi.doMock('node:fs', async () => {
         const actual = await vi.importActual<typeof NodeFsModule>('node:fs');
+
         return {
           ...actual,
           statSync: opts.statSyncImpl ?? actual.statSync,

@@ -43,11 +43,13 @@ const rule: TypeScriptRule = {
   visitor: {
     TSFunctionType(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
+
       if (isExempt(context.file)) {
         return results;
       }
 
       const params = node.params as AstNode[] | undefined;
+
       if (!params) {
         return results;
       }
@@ -57,8 +59,10 @@ const rule: TypeScriptRule = {
         if (param.type === 'RestElement') {
           const typeAnnotation = param.typeAnnotation as AstNode | undefined;
           const annotation = typeAnnotation?.typeAnnotation as AstNode | undefined;
+
           if (annotation?.type === 'TSArrayType') {
             const elementType = annotation.elementType as AstNode | undefined;
+
             if (elementType?.type === 'TSUnknownKeyword') {
               results.push({
                 file: context.file,

@@ -42,6 +42,7 @@
   const validated: ComingSoonProps = $derived.by(() => {
     const rawProps: ComingSoonProps = stripSvelteProps(allProps);
     const result = safeParse(ComingSoonPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

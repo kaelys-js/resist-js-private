@@ -41,6 +41,7 @@
   const validated: NetworkStatusProps = $derived.by(() => {
     const rawProps: NetworkStatusProps = stripSvelteProps(allProps);
     const result = safeParse(NetworkStatusPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

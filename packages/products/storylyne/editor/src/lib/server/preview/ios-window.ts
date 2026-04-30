@@ -148,9 +148,11 @@ export async function getDeviceScaleFactor(udid: Str): Promise<Num> {
   for (const devices of Object.values(devicesMap)) {
     for (const raw of devices) {
       const d: Record<string, unknown> = raw as Record<string, unknown>;
+
       if (d.udid === (udid as string)) {
         const name: Str = (d.name ?? '') as Str;
         const factor: Num | undefined = KNOWN_SCALE_FACTORS[name];
+
         return factor ?? DEFAULT_SCALE_FACTOR;
       }
     }

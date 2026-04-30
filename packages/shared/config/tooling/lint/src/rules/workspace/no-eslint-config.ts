@@ -39,6 +39,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -64,6 +65,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
+
       if (ESLINT_CONFIG_NAMES.has(name)) {
         const relativePath: string = relative(ctx.rootDir, filePath);
         results.push(

@@ -14,6 +14,7 @@ import { createDebugStore, initDebugStore, useDebugStore, STORAGE_KEY } from './
 // Mock localStorage
 const localStorageMock = (() => {
   let store: Record<Str, Str> = {};
+
   return {
     getItem: vi.fn((key: Str): NullableStr => store[key] ?? null),
     setItem: vi.fn((key: Str, value: Str) => {
@@ -54,6 +55,7 @@ describe('createDebugStore', () => {
 
   it('has default state', () => {
     const result = createDebugStore();
+
     if (!result.ok) {
       throw new Error('should be ok');
     }
@@ -63,6 +65,7 @@ describe('createDebugStore', () => {
 
   it('has empty urlOverrides without URL', () => {
     const result = createDebugStore();
+
     if (!result.ok) {
       throw new Error('should be ok');
     }
@@ -74,6 +77,7 @@ describe('createDebugStore', () => {
       `http://localhost?${URL_PARAM_PREFIX}debug=true&${URL_PARAM_PREFIX}logLevel=trace`,
     );
     const result = createDebugStore(url);
+
     if (!result.ok) {
       throw new Error('should be ok');
     }
@@ -83,6 +87,7 @@ describe('createDebugStore', () => {
   it('loads persisted state from localStorage', () => {
     localStorageMock.setItem(STORAGE_KEY, JSON.stringify({ enabled: true, logLevel: 'trace' }));
     const result = createDebugStore();
+
     if (!result.ok) {
       throw new Error('should be ok');
     }
@@ -93,6 +98,7 @@ describe('createDebugStore', () => {
   it('falls back to defaults on invalid localStorage', () => {
     localStorageMock.setItem(STORAGE_KEY, 'not json');
     const result = createDebugStore();
+
     if (!result.ok) {
       throw new Error('should be ok');
     }
@@ -103,6 +109,7 @@ describe('createDebugStore', () => {
   it('falls back to defaults on invalid schema data', () => {
     localStorageMock.setItem(STORAGE_KEY, JSON.stringify({ enabled: 'yes', logLevel: 'verbose' }));
     const result = createDebugStore();
+
     if (!result.ok) {
       throw new Error('should be ok');
     }
@@ -114,9 +121,11 @@ describe('createDebugStore', () => {
 describe('setEnabled', () => {
   it('sets enabled to true', () => {
     const result = createDebugStore();
+
     if (!result.ok) {
       throw new Error('should be ok');
     }
+
     const store = result.data;
 
     const setResult = store.setEnabled(true);
@@ -126,9 +135,11 @@ describe('setEnabled', () => {
 
   it('sets enabled to false', () => {
     const result = createDebugStore();
+
     if (!result.ok) {
       throw new Error('should be ok');
     }
+
     const store = result.data;
 
     store.setEnabled(true);
@@ -139,6 +150,7 @@ describe('setEnabled', () => {
 
   it('does not persist enabled to localStorage (session-only)', () => {
     const result = createDebugStore();
+
     if (!result.ok) {
       throw new Error('should be ok');
     }
@@ -152,9 +164,11 @@ describe('setEnabled', () => {
 
   it('rejects non-boolean', () => {
     const result = createDebugStore();
+
     if (!result.ok) {
       throw new Error('should be ok');
     }
+
     const setResult = result.data.setEnabled('yes' as unknown as boolean);
     expect(setResult.ok).toBe(false);
   });
@@ -163,9 +177,11 @@ describe('setEnabled', () => {
 describe('setLogLevel', () => {
   it('sets valid log level', () => {
     const result = createDebugStore();
+
     if (!result.ok) {
       throw new Error('should be ok');
     }
+
     const store = result.data;
 
     const setResult = store.setLogLevel('trace');
@@ -175,15 +191,18 @@ describe('setLogLevel', () => {
 
   it('rejects invalid log level', () => {
     const result = createDebugStore();
+
     if (!result.ok) {
       throw new Error('should be ok');
     }
+
     const setResult = result.data.setLogLevel('verbose');
     expect(setResult.ok).toBe(false);
   });
 
   it('persists to localStorage', () => {
     const result = createDebugStore();
+
     if (!result.ok) {
       throw new Error('should be ok');
     }

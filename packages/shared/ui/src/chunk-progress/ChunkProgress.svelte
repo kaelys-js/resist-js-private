@@ -42,6 +42,7 @@
   const validated: ChunkProgressProps = $derived.by(() => {
     const rawProps: ChunkProgressProps = stripSvelteProps(allProps);
     const result = safeParse(ChunkProgressPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

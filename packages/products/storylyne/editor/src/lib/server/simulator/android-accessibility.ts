@@ -132,6 +132,7 @@ export async function applyAccessibilitySettings(
   settings: AndroidAccessibilitySettings,
 ): Promise<void> {
   const commands: AccessibilityCommand[] = buildAccessibilityCommands(adbPath, serial, settings);
+
   if (commands.length === 0) {
     return;
   }
@@ -156,21 +157,25 @@ export function parseAccessibilityParams(params: URLSearchParams): AndroidAccess
   const settings: AndroidAccessibilitySettings = {};
 
   const nightMode: string | null = params.get('nightMode');
+
   if (nightMode === 'yes' || nightMode === 'no') {
     settings.nightMode = nightMode as Str;
   }
 
   const fontScale: string | null = params.get('fontScale');
+
   if (fontScale) {
     settings.fontScale = fontScale as Str;
   }
 
   const displayDensity: string | null = params.get('displayDensity');
+
   if (displayDensity) {
     settings.displayDensity = displayDensity as Str;
   }
 
   const animationScale: string | null = params.get('animationScale');
+
   if (animationScale) {
     settings.animationScale = animationScale as Str;
   }

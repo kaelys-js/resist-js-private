@@ -37,6 +37,7 @@ function checkJsonAccess(node: AstNode, context: VisitorContext): LintResult[] {
 
   const object = node.object as AstNode | undefined;
   const property = node.property as AstNode | undefined;
+
   if (!object || !property) {
     return results;
   }

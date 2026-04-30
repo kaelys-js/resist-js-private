@@ -51,6 +51,7 @@ function resolveUiSrcDir(): Str {
   const currentDir: Str = dirname(fileURLToPath(import.meta.url)) as Str;
   // Walk up until we find the workspace root (pnpm-workspace.yaml)
   let dir: Str = currentDir;
+
   for (let i: Num = 0 as Num; i < 20; i++) {
     try {
       statSync(join(dir, 'pnpm-workspace.yaml'));
@@ -77,6 +78,7 @@ function findSvelteFiles(baseDir: Str): Array<{ dir: Str; filePath: Str }> {
   const results: Array<{ dir: Str; filePath: Str }> = [];
 
   let entries: string[];
+
   try {
     entries = readdirSync(baseDir);
   } catch {
@@ -86,8 +88,10 @@ function findSvelteFiles(baseDir: Str): Array<{ dir: Str; filePath: Str }> {
 
   for (const entry of entries) {
     const entryPath: Str = join(baseDir, entry) as Str;
+
     try {
       const stat = statSync(entryPath);
+
       if (!stat.isDirectory()) {
         continue;
       }
@@ -98,6 +102,7 @@ function findSvelteFiles(baseDir: Str): Array<{ dir: Str; filePath: Str }> {
 
     // Read .svelte files in this component directory
     let files: string[];
+
     try {
       files = readdirSync(entryPath);
     } catch {
@@ -140,6 +145,7 @@ function computeBundleSizes(): Record<Str, SizeEntry> {
 
   for (const { dir, filePath } of svelteFiles) {
     let source: Str;
+
     try {
       source = readFileSync(filePath, 'utf8') as Str;
     } catch {
@@ -149,6 +155,7 @@ function computeBundleSizes(): Record<Str, SizeEntry> {
 
     // Step 1: Svelte compile → client JS
     let compiledCode: Str;
+
     try {
       const result = compile(source, {
         generate: 'client',
@@ -162,6 +169,7 @@ function computeBundleSizes(): Record<Str, SizeEntry> {
 
     // Step 2: esbuild minify → production-size JS (matches Vite's build pipeline)
     let minifiedCode: Str;
+
     try {
       const minResult = transformSync(compiledCode, {
         minify: true,
@@ -179,6 +187,7 @@ function computeBundleSizes(): Record<Str, SizeEntry> {
 
     // Accumulate sizes per directory
     const existing: SizeEntry | undefined = sizes[dir];
+
     if (existing) {
       sizes[dir] = {
         compiled: (existing.compiled + compiledBytes) as Num,

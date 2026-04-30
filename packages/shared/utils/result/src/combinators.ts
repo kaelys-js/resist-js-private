@@ -90,7 +90,9 @@ export function mapErr<T>(
   if (result.ok) {
     return result;
   }
+
   const mapped: { code: KnownErrorCode; message?: string; options?: ErrOptions } = fn(result.error);
+
   return err(mapped.code, mapped.message, mapped.options) as Result<T>;
 }
 
@@ -332,6 +334,7 @@ export function tapErr<T>(result: Result<T>, fn: (error: AppError) => void): Res
  */
 export function combine<T>(results: ReadonlyArray<Result<T>>): Result<readonly T[]> {
   const values: T[] = [];
+
   for (const result of results) {
     if (!result.ok) {
       return result;
@@ -382,6 +385,7 @@ export function combineWithAllErrors<T>(results: ReadonlyArray<Result<T>>): Resu
   }
 
   const [firstError, ...relatedErrors]: AppError[] = errors;
+
   if (firstError === undefined) {
     return okUnchecked<readonly T[]>(values);
   }
@@ -469,6 +473,7 @@ export function fromAsyncThrowable<TArgs extends unknown[], TReturn>(
   return async (...args: TArgs): Promise<Result<TReturn>> => {
     try {
       const value: TReturn = await fn(...args);
+
       return okUnchecked<TReturn>(value);
     } catch (error: unknown) {
       return err(errorCode, {

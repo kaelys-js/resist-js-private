@@ -42,6 +42,7 @@
   const validated: ProductQuickViewProps = $derived.by(() => {
     const rawProps: ProductQuickViewProps = stripSvelteProps(allProps);
     const result = safeParse(ProductQuickViewPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

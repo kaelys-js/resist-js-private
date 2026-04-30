@@ -94,6 +94,7 @@
   const validated: HeaderUserProps = $derived.by(() => {
     const rawProps: HeaderUserProps = stripSvelteProps(restProps);
     const result = safeParse(HeaderUserPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

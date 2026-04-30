@@ -78,6 +78,7 @@ function isInsideCatch(ret: AstNode, funcBody: AstNode, context: VisitorContext)
 
   // Check if the return is within the last catch block's braces
   const lastCatchIndex: number = textBefore.lastIndexOf('catch');
+
   if (lastCatchIndex === -1) {
     return false;
   }
@@ -103,12 +104,14 @@ function isAfterErrorGuard(ret: AstNode, funcBody: AstNode, context: VisitorCont
 
   // Check if the nearest if-statement before this return checks !result.ok
   const lastIfIndex: number = textBefore.lastIndexOf('if');
+
   if (lastIfIndex === -1) {
     return false;
   }
 
   const afterIf: string = textBefore.slice(lastIfIndex);
   const isErrorGuard: boolean = /if\s*\(\s*![\w]+\.ok\s*\)/.test(afterIf);
+
   if (!isErrorGuard) {
     return false;
   }
@@ -116,6 +119,7 @@ function isAfterErrorGuard(ret: AstNode, funcBody: AstNode, context: VisitorCont
   // If the guard body contains return/throw, it's an early-return guard.
   // Code AFTER an early-return guard is the SUCCESS path, not error path.
   const guardBody: string = afterIf.slice(0, afterIf.indexOf(';') + 1);
+
   if (/\breturn\b/.test(guardBody) || /\bthrow\b/.test(guardBody)) {
     return false;
   }
@@ -133,11 +137,13 @@ function isAfterErrorGuard(ret: AstNode, funcBody: AstNode, context: VisitorCont
  */
 function extractResultTypeParam(node: AstNode, context: VisitorContext): string | null {
   const returnType = node.returnType as AstNode | undefined;
+
   if (!returnType) {
     return null;
   }
 
   const typeAnnotation = returnType.typeAnnotation as AstNode | undefined;
+
   if (!typeAnnotation) {
     return null;
   }
@@ -184,6 +190,7 @@ function hasMatchingSchema(typeName: string, context: VisitorContext): boolean {
 
   // Check if declared in file as const/let/var
   const declPattern: RegExp = new RegExp(`(?:const|let|var)\\s+${schemaName}\\s*=`);
+
   if (declPattern.test(context.content)) {
     return true;
   }
@@ -200,16 +207,19 @@ function hasMatchingSchema(typeName: string, context: VisitorContext): boolean {
  */
 function hasResultReturnType(node: AstNode, context: VisitorContext): boolean {
   const returnType = node.returnType as AstNode | undefined;
+
   if (!returnType) {
     return false;
   }
 
   const typeAnnotation = returnType.typeAnnotation as AstNode | undefined;
+
   if (!typeAnnotation) {
     return false;
   }
 
   const typeText: string = context.content.slice(typeAnnotation.start, typeAnnotation.end);
+
   return (
     typeText.startsWith('Result<') ||
     typeText.startsWith('Promise<Result<') ||
@@ -250,6 +260,7 @@ function collectReturnStatements(body: AstNode): AstNode[] {
     // Walk children
     for (const key of Object.keys(node)) {
       const value = node[key] as unknown;
+
       if (value && typeof value === 'object') {
         if (Array.isArray(value)) {
           for (const item of value) {
@@ -265,6 +276,7 @@ function collectReturnStatements(body: AstNode): AstNode[] {
   }
 
   const stmts = body.body as AstNode[] | undefined;
+
   if (stmts) {
     for (const stmt of stmts) {
       walk(stmt);
@@ -294,6 +306,7 @@ function checkFunction(
   }
 
   const body = node.body as AstNode | undefined;
+
   if (!body) {
     return results;
   }
@@ -305,6 +318,7 @@ function checkFunction(
 
   for (const ret of returnStmts) {
     const argument = ret.argument as AstNode | undefined;
+
     if (!argument) {
       continue;
     } // bare `return;` — might be in void branch
@@ -407,6 +421,7 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const declaration = node.declaration as AstNode | undefined;
+
       if (!declaration) {
         return results;
       }
@@ -417,12 +432,14 @@ const rule: TypeScriptRule = {
 
       if (declaration.type === 'VariableDeclaration') {
         const declarations = declaration.declarations as AstNode[] | undefined;
+
         if (!declarations) {
           return results;
         }
 
         for (const decl of declarations) {
           const init = decl.init as AstNode | undefined;
+
           if (
             init &&
             (init.type === 'ArrowFunctionExpression' || init.type === 'FunctionExpression')
@@ -439,6 +456,7 @@ const rule: TypeScriptRule = {
     FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       // Skip exported functions — already handled by ExportNamedDeclaration
       const before: string = context.content.slice(Math.max(0, node.start - 20), node.start);
+
       if (/export\s+(default\s+)?$/.test(before)) {
         return [];
       }

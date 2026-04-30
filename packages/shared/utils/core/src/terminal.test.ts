@@ -116,11 +116,14 @@ describe('color config', () => {
     const result: Result<Void> = setColorLevel(0 as ColorLevel);
     expect(result.ok).toBe(true);
     const level: Result<ColorLevel> = getColorLevel();
+
     if (level.ok) {
       expect(level.data).toBe(0);
     }
     /* With colors off, style should return plain text. */
+
     const plain: Result<Str> = style.blue('x');
+
     if (plain.ok) {
       expect(plain.data).toBe('x');
     }
@@ -130,6 +133,7 @@ describe('color config', () => {
     const result: Result<Void> = setColorLevel(1 as ColorLevel);
     expect(result.ok).toBe(true);
     const level: Result<ColorLevel> = getColorLevel();
+
     if (level.ok) {
       expect(level.data).toBe(1);
     }
@@ -139,6 +143,7 @@ describe('color config', () => {
     const result: Result<Void> = setColorLevel(2 as ColorLevel);
     expect(result.ok).toBe(true);
     const level: Result<ColorLevel> = getColorLevel();
+
     if (level.ok) {
       expect(level.data).toBe(2);
     }
@@ -148,6 +153,7 @@ describe('color config', () => {
     const result: Result<Void> = setColorLevel(3 as ColorLevel);
     expect(result.ok).toBe(true);
     const level: Result<ColorLevel> = getColorLevel();
+
     if (level.ok) {
       expect(level.data).toBe(3);
     }
@@ -167,11 +173,13 @@ describe('color config', () => {
   it('setColorLevel roundtrips via getColorLevel', () => {
     setColorLevel(3 as ColorLevel);
     const r3: Result<ColorLevel> = getColorLevel();
+
     if (r3.ok) {
       expect(r3.data).toBe(3);
     }
     setColorLevel(1 as ColorLevel);
     const r1: Result<ColorLevel> = getColorLevel();
+
     if (r1.ok) {
       expect(r1.data).toBe(1);
     }
@@ -263,6 +271,7 @@ describe('style', () => {
   it('style.dim wraps text with ANSI when colors enabled', () => {
     setColors(true);
     const result: Result<Str> = style.dim('t');
+
     if (result.ok) {
       expect(result.data).toContain('\u001B[2m');
     }
@@ -271,6 +280,7 @@ describe('style', () => {
   it('style.italic wraps text with ANSI', () => {
     setColors(true);
     const result: Result<Str> = style.italic('t');
+
     if (result.ok) {
       expect(result.data).toContain('\u001B[3m');
     }
@@ -279,6 +289,7 @@ describe('style', () => {
   it('style.underline wraps text with ANSI', () => {
     setColors(true);
     const result: Result<Str> = style.underline('t');
+
     if (result.ok) {
       expect(result.data).toContain('\u001B[4m');
     }
@@ -287,6 +298,7 @@ describe('style', () => {
   it('style.inverse wraps text with ANSI', () => {
     setColors(true);
     const result: Result<Str> = style.inverse('t');
+
     if (result.ok) {
       expect(result.data).toContain('\u001B[7m');
     }
@@ -295,6 +307,7 @@ describe('style', () => {
   it('style.strikethrough wraps text with ANSI', () => {
     setColors(true);
     const result: Result<Str> = style.strikethrough('t');
+
     if (result.ok) {
       expect(result.data).toContain('\u001B[9m');
     }
@@ -305,6 +318,7 @@ describe('style', () => {
   it('style.red wraps text', () => {
     setColors(true);
     const result: Result<Str> = style.red('err');
+
     if (result.ok) {
       expect(result.data).toContain('err');
       expect(result.data).toContain('\u001B[31m');
@@ -314,6 +328,7 @@ describe('style', () => {
   it('style.green wraps text', () => {
     setColors(true);
     const result: Result<Str> = style.green('ok');
+
     if (result.ok) {
       expect(result.data).toContain('\u001B[32m');
     }
@@ -322,6 +337,7 @@ describe('style', () => {
   it('style.yellow wraps text', () => {
     setColors(true);
     const result: Result<Str> = style.yellow('warn');
+
     if (result.ok) {
       expect(result.data).toContain('\u001B[33m');
     }
@@ -330,6 +346,7 @@ describe('style', () => {
   it('style.blue wraps text', () => {
     setColors(true);
     const result: Result<Str> = style.blue('info');
+
     if (result.ok) {
       expect(result.data).toContain('\u001B[34m');
     }
@@ -338,6 +355,7 @@ describe('style', () => {
   it('style.magenta wraps text', () => {
     setColors(true);
     const result: Result<Str> = style.magenta('m');
+
     if (result.ok) {
       expect(result.data).toContain('\u001B[35m');
     }
@@ -346,6 +364,7 @@ describe('style', () => {
   it('style.cyan wraps text', () => {
     setColors(true);
     const result: Result<Str> = style.cyan('c');
+
     if (result.ok) {
       expect(result.data).toContain('\u001B[36m');
     }
@@ -354,6 +373,7 @@ describe('style', () => {
   it('style.white wraps text', () => {
     setColors(true);
     const result: Result<Str> = style.white('w');
+
     if (result.ok) {
       expect(result.data).toContain('\u001B[37m');
     }
@@ -362,6 +382,7 @@ describe('style', () => {
   it('style.gray wraps text', () => {
     setColors(true);
     const result: Result<Str> = style.gray('g');
+
     if (result.ok) {
       expect(result.data).toContain('\u001B[90m');
     }
@@ -371,6 +392,7 @@ describe('style', () => {
     setColors(true);
     const g: Result<Str> = style.gray('x');
     const gr: Result<Str> = style.grey('x');
+
     if (g.ok && gr.ok) {
       expect(g.data).toBe(gr.data);
     }
@@ -381,6 +403,7 @@ describe('style', () => {
   it('style.dim returns plain text when colors disabled', () => {
     setColors(false);
     const result: Result<Str> = style.dim('faded');
+
     if (result.ok) {
       expect(result.data).toBe('faded');
     }
@@ -407,6 +430,7 @@ describe('style', () => {
       style.grey,
     ]) {
       const r: Result<Str> = fn('x');
+
       if (r.ok) {
         expect(r.data).toBe('x');
       }
@@ -514,6 +538,7 @@ describe('renderMarkup', () => {
   it('applies ANSI when colors enabled', () => {
     setColors(true);
     const result: Result<Str> = renderMarkup('{red}err{/}');
+
     if (result.ok) {
       expect(result.data).toContain('err');
       expect(result.data).toContain('\u001B[31m');
@@ -523,6 +548,7 @@ describe('renderMarkup', () => {
   it('strips {tag} markup when colors disabled', () => {
     setColors(false);
     const result: Result<Str> = renderMarkup('{red}err{/}');
+
     if (result.ok) {
       expect(result.data).toBe('err');
     }
@@ -534,6 +560,7 @@ describe('renderMarkup', () => {
      * `{bold}{red}x{/}{/}` it matches `{bold}` + inner `{red}x` + `{/}`, leaving
      * the trailing `{/}` as literal. Inner `{red}` is preserved as text. */
     const result: Result<Str> = renderMarkup('{bold}{red}x{/}{/}');
+
     if (result.ok) {
       expect(result.data).toContain('x');
       expect(result.data).toContain('\u001B[1m'); /* bold applied */
@@ -546,6 +573,7 @@ describe('renderMarkup', () => {
 
   it('passes through unknown {symbol:bogus} unchanged', () => {
     const result: Result<Str> = renderMarkup('{symbol:bogus} x');
+
     if (result.ok) {
       expect(result.data).toContain('{symbol:bogus}');
     }
@@ -554,6 +582,7 @@ describe('renderMarkup', () => {
   it('passes through unclosed {bold}text as literal', () => {
     const result: Result<Str> = renderMarkup('{bold}text');
     /* Unclosed passes through: either the literal or best-effort. */
+
     if (result.ok) {
       expect(result.data).toContain('text');
     }
@@ -561,6 +590,7 @@ describe('renderMarkup', () => {
 
   it('returns empty string for empty input', () => {
     const result: Result<Str> = renderMarkup('');
+
     if (result.ok) {
       expect(result.data).toBe('');
     }
@@ -568,6 +598,7 @@ describe('renderMarkup', () => {
 
   it('passes plain text without markup through unchanged', () => {
     const result: Result<Str> = renderMarkup('plain text');
+
     if (result.ok) {
       expect(result.data).toBe('plain text');
     }
@@ -575,6 +606,7 @@ describe('renderMarkup', () => {
 
   it('handles multiple consecutive symbol tags', () => {
     const result: Result<Str> = renderMarkup('{symbol:success}{symbol:error}');
+
     if (result.ok) {
       expect(result.data).not.toContain('{symbol:');
       expect(result.data.length).toBeGreaterThan(0);
@@ -1096,6 +1128,7 @@ describe('progressBar', () => {
 
   it('renders 0% progress', () => {
     const result: Result<Str> = progressBar(0 as NonNegativeInteger, 100 as NonNegativeInteger);
+
     if (result.ok) {
       expect(result.data).toContain('0%');
     }
@@ -1103,6 +1136,7 @@ describe('progressBar', () => {
 
   it('renders 100% progress', () => {
     const result: Result<Str> = progressBar(100 as NonNegativeInteger, 100 as NonNegativeInteger);
+
     if (result.ok) {
       expect(result.data).toContain('100%');
     }

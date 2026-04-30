@@ -41,6 +41,7 @@
   const validated: NavbarProps = $derived.by(() => {
     const rawProps: NavbarProps = stripSvelteProps(allProps);
     const result = safeParse(NavbarPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

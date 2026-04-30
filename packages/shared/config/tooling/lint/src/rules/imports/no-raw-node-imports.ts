@@ -72,12 +72,14 @@ const rule: TypeScriptRule = {
 
       // Skip type-only imports
       const importKind = node.importKind as string | undefined;
+
       if (importKind === 'type') {
         return results;
       }
 
       const source = node.source as AstNode | undefined;
       const value: string | undefined = (source as { value?: string } | undefined)?.value;
+
       if (!value) {
         return results;
       }

@@ -29,8 +29,10 @@ const rule: TypeScriptRule = {
 
       // Skip `as const` — that is a const assertion, not a type cast
       const typeAnnotation = node.typeAnnotation as AstNode | undefined;
+
       if (typeAnnotation?.type === 'TSTypeReference') {
         const typeName = typeAnnotation.typeName as AstNode | undefined;
+
         if ((typeName?.name as string) === 'const') {
           return results;
         }
@@ -38,6 +40,7 @@ const rule: TypeScriptRule = {
 
       // Check if the expression being cast contains parse or safeParse
       const expression = node.expression as AstNode | undefined;
+
       if (!expression) {
         return results;
       }

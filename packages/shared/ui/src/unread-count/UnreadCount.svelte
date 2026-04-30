@@ -42,6 +42,7 @@
   const validated: UnreadCountProps = $derived.by(() => {
     const rawProps: UnreadCountProps = stripSvelteProps(allProps);
     const result = safeParse(UnreadCountPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

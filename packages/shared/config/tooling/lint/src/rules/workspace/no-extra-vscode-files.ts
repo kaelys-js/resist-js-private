@@ -24,6 +24,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -53,6 +54,7 @@ const rule: WorkspaceRule = {
       }
 
       const filename: string = basename(filePath);
+
       if (!ALLOWED_FILES.has(filename)) {
         results.push(
           createResult(

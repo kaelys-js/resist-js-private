@@ -42,6 +42,7 @@ const rule: TypeScriptRule = {
 
       const id = node.id as AstNode | undefined;
       const typeName: string = (id?.name as string) ?? '';
+
       if (!typeName) {
         return results;
       }
@@ -53,12 +54,14 @@ const rule: TypeScriptRule = {
 
       // Skip generic types (has typeParameters)
       const typeParameters = node.typeParameters as AstNode | undefined;
+
       if (typeParameters) {
         return results;
       }
 
       // Skip types derived from valibot (v.InferOutput, v.InferInput)
       const nodeText: string = context.getNodeText(node);
+
       if (
         nodeText.includes('v.InferOutput') ||
         nodeText.includes('v.InferInput') ||
@@ -70,12 +73,14 @@ const rule: TypeScriptRule = {
 
       // Only flag types with TSTypeLiteral annotation (object literal types)
       const typeAnnotation = node.typeAnnotation as AstNode | undefined;
+
       if (!typeAnnotation || typeAnnotation.type !== 'TSTypeLiteral') {
         return results;
       }
 
       // Skip if a matching schema exists in file content
       const expectedSchema: string = `${typeName}Schema`;
+
       if (context.content.includes(expectedSchema)) {
         return results;
       }

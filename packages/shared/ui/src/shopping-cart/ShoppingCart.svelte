@@ -42,6 +42,7 @@
   const validated: ShoppingCartProps = $derived.by(() => {
     const rawProps: ShoppingCartProps = stripSvelteProps(allProps);
     const result = safeParse(ShoppingCartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

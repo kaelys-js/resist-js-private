@@ -42,6 +42,7 @@
   const validated: SortableProps = $derived.by(() => {
     const rawProps: SortableProps = stripSvelteProps(allProps);
     const result = safeParse(SortablePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

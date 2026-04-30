@@ -42,6 +42,7 @@
   const validated: ThumbRatingProps = $derived.by(() => {
     const rawProps: ThumbRatingProps = stripSvelteProps(allProps);
     const result = safeParse(ThumbRatingPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

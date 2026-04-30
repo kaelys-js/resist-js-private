@@ -23,6 +23,7 @@ import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
  */
 async function findBrokenSymlinks(dir: string, results: string[]): Promise<void> {
   let entries: Dirent[];
+
   try {
     entries = (await readdir(dir, { withFileTypes: true })) as Dirent[];
   } catch {
@@ -75,6 +76,7 @@ const rule: WorkspaceRule = {
     const nodeModulesDir: string = join(ctx.rootDir, 'node_modules');
 
     const dirPresent: boolean = await ctx.dirExists(nodeModulesDir);
+
     if (!dirPresent) {
       return [];
     }
@@ -83,6 +85,7 @@ const rule: WorkspaceRule = {
     await findBrokenSymlinks(nodeModulesDir, brokenLinks);
 
     const results: Array<ReturnType<typeof createResult>> = [];
+
     for (const link of brokenLinks) {
       results.push(
         createResult(

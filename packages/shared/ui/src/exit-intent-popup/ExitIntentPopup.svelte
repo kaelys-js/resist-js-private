@@ -42,6 +42,7 @@
   const validated: ExitIntentPopupProps = $derived.by(() => {
     const rawProps: ExitIntentPopupProps = stripSvelteProps(allProps);
     const result = safeParse(ExitIntentPopupPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -33,6 +33,7 @@ const rule: PackageJsonRule = {
    */
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
+
     if (context.isRoot) {
       return results;
     }
@@ -42,6 +43,7 @@ const rule: PackageJsonRule = {
 
     const peers: Record<string, string> = context.pkg.peerDependencies ?? {};
     const peerNames: string[] = Object.keys(peers);
+
     if (peerNames.length === 0) {
       return results;
     }

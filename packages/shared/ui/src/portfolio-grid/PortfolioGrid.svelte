@@ -42,6 +42,7 @@
   const validated: PortfolioGridProps = $derived.by(() => {
     const rawProps: PortfolioGridProps = stripSvelteProps(allProps);
     const result = safeParse(PortfolioGridPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

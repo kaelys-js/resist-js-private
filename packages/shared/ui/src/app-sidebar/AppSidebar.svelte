@@ -58,6 +58,7 @@
   const validated: AppSidebarProps = $derived.by(() => {
     const rawProps: AppSidebarProps = stripSvelteProps(allProps);
     const result = safeParse(AppSidebarPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }
@@ -76,6 +77,7 @@
       footer: _h,
       ...rest
     }: AppSidebarProps = validated;
+
     return rest;
   });
 </script>

@@ -169,6 +169,7 @@ export class ToolRegistry {
     /* Check availability */
     if (tool.isAvailable) {
       const available: boolean = await tool.isAvailable();
+
       if (!available) {
         if (tool.required === true) {
           return [missingToolResult(tool.command, files[0] ?? process.cwd())];
@@ -188,10 +189,13 @@ export class ToolRegistry {
     } catch (error: unknown) {
       /* Many lint tools exit non-zero when they find issues — capture stdout */
       const execError = error as { stdout?: string; status?: number; message?: string };
+
       if (execError.stdout && typeof execError.stdout === 'string') {
         return tool.transform(execError.stdout, this.strings);
       }
+
       const message: string = error instanceof Error ? error.message : String(error);
+
       return [
         {
           file: files[0] ?? process.cwd(),
@@ -223,6 +227,7 @@ export class ToolRegistry {
       const matching: string[] = files.filter((f: string): boolean =>
         tool.filePatterns.some((pattern: string): boolean => matchesPattern(f, pattern)),
       );
+
       if (matching.length > 0) {
         toolFiles.set(tool, matching);
       }
@@ -230,11 +235,13 @@ export class ToolRegistry {
 
     /* Run all tools in parallel */
     const promises: Array<Promise<LintResult[]>> = [];
+
     for (const [tool, toolFileList] of toolFiles) {
       promises.push(this.runTool(tool, toolFileList));
     }
 
     const results: LintResult[][] = await Promise.all(promises);
+
     return results.flat();
   }
 
@@ -270,6 +277,7 @@ export class ToolRegistry {
     /* Check availability */
     if (tool.isAvailable) {
       const available: boolean = await tool.isAvailable();
+
       if (!available) {
         if (tool.required === true) {
           return [missingToolResult(tool.command, tool.cwd ?? process.cwd())];
@@ -290,10 +298,13 @@ export class ToolRegistry {
     } catch (error: unknown) {
       /* Type-check tools exit non-zero when they find errors — capture stdout */
       const execError = error as { stdout?: string; status?: number };
+
       if (execError.stdout && typeof execError.stdout === 'string') {
         return tool.transform(execError.stdout, this.strings);
       }
+
       const message: string = error instanceof Error ? error.message : String(error);
+
       return [
         {
           file: tool.cwd ?? process.cwd(),
@@ -323,6 +334,7 @@ export class ToolRegistry {
     );
 
     const results: LintResult[][] = await Promise.all(promises);
+
     return results.flat();
   }
 }
@@ -347,22 +359,26 @@ export class ToolRegistry {
 export function matchesPattern(filePath: string, pattern: string): boolean {
   if (pattern.startsWith('**/*.')) {
     const ext: string = pattern.slice(4);
+
     return filePath.endsWith(ext);
   }
 
   if (pattern.startsWith('*.')) {
     const ext: string = pattern.slice(1);
+
     return filePath.endsWith(ext);
   }
 
   if (pattern.endsWith('*')) {
     const prefix: string = pattern.slice(0, -1);
     const fileName: string = filePath.slice(filePath.lastIndexOf('/') + 1);
+
     return fileName.startsWith(prefix);
   }
 
   /* Exact filename match */
   const fileName: string = filePath.slice(filePath.lastIndexOf('/') + 1);
+
   return fileName === pattern;
 }
 
@@ -398,6 +414,7 @@ export function missingToolResult(command: string, file: string): LintResult {
 export function findWorkspaceRoot(start: string): string | null {
   let current: string = start;
   let previous: string = '';
+
   while (current !== previous) {
     if (existsSync(join(current, 'pnpm-workspace.yaml'))) {
       return current;
@@ -421,6 +438,7 @@ export function findWorkspaceRoot(start: string): string | null {
  */
 export function isCommandAvailable(command: string): boolean {
   const workspaceRoot: string | null = findWorkspaceRoot(process.cwd());
+
   if (workspaceRoot !== null && existsSync(join(workspaceRoot, 'node_modules', '.bin', command))) {
     return true;
   }
@@ -473,9 +491,11 @@ export async function mapWithConcurrency<T, R>(
     if (cursor >= items.length) {
       return;
     }
+
     const idx: number = cursor;
     cursor += 1;
     const item: T | undefined = items[idx];
+
     if (item !== undefined) {
       results[idx] = await fn(item);
     }

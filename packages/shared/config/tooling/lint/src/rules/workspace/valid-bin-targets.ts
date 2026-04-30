@@ -22,8 +22,10 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     try {
       const packages = await ctx.getWorkspacePackages();
+
       return packages.map((p) => p.path);
     } catch {
       return [];
@@ -62,6 +64,7 @@ const rule: WorkspaceRule = {
       if (typeof bin === 'string') {
         const resolvedPath: string = join(pkg.dir, bin);
         const exists: boolean = await ctx.fileExists(resolvedPath);
+
         if (!exists) {
           results.push(
             createResult(
@@ -79,12 +82,15 @@ const rule: WorkspaceRule = {
 
       if (typeof bin === 'object') {
         const binMap: Record<string, unknown> = bin as Record<string, unknown>;
+
         for (const [_name, binPath] of Object.entries(binMap)) {
           if (typeof binPath !== 'string') {
             continue;
           }
+
           const resolvedPath: string = join(pkg.dir, binPath);
           const exists: boolean = await ctx.fileExists(resolvedPath);
+
           if (!exists) {
             results.push(
               createResult(

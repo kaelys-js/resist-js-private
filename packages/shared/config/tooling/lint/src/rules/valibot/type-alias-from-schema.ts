@@ -42,6 +42,7 @@ const rule: TypeScriptRule = {
 
       const id = node.id as AstNode | undefined;
       const typeName: string = (id?.name as string) ?? '';
+
       if (!typeName) {
         return results;
       }
@@ -53,12 +54,14 @@ const rule: TypeScriptRule = {
 
       // Skip generic type parameters
       const typeParameters = node.typeParameters as AstNode | undefined;
+
       if (typeParameters) {
         return results;
       }
 
       // Check if type is derived from valibot
       const nodeText: string = context.getNodeText(node);
+
       if (
         nodeText.includes('v.InferOutput') ||
         nodeText.includes('v.InferInput') ||
@@ -70,6 +73,7 @@ const rule: TypeScriptRule = {
 
       // Check the type annotation (right side of the = sign)
       const typeAnnotation = node.typeAnnotation as AstNode | undefined;
+
       if (!typeAnnotation) {
         return results;
       }

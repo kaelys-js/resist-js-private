@@ -154,6 +154,7 @@ describe('templateErrorHtml plugin', () => {
   it('config hook is no-op when command is serve', () => {
     const plugin = templateErrorHtml(TEST_ERROR_CONFIG);
     // Call config with 'serve' command — should not throw or write files
+
     if (typeof plugin.config === 'function') {
       const configFn = plugin.config;
       configFn.call({} as never, {} as never, { command: 'serve', mode: 'development' } as never);
@@ -174,6 +175,7 @@ describe('generateFontFaceCss', () => {
     if (!result.ok) {
       return;
     }
+
     const css = result.data;
     expect(css).toContain("font-family: 'Inter'");
     expect(css).toContain("font-family: 'Rajdhani'");
@@ -191,6 +193,7 @@ describe('generateFontFaceCss', () => {
     if (!result.ok) {
       return;
     }
+
     const css = result.data;
     const blockCount: number = (css.match(/@font-face/g) ?? []).length;
     expect(blockCount).toBe(3);
@@ -332,6 +335,7 @@ describe('templateAppHtml plugin', () => {
 
   it('config hook is no-op when command is serve', () => {
     const plugin = templateAppHtml(TEST_APP_CONFIG);
+
     if (typeof plugin.config === 'function') {
       const configFn = plugin.config;
       configFn.call({} as never, {} as never, { command: 'serve', mode: 'development' } as never);

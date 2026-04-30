@@ -42,6 +42,7 @@
   const validated: DialogueBoxProps = $derived.by(() => {
     const rawProps: DialogueBoxProps = stripSvelteProps(allProps);
     const result = safeParse(DialogueBoxPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

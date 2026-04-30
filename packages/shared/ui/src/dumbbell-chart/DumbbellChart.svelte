@@ -42,6 +42,7 @@
   const validated: DumbbellChartProps = $derived.by(() => {
     const rawProps: DumbbellChartProps = stripSvelteProps(allProps);
     const result = safeParse(DumbbellChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

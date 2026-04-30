@@ -170,6 +170,7 @@ export function createDevtoolsAPI(
 
   // Build setter map from schema
   const appSetterMap: Record<Str, Str> = {};
+
   for (const key of Object.keys(config.appPreferencesSchema)) {
     const capitalized: Str = key.charAt(0).toUpperCase() + key.slice(1);
     appSetterMap[key] = `set${capitalized}`;
@@ -188,14 +189,17 @@ export function createDevtoolsAPI(
 
     set(path: Str, value: unknown): Void {
       const [section, key] = path.split('.');
+
       if (!section || !key) {
         return;
       }
 
       if (section === 'app') {
         const setterName: Str | undefined = appSetterMap[key];
+
         if (setterName) {
           const setter = (appStore as Record<Str, unknown>)[setterName];
+
           if (typeof setter === 'function') {
             (setter as (v: unknown) => Void)(value);
           }
@@ -215,24 +219,28 @@ export function createDevtoolsAPI(
 
     setTheme(theme: Str): Void {
       const setter = (appStore as Record<Str, unknown>).setTheme;
+
       if (typeof setter === 'function') {
         (setter as (v: Str) => void)(theme);
       }
     },
     setMode(mode: Str): Void {
       const setter = (appStore as Record<Str, unknown>).setMode;
+
       if (typeof setter === 'function') {
         (setter as (v: Str) => void)(mode);
       }
     },
     setLocale(locale: Str): Void {
       const setter = (appStore as Record<Str, unknown>).setLocale;
+
       if (typeof setter === 'function') {
         (setter as (v: Str) => void)(locale);
       }
     },
     setSidebarOpen(open: Bool): Void {
       const setter = (appStore as Record<Str, unknown>).setSidebarOpen;
+
       if (typeof setter === 'function') {
         (setter as (v: Bool) => void)(open);
       }
@@ -271,6 +279,7 @@ export function createDevtoolsAPI(
 
     registerWatcher(name: Str, getter: () => Record<Str, unknown>): Void {
       const existing: WatcherCleanup | undefined = watchers.get(name);
+
       if (existing) {
         existing();
       }
@@ -279,6 +288,7 @@ export function createDevtoolsAPI(
 
     unregisterWatcher(name: Str): Void {
       const cleanup: WatcherCleanup | undefined = watchers.get(name);
+
       if (cleanup) {
         cleanup();
         watchers.delete(name);
@@ -310,6 +320,7 @@ export function createDevtoolsAPI(
     perf: {
       vitals(): PanelMetric[] {
         const result = getVitalsPanelMetrics();
+
         if (!result.ok) {
           return [];
         }
@@ -318,6 +329,7 @@ export function createDevtoolsAPI(
 
       beacon(): BeaconStatus {
         const result = getBeaconStatus();
+
         if (!result.ok) {
           return {
             queued: 0 as Num,
@@ -332,6 +344,7 @@ export function createDevtoolsAPI(
 
       device(): ConnectionSnapshot {
         const result = getConnectionSnapshot();
+
         if (!result.ok) {
           return {
             effectiveType: '',
@@ -351,6 +364,7 @@ export function createDevtoolsAPI(
       logVitals(): Void {
         const vitalsResult = getVitalsPanelMetrics();
         const metrics: PanelMetric[] = vitalsResult.ok ? (vitalsResult.data as PanelMetric[]) : [];
+
         if (metrics.length === 0) {
           console.log(
             '%c[Perf] %cNo Web Vitals collected yet',
@@ -367,6 +381,7 @@ export function createDevtoolsAPI(
             ? `${Math.round(m.value)}ms`
             : String(Math.round(m.value * 10_000) / 10_000);
           let ratingColor: Str = 'color:#f44';
+
           if (m.rating === 'good') {
             ratingColor = 'color:#4f4';
           } else if (m.rating === 'needsImprovement') {
@@ -403,9 +418,11 @@ export function createDevtoolsAPI(
 
       logDevice(): Void {
         const snapResult = getConnectionSnapshot();
+
         if (!snapResult.ok) {
           return;
         }
+
         const snap: ConnectionSnapshot = snapResult.data;
         console.log('%cDevice & Connection', HELP_HEADER);
         const entries: Array<[Str, Str]> = [
@@ -419,6 +436,7 @@ export function createDevtoolsAPI(
           ['Low-End Device', snap.isLowEndDevice ? 'Yes' : 'No'],
           ['Low-End Experience', snap.isLowEndExperience ? 'Yes' : 'No'],
         ];
+
         for (const [key, val] of entries) {
           console.log(`  %c${key.padEnd(18)}%c ${val}`, styles.keyLabel, styles.valueText);
         }
@@ -429,9 +447,11 @@ export function createDevtoolsAPI(
       const prefs = discoverAppPreferences(
         config.appPreferencesSchema as Record<Str, Record<Str, unknown>>,
       );
+
       for (const pref of prefs) {
         const setterName: Str = `set${pref.key.charAt(0).toUpperCase()}${pref.key.slice(1)}`;
         const setter = (appStore as unknown as Record<Str, (v: unknown) => unknown>)[setterName];
+
         if (typeof setter === 'function') {
           setter(pref.default);
         }
@@ -449,6 +469,7 @@ export function createDevtoolsAPI(
       const flags = discoverFeatureFlags(
         config.featureFlagsSchema as Record<Str, Record<Str, unknown>>,
       );
+
       for (const flag of flags) {
         appStore.setFeature(flag.key, flag.default);
       }
@@ -487,6 +508,7 @@ export function createDevtoolsAPI(
 
     toString(): Str {
       const version: Str = BUILD_INFO ? BUILD_INFO.version : 'unknown';
+
       return `[${appName} Devtools v${version}] — type .help() for API reference`;
     },
 

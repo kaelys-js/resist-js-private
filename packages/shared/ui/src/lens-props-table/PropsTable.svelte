@@ -53,6 +53,7 @@
   const validated: PropsTableProps = $derived.by(() => {
     const rawProps: PropsTableProps = stripSvelteProps(allProps);
     const result = safeParse(PropsTablePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }
@@ -135,6 +136,7 @@
    */
   function toggleTypeFields(propName: Str): Void {
     const next: Set<Str> = new Set(expandedTypeFields);
+
     if (next.has(propName)) {
       next.delete(propName);
     } else {
@@ -149,6 +151,7 @@
    */
   export function expandAllTypeFields(): Void {
     const all: Set<Str> = new Set<Str>();
+
     for (const prop of validated.props) {
       if (hasTypeFields(prop)) {
         all.add(prop.name);
@@ -294,6 +297,7 @@
    */
   async function copyPropLink(propName: Str): Promise<void> {
     const url: Str = `${window.location.origin}${window.location.pathname}#prop-${propName}` as Str;
+
     try {
       await navigator.clipboard.writeText(url);
     } catch {
@@ -405,7 +409,9 @@
       return 'rounded bg-muted px-1 py-0.5 text-[11px] text-muted-foreground/50' as Str;
     }
     // Other members: base chip + typeTokenClass
+
     const colorClass: Str = typeTokenClass(rawMember);
+
     return `rounded bg-muted px-1 py-0.5 text-[11px] ${colorClass}` as Str;
   }
 
@@ -428,11 +434,13 @@
 
     if (type.includes("['")) {
       const parent: Str = type.split("['")[0] ?? '';
+
       return `Type inherited from ${parent}. See the parent type definition for details.`;
     }
 
     if (type.endsWith('[]')) {
       const base: Str = type.slice(0, -2);
+
       return `An array of ${base} values.`;
     }
 
@@ -441,6 +449,7 @@
       const allLiterals: Bool = options.every(
         (o: Str): boolean => o.startsWith("'") || o === 'undefined' || o === 'null',
       );
+
       if (allLiterals) {
         return `Accepts one of: ${type}`;
       }
@@ -449,6 +458,7 @@
 
     if (type.includes('<')) {
       const baseName: Str = type.split('<')[0] ?? '';
+
       return `A ${baseName} generic type. See TypeScript docs for details.`;
     }
 
@@ -486,8 +496,10 @@
       Component: 'component',
     };
     const primitiveAccepts: Str | undefined = primitiveMap[baseType];
+
     if (primitiveAccepts) {
       const label: Str = isArray ? `list of ${primitiveAccepts}` : primitiveAccepts;
+
       return isNullable ? `${label} or empty` : label;
     }
 
@@ -497,6 +509,7 @@
       const allLiterals: Bool = options.every(
         (o: Str): boolean => o.startsWith("'") || o === 'undefined' || o === 'null',
       );
+
       if (allLiterals) {
         return options
           .filter((o: Str): boolean => o !== 'undefined' && o !== 'null')
@@ -513,6 +526,7 @@
       const allLiterals: Bool = options.every(
         (o: Str): boolean => o.startsWith("'") || o === 'undefined' || o === 'null',
       );
+
       if (allLiterals) {
         return options
           .filter((o: Str): boolean => o !== 'undefined' && o !== 'null')
@@ -524,6 +538,7 @@
     // Object types with type fields — show field count
     if (hasTypeFields(prop)) {
       const count: Num = prop.typeFields?.length ?? 0;
+
       return `object (${count} ${count === 1 ? 'field' : 'fields'})`;
     }
 

@@ -42,6 +42,7 @@
   const validated: ShimmerButtonProps = $derived.by(() => {
     const rawProps: ShimmerButtonProps = stripSvelteProps(allProps);
     const result = safeParse(ShimmerButtonPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

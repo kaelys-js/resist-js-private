@@ -43,6 +43,7 @@
   const validated: AnimatedTextProps = $derived.by(() => {
     const rawProps: AnimatedTextProps = stripSvelteProps(allProps);
     const result = safeParse(AnimatedTextPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

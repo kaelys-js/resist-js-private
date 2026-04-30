@@ -51,6 +51,7 @@
   const validated: CopyButtonProps = $derived.by(() => {
     const rawProps: CopyButtonProps = stripSvelteProps(restProps);
     const result = safeParse(CopyButtonPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }
@@ -65,6 +66,7 @@
   /** Tooltip text derived from the current copy state. */
   const tooltipText: Str = $derived.by((): Str => {
     const state: typeof copyState = copyState;
+
     if (state === 'success') {
       return 'Copied!';
     }

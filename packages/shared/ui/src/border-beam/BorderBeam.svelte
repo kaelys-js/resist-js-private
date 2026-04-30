@@ -42,6 +42,7 @@
   const validated: BorderBeamProps = $derived.by(() => {
     const rawProps: BorderBeamProps = stripSvelteProps(allProps);
     const result = safeParse(BorderBeamPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

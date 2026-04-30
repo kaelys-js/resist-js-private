@@ -42,6 +42,7 @@
   const validated: ExchangeRateProps = $derived.by(() => {
     const rawProps: ExchangeRateProps = stripSvelteProps(allProps);
     const result = safeParse(ExchangeRatePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

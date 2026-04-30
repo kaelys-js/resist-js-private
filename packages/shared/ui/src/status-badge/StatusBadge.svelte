@@ -42,6 +42,7 @@
   const validated: StatusBadgeProps = $derived.by(() => {
     const rawProps: StatusBadgeProps = stripSvelteProps(allProps);
     const result = safeParse(StatusBadgePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -71,11 +71,13 @@ type GitleaksEntry = {
  */
 export function transformGitleaksOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
 
   let items: unknown[];
+
   try {
     items = JSON.parse(trimmed) as unknown[];
   } catch {
@@ -87,6 +89,7 @@ export function transformGitleaksOutput(output: string, strings: LintStrings): L
   }
 
   const results: LintResult[] = [];
+
   for (const item of items) {
     const obj: Record<string, unknown> = item as Record<string, unknown>;
     const typed: GitleaksEntry = obj as unknown as GitleaksEntry;

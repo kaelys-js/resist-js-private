@@ -43,6 +43,7 @@
   const validated: CreditCardInputProps = $derived.by(() => {
     const rawProps: CreditCardInputProps = stripSvelteProps(allProps);
     const result = safeParse(CreditCardInputPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

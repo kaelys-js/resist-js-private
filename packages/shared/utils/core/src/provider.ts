@@ -343,6 +343,7 @@ export function detectProvider(env: EnvRecordWithUndefined): Result<ProviderInfo
   for (const provider of PROVIDERS) {
     const allMatch: Bool = provider.checks.every((check: ProviderEnvCheck): Bool => {
       const val: Str | undefined = env[check.key];
+
       if (val === undefined) {
         return false;
       }
@@ -354,14 +355,17 @@ export function detectProvider(env: EnvRecordWithUndefined): Result<ProviderInfo
       }
       return true;
     });
+
     if (!allMatch) {
       continue;
     }
 
     // PR detection
     let isPR: Bool | null = null;
+
     if (provider.pr !== undefined) {
       const prVal: Str | undefined = env[provider.pr.key];
+
       if (prVal === undefined || prVal === '') {
         isPR = false;
       } else if (provider.pr.excludeValues !== undefined) {

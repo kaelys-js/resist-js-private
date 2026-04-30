@@ -42,6 +42,7 @@
   const validated: MagneticButtonProps = $derived.by(() => {
     const rawProps: MagneticButtonProps = stripSvelteProps(allProps);
     const result = safeParse(MagneticButtonPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

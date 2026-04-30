@@ -155,6 +155,7 @@ function mockContext(
     readFile: (path: string): Promise<string> =>
       new Promise<string>((resolve: (v: string) => void, reject: (e: Error) => void): void => {
         const content: string | undefined = files.get(path);
+
         if (content === undefined) {
           reject(new Error(`File not found: ${path}`));
           return;
@@ -479,9 +480,11 @@ describe('workspace/no-oversized-commits', () => {
 
   it('warns when file count exceeds 50', async () => {
     const files: Map<string, string> = new Map();
+
     for (let i: number = 0; i < 55; i++) {
       files.set(`/workspace/src/file${String(i)}.ts`, '');
     }
+
     const ctx: WorkspaceContext = mockContext({ files });
     const results: LintResult[] = await noOversizedCommits.check(ctx);
     expect(results.length).toBe(1);
@@ -2892,6 +2895,7 @@ describe('workspace/enforce-branch-naming', () => {
   it('passes for all valid prefixes', async () => {
     const { execSync } = await import('node:child_process');
     const prefixes: string[] = ['feature', 'fix', 'hotfix', 'chore', 'release', 'test', 'docs'];
+
     for (const prefix of prefixes) {
       vi.mocked(execSync).mockReturnValue(`${prefix}/something\n`);
       const ctx: WorkspaceContext = mockContext({ rootDir: '/workspace' });
@@ -3102,6 +3106,7 @@ describe('workspace/enforce-git-config', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
+
       if (command.includes('core.autocrlf')) {
         return 'input\n';
       }
@@ -3122,6 +3127,7 @@ describe('workspace/enforce-git-config', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
+
       if (command.includes('core.autocrlf')) {
         return 'true\n';
       }
@@ -3146,6 +3152,7 @@ describe('workspace/enforce-git-config', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
+
       if (command.includes('core.autocrlf')) {
         throw new Error('unset');
       }
@@ -3224,6 +3231,7 @@ describe('workspace/no-unsafe-main-push', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
+
       if (command.includes('symbolic-ref')) {
         return 'main\n';
       }
@@ -3247,6 +3255,7 @@ describe('workspace/no-unsafe-main-push', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
+
       if (command.includes('symbolic-ref')) {
         return 'master\n';
       }
@@ -3268,6 +3277,7 @@ describe('workspace/no-unsafe-main-push', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
+
       if (command.includes('symbolic-ref')) {
         return 'main\n';
       }
@@ -3289,6 +3299,7 @@ describe('workspace/no-unsafe-main-push', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
+
       if (command.includes('symbolic-ref')) {
         return 'main\n';
       }
@@ -3310,6 +3321,7 @@ describe('workspace/no-unsafe-main-push', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
+
       if (command.includes('symbolic-ref')) {
         return 'feature/my-feature\n';
       }
@@ -3469,6 +3481,7 @@ describe('workspace/no-dirty-working-tree', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
+
       if (command.includes('git diff --quiet') && !command.includes('--cached')) {
         throw new Error('exit code 1');
       }
@@ -3486,6 +3499,7 @@ describe('workspace/no-dirty-working-tree', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
+
       if (command.includes('--cached')) {
         throw new Error('exit code 1');
       }
@@ -3529,6 +3543,7 @@ describe('workspace/no-broken-git-refs', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
+
       if (command.includes('rev-parse --verify HEAD')) {
         throw new Error('fatal: not a valid ref');
       }
@@ -3549,6 +3564,7 @@ describe('workspace/no-broken-git-refs', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
+
       if (command.includes('rev-parse')) {
         return 'abc123\n';
       }
@@ -3568,6 +3584,7 @@ describe('workspace/no-broken-git-refs', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
+
       if (command.includes('rev-parse')) {
         return 'abc123\n';
       }
@@ -3585,6 +3602,7 @@ describe('workspace/no-broken-git-refs', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
+
       if (command.includes('rev-parse')) {
         return 'abc123\n';
       }
@@ -3632,6 +3650,7 @@ describe('workspace/no-broken-git-head', () => {
     const { existsSync, readFileSync } = await import('node:fs');
     vi.mocked(existsSync).mockImplementation((p: unknown) => {
       const path: string = String(p);
+
       if (path.endsWith('HEAD')) {
         return true;
       }
@@ -3682,6 +3701,7 @@ describe('workspace/no-unsafe-global-gitconfig', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
+
       if (command.includes('push.default')) {
         return 'matching\n';
       }
@@ -3699,6 +3719,7 @@ describe('workspace/no-unsafe-global-gitconfig', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
+
       if (command.includes('core.autocrlf')) {
         return 'true\n';
       }
@@ -3714,6 +3735,7 @@ describe('workspace/no-unsafe-global-gitconfig', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
+
       if (command.includes('core.ignorecase')) {
         return 'true\n';
       }
@@ -3729,6 +3751,7 @@ describe('workspace/no-unsafe-global-gitconfig', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
+
       if (command.includes('push.default')) {
         return 'matching\n';
       }
@@ -3768,6 +3791,7 @@ describe('workspace/no-orphaned-git-refs', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
+
       if (command.includes('for-each-ref')) {
         return 'refs/heads/broken abc123\n';
       }
@@ -3788,6 +3812,7 @@ describe('workspace/no-orphaned-git-refs', () => {
     const { execSync } = await import('node:child_process');
     vi.mocked(execSync).mockImplementation((cmd: unknown) => {
       const command: string = String(cmd);
+
       if (command.includes('for-each-ref')) {
         return 'refs/heads/main abc123\n';
       }
@@ -6132,6 +6157,7 @@ describe('workspace-rules-3 — bulk inputs() smoke-coverage', () => {
       if (typeof rule.inputs !== 'function') {
         return;
       }
+
       const ctx: WorkspaceContext = mockContext({
         rootDir: '/workspace',
         files: new Map([

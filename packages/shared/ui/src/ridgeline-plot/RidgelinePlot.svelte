@@ -42,6 +42,7 @@
   const validated: RidgelinePlotProps = $derived.by(() => {
     const rawProps: RidgelinePlotProps = stripSvelteProps(allProps);
     const result = safeParse(RidgelinePlotPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

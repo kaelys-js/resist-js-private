@@ -25,6 +25,7 @@ const STUB_EVENT = {} as Parameters<typeof load400>[0];
 describe('test-error route load() — throws shape', () => {
   it('400 throws SvelteKit HttpError with status 400 and message "Bad Request"', () => {
     let thrown: unknown = null;
+
     try {
       (load400 as unknown as (e: typeof STUB_EVENT) => void)(STUB_EVENT);
     } catch (error) {
@@ -37,6 +38,7 @@ describe('test-error route load() — throws shape', () => {
 
   it('403 throws SvelteKit HttpError with status 403 and message "Forbidden"', () => {
     let thrown: unknown = null;
+
     try {
       (load403 as unknown as (e: typeof STUB_EVENT) => void)(STUB_EVENT);
     } catch (error) {
@@ -48,6 +50,7 @@ describe('test-error route load() — throws shape', () => {
 
   it('404 throws SvelteKit HttpError with status 404 and message "Not found"', () => {
     let thrown: unknown = null;
+
     try {
       (load404 as unknown as (e: typeof STUB_EVENT) => void)(STUB_EVENT);
     } catch (error) {
@@ -59,6 +62,7 @@ describe('test-error route load() — throws shape', () => {
 
   it('500 throws SvelteKit HttpError with status 500 and message "Internal server error"', () => {
     let thrown: unknown = null;
+
     try {
       (load500 as unknown as (e: typeof STUB_EVENT) => void)(STUB_EVENT);
     } catch (error) {
@@ -70,6 +74,7 @@ describe('test-error route load() — throws shape', () => {
 
   it('unexpected throws raw Error with the simulated-crash message', () => {
     let thrown: unknown = null;
+
     try {
       (loadUnexpected as unknown as (e: typeof STUB_EVENT) => void)(STUB_EVENT);
     } catch (error) {
@@ -81,6 +86,7 @@ describe('test-error route load() — throws shape', () => {
 
   it('validation throws an AppError carrying validation details', () => {
     let thrown: unknown = null;
+
     try {
       (loadValidation as unknown as (e: typeof STUB_EVENT) => void)(STUB_EVENT);
     } catch (error) {

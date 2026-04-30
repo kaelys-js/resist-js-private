@@ -54,6 +54,7 @@ const PROBLEMATIC_LICENSES: readonly string[] = [
  */
 function isProblematicLicense(license: string): boolean {
   const upper: string = license.toUpperCase();
+
   return PROBLEMATIC_LICENSES.some((prob: string): boolean => upper.includes(prob));
 }
 
@@ -78,11 +79,13 @@ function isProblematicLicense(license: string): boolean {
  */
 export function transformLicenseCheckerOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
 
   let parsed: Record<string, unknown>;
+
   try {
     parsed = JSON.parse(trimmed) as Record<string, unknown>;
   } catch {

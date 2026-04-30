@@ -36,6 +36,7 @@
   const validated: AppLogoProps = $derived.by(() => {
     const rawProps: AppLogoProps = stripSvelteProps(restProps);
     const result = safeParse(AppLogoPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

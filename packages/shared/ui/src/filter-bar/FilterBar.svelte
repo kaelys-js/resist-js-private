@@ -42,6 +42,7 @@
   const validated: FilterBarProps = $derived.by(() => {
     const rawProps: FilterBarProps = stripSvelteProps(allProps);
     const result = safeParse(FilterBarPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

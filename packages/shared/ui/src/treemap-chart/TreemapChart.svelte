@@ -42,6 +42,7 @@
   const validated: TreemapChartProps = $derived.by(() => {
     const rawProps: TreemapChartProps = stripSvelteProps(allProps);
     const result = safeParse(TreemapChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

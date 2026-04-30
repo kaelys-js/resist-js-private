@@ -42,6 +42,7 @@
   const validated: ContactsListProps = $derived.by(() => {
     const rawProps: ContactsListProps = stripSvelteProps(allProps);
     const result = safeParse(ContactsListPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

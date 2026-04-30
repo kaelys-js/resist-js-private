@@ -38,11 +38,13 @@ const rule: TypeScriptRule = {
       }
 
       const body: AstNode | undefined = getCallbackBody(node);
+
       if (!body || body.type !== 'BlockStatement') {
         return [];
       }
 
       const subscriptions: string[] = findSubscriptionPatterns(body);
+
       if (subscriptions.length === 0) {
         return [];
       }
@@ -52,6 +54,7 @@ const rule: TypeScriptRule = {
       }
 
       const results: LintResult[] = [];
+
       for (const pattern of subscriptions) {
         results.push({
           file: context.file,

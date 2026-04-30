@@ -42,6 +42,7 @@
   const validated: TrialBannerProps = $derived.by(() => {
     const rawProps: TrialBannerProps = stripSvelteProps(allProps);
     const result = safeParse(TrialBannerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

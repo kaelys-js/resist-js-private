@@ -65,6 +65,7 @@ const rule: WorkspaceRule = {
 
     if (content.startsWith('ref: ')) {
       const ref: string = content.slice(5);
+
       if (!existsSync(join(ctx.rootDir, '.git', ref))) {
         results.push(
           createResult(

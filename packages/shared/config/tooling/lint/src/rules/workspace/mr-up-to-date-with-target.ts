@@ -42,6 +42,7 @@ const rule: WorkspaceRule = {
 
     const targetBranch: string | undefined = process.env['MR_TARGET_BRANCH'];
     const sourceBranch: string | undefined = process.env['MR_SOURCE_BRANCH'];
+
     if (targetBranch === undefined || sourceBranch === undefined) {
       return Promise.resolve(results);
     }

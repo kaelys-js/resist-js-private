@@ -42,6 +42,7 @@
   const validated: PortfolioCardProps = $derived.by(() => {
     const rawProps: PortfolioCardProps = stripSvelteProps(allProps);
     const result = safeParse(PortfolioCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -35,6 +35,7 @@ describe('DevToolbarAppState', () => {
   it('renders an accessible label for boolean and string preferences', () => {
     render(DevToolbarAppStateTest);
     const nonPicklistPrefs = preferences.filter((p) => p.type !== 'picklist');
+
     for (const pref of nonPicklistPrefs) {
       const label: HTMLElement | null = document.querySelector(`label[for="pref-${pref.key}"]`);
       expect(label).toBeInTheDocument();

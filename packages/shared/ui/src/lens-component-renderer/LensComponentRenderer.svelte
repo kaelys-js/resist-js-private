@@ -300,6 +300,7 @@
   /** Filtered outline style options based on search query. */
   const filteredDebugOutlineStyles = $derived.by(() => {
     const q: Str = (debugOutlineSettingsSearch as string).toLowerCase() as Str;
+
     if (!q) {
       return DEBUG_OUTLINE_STYLES;
     }
@@ -313,6 +314,7 @@
   /** Filtered outline width options based on search query. */
   const filteredDebugOutlineWidths = $derived.by(() => {
     const q: Str = (debugOutlineSettingsSearch as string).toLowerCase() as Str;
+
     if (!q) {
       return DEBUG_OUTLINE_WIDTHS;
     }
@@ -784,6 +786,7 @@
       } else {
         try {
           const msg = JSON.parse(event.data as string);
+
           if (msg.type === 'fps') {
             liveViewFps[cardKey] = msg.value as Num;
           } else if (msg.type === 'latency') {
@@ -808,6 +811,7 @@
       // Auto-reconnect if the session is still active (not manually stopped)
       if (livePreviewActive[cardKey]) {
         const attempt: Num = (liveViewReconnectAttempt[cardKey] ?? 0) as Num;
+
         if ((attempt as number) < (RECONNECT_MAX_ATTEMPTS as number)) {
           liveViewStatus[cardKey] = 'reconnecting' as Str;
           const delay: Num = Math.min(
@@ -844,6 +848,7 @@
    */
   function cancelReconnect(cardKey: Str): void {
     const timer = liveViewReconnectTimer[cardKey];
+
     if (timer !== undefined) {
       clearTimeout(timer);
       liveViewReconnectTimer[cardKey] = undefined;
@@ -865,6 +870,7 @@
         const canvas: HTMLCanvasElement | null = document.querySelector(
           `[data-live-canvas="${cardKey}"]`,
         );
+
         if (canvas) {
           canvas.focus();
         }
@@ -899,6 +905,7 @@
     const canvas: HTMLCanvasElement | null = document.querySelector(
       `[data-live-canvas="${cardKey}"]`,
     );
+
     if (!canvas) {
       return;
     }
@@ -946,6 +953,7 @@
     livePreviewActive[cardKey] = false as Bool;
 
     const ws: WebSocket | undefined = liveViewWs[cardKey];
+
     if (ws) {
       ws.send(JSON.stringify({ type: 'stop' }));
       ws.close();
@@ -962,6 +970,7 @@
     liveViewPendingFrame[cardKey] = undefined;
     liveViewPendingMove[cardKey] = undefined;
     const raf: Num | undefined = liveViewMoveRaf[cardKey];
+
     if (raf !== undefined) {
       cancelAnimationFrame(raf as number);
       liveViewMoveRaf[cardKey] = undefined;
@@ -991,6 +1000,7 @@
       const canvas: HTMLCanvasElement | null = document.querySelector(
         `[data-live-canvas="${cardKey}"]`,
       );
+
       if (!canvas) {
         return;
       }
@@ -998,6 +1008,7 @@
       const blob: Blob = new Blob([data], { type: 'image/jpeg' });
       const bitmap: ImageBitmap = await createImageBitmap(blob);
       const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
+
       if (!ctx) {
         bitmap.close();
         return;
@@ -1016,6 +1027,7 @@
 
       // If a newer frame arrived during decode, render it now
       const pending: ArrayBuffer | undefined = liveViewPendingFrame[cardKey];
+
       if (pending) {
         liveViewPendingFrame[cardKey] = undefined;
         renderFrame(cardKey, pending);
@@ -1034,6 +1046,7 @@
    */
   function sendLiveInput(cardKey: Str, msg: Record<string, unknown>): void {
     const ws: WebSocket | undefined = liveViewWs[cardKey];
+
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify(msg));
     }
@@ -1060,6 +1073,7 @@
     liveViewMoveRaf[cardKey] = requestAnimationFrame((): void => {
       liveViewMoveRaf[cardKey] = undefined;
       const pending: Record<string, unknown> | undefined = liveViewPendingMove[cardKey];
+
       if (pending) {
         liveViewPendingMove[cardKey] = undefined;
         sendLiveInput(cardKey, pending);
@@ -1078,6 +1092,7 @@
     const rect: DOMRect = canvas.getBoundingClientRect();
     const x: Num = Math.round(((event.clientX - rect.left) / rect.width) * canvas.width) as Num;
     const y: Num = Math.round(((event.clientY - rect.top) / rect.height) * canvas.height) as Num;
+
     return { x, y };
   }
 
@@ -1090,6 +1105,7 @@
    */
   function getModifiers(event: MouseEvent | KeyboardEvent): Num {
     let mods: Num = 0 as Num;
+
     if (event.altKey) {
       mods = ((mods as number) | 1) as Num;
     }
@@ -1122,9 +1138,11 @@
       if (typeof VideoDecoder === 'undefined') {
         return false;
       }
+
       const support = await VideoDecoder.isConfigSupported({
         codec: 'avc1.42001e', // H.264 Baseline Level 3.0
       });
+
       return support.supported === true;
     } catch {
       /* VideoDecoder.isConfigSupported not available — non-critical */
@@ -1182,6 +1200,7 @@
     const profile: Str = (sps[1] ?? 0x42).toString(16).padStart(2, '0') as Str;
     const compat: Str = (sps[2] ?? 0x00).toString(16).padStart(2, '0') as Str;
     const level: Str = (sps[3] ?? 0x1e).toString(16).padStart(2, '0') as Str;
+
     return `avc1.${profile}${compat}${level}` as Str;
   }
 
@@ -1241,12 +1260,14 @@
       const canvas: HTMLCanvasElement | null = document.querySelector(
         `[data-live-canvas="${cardKey}"]`,
       );
+
       if (!canvas) {
         frame.close();
         return;
       }
 
       const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
+
       if (!ctx) {
         frame.close();
         return;
@@ -1280,11 +1301,13 @@
    */
   function decodeH264Frame(cardKey: Str, data: ArrayBuffer): void {
     const decoder: VideoDecoder | undefined = liveViewDecoder[cardKey];
+
     if (!decoder || decoder.state !== 'configured') {
       return;
     }
 
     const view: Uint8Array = new Uint8Array(data);
+
     if (view.length < 2) {
       return;
     }
@@ -1326,6 +1349,7 @@
 
     while ((i as number) < data.length - 2) {
       const idx: number = i as number;
+
       if (data[idx] === 0 && data[idx + 1] === 0) {
         if (data[idx + 2] === 1) {
           nalStarts.push({ offset: i, headerLen: 3 as Num });
@@ -1347,11 +1371,14 @@
 
     // Calculate total size: each NAL gets a 4-byte length prefix
     let totalSize: Num = 0 as Num;
+
     for (let n: Num = 0 as Num; (n as number) < nalStarts.length; n = ((n as number) + 1) as Num) {
       const start = nalStarts[n as number];
+
       if (start === undefined) {
         continue;
       }
+
       const nalBodyStart: number = (start.offset as number) + (start.headerLen as number);
       const next = nalStarts[(n as number) + 1];
       const nalBodyEnd: number = next === undefined ? data.length : (next.offset as number);
@@ -1364,9 +1391,11 @@
 
     for (let n: Num = 0 as Num; (n as number) < nalStarts.length; n = ((n as number) + 1) as Num) {
       const start = nalStarts[n as number];
+
       if (start === undefined) {
         continue;
       }
+
       const nalBodyStart: number = (start.offset as number) + (start.headerLen as number);
       const next = nalStarts[(n as number) + 1];
       const nalBodyEnd: number = next === undefined ? data.length : (next.offset as number);
@@ -1387,6 +1416,7 @@
    */
   function cleanupH264Decoder(cardKey: Str): void {
     const decoder: VideoDecoder | undefined = liveViewDecoder[cardKey];
+
     if (decoder && decoder.state !== 'closed') {
       decoder.close();
     }
@@ -1429,9 +1459,11 @@
    */
   function healthPercent(stats: LensStatsData): Num {
     const { budgets }: { budgets: MetricBudget[] } = stats;
+
     if (budgets.length === 0) {
       return 100 as Num;
     }
+
     const total: Num = budgets.reduce((sum: Num, b: MetricBudget): Num => {
       if (b.level === 'green') {
         return (sum + 100) as Num;
@@ -1441,6 +1473,7 @@
       }
       return sum;
     }, 0 as Num);
+
     return Math.round((total as number) / budgets.length) as Num;
   }
 
@@ -1520,6 +1553,7 @@
       '',
       `- **CLS:** ${stats.vitals.clsScore} (${stats.vitals.clsShiftCount} shifts)`,
     ];
+
     if (stats.vitals.clsSources.length > 0) {
       for (const src of stats.vitals.clsSources) {
         lines.push(`  - \`${src.selector}\` (${src.tag}, shift: ${src.shiftValue})`);
@@ -1652,8 +1686,10 @@
     const rows: Str[] = stats.budgets.map((b: MetricBudget): Str => {
       const val: Str = b.value.replaceAll('"', '""');
       const thresh: Str = b.thresholds.replaceAll('"', '""');
+
       return `"${name}","${b.label}","${val}",${b.level},"${thresh}"`;
     });
+
     return [header, ...rows].join('\n');
   }
 
@@ -1725,6 +1761,7 @@
       ? STATS_EXPORT_ITEMS
       : STATS_EXPORT_ITEMS.filter((p) => {
           const q: Str = statsExportSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q) ||
             p.description.toLowerCase().includes(q) ||
@@ -1747,6 +1784,7 @@
    */
   async function handleStatsExport(stats: LensStatsData, name: Str, formatId: Str): Promise<void> {
     const slug: Str = name.toLowerCase().replaceAll(/\s+/g, '-');
+
     if (formatId === 'copy-json') {
       await navigator.clipboard.writeText(formatStatsJson(stats, name));
     } else if (formatId === 'copy-markdown') {
@@ -1883,6 +1921,7 @@
       const obj: Record<Str, unknown> = error as Record<Str, unknown>;
       const code: Str = typeof obj.code === 'string' ? obj.code : '';
       const msg: Str = typeof obj.message === 'string' ? obj.message : '';
+
       if (msg) {
         return code ? `[${code}] ${msg}` : msg;
       }
@@ -1907,6 +1946,7 @@
         name: error.name,
         message: error.message,
       };
+
       if (error.stack) {
         errorObj.stack = error.stack;
       }
@@ -1989,13 +2029,17 @@
     /** Measure the tallest portal child and update state. */
     function measure(): Void {
       const portalEl: HTMLElement | null = node.querySelector('[data-lens-portal]');
+
       if (!portalEl || portalEl.children.length === 0) {
         cardPortalHeights[currentKey] = 0;
         return;
       }
+
       let maxH: Num = 0;
+
       for (const child of portalEl.children) {
         const rect: DOMRect = child.getBoundingClientRect();
+
         if (rect.height > maxH) {
           maxH = rect.height;
         }
@@ -2007,6 +2051,7 @@
     function observePortalChildren(): Void {
       resizeObserver?.disconnect();
       const portalEl: HTMLElement | null = node.querySelector('[data-lens-portal]');
+
       if (!portalEl) {
         return;
       }
@@ -2029,6 +2074,7 @@
     // so poll briefly until it appears, then attach the mutation observer
     function waitForPortal(): Void {
       const portalEl: HTMLElement | null = node.querySelector('[data-lens-portal]');
+
       if (portalEl) {
         mutationObserver?.observe(portalEl, { childList: true });
         observePortalChildren();
@@ -2130,6 +2176,7 @@
     const raf: Num = requestAnimationFrame((): void => {
       node.style.minHeight = `${node.offsetHeight}px`;
     });
+
     return {
       destroy(): void {
         cancelAnimationFrame(raf);
@@ -3400,7 +3447,9 @@
           if (item.id === 'none') {
             return true;
           }
+
           const q: Str = networkSearchQuery.toLowerCase() as Str;
+
           return (
             item.label.toLowerCase().includes(q) ||
             item.description.toLowerCase().includes(q) ||
@@ -3601,6 +3650,7 @@
       ? EXPORT_ITEMS
       : EXPORT_ITEMS.filter((p) => {
           const q: Str = exportSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q) ||
             p.description.toLowerCase().includes(q) ||
@@ -3705,13 +3755,16 @@
    */
   function getOutlineColor(key: Str): Str {
     const id: Str = cardOutlines[key] ?? 'none';
+
     if (id === 'none') {
       return '';
     }
     if (id.startsWith('#') || id.startsWith('rgb')) {
       return id;
     }
+
     const preset = OUTLINE_PRESETS.find((p) => p.id === id);
+
     return preset?.color ?? '';
   }
 
@@ -3753,13 +3806,16 @@
    */
   function getGridColor(key: Str): Str {
     const id: Str = cardGrids[key] ?? 'none';
+
     if (id === 'none') {
       return '';
     }
     if (id.startsWith('#') || id.startsWith('rgb')) {
       return id;
     }
+
     const preset = GRID_PRESETS.find((p) => p.id === id);
+
     return preset?.color ?? '';
   }
 
@@ -3771,13 +3827,16 @@
    */
   function getGridFillColor(key: Str): Str {
     const id: Str = cardGridFills[key] ?? 'none';
+
     if (id === 'none') {
       return '';
     }
     if (id.startsWith('#') || id.startsWith('rgb')) {
       return id;
     }
+
     const preset = GRID_FILL_PRESETS.find((p) => p.id === id);
+
     return preset?.color ?? '';
   }
 
@@ -3789,12 +3848,15 @@
    */
   function getGridStyle(key: Str): Str {
     const color: Str = getGridColor(key);
+
     if (!color) {
       return '';
     }
+
     const size: Num = cardGridSizes[key] ?? GRID_DEFAULT_SIZE;
     const fillColor: Str = getGridFillColor(key);
     const fillStyle: Str = fillColor ? `; background-color: ${fillColor}` : '';
+
     return `background-image: linear-gradient(${color} 1px, transparent 1px), linear-gradient(90deg, ${color} 1px, transparent 1px); background-size: ${size}px ${size}px${fillStyle}`;
   }
 
@@ -3816,6 +3878,7 @@
    */
   function getOrientationStyle(key: Str): Str {
     const deg: Num = getOrientationDeg(key);
+
     if (deg === 0) {
       return '';
     }
@@ -3830,13 +3893,16 @@
    */
   function getOrientationDeg(key: Str): Num {
     const id: Str = cardOrientations[key] ?? 'default';
+
     if (id === 'default') {
       return 0 as Num;
     }
     if (id === 'custom') {
       return (cardCustomRotation[key] ?? 0) as Num;
     }
+
     const preset = ORIENTATION_PRESETS.find((p) => p.id === id);
+
     return (preset?.rotation ?? 0) as Num;
   }
 
@@ -3850,6 +3916,7 @@
   function hasNonAxisRotation(key: Str): Bool {
     const deg: Num = getOrientationDeg(key);
     const normalized: Num = ((((deg as number) % 360) + 360) % 360) as Num;
+
     return normalized !== 0 && normalized !== 90 && normalized !== 180 && normalized !== 270;
   }
 
@@ -3864,11 +3931,13 @@
     if (!hasNonAxisRotation(key)) {
       return '';
     }
+
     const deg: Num = getOrientationDeg(key);
     const normalized: Num = ((((deg as number) % 360) + 360) % 360) as Num;
     const rad: Num = (((normalized as number) * Math.PI) / 180) as Num;
     const sinA: Num = Math.abs(Math.sin(rad as number)) as Num;
     const padPct: Num = Math.ceil((sinA as number) * 40) as Num;
+
     return `padding: ${padPct}% 0`;
   }
 
@@ -3880,14 +3949,18 @@
    */
   function isLandscapeOrientation(key: Str): Bool {
     const id: Str = cardOrientations[key] ?? 'default';
+
     if (id === 'default') {
       return false;
     }
     if (id === 'custom') {
       const deg: Num = cardCustomRotation[key] ?? 0;
+
       return deg === 90 || deg === 270;
     }
+
     const preset = ORIENTATION_PRESETS.find((p) => p.id === id);
+
     return preset?.rotation === 90 || preset?.rotation === 270;
   }
 
@@ -3924,38 +3997,55 @@
   function collectCardStyles(key: Str): Record<Str, Str> {
     const s: Record<Str, Str> = {};
     const bg: Str = getBackgroundStyle(key);
+
     if (bg) {
       s.bg = bg;
     }
+
     const zoom: Str = getZoomStyle(key);
+
     if (zoom) {
       s.zoom = zoom;
     }
+
     const outline: Str = cardOutlines[key] ?? 'none';
+
     if (outline !== 'none') {
       s.outlineColor = getOutlineColor(key);
     }
+
     const grid: Str = getGridStyle(key);
+
     if (grid) {
       s.grid = grid;
     }
+
     const orient: Str = getOrientationStyle(key);
+
     if (orient) {
       s.orient = orient;
     }
+
     const mode: Str = cardModes[key] ?? 'auto';
+
     if (mode !== 'auto') {
       s.mode = mode;
     }
+
     const theme: Str = cardThemes[key] ?? '';
+
     if (theme) {
       s.theme = theme;
     }
+
     const mp: Str = getMediaPrefClasses(key);
+
     if (mp) {
       s.mp = mp;
     }
+
     const sim: Str = cardSimulations[key] ?? 'none';
+
     if (sim !== 'none') {
       s.simId = sim;
       if (sim in COLOR_MATRICES) {
@@ -3968,7 +4058,9 @@
     if (hasTunnelVision(key)) {
       s.tunnel = '1';
     }
+
     const net: Str = cardNetworkSim[key] ?? 'none';
+
     if (net !== 'none') {
       if (net === 'custom') {
         const custom = cardCustomNetwork[key];
@@ -3978,40 +4070,51 @@
         s.net = preset?.label ?? net;
       }
     }
+
     const vp: Str = cardViewports[key] ?? 'auto';
+
     if (vp === 'auto') {
       /* For "auto" viewport, measure the actual rendered component wrapper so the isolate
          page renders the component at the same size the user sees in the editor. */
       const compEl: HTMLDivElement | undefined = cardComponentRefs[key];
+
       if (compEl) {
         const measuredW: Num = Math.round(compEl.clientWidth) as Num;
         const measuredH: Num = Math.round(compEl.clientHeight) as Num;
+
         if ((measuredW as number) > 0 && (measuredH as number) > 0) {
           s.vp = `${measuredW}x${measuredH}`;
         }
       }
     } else if (vp === 'custom') {
       const dims = cardCustomViewports[key];
+
       if (dims) {
         s.vp = `${dims.w}x${dims.h}`;
       }
     } else {
       const preset = VIEWPORT_PRESETS.find((p) => p.id === vp);
+
       if (preset) {
         s.vp = `${preset.width}x${preset.height}`;
       }
     }
+
     const dir: Str = cardTextDir[key] ?? 'auto';
+
     if (dir !== 'auto') {
       s.dir = dir;
     }
+
     const fontSize: Num = cardFontSize[key] ?? 0;
+
     if (fontSize > 0) {
       s.fontSize = `${fontSize}px (${(fontSize / 16).toFixed(2)}x)`;
     }
     if (cardDebugOutline[key]) {
       s.debugOutline = '1';
       const outStyle: Str = cardDebugOutlineStyle[key] ?? DEBUG_OUTLINE_DEFAULT_STYLE;
+
       if (outStyle !== DEBUG_OUTLINE_DEFAULT_STYLE) {
         s.debugOutlineStyle = outStyle;
       }
@@ -4051,18 +4154,24 @@
     if (!componentName) {
       return '';
     }
+
     const params: URLSearchParams = new URLSearchParams();
+
     if (variantKey) {
       params.set('variant', variantKey);
     }
     if (option) {
       params.set('option', option);
     }
+
     const styles: Record<Str, Str> = collectCardStyles(key);
+
     if (Object.keys(styles).length > 0) {
       params.set('s', btoa(JSON.stringify(styles)));
     }
+
     const qs: Str = params.toString();
+
     return `/isolate/${componentName}${qs ? `?${qs}` : ''}`;
   }
 
@@ -4075,6 +4184,7 @@
    */
   function openIsolation(key: Str, variantKey: Str, option: Str): Void {
     const url: Str = buildIsolationUrl(key, variantKey, option);
+
     if (url) {
       window.open(url, '_blank');
     }
@@ -4101,9 +4211,11 @@
    */
   async function copyIsolationUrl(key: Str, variantKey: Str, option: Str): Promise<void> {
     const path: Str = buildIsolationUrl(key, variantKey, option);
+
     if (!path) {
       return;
     }
+
     const url: Str = `${window.location.origin}${path}`;
     await navigator.clipboard.writeText(url);
     linkCopied = true;
@@ -4131,6 +4243,7 @@
    */
   function getSimulationFilter(key: Str): Str {
     const sim: Str = cardSimulations[key] ?? 'none';
+
     if (sim === 'none') {
       return '';
     }
@@ -4151,6 +4264,7 @@
    */
   function getBackgroundStyle(key: Str): Str {
     const bgId: Str = cardBackgrounds[key] ?? 'default';
+
     if (bgId === 'default') {
       return '';
     }
@@ -4158,9 +4272,11 @@
     if (bgId.startsWith('#')) {
       return `background-color: ${bgId}`;
     }
+
     const preset: { id: Str; label: Str; style: Str } | undefined = BG_PRESETS.find(
       (p) => p.id === bgId,
     );
+
     return preset?.style ?? '';
   }
 
@@ -4172,6 +4288,7 @@
    */
   function getZoomStyle(key: Str): Str {
     const zoom: Num = cardZoom[key] ?? 1;
+
     if (zoom === 1) {
       return '';
     }
@@ -4186,6 +4303,7 @@
    */
   function getZoomLabel(key: Str): Str {
     const zoom: Num = cardZoom[key] ?? 1;
+
     return `${Math.round(zoom * 100)}%`;
   }
 
@@ -4214,10 +4332,13 @@
    */
   function getFontSizeVars(key: Str): Str {
     const targetPx: Num = cardFontSize[key] ?? 0;
+
     if (targetPx <= 0) {
       return '';
     }
+
     const scale: Num = targetPx / 16;
+
     return TW_TEXT_VARS.map((v) => `${v.prop}: ${(v.rem * scale).toFixed(4)}rem`).join('; ');
   }
 
@@ -4423,11 +4544,14 @@
     const match: RegExpMatchArray | null = (rgba as string).match(
       /rgba?\((\d+),\s*(\d+),\s*(\d+),?\s*([\d.]*)\)/,
     );
+
     if (!match) {
       return rgba;
     }
+
     const baseAlpha: Num = (match[4] ? Number.parseFloat(match[4]) : 1) as Num;
     const adjusted: Num = ((baseAlpha as number) * ((opacityPct as number) / 100)) as Num;
+
     return `rgba(${match[1]},${match[2]},${match[3]},${adjusted})` as Str;
   }
 
@@ -4459,9 +4583,11 @@
       }
 
       const entry = DEBUG_OUTLINE_LEGEND[idx as number];
+
       if (!entry) {
         continue;
       }
+
       const outlineStyle: Str = colorBlind ? entry.cbStyle : style;
       /* Dim non-hovered categories when one is being hovered */
       const dimmed: Bool = ((hoverIdx as number) >= 0 && idx !== hoverIdx) as Bool;
@@ -4492,7 +4618,9 @@
     if (!container) {
       return 0 as Num;
     }
+
     const selector: Str = selectors.join(',') as Str;
+
     try {
       return container.querySelectorAll(selector as string).length as Num;
     } catch (_) {
@@ -4509,16 +4637,22 @@
    */
   function highlightFirstElement(cardKey: Str, categoryIdx: Num): Void {
     const container: Element | null = document.querySelector(`[data-lens-debug="${cardKey}"]`);
+
     if (!container) {
       return;
     }
+
     const entry = DEBUG_OUTLINE_LEGEND[categoryIdx as number];
+
     if (!entry) {
       return;
     }
+
     const selector: Str = entry.selectors.join(',') as Str;
+
     try {
       const el: Element | null = container.querySelector(selector as string);
+
       if (!el) {
         return;
       }
@@ -4622,13 +4756,17 @@
       return '';
     }
     /* __svelte_meta is attached by Svelte 5 compiler in dev mode */
+
     const svelteMeta = (el as unknown as Record<Str, unknown>).__svelte_meta as
       | { loc?: { file?: Str; line?: Num } }
       | undefined;
+
     if (!svelteMeta?.loc?.file) {
       return '';
     }
+
     const file: Str = svelteMeta.loc.file.split('/').pop() ?? svelteMeta.loc.file;
+
     return `${file}:${svelteMeta.loc.line ?? '?'}`;
   }
 
@@ -4731,6 +4869,7 @@
       if (e.target instanceof Element && e.target.closest('[data-lens-portal]')) {
         return;
       }
+
       const ts: Num = Math.round((performance.now() - mountTime) * 100) / 100;
       const target: Element | null = e.target instanceof Element ? e.target : null;
       const tag: Str = target?.tagName.toLowerCase() ?? '?';
@@ -4739,10 +4878,12 @@
           ? `.${target.className.split(/\s+/).slice(0, 3).join('.')}`
           : '';
       let detail: Str = '';
+
       if (e instanceof KeyboardEvent) {
         detail = `key: ${e.key}`;
       } else if (e instanceof InputEvent || e.target instanceof HTMLInputElement) {
         const inp = e.target as HTMLInputElement | null;
+
         if (inp) {
           detail = `value: ${inp.value?.slice(0, 80) ?? ''}`;
         }
@@ -4771,6 +4912,7 @@
         (m: MutationRecord): boolean =>
           !(m.target instanceof Element && m.target.closest('[data-lens-portal]')),
       );
+
       if (cardMutations.length === 0) {
         return;
       }
@@ -4792,11 +4934,14 @@
 
       /* Log individual mutations (cap at 10 per batch to avoid flooding) */
       const mutCap: Num = Math.min(cardMutations.length, 10);
+
       for (let i: Num = 0; i < mutCap; i++) {
         const m: MutationRecord | undefined = cardMutations[i];
+
         if (!m) {
           continue;
         }
+
         const target: Element | null =
           m.target instanceof Element ? m.target : m.target.parentElement;
         const tag: Str = target?.tagName.toLowerCase() ?? '?';
@@ -4828,6 +4973,7 @@
           const added: Num = m.addedNodes.length;
           const removed: Num = m.removedNodes.length;
           const parts: Str[] = [];
+
           if (added > 0) {
             parts.push(`+${added} added`);
           }
@@ -5043,14 +5189,17 @@
    */
   function formatConsoleTs(ms: Num): Str {
     const n: number = ms as number;
+
     if (n < 1000) {
       return `+${n}ms` as Str;
     }
     if (n < 60_000) {
       return `+${(n / 1000).toFixed(1)}s` as Str;
     }
+
     const minutes: number = Math.floor(n / 60_000);
     const seconds: number = Math.floor((n % 60_000) / 1000);
+
     return `+${minutes}m ${seconds}s` as Str;
   }
 
@@ -5075,6 +5224,7 @@
     const s: Str = String(d.getSeconds()).padStart(2, '0') as Str;
     const ms: Str = String(d.getMilliseconds()).padStart(3, '0') as Str;
     const ampm: Str = (d.getHours() >= 12 ? 'PM' : 'AM') as Str;
+
     return `${date}, ${h}:${m}:${s}.${ms} ${ampm}` as Str;
   }
 
@@ -5160,6 +5310,7 @@
       ? CONSOLE_EXPORT_ITEMS
       : CONSOLE_EXPORT_ITEMS.filter((p) => {
           const q: Str = consoleExportSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q) ||
             p.description.toLowerCase().includes(q) ||
@@ -5176,6 +5327,7 @@
   /** Console levels filtered by level filter search query. */
   const filteredConsoleLevels = $derived.by(() => {
     const q: Str = (consoleLevelFilterSearch as string).toLowerCase() as Str;
+
     if (!q) {
       return CONSOLE_LEVELS;
     }
@@ -5212,8 +5364,10 @@
       const msg: Str = e.message.replaceAll('"', '""');
       const detail: Str = (e.detail ?? '').replaceAll('"', '""');
       const source: Str = (e.source ?? '').replaceAll('"', '""');
+
       return `${e.ts},${getConsoleLabel(e.level)},"${msg}","${detail}","${source}"`;
     });
+
     return [header, ...rows].join('\n');
   }
 
@@ -5225,6 +5379,7 @@
    */
   async function handleConsoleExport(key: Str, formatId: Str): Promise<void> {
     const logs: ConsoleLogEntry[] = cardConsoleLogs[key] ?? [];
+
     if (formatId === 'copy-json') {
       await navigator.clipboard.writeText(JSON.stringify(logs, null, 2));
     } else if (formatId === 'copy-text') {
@@ -5485,6 +5640,7 @@
 
     /* Distance to parent — always computed for the sticky panel */
     let parentDistance: { top: Num; right: Num; bottom: Num; left: Num } | null = null;
+
     if (el.parentElement && container.contains(el.parentElement)) {
       const pRect: DOMRect = el.parentElement.getBoundingClientRect();
       parentDistance = {
@@ -5611,12 +5767,15 @@
     const parts: Str[] = [];
     let current: Element | null = el;
     let depth: Num = 0 as Num;
+
     while (current && (depth as number) < (maxDepth as number)) {
       let segment: Str = current.tagName.toLowerCase() as Str;
+
       if (current.id) {
         segment = `${segment}#${current.id}` as Str;
       } else if (current.className && typeof current.className === 'string') {
         const firstClass: Str = current.className.split(/\s+/)[0] ?? ('' as Str);
+
         if (firstClass) {
           segment = `${segment}.${firstClass}` as Str;
         }
@@ -5634,10 +5793,13 @@
 
     /* --- Computed styles --- */
     const styles: Record<Str, Record<Str, Str>> = {};
+
     for (const group of INSPECT_GROUPS) {
       const groupStyles: Record<Str, Str> = {};
+
       for (const prop of group.props) {
         const val: Str = cs.getPropertyValue(prop);
+
         if (val && !INSPECT_SKIP_VALS.has(val)) {
           groupStyles[prop] = val;
         }
@@ -5649,22 +5811,28 @@
 
     /* --- DOM attributes --- */
     const attrs: Record<Str, Str> = {};
+
     for (
       let i: Num = 0 as Num;
       (i as number) < el.attributes.length;
       i = ((i as number) + 1) as Num
     ) {
       const attr: Attr | null = el.attributes.item(i as number);
+
       if (!attr) {
         continue;
       }
+
       const name: Str = attr.name as Str;
+
       if (name === 'class' || name === 'id' || name === 'style') {
         continue;
       }
+
       const isPrefix: Bool = INSPECT_ATTR_PREFIXES.some((p) =>
         (name as string).startsWith(p as string),
       ) as Bool;
+
       if (isPrefix || INSPECT_ATTR_NAMES.has(name)) {
         attrs[name] = (attr.value || 'true') as Str;
       }
@@ -5673,34 +5841,49 @@
     /* --- Accessibility info --- */
     const a11y: Record<Str, Str> = {};
     const role: Str = (el.getAttribute('role') ?? '') as Str;
+
     if (role) {
       a11y['role'] = role;
     }
+
     const ariaLabel: Str = (el.getAttribute('aria-label') ?? '') as Str;
+
     if (ariaLabel) {
       a11y['aria-label'] = ariaLabel;
     }
+
     const ariaDescribedby: Str = (el.getAttribute('aria-describedby') ?? '') as Str;
+
     if (ariaDescribedby) {
       a11y['aria-describedby'] = ariaDescribedby;
     }
+
     const ariaLabelledby: Str = (el.getAttribute('aria-labelledby') ?? '') as Str;
+
     if (ariaLabelledby) {
       a11y['aria-labelledby'] = ariaLabelledby;
     }
+
     const ariaHidden: Str = (el.getAttribute('aria-hidden') ?? '') as Str;
+
     if (ariaHidden) {
       a11y['aria-hidden'] = ariaHidden;
     }
+
     const ariaExpanded: Str = (el.getAttribute('aria-expanded') ?? '') as Str;
+
     if (ariaExpanded) {
       a11y['aria-expanded'] = ariaExpanded;
     }
+
     const ariaPressed: Str = (el.getAttribute('aria-pressed') ?? '') as Str;
+
     if (ariaPressed) {
       a11y['aria-pressed'] = ariaPressed;
     }
+
     const tabIdx: Str = (el.getAttribute('tabindex') ?? '') as Str;
+
     if (tabIdx) {
       a11y['tabindex'] = tabIdx;
     }
@@ -5763,11 +5946,15 @@
     if (!cardMeasureActive[key]) {
       return;
     }
+
     const container: HTMLDivElement | undefined = cardPreviewRefs[key];
+
     if (!container) {
       return;
     }
+
     const target: Element | null = document.elementFromPoint(e.clientX, e.clientY);
+
     if (!target || target === container || !container.contains(target)) {
       cardMeasureData[key] = null;
       return;
@@ -5794,7 +5981,9 @@
     if (!cardMeasureActive[key]) {
       return;
     }
+
     const m = cardMeasureData[key];
+
     if (!m) {
       return;
     }
@@ -5808,6 +5997,7 @@
       `border: ${Math.round(m.border.top as number)} ${Math.round(m.border.right as number)} ${Math.round(m.border.bottom as number)} ${Math.round(m.border.left as number)}` as Str,
       `box-sizing: ${m.boxSizing}` as Str,
     ];
+
     try {
       await navigator.clipboard.writeText(parts.join('\n'));
       cardMeasureCopied[key] = true as Bool;
@@ -5862,11 +6052,15 @@
     if (!cardInspectActive[key]) {
       return;
     }
+
     const container: HTMLDivElement | undefined = cardPreviewRefs[key];
+
     if (!container) {
       return;
     }
+
     const target: Element | null = document.elementFromPoint(e.clientX, e.clientY);
+
     if (!target || target === container || !container.contains(target)) {
       return;
     }
@@ -5883,6 +6077,7 @@
    */
   function hasColorMatrixSim(key: Str): Bool {
     const sim: Str = cardSimulations[key] ?? 'none';
+
     return sim in COLOR_MATRICES;
   }
 
@@ -5895,26 +6090,35 @@
   function getActiveSettings(key: Str): Array<{ label: Str; value: Str }> {
     const settings: Array<{ label: Str; value: Str }> = [];
     const sim: Str = cardSimulations[key] ?? 'none';
+
     if (sim !== 'none') {
       const simItem =
         COLOR_VISION_ITEMS.find((i) => i.id === sim) ?? VISION_ITEMS.find((i) => i.id === sim);
       settings.push({ label: 'Accessibility', value: simItem?.label ?? sim });
     }
+
     const zoom: Num = cardZoom[key] ?? 1;
+
     if (zoom !== 1) {
       settings.push({ label: 'Zoom', value: getZoomLabel(key) });
     }
+
     const grid: Str = cardGrids[key] ?? 'none';
+
     if (grid !== 'none') {
       const gridPreset = GRID_PRESETS.find((p) => p.id === grid);
       settings.push({ label: 'Grid', value: gridPreset?.label ?? grid });
     }
+
     const gridFill: Str = cardGridFills[key] ?? 'none';
+
     if (gridFill !== 'none') {
       const fillPreset = GRID_FILL_PRESETS.find((p) => p.id === gridFill);
       settings.push({ label: 'Grid Fill', value: fillPreset?.label ?? gridFill });
     }
+
     const orientation: Str = cardOrientations[key] ?? 'default';
+
     if (orientation !== 'default') {
       if (orientation === 'custom') {
         const deg: Num = cardCustomRotation[key] ?? 0;
@@ -5924,22 +6128,30 @@
         settings.push({ label: 'Orientation', value: orientPreset?.label ?? orientation });
       }
     }
+
     const mode: Str = cardModes[key] ?? 'auto';
+
     if (mode !== 'auto') {
       const modePreset = MODE_PRESETS.find((p) => p.id === mode);
       settings.push({ label: 'Mode', value: modePreset?.label ?? mode });
     }
+
     const theme: Str = cardThemes[key] ?? '';
+
     if (theme) {
       const themePreset = THEME_PRESETS.find((p) => p.id === theme);
       settings.push({ label: 'Theme', value: themePreset?.label ?? theme });
     }
+
     const outline: Str = cardOutlines[key] ?? 'none';
+
     if (outline !== 'none') {
       const outlinePreset = OUTLINE_PRESETS.find((p) => p.id === outline);
       settings.push({ label: 'Outline', value: outlinePreset?.label ?? outline });
     }
+
     const bg: Str = cardBackgrounds[key] ?? 'default';
+
     if (bg !== 'default') {
       const bgPreset = BG_PRESETS.find((p) => p.id === bg);
       settings.push({ label: 'Background', value: bgPreset?.label ?? bg });
@@ -5947,13 +6159,16 @@
     // Media query preferences
     for (const group of MEDIA_PREF_GROUPS) {
       const val: Str = getMediaPref(key, group.pref);
+
       if (val !== group.defaultValue) {
         const opt = group.options.find((o) => o.value === val);
         settings.push({ label: group.label, value: opt?.label ?? val });
       }
     }
     // Network simulation
+
     const netSim: Str = cardNetworkSim[key] ?? 'none';
+
     if (netSim !== 'none') {
       if (netSim === 'custom') {
         const delay: Num = cardCustomNetwork[key]?.delay ?? 200;
@@ -5964,10 +6179,13 @@
       }
     }
     // Viewport
+
     const viewport: Str = cardViewports[key] ?? 'auto';
+
     if (viewport !== 'auto') {
       if (viewport === 'custom') {
         const dims = cardCustomViewports[key];
+
         if (dims) {
           settings.push({ label: 'Viewport', value: `Custom (${dims.w} \u00D7 ${dims.h})` });
         }
@@ -5982,10 +6200,13 @@
       }
     }
     // Custom network
+
     const customNet = cardCustomNetwork[key];
+
     if ((cardNetworkSim[key] ?? 'none') === 'custom' && customNet) {
       // Replace preset entry with custom
       const netIdx: Num = settings.findIndex((s) => s.label === 'Network');
+
       if (netIdx >= 0) {
         settings[netIdx] = { label: 'Network', value: `Custom (${customNet.delay}ms)` };
       } else {
@@ -5993,7 +6214,9 @@
       }
     }
     // Text direction
+
     const dir: Str = cardTextDir[key] ?? 'auto';
+
     if (dir !== 'auto') {
       settings.push({
         label: 'Direction',
@@ -6001,7 +6224,9 @@
       });
     }
     // Font size
+
     const fontSize: Num = cardFontSize[key] ?? 0;
+
     if (fontSize > 0) {
       settings.push({
         label: 'Font Size',
@@ -6015,6 +6240,7 @@
       const outStyle: Str = cardDebugOutlineStyle[key] ?? DEBUG_OUTLINE_DEFAULT_STYLE;
       const outOpacity: Num = cardDebugOutlineOpacity[key] ?? DEBUG_OUTLINE_DEFAULT_OPACITY;
       const parts: Str[] = ['On' as Str];
+
       if ((disabledCount as number) > 0) {
         parts.push(
           `${DEBUG_OUTLINE_LEGEND.length - (disabledCount as number)}/${DEBUG_OUTLINE_LEGEND.length} categories` as Str,
@@ -6063,11 +6289,15 @@
    */
   function getMediaPref(key: Str, pref: Str): Str {
     const prefs: Record<Str, Str> | undefined = cardMediaPrefs[key];
+
     if (!prefs) {
       const group = MEDIA_PREF_GROUPS.find((g) => g.pref === pref);
+
       return group?.defaultValue ?? 'no-preference';
     }
+
     const group = MEDIA_PREF_GROUPS.find((g) => g.pref === pref);
+
     return prefs[pref] ?? group?.defaultValue ?? 'no-preference';
   }
 
@@ -6093,10 +6323,13 @@
    */
   function getMediaPrefClasses(key: Str): Str {
     const prefs: Record<Str, Str> | undefined = cardMediaPrefs[key];
+
     if (!prefs) {
       return '';
     }
+
     const classes: Str[] = [];
+
     if (prefs['reduced-motion'] === 'reduce') {
       classes.push('lens-reduced-motion');
     }
@@ -6153,11 +6386,13 @@
    */
   function hasMediaPrefs(key: Str): Bool {
     const prefs: Record<Str, Str> | undefined = cardMediaPrefs[key];
+
     if (!prefs) {
       return false;
     }
     return MEDIA_PREF_GROUPS.some((g) => {
       const val: Str = prefs[g.pref] ?? g.defaultValue;
+
       return val !== g.defaultValue;
     });
   }
@@ -6174,6 +6409,7 @@
     if (simId === 'custom') {
       const custom = cardCustomNetwork[key];
       const delay: Num = custom?.delay ?? 0;
+
       if (delay > 0) {
         cardNetworkLoading[key] = true;
         setTimeout((): void => {
@@ -6184,7 +6420,9 @@
       }
       return;
     }
+
     const preset = NETWORK_PRESETS.find((p) => p.id === simId);
+
     if (preset && preset.delay > 0) {
       cardNetworkLoading[key] = true;
       setTimeout((): void => {
@@ -6216,6 +6454,7 @@
    */
   function getViewportFrameStyle(key: Str): Str {
     const preset = getViewportPreset(key);
+
     if (!preset) {
       return '';
     }
@@ -6233,6 +6472,7 @@
     // transform creates a containing block for position:fixed children,
     // keeping components like Sidebar/Dialog contained inside the card
     const preset = getViewportPreset(key);
+
     if (!preset) {
       return 'transform: translateZ(0)';
     }
@@ -6259,11 +6499,13 @@
     key: Str,
   ): { id: Str; label: Str; width: Num; height: Num; category: Str } | null {
     const id: Str = cardViewports[key] ?? 'auto';
+
     if (id === 'auto') {
       return null;
     }
     if (id === 'custom') {
       const dims = cardCustomViewports[key];
+
       if (!dims) {
         return null;
       }
@@ -6287,12 +6529,14 @@
     let h: Num = 0 as Num;
 
     const preset = getViewportPreset(key);
+
     if (preset) {
       w = preset.width;
       h = preset.height;
     } else {
       /* Auto — measure the component element */
       const compEl: HTMLDivElement | undefined = cardComponentRefs[key];
+
       if (compEl) {
         w = Math.round(compEl.clientWidth) as Num;
         h = Math.round(compEl.clientHeight) as Num;
@@ -6304,6 +6548,7 @@
         (CARD_WIDTH as number) * ((h as number) / (w as number)),
       ) as Num;
       const clamped: Num = Math.min(scaled as number, MAX_HEIGHT as number) as Num;
+
       return `${clamped}px` as Str;
     }
     return '6rem' as Str;
@@ -6444,8 +6689,10 @@
     }
     try {
       const res: Response = await fetch('/api/lens/screenshot/devices');
+
       if (res.ok) {
         const data: unknown = await res.json();
+
         if (Array.isArray(data)) {
           // API returns DeviceInfo[] — cast from parsed JSON
           playwrightDevices = data as PlaywrightDevice[];
@@ -6467,8 +6714,10 @@
     }
     try {
       const res: Response = await fetch('/api/lens/screenshot/ios/devices');
+
       if (res.ok) {
         const data: Record<Str, unknown> = (await res.json()) as Record<Str, unknown>;
+
         if (Array.isArray(data.devices)) {
           iosDevices = data.devices as Array<Record<Str, unknown>>;
         }
@@ -6491,8 +6740,10 @@
     }
     try {
       const res: Response = await fetch('/api/lens/screenshot/android/devices');
+
       if (res.ok) {
         const data: Record<Str, unknown> = (await res.json()) as Record<Str, unknown>;
+
         if (Array.isArray(data.devices)) {
           androidDevices = data.devices as Array<Record<Str, unknown>>;
         }
@@ -6518,6 +6769,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deviceId: deviceId as string }),
       });
+
       if (res.ok) {
         const data: Record<Str, unknown> = (await res.json()) as Record<Str, unknown>;
         /* Refresh device list to pick up the new AVD */
@@ -6525,6 +6777,7 @@
         await fetchAndroidDevices(true);
         /* Auto-select the newly created AVD */
         const newName: Str = ((data.name as string) ?? (displayName as string)) as Str;
+
         if (newName) {
           /* Find the current card key from the dropdown context */
           for (const key of Object.keys(cardScreenSource)) {
@@ -6546,6 +6799,7 @@
   async function fetchEngineStatus(): Promise<void> {
     try {
       const res: Response = await fetch('/api/lens/screenshot/status');
+
       if (res.ok) {
         const data: Record<Str, unknown> = (await res.json()) as Record<Str, unknown>;
         const ios: Record<Str, unknown> = (data.iosSimulator ?? {}) as Record<Str, unknown>;
@@ -6603,7 +6857,9 @@
     if (!browserSearchQuery) {
       return playwrightDevices;
     }
+
     const q: Str = browserSearchQuery.toLowerCase() as Str;
+
     return playwrightDevices.filter((d: PlaywrightDevice): boolean =>
       d.name.toLowerCase().includes(q),
     );
@@ -6612,6 +6868,7 @@
   /** Unique categories from filtered devices. */
   const filteredDeviceCategories: Str[] = $derived.by((): Str[] => {
     const cats: Set<Str> = new Set();
+
     for (const d of filteredPlaywrightDevices) {
       cats.add(inferDeviceCategory(d.name));
     }
@@ -6624,10 +6881,13 @@
       if (!browserSearchQuery) {
         return iosDevices;
       }
+
       const q: Str = browserSearchQuery.toLowerCase() as Str;
+
       return iosDevices.filter((d: Record<Str, unknown>): boolean => {
         const name: Str = ((d.name as string) ?? '').toLowerCase() as Str;
         const runtime: Str = ((d.runtimeVersion as string) ?? '').toLowerCase() as Str;
+
         return name.includes(q) || runtime.includes(q);
       });
     },
@@ -6639,10 +6899,13 @@
       if (!browserSearchQuery) {
         return androidDevices;
       }
+
       const q: Str = browserSearchQuery.toLowerCase() as Str;
+
       return androidDevices.filter((d: Record<Str, unknown>): boolean => {
         const name: Str = ((d.name as string) ?? '').toLowerCase() as Str;
         const tag: Str = ((d.displayTag as string) ?? '').toLowerCase() as Str;
+
         return name.includes(q) || tag.includes(q);
       });
     },
@@ -6675,6 +6938,7 @@
    */
   function relativeTime(ts: Num): Str {
     const delta: Num = (Date.now() - (ts as number)) as Num;
+
     if (delta < 5000) {
       return 'just now' as Str;
     }
@@ -6720,12 +6984,14 @@
 
     /* Pass current card styles */
     const styles: Record<Str, Str> = collectCardStyles(key);
+
     if (Object.keys(styles).length > 0) {
       params.set('s', btoa(JSON.stringify(styles)));
     }
 
     /* Dark/light mode — used by all engines */
     const mode: Str = cardModes[key] ?? 'auto';
+
     if (mode === 'dark' || mode === 'light') {
       if (source === 'playwright') {
         params.set('colorScheme', mode);
@@ -6738,6 +7004,7 @@
 
     /* Determine the endpoint URL based on source */
     let endpoint: Str;
+
     if (source === 'ios-simulator') {
       endpoint = '/api/lens/screenshot/ios' as Str;
       if (device) {
@@ -6746,6 +7013,7 @@
 
       /* iOS accessibility settings */
       const prefs: Record<Str, Str> | undefined = cardMediaPrefs[key];
+
       if (prefs) {
         if (prefs['reduced-motion'] === 'reduce') {
           params.set('reduceMotion', 'true');
@@ -6760,9 +7028,11 @@
 
       /* Map font size to iOS Dynamic Type content size */
       const fontSize: Num = cardFontSize[key] ?? 0;
+
       if (fontSize > 0) {
         /* Approximate mapping: <14px → XS, 14–15 → S, 16 → M, 17–19 → L, 20–23 → XL, 24–27 → XXL, 28+ → XXXL */
         let contentSize: Str = 'UICTContentSizeCategoryL' as Str;
+
         if (fontSize < 14) {
           contentSize = 'UICTContentSizeCategoryXS' as Str;
         } else if (fontSize < 16) {
@@ -6788,12 +7058,14 @@
 
       /* Android accessibility settings */
       const prefs: Record<Str, Str> | undefined = cardMediaPrefs[key];
+
       if (prefs && prefs['reduced-motion'] === 'reduce') {
         params.set('animationScale', '0');
       }
 
       /* Map font size to Android font scale */
       const fontSize: Num = cardFontSize[key] ?? 0;
+
       if (fontSize > 0) {
         const fontScale: Num = (fontSize / 16) as Num;
         params.set('fontScale', String(fontScale));
@@ -6808,13 +7080,16 @@
 
       /* Viewport dimensions (Playwright only) */
       const vp: Str = cardViewports[key] ?? 'auto';
+
       if (!device) {
         if (vp === 'auto') {
           /* Measure the actual rendered component wrapper — not the card container */
           const compEl: HTMLDivElement | undefined = cardComponentRefs[key];
+
           if (compEl) {
             const measuredW: Num = Math.round(compEl.clientWidth) as Num;
             const measuredH: Num = Math.round(compEl.clientHeight) as Num;
+
             if ((measuredW as number) > 0 && (measuredH as number) > 0) {
               params.set('width', String(measuredW));
               params.set('height', String(measuredH));
@@ -6822,12 +7097,14 @@
           }
         } else if (vp === 'custom') {
           const dims = cardCustomViewports[key];
+
           if (dims) {
             params.set('width', String(dims.w));
             params.set('height', String(dims.h));
           }
         } else {
           const preset = VIEWPORT_PRESETS.find((p) => p.id === vp);
+
           if (preset) {
             params.set('width', String(preset.width));
             params.set('height', String(preset.height));
@@ -6837,6 +7114,7 @@
 
       /* Media preferences (Playwright only) */
       const prefs: Record<Str, Str> | undefined = cardMediaPrefs[key];
+
       if (prefs) {
         if (prefs['reduced-motion'] === 'reduce') {
           params.set('reducedMotion', 'reduce');
@@ -6848,14 +7126,17 @@
 
       /* Network throttling (Playwright only) */
       const netSim: Str = cardNetworkSim[key] ?? 'none';
+
       if (netSim !== 'none') {
         if (netSim === 'custom') {
           const custom = cardCustomNetwork[key];
+
           if (custom) {
             params.set('networkThrottle', String(custom.delay));
           }
         } else {
           const preset = NETWORK_PRESETS.find((p) => p.id === netSim);
+
           if (preset) {
             params.set('networkThrottle', String(preset.delay));
           }
@@ -6865,6 +7146,7 @@
 
     try {
       const res: Response = await fetch(`${endpoint}?${params.toString()}`);
+
       if (!res.ok) {
         const errBody: unknown = await res.json().catch(() => ({}));
         const errMsg: Str = (
@@ -6880,6 +7162,7 @@
       /* Parse JSON response (image + console + perf) */
       const body: Record<Str, unknown> = (await res.json()) as Record<Str, unknown>;
       const base64Image: Str = (body.image ?? '') as Str;
+
       if (!base64Image) {
         log.warn('Screenshot API returned no image data');
         cardScreenError[key] = 'No image data returned' as Str;
@@ -6890,9 +7173,11 @@
       const binaryStr: Str = atob(base64Image) as Str;
       const buf: ArrayBuffer = new ArrayBuffer(binaryStr.length);
       const view: Uint8Array = new Uint8Array(buf);
+
       for (let i: Num = 0 as Num; i < binaryStr.length; i++) {
         view[i] = binaryStr.codePointAt(i) ?? 0;
       }
+
       const blob: Blob = new Blob([buf], { type: 'image/png' });
       const imageUrl: Str = URL.createObjectURL(blob) as Str;
 
@@ -6901,6 +7186,7 @@
       const consoleLogs: ScreenshotConsoleEntry[] = rawLogs.map(
         (entry: unknown): ScreenshotConsoleEntry => {
           const e: Record<Str, unknown> = entry as Record<Str, unknown>;
+
           return { level: (e.level ?? 'log') as Str, text: (e.text ?? '') as Str };
         },
       );
@@ -6910,6 +7196,7 @@
         typeof body.performance === 'object' && body.performance !== null ? body.performance : {}
       ) as Record<Str, unknown>;
       const perfData: Partial<ScreenshotPerfData> = {};
+
       for (const k of [
         'domContentLoaded',
         'load',
@@ -7036,6 +7323,7 @@
     cardScreenCapturing[key] = true;
 
     const sources: ScreenshotSource[] = ['playwright' as ScreenshotSource];
+
     if (engineStatus['ios-simulator']?.available) {
       sources.push('ios-simulator' as ScreenshotSource);
     }
@@ -7115,6 +7403,7 @@
       `Source: ${capture.source ?? 'playwright'}` as Str,
       `Captured: ${new Date(capture.timestamp as number).toISOString()}` as Str,
     ];
+
     if (capture.performance) {
       if (capture.performance.firstPaint !== undefined) {
         lines.push(`First Paint: ${capture.performance.firstPaint}ms` as Str);
@@ -7174,6 +7463,7 @@
       `  Device: ${rightCapture.device}` as Str,
       `  Source: ${rightCapture.source ?? 'playwright'}` as Str,
     ];
+
     try {
       await navigator.clipboard.writeText(lines.join('\n'));
     } catch {
@@ -7190,6 +7480,7 @@
   function removeScreenshot(key: Str, index: Num): Void {
     const captures: ScreenshotCapture[] = cardScreenshots[key] ?? [];
     const removed: ScreenshotCapture | undefined = captures[index];
+
     if (removed) {
       URL.revokeObjectURL(removed.imageUrl);
     }
@@ -7244,6 +7535,7 @@
       ? SCREENSHOT_EXPORT_ITEMS
       : SCREENSHOT_EXPORT_ITEMS.filter((p) => {
           const q: Str = screenshotExportSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q) ||
             p.description.toLowerCase().includes(q) ||
@@ -7263,6 +7555,7 @@
       ? SCREENSHOT_EXPORT_ITEMS
       : SCREENSHOT_EXPORT_ITEMS.filter((p) => {
           const q: Str = compareExportSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q) ||
             p.description.toLowerCase().includes(q) ||
@@ -7405,6 +7698,7 @@
         resolve(b!);
       }, 'image/png');
     });
+
     return URL.createObjectURL(blob) as Str;
   }
 
@@ -7483,6 +7777,7 @@
       ? SCREENSHOT_EXPORT_ALL_ITEMS
       : SCREENSHOT_EXPORT_ALL_ITEMS.filter((p) => {
           const q: Str = screenshotExportAllSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q) ||
             p.description.toLowerCase().includes(q) ||
@@ -7520,6 +7815,7 @@
    */
   async function handleScreenshotExportAll(key: Str, formatId: Str): Promise<void> {
     const captures: ScreenshotCapture[] = cardScreenshots[key] ?? [];
+
     if (captures.length === 0) {
       return;
     }
@@ -7534,6 +7830,7 @@
         captures.map(async (c: ScreenshotCapture): Promise<{ name: Str; data: Uint8Array }> => {
           const response: Response = await fetch(c.imageUrl);
           const buffer: ArrayBuffer = await response.arrayBuffer();
+
           return {
             name: `screenshot-${c.browserDisplayName}-${c.device}-${c.timestamp}.png` as Str,
             data: new Uint8Array(buffer),
@@ -7587,10 +7884,13 @@
    */
   function getAllCardKeys(): Str[] {
     const variants = meta?.variants ?? [];
+
     if (variants.length === 0) {
       return ['default'];
     }
+
     const keys: Str[] = [];
+
     for (const v of variants) {
       if (!v.key) {
         continue;
@@ -7609,6 +7909,7 @@
    */
   function applySettingsToAll(sourceKey: Str): Void {
     const keys: Str[] = getAllCardKeys();
+
     for (const key of keys) {
       if (key === sourceKey) {
         continue;
@@ -7740,6 +8041,7 @@
     if (!sectionId) {
       return;
     }
+
     const onSectionSetting = (e: Event): void => {
       /* CustomEvent detail — cast required because DOM Event has no .detail */
       const {
@@ -7747,6 +8049,7 @@
         setting,
         value,
       } = (e as CustomEvent<{ sectionId: Str; setting: Str; value: unknown }>).detail;
+
       if (sid !== sectionId) {
         return;
       }
@@ -7771,9 +8074,11 @@
     if (!sectionId) {
       return;
     }
+
     const onSectionExport = async (e: Event): Promise<void> => {
       const { sectionId: sid, exportId } = (e as CustomEvent<{ sectionId: Str; exportId: Str }>)
         .detail;
+
       if (sid !== sectionId) {
         return;
       }
@@ -7788,6 +8093,7 @@
           null,
           2,
         ) as Str;
+
         try {
           await navigator.clipboard.writeText(report);
           statsExportCopied = 'all' as Str;
@@ -7813,11 +8119,13 @@
    */
   async function handleExport(key: Str, formatId: Str): Promise<void> {
     const el: HTMLDivElement | undefined = cardPreviewRefs[key];
+
     if (!el) {
       return;
     }
     exportInProgress = formatId;
     const filename: Str = componentName ?? tagName ?? 'component';
+
     if (formatId === 'png') {
       await exportPng(el, filename);
     } else if (formatId === 'jpeg') {
@@ -7834,6 +8142,7 @@
       await copyHtml(el);
     } else if (formatId === 'copy-svelte') {
       const snippet: Str = codeText ?? codeSnippet('', '');
+
       if (snippet) {
         await navigator.clipboard.writeText(snippet);
       }
@@ -7870,6 +8179,7 @@
     // Dotted key: show as nested prop syntax
     if (variantKey.includes('.')) {
       const [parent, child]: Str[] = variantKey.split('.');
+
       return `<${tagName} ${parent}={{ ${child}: '${option}' }}>${label}</${tagName}>`;
     }
     return `<${tagName} ${variantKey}="${option}">${label}</${tagName}>`;
@@ -7898,6 +8208,7 @@
     // Pick first accepted value if available
     if (accepts && accepts !== '—' && accepts.includes(', ')) {
       const [first]: Str[] = accepts.split(', ');
+
       if (first) {
         return first;
       }
@@ -7924,6 +8235,7 @@
   ): Record<Str, unknown> {
     // Coerce option string to correct type
     let coerced: unknown = option;
+
     if (option === 'true' || option === 'false') {
       coerced = option === 'true';
     } else if (coerceHint === 'array') {
@@ -7931,6 +8243,7 @@
       // then fall back to comma-separated string splitting
       try {
         const parsed: unknown = JSON.parse(option);
+
         if (Array.isArray(parsed)) {
           coerced = parsed;
         } else {
@@ -7946,6 +8259,7 @@
       const snippetMatch: RegExpMatchArray | null = (option as string).match(
         /\{#snippet\s+\w+\(\)\}([\s\S]*?)\{\/snippet\}/,
       );
+
       if (snippetMatch) {
         const htmlContent: Str = (snippetMatch[1] ?? '') as Str;
         coerced = createRawSnippet(() => ({
@@ -7965,9 +8279,11 @@
       // Record-value coercion: modify the child field within each Record entry
       if (coerceHint === 'record-value') {
         const existing: unknown = baseProps[parent];
+
         if (typeof existing === 'object' && existing !== null) {
           // Clone the Record and update the child field in every value
           const cloned: Record<Str, unknown> = {};
+
           for (const [k, v] of Object.entries(existing as Record<Str, unknown>)) {
             if (typeof v === 'object' && v !== null) {
               cloned[k] = { ...(v as Record<Str, unknown>), [child]: coerced };
@@ -7983,6 +8299,7 @@
 
       const existing: unknown = baseProps[parent];
       let parentObj: Record<Str, unknown>;
+
       if (typeof existing === 'object' && existing !== null) {
         parentObj = { ...(existing as Record<Str, unknown>) };
       } else {
@@ -7992,6 +8309,7 @@
         const parentProp: PropMeta | undefined = propsMeta.find(
           (p: PropMeta): boolean => p.name === parent,
         );
+
         if (parentProp?.typeFields) {
           for (const tf of parentProp.typeFields) {
             if (tf.required && tf.field !== child) {
@@ -8413,6 +8731,7 @@
                       ? countElements(debugContainer, entry.selectors)
                       : (0 as Num)}
                     <div
+
                       class={cn(
                         'flex w-full items-start gap-2.5 border-b px-3 py-1.5 transition-colors last:border-b-0',
                         isEnabled ? 'hover:bg-muted/50' : 'opacity-40',
@@ -8529,6 +8848,7 @@
               <Tooltip.Trigger>
                 {#snippet child({ props: tipProps })}
                   <DropdownMenu.Trigger>
+
                     {#snippet child({ props })}
                       <button
                         type="button"
@@ -11150,6 +11470,7 @@
                                 Interactive live preview with real browser
                               </Tooltip.Content>
                             </Tooltip.Root>
+
                           {/if}
                         </div>
                       </div>
@@ -12195,6 +12516,7 @@
                     aria-label="Console options"
                   >
                     <EllipsisVertical class="size-3" />
+
                     {#if allLogs.length > 0}
                       <span
                         class="absolute -right-1 -top-1 min-w-3.5 rounded-full bg-muted px-1 text-center text-[8px] font-medium tabular-nums leading-[14px] text-muted-foreground"
@@ -12638,7 +12960,9 @@
                     type="button"
                     class="inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                     aria-label="Screenshot options"
+
                   >
+
                     <EllipsisVertical class="size-3.5" aria-hidden="true" />
                   </button>
                 {/snippet}
@@ -12753,6 +13077,7 @@
         </div>
         {#if cardScreenshotsOpen[cardKey] ?? true}
           {#if (cardScreenCompare[cardKey] ?? false) && (cardScreenshots[cardKey] ?? []).length >= 2}
+
             <!-- Compare view: side-by-side slider with selectable screenshots -->
             {@const allCaptures = cardScreenshots[cardKey] ?? []}
             {@const leftIdx = Math.min(
@@ -13267,6 +13592,7 @@
               <!-- Error feedback card -->
               <div class="flex w-full items-center justify-center">
                 <div
+
                   class="w-[30rem] overflow-hidden rounded-md border border-destructive/30 bg-destructive/5 shadow-sm"
                 >
                   <div class="flex flex-col items-center gap-2 px-4 py-6 text-center">
@@ -13884,6 +14210,7 @@
               <span
                 class={cn(
                   'rounded px-1 py-0.5 text-[9px] font-medium',
+
                   liveViewCodecMode[cardKey] === 'h264'
                     ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                     : 'bg-muted text-muted-foreground',
@@ -13932,6 +14259,7 @@
                 (e.currentTarget as HTMLSelectElement).value = '';
               }}
             >
+
               <option value="" disabled selected>Size</option>
               <option value="375x667">iPhone SE</option>
               <option value="390x844">iPhone 14</option>
@@ -14062,11 +14390,13 @@
               } else {
                 sendLiveInput(cardKey, {
                   type: 'mouseDown',
+
                   x,
                   y,
                   button: e.button === 0 ? 'left' : e.button === 1 ? 'middle' : 'right',
                   modifiers: getModifiers(e),
                 });
+
               }
             }}
             onmouseup={(e) => {
@@ -14086,10 +14416,12 @@
                 sendLiveInput(cardKey, {
                   type: 'mouseUp',
                   x,
+
                   y,
                   button: e.button === 0 ? 'left' : e.button === 1 ? 'middle' : 'right',
                   modifiers: getModifiers(e),
                 });
+
               }
             }}
             onmousemove={(e) => {
@@ -14109,10 +14441,12 @@
                 sendBatchedMouseMove(cardKey, { type: 'mouseMove', x, y });
               }
             }}
+
             onclick={(e) => {
               if (liveViewTouchSim[cardKey]) return;
               const canvas: HTMLCanvasElement = e.currentTarget;
               const { x, y } = canvasToViewport(e, canvas);
+
               sendLiveInput(cardKey, {
                 type: 'click',
                 x,
@@ -14292,11 +14626,13 @@
         if (next) lightboxUrl = next.imageUrl;
       }
     }}
+
     tabindex="-1"
     use:autoFocus
     transition:fade={{ duration: 150 }}
   >
     <!-- Close button with Esc tooltip -->
+
     <Tooltip.Provider>
       <Tooltip.Root delayDuration={300}>
         <Tooltip.Trigger>
@@ -14356,6 +14692,7 @@
       </Tooltip.Provider>
     {/if}
 
+
     <!-- Next button -->
     {#if lbHasNext}
       <Tooltip.Provider>
@@ -14387,6 +14724,7 @@
         </Tooltip.Root>
       </Tooltip.Provider>
     {/if}
+
 
     <button
       type="button"
@@ -14752,3 +15090,23 @@
     outline-color: oklch(0 0 0) !important;
   }
 </style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

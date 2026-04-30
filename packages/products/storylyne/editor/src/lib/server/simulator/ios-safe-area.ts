@@ -165,6 +165,7 @@ export function getStaticSafeAreaInsets(deviceName: Str): SafeAreaInsets | null 
   const entry: DeviceInsetEntry | undefined = DEVICE_INSETS.find((e: DeviceInsetEntry): boolean =>
     (lower as string).includes(e.pattern as string),
   );
+
   return entry?.insets ?? null;
 }
 

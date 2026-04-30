@@ -42,6 +42,7 @@
   const validated: RatingGroupProps = $derived.by(() => {
     const rawProps: RatingGroupProps = stripSvelteProps(allProps);
     const result = safeParse(RatingGroupPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

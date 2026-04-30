@@ -42,6 +42,7 @@
   const validated: ReadingProgressProps = $derived.by(() => {
     const rawProps: ReadingProgressProps = stripSvelteProps(allProps);
     const result = safeParse(ReadingProgressPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

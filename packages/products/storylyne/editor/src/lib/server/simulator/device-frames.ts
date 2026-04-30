@@ -139,6 +139,7 @@ export function listDeviceFrames(): DeviceFrame[] {
  */
 export function getDeviceFrame(frameId: Str): DeviceFrame | null {
   const entry: DeviceFrame | undefined = FRAMES.find((f: DeviceFrame): boolean => f.id === frameId);
+
   return entry ?? null;
 }
 
@@ -160,5 +161,6 @@ export function findDeviceFrameByName(deviceName: Str): DeviceFrame | null {
   const entry: DeviceFrame | undefined = FRAMES.find((f: DeviceFrame): boolean =>
     (lower as string).includes((f.name as string).toLowerCase()),
   );
+
   return entry ?? null;
 }

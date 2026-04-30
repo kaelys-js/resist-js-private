@@ -42,6 +42,7 @@
   const validated: LocationPickerProps = $derived.by(() => {
     const rawProps: LocationPickerProps = stripSvelteProps(allProps);
     const result = safeParse(LocationPickerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

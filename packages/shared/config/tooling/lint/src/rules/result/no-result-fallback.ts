@@ -42,6 +42,7 @@ function isInReactiveContext(node: AstNode, context: VisitorContext): boolean {
     Math.max(0, node.start - REACTIVE_LOOKBACK),
     node.start,
   );
+
   return REACTIVE_CONTEXT_PATTERN.test(preceding);
 }
 
@@ -55,8 +56,10 @@ function getOkAccessVariable(node: AstNode): string | null {
   // Direct: result.ok
   if (node.type === 'MemberExpression' || node.type === 'StaticMemberExpression') {
     const property = node.property as AstNode | undefined;
+
     if ((property?.name as string) === 'ok') {
       const object = node.object as AstNode | undefined;
+
       return (object?.name as string) ?? null;
     }
   }
@@ -64,8 +67,10 @@ function getOkAccessVariable(node: AstNode): string | null {
   // Negated: !result.ok
   if (node.type === 'UnaryExpression') {
     const operator = node.operator as string | undefined;
+
     if (operator === '!') {
       const argument = node.argument as AstNode | undefined;
+
       if (argument) {
         return getOkAccessVariable(argument);
       }
@@ -86,6 +91,7 @@ function accessesData(node: AstNode, varName: string): boolean {
   if (node.type === 'MemberExpression' || node.type === 'StaticMemberExpression') {
     const property = node.property as AstNode | undefined;
     const object = node.object as AstNode | undefined;
+
     return (property?.name as string) === 'data' && (object?.name as string) === varName;
   }
   return false;
@@ -105,6 +111,7 @@ function containsDataAccess(node: AstNode, varName: string): boolean {
 
   for (const key of Object.keys(node)) {
     const value = node[key] as unknown;
+
     if (value && typeof value === 'object') {
       if (Array.isArray(value)) {
         for (const item of value) {
@@ -185,17 +192,20 @@ const rule: TypeScriptRule = {
       }
 
       const test = node.test as AstNode | undefined;
+
       if (!test) {
         return results;
       }
 
       const varName: string | null = getOkAccessVariable(test);
+
       if (!varName) {
         return results;
       }
 
       const consequent = node.consequent as AstNode | undefined;
       const alternate = node.alternate as AstNode | undefined;
+
       if (!consequent || !alternate) {
         return results;
       }
@@ -261,17 +271,20 @@ const rule: TypeScriptRule = {
       }
 
       const test = node.test as AstNode | undefined;
+
       if (!test) {
         return results;
       }
 
       const varName: string | null = getOkAccessVariable(test);
+
       if (!varName) {
         return results;
       }
 
       const consequent = node.consequent as AstNode | undefined;
       const alternate = node.alternate as AstNode | undefined;
+
       if (!consequent || !alternate) {
         return results;
       }
@@ -316,12 +329,14 @@ const rule: TypeScriptRule = {
       }
 
       const operator = node.operator as string | undefined;
+
       if (operator !== '??') {
         return results;
       }
 
       const left = node.left as AstNode | undefined;
       const right = node.right as AstNode | undefined;
+
       if (!left || !right) {
         return results;
       }
@@ -333,12 +348,14 @@ const rule: TypeScriptRule = {
 
       // Check if left is a chain containing .data (e.g., parsed.data.version)
       const leftText: string = context.content.slice(left.start, left.end);
+
       if (!leftText.includes('.data.') && !leftText.includes('.data)')) {
         return results;
       }
 
       // Extract the Result variable name (first identifier before .data)
       const dataMatch: RegExpMatchArray | null = leftText.match(/(\w+)\.data/);
+
       if (!dataMatch) {
         return results;
       }
@@ -348,6 +365,7 @@ const rule: TypeScriptRule = {
       // Skip deep property chains with method calls (e.g., parsed.data.branches.get(key))
       // These are downstream Map/Set/Array operations, NOT direct Result fallbacks
       const afterData: string = leftText.slice(leftText.indexOf('.data') + 5);
+
       if (afterData.includes('(')) {
         // Contains a method call — this is a chain like .data.map.get(), not a simple .data.field
         return results;

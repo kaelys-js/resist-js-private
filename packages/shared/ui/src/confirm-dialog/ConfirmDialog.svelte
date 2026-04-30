@@ -43,6 +43,7 @@
   const validated: ConfirmDialogProps = $derived.by(() => {
     const rawProps: ConfirmDialogProps = stripSvelteProps(allProps);
     const result = safeParse(ConfirmDialogPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

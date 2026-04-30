@@ -21,6 +21,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -64,6 +65,7 @@ const rule: WorkspaceRule = {
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -73,6 +75,7 @@ const rule: WorkspaceRule = {
       /** Check if the file handles --help flag. */
       const hasHelp: boolean =
         content.includes('--help') || content.includes('-h') || content.includes('usage');
+
       if (!hasHelp) {
         results.push(
           createResult(
@@ -91,6 +94,7 @@ const rule: WorkspaceRule = {
 
       /** Check if the file handles --version flag. */
       const hasVersion: boolean = content.includes('--version') || content.includes('version');
+
       if (!hasVersion) {
         results.push(
           createResult(

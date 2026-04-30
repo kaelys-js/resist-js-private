@@ -149,27 +149,32 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const callee = node.callee as AstNode | undefined;
+
       if (!callee) {
         return results;
       }
 
       const prop = callee.property as AstNode | undefined;
       const obj = callee.object as AstNode | undefined;
+
       if ((obj?.name as string) !== 'v' || (prop?.name as string) !== 'strictObject') {
         return results;
       }
 
       const args = node.arguments as AstNode[] | undefined;
+
       if (!args || args.length === 0) {
         return results;
       }
 
       const objArg = args[0] as AstNode; // cast safe: length checked above
+
       if (objArg.type !== 'ObjectExpression') {
         return results;
       }
 
       const properties = objArg.properties as AstNode[] | undefined;
+
       if (!properties) {
         return results;
       }
@@ -181,11 +186,13 @@ const rule: TypeScriptRule = {
 
         const keyNode = property.key as AstNode | undefined;
         const keyName: string = (keyNode?.name as string) ?? (keyNode?.value as string) ?? '';
+
         if (!keyName) {
           continue;
         }
 
         const value = property.value as AstNode | undefined;
+
         if (!value) {
           continue;
         }
@@ -205,9 +212,11 @@ const rule: TypeScriptRule = {
         // Skip fields already well-constrained (3+ validators in v.pipe)
         // e.g. v.pipe(v.string(), v.minLength(1), v.maxLength(50), v.regex(...))
         const pipeMatch: RegExpMatchArray | null = valueText.match(/v\.pipe\(/);
+
         if (pipeMatch) {
           const pipeContent: string = valueText.slice(valueText.indexOf('v.pipe('));
           const validatorCount: number = pipeContent.split(/v\.\w+\(/).length - 1;
+
           if (validatorCount >= 4) {
             continue;
           }

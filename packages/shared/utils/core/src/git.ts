@@ -45,6 +45,7 @@ import { readFile, parseJsonWithComments } from '@/utils/core/fs';
 export function getGitCommitShort(): Result<Str> {
   // cast safe: string literal is a valid non-empty command
   const result: Result<Str> = execSyncSafe('git rev-parse --short HEAD' as Command);
+
   if (!result.ok) {
     return result;
   }
@@ -68,6 +69,7 @@ export function getGitCommitShort(): Result<Str> {
 export function getGitCommitFull(): Result<Str> {
   // cast safe: string literal is a valid non-empty command
   const result: Result<Str> = execSyncSafe('git rev-parse HEAD' as Command);
+
   if (!result.ok) {
     return result;
   }
@@ -92,6 +94,7 @@ export function getGitCommitFull(): Result<Str> {
 export function getGitBranch(): Result<Str> {
   // cast safe: string literal is a valid non-empty command
   const result: Result<Str> = execSyncSafe('git rev-parse --abbrev-ref HEAD' as Command);
+
   if (!result.ok) {
     return result;
   }
@@ -115,10 +118,13 @@ export function getGitBranch(): Result<Str> {
 export function getGitDirty(): Result<Bool> {
   // cast safe: string literal is a valid non-empty command
   const result: Result<Str> = execSyncSafe('git status --porcelain' as Command);
+
   if (!result.ok) {
     return result;
   }
+
   const isDirty: Bool = result.data.trim().length > 0;
+
   return ok(v.boolean(), isDirty);
 }
 
@@ -162,21 +168,25 @@ export type GitInfo = v.InferOutput<typeof GitInfoSchema>;
  */
 export function getGitInfo(): Result<GitInfo> {
   const commitResult: Result<Str> = getGitCommitShort();
+
   if (!commitResult.ok) {
     return commitResult;
   }
 
   const fullResult: Result<Str> = getGitCommitFull();
+
   if (!fullResult.ok) {
     return fullResult;
   }
 
   const branchResult: Result<Str> = getGitBranch();
+
   if (!branchResult.ok) {
     return branchResult;
   }
 
   const dirtyResult: Result<Bool> = getGitDirty();
+
   if (!dirtyResult.ok) {
     return dirtyResult;
   }
@@ -211,11 +221,13 @@ export function getGitInfo(): Result<GitInfo> {
  */
 export function getPackageVersion(packageJsonPath: Path): Result<Str> {
   const pathResult: Result<Path> = safeParse(PathSchema, packageJsonPath);
+
   if (!pathResult.ok) {
     return pathResult;
   }
 
   const fileResult: Result<Str> = readFile(pathResult.data);
+
   if (!fileResult.ok) {
     return fileResult;
   }
@@ -223,11 +235,13 @@ export function getPackageVersion(packageJsonPath: Path): Result<Str> {
   const parsed: Result<Record<Str, unknown>> = parseJsonWithComments<Record<Str, unknown>>(
     fileResult.data,
   );
+
   if (!parsed.ok) {
     return parsed;
   }
 
   const { version }: Record<Str, unknown> = parsed.data;
+
   if (typeof version !== 'string' || version.length === 0) {
     return err(ERRORS.CONFIG.INVALID, { meta: { field: 'version', file: pathResult.data } });
   }

@@ -42,6 +42,7 @@
   const validated: IdleDetectorProps = $derived.by(() => {
     const rawProps: IdleDetectorProps = stripSvelteProps(allProps);
     const result = safeParse(IdleDetectorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

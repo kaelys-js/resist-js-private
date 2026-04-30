@@ -42,6 +42,7 @@
   const validated: TimeFieldProps = $derived.by(() => {
     const rawProps: TimeFieldProps = stripSvelteProps(allProps);
     const result = safeParse(TimeFieldPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

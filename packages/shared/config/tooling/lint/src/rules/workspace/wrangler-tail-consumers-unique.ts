@@ -21,6 +21,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -61,6 +62,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
+
       if (name === 'wrangler.json' || name === 'wrangler.jsonc') {
         wranglerFiles.push(filePath);
       }
@@ -68,6 +70,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of wranglerFiles) {
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -75,6 +78,7 @@ const rule: WorkspaceRule = {
       }
 
       let parsed: Record<string, unknown>;
+
       try {
         parsed = JSON.parse(content) as Record<string, unknown>;
       } catch {
@@ -97,11 +101,15 @@ const rule: WorkspaceRule = {
           if (typeof consumer !== 'object' || consumer === null) {
             continue;
           }
+
           const { service } = consumer as Record<string, unknown>;
+
           if (typeof service !== 'string') {
             continue;
           }
+
           const existing: { file: string; env: string } | undefined = seen.get(service);
+
           if (existing) {
             duplicates.push({
               service,
@@ -123,6 +131,7 @@ const rule: WorkspaceRule = {
       const env: Record<string, unknown> | undefined = parsed['env'] as
         | Record<string, unknown>
         | undefined;
+
       if (env && typeof env === 'object') {
         for (const [envName, envConfig] of Object.entries(env)) {
           if (typeof envConfig === 'object' && envConfig !== null) {

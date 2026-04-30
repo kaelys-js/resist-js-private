@@ -38,6 +38,7 @@ const rule: TypeScriptRule = {
         LEGACY_PROPS_RE.lastIndex = 0;
 
         let match: RegExpExecArray | null = LEGACY_PROPS_RE.exec(line);
+
         while (match) {
           const [matched] = match;
           const isRestProps: boolean = matched === '$$restProps';

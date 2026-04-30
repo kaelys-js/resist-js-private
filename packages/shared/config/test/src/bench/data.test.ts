@@ -31,6 +31,7 @@ describe('bench/data', () => {
 
     it('honors a custom length', () => {
       const result: string[] = generateStrings(3, 12);
+
       for (const s of result) {
         expect(s).toHaveLength(12);
       }
@@ -49,6 +50,7 @@ describe('bench/data', () => {
 
     it('produces strings containing only lowercase letters and digits', () => {
       const result: string[] = generateStrings(20, 40);
+
       for (const s of result) {
         expect(s).toMatch(/^[a-z0-9]+$/);
       }
@@ -66,6 +68,7 @@ describe('bench/data', () => {
 
     it('defaults to base "src" and default extensions', () => {
       const paths: string[] = generateFilePaths(8);
+
       for (const p of paths) {
         expect(p.startsWith('src/')).toBe(true);
         expect(p).toMatch(/\.(ts|js|json|svelte)$/);
@@ -87,6 +90,7 @@ describe('bench/data', () => {
 
     it('honors a custom base directory', () => {
       const paths: string[] = generateFilePaths(3, { base: 'custom' });
+
       for (const p of paths) {
         expect(p.startsWith('custom/')).toBe(true);
       }
@@ -94,6 +98,7 @@ describe('bench/data', () => {
 
     it('respects maxDepth=1 (base + filename only)', () => {
       const paths: string[] = generateFilePaths(4, { maxDepth: 1, base: 'r' });
+
       for (const p of paths) {
         /* 2 segments: "r" + file.ext */
         expect(p.split('/')).toHaveLength(2);
@@ -115,6 +120,7 @@ describe('bench/data', () => {
 
     it('honors a custom extensions array', () => {
       const paths: string[] = generateFilePaths(4, { extensions: ['.zzz'] });
+
       for (const p of paths) {
         expect(p.endsWith('.zzz')).toBe(true);
       }

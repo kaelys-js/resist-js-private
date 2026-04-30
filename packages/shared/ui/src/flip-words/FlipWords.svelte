@@ -42,6 +42,7 @@
   const validated: FlipWordsProps = $derived.by(() => {
     const rawProps: FlipWordsProps = stripSvelteProps(allProps);
     const result = safeParse(FlipWordsPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

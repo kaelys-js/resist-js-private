@@ -42,6 +42,7 @@
   const validated: CurrencyDisplayProps = $derived.by(() => {
     const rawProps: CurrencyDisplayProps = stripSvelteProps(allProps);
     const result = safeParse(CurrencyDisplayPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

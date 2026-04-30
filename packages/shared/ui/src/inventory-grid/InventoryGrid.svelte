@@ -41,6 +41,7 @@
   const validated: InventoryGridProps = $derived.by(() => {
     const rawProps: InventoryGridProps = stripSvelteProps(allProps);
     const result = safeParse(InventoryGridPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

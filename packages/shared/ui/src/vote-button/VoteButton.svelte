@@ -42,6 +42,7 @@
   const validated: VoteButtonProps = $derived.by(() => {
     const rawProps: VoteButtonProps = stripSvelteProps(allProps);
     const result = safeParse(VoteButtonPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

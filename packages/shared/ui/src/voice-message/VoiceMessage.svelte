@@ -42,6 +42,7 @@
   const validated: VoiceMessageProps = $derived.by(() => {
     const rawProps: VoiceMessageProps = stripSvelteProps(allProps);
     const result = safeParse(VoiceMessagePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

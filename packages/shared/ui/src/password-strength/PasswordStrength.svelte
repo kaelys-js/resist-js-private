@@ -42,6 +42,7 @@
   const validated: PasswordStrengthProps = $derived.by(() => {
     const rawProps: PasswordStrengthProps = stripSvelteProps(allProps);
     const result = safeParse(PasswordStrengthPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

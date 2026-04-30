@@ -43,6 +43,7 @@
   const validated: ColorChannelFieldProps = $derived.by(() => {
     const rawProps: ColorChannelFieldProps = stripSvelteProps(allProps);
     const result = safeParse(ColorChannelFieldPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

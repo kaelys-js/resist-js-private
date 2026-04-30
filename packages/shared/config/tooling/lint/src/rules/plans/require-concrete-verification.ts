@@ -106,6 +106,7 @@ const rule: WorkspaceRule = {
 
         /* Integration Verification tasks need grep/count commands */
         const isIntegration: boolean = task.name.toLowerCase().includes('integration verification');
+
         if (isIntegration && !hasWiringChecks(task.verification)) {
           results.push(
             createResult(

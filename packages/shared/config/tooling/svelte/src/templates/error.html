@@ -343,14 +343,17 @@
 				var FAILED_TEXT = '{{errors.copyFailed}}';
 
 				var raw = document.getElementById('raw-message');
-				if (!raw) return;
+				
+if (!raw) return;
 				var text = raw.textContent || '';
 				var match = text.match(/\(Reference:\s*([^)]+)\)/);
-				if (!match) return;
+				
+if (!match) return;
 				var errorId = match[1].trim();
 				var btn = document.getElementById('error-id-btn');
 				var label = document.getElementById('error-id-text');
-				if (!btn || !label) return;
+				
+if (!btn || !label) return;
 				label.textContent = ERROR_ID_PREFIX + errorId;
 				btn.style.display = 'flex';
 				btn.setAttribute('data-error-id', errorId);
@@ -436,7 +439,8 @@
 
 				btn.addEventListener('click', function () {
 					var id = btn.getAttribute('data-error-id');
-					if (!id) return;
+					
+if (!id) return;
 					copyToClipboard(id, function (success) { showResult(id, success); });
 				});
 			} catch (e) { console.error('[{{APP_NAME}}] Error page script failed:', e); }

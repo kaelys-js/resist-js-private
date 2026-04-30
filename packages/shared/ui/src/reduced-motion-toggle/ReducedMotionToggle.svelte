@@ -43,6 +43,7 @@
   const validated: ReducedMotionToggleProps = $derived.by(() => {
     const rawProps: ReducedMotionToggleProps = stripSvelteProps(allProps);
     const result = safeParse(ReducedMotionTogglePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

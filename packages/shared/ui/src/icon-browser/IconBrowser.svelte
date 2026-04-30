@@ -42,6 +42,7 @@
   const validated: IconBrowserProps = $derived.by(() => {
     const rawProps: IconBrowserProps = stripSvelteProps(allProps);
     const result = safeParse(IconBrowserPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

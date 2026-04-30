@@ -30,6 +30,7 @@ import type {
  */
 function getReturnedName(returnNode: AstNode): string | null {
   const argument = returnNode.argument as AstNode | undefined;
+
   if (!argument) {
     return null;
   }
@@ -52,6 +53,7 @@ const rule: TypeScriptRule = {
 
       // Check if condition is `!varName.ok`
       const test = node.test as AstNode | undefined;
+
       if (!test) {
         return results;
       }
@@ -61,11 +63,13 @@ const rule: TypeScriptRule = {
 
       if (test.type === 'UnaryExpression') {
         const operator = test.operator as string | undefined;
+
         if (operator !== '!') {
           return results;
         }
 
         const argument = test.argument as AstNode | undefined;
+
         if (!argument) {
           return results;
         }
@@ -73,11 +77,13 @@ const rule: TypeScriptRule = {
         if (argument.type === 'MemberExpression' || argument.type === 'StaticMemberExpression') {
           const prop = argument.property as AstNode | undefined;
           const propName: string = (prop?.name as string) ?? '';
+
           if (propName !== 'ok') {
             return results;
           }
 
           const obj = argument.object as AstNode | undefined;
+
           if (obj?.type === 'Identifier') {
             guardedVarName = (obj.name as string) ?? null;
           }
@@ -90,6 +96,7 @@ const rule: TypeScriptRule = {
 
       // Check if the consequent (if-body) returns the same variable
       const consequent = node.consequent as AstNode | undefined;
+
       if (!consequent) {
         return results;
       }
@@ -99,10 +106,13 @@ const rule: TypeScriptRule = {
       // Handle both block and non-block consequent
       if (consequent.type === 'BlockStatement') {
         const body = consequent.body as AstNode[] | undefined;
+
         if (!body || body.length !== 1) {
           return results;
         }
+
         const [firstStmt]: Array<AstNode | undefined> = body;
+
         if (!firstStmt || firstStmt.type !== 'ReturnStatement') {
           return results;
         }
@@ -122,6 +132,7 @@ const rule: TypeScriptRule = {
 
       // Check if next statement is `return guardedVarName;`
       const nextReturnPattern: RegExp = new RegExp(`^return\\s+${guardedVarName}\\s*;`);
+
       if (nextReturnPattern.test(afterIf)) {
         results.push({
           file: context.file,

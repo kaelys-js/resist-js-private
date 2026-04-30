@@ -42,6 +42,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     let branch: string;
+
     try {
       branch = execSync('git symbolic-ref --short HEAD', {
         cwd: ctx.rootDir,

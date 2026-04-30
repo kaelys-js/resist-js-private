@@ -42,6 +42,7 @@
   const validated: WobbleCardProps = $derived.by(() => {
     const rawProps: WobbleCardProps = stripSvelteProps(allProps);
     const result = safeParse(WobbleCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

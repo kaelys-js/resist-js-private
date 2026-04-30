@@ -27,6 +27,7 @@ const rule: TypeScriptRule = {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const callee = node.callee as AstNode | undefined;
+
       if (!callee) {
         return results;
       }
@@ -42,16 +43,20 @@ const rule: TypeScriptRule = {
         ) {
           // Check if first argument is an array of object schemas
           const args = node.arguments as AstNode[] | undefined;
+
           if (!args || args.length === 0) {
             return results;
           }
 
           const firstArg = args[0] as AstNode;
+
           if (firstArg.type === 'ArrayExpression') {
             const elements = firstArg.elements as AstNode[] | undefined;
+
             if (elements && elements.length >= 2) {
               // Check if elements are object schema calls (v.strictObject, v.object)
               let allObjectSchemas: boolean = true;
+
               for (const elem of elements) {
                 if (!elem) {
                   continue;

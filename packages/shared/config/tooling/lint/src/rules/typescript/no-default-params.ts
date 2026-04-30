@@ -31,6 +31,7 @@ function checkParams(
 ): LintResult[] {
   const results: LintResult[] = [];
   const params = funcNode.params as AstNode[] | undefined;
+
   if (!params) {
     return results;
   }
@@ -73,9 +74,11 @@ function checkParams(
     // Check destructured params with defaults inside
     if (param.type === 'ObjectPattern') {
       const properties = param.properties as AstNode[] | undefined;
+
       if (properties) {
         for (const prop of properties) {
           const value = prop.value as AstNode | undefined;
+
           if (value?.type === 'AssignmentPattern') {
             const key = prop.key as AstNode | undefined;
             const propName: string = (key?.name as string) ?? '<unknown>';

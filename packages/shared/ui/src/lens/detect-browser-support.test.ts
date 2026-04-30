@@ -85,6 +85,7 @@ describe('detectBrowserSupport', () => {
     const result: BrowserSupportResult = detectBrowserSupport({
       'plain.css': 'body { margin: 0; }' as Str,
     });
+
     for (const browser of result.browsers) {
       expect(browser.minVersion).toBe('0+');
     }
@@ -188,6 +189,7 @@ describe('detectBrowserSupport', () => {
 
   it('all supported browsers have status "supported"', () => {
     const result: BrowserSupportResult = detectBrowserSupport({});
+
     for (const browser of result.browsers) {
       expect(browser.status).toBe('supported');
       expect(browser.category).toBe('Desktop');

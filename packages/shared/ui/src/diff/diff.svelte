@@ -42,6 +42,7 @@
   const validated: DiffProps = $derived.by(() => {
     const rawProps: DiffProps = stripSvelteProps(allProps);
     const result = safeParse(DiffPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

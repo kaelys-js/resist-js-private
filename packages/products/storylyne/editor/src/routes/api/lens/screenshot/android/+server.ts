@@ -70,6 +70,7 @@ export const GET: RequestHandler = async ({ url }) => {
   /* ---- Check Android SDK availability ---- */
 
   const sdkStatus = await checkAndroidSdk();
+
   if (!sdkStatus.installed) {
     return new Response(
       JSON.stringify({
@@ -83,6 +84,7 @@ export const GET: RequestHandler = async ({ url }) => {
   /* ---- Parse & validate params ---- */
 
   const component: Str = (url.searchParams.get('component') ?? '') as Str;
+
   if (!component) {
     return new Response(JSON.stringify({ error: 'Missing required "component" parameter' }), {
       status: 400,
@@ -136,6 +138,7 @@ export const GET: RequestHandler = async ({ url }) => {
 
       /* Set up CDP forwarding for page-load detection + console capture */
       let cdpWsUrl: Str = '' as Str;
+
       try {
         await setupCdpForward(sdkStatus.paths.adb, instance.serial);
         /* Fetch CDP target page WebSocket URL */
@@ -144,6 +147,7 @@ export const GET: RequestHandler = async ({ url }) => {
         const cdpPage: Record<string, unknown> | undefined = (
           cdpTargets as Array<Record<string, unknown>>
         ).find((t: Record<string, unknown>): boolean => t.type === 'page');
+
         if (cdpPage?.webSocketDebuggerUrl) {
           cdpWsUrl = cdpPage.webSocketDebuggerUrl as Str;
         }
@@ -159,6 +163,7 @@ export const GET: RequestHandler = async ({ url }) => {
 
       /* Capture console logs via CDP (if available) */
       let consoleLogs: CdpConsoleEntry[] = [];
+
       if (cdpWsUrl) {
         consoleLogs = await captureConsoleLogs();
       }
@@ -210,6 +215,7 @@ export const GET: RequestHandler = async ({ url }) => {
     const message: Str = (
       error instanceof Error ? error.message : 'Android Emulator screenshot failed'
     ) as Str;
+
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },

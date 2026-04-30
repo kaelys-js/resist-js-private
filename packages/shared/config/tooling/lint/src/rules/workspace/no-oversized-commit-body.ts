@@ -44,6 +44,7 @@ const rule: WorkspaceRule = {
     const MAX_CHARS: number = 1000;
 
     let logOutput: string;
+
     try {
       logOutput = execSync('git log --pretty=format:%h%n%B%n---COMMIT-END--- -20', {
         cwd: ctx.rootDir,

@@ -42,6 +42,7 @@ export function extractSourceSizes(
 
   for (const [key, source] of Object.entries(allSources)) {
     const dir: Str = extractDirFn(key);
+
     if (!dir) {
       continue;
     }

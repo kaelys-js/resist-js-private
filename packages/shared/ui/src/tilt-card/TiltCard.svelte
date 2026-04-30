@@ -42,6 +42,7 @@
   const validated: TiltCardProps = $derived.by(() => {
     const rawProps: TiltCardProps = stripSvelteProps(allProps);
     const result = safeParse(TiltCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

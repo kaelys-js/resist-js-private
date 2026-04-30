@@ -42,6 +42,7 @@
   const validated: RainbowButtonProps = $derived.by(() => {
     const rawProps: RainbowButtonProps = stripSvelteProps(allProps);
     const result = safeParse(RainbowButtonPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

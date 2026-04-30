@@ -42,6 +42,7 @@
   const validated: DeploymentStatusProps = $derived.by(() => {
     const rawProps: DeploymentStatusProps = stripSvelteProps(allProps);
     const result = safeParse(DeploymentStatusPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

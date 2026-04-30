@@ -67,6 +67,7 @@ const rule: WorkspaceRule = {
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -82,8 +83,10 @@ const rule: WorkspaceRule = {
         /* Check GitHub Actions timeout-minutes. */
         GITHUB_TIMEOUT_PATTERN.lastIndex = 0;
         const githubMatch: RegExpExecArray | null = GITHUB_TIMEOUT_PATTERN.exec(line);
+
         if (githubMatch !== null) {
           const value: number = Number(githubMatch[1]);
+
           if (value > MAX_TIMEOUT_MINUTES) {
             results.push(
               createResult(
@@ -105,8 +108,10 @@ const rule: WorkspaceRule = {
         /* Check GitLab CI timeout. */
         GITLAB_TIMEOUT_PATTERN.lastIndex = 0;
         const gitlabMatch: RegExpExecArray | null = GITLAB_TIMEOUT_PATTERN.exec(line);
+
         if (gitlabMatch !== null) {
           const value: number = Number(gitlabMatch[1]);
+
           if (value > MAX_TIMEOUT_MINUTES) {
             results.push(
               createResult(

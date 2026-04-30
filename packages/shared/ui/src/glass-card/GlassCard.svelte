@@ -42,6 +42,7 @@
   const validated: GlassCardProps = $derived.by(() => {
     const rawProps: GlassCardProps = stripSvelteProps(allProps);
     const result = safeParse(GlassCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

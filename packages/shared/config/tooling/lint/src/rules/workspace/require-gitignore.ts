@@ -21,6 +21,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -50,6 +51,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const rel: string = relative(ctx.rootDir, filePath);
+
       if (rel === '.gitignore') {
         found = true;
         rootFilePath = filePath;
@@ -114,8 +116,10 @@ const rule: WorkspaceRule = {
 
     const seen: Set<string> = new Set<string>();
     const duplicates: string[] = [];
+
     for (const pattern of patterns) {
       const trimmed: string = pattern.trim();
+
       if (seen.has(trimmed)) {
         duplicates.push(trimmed);
       }

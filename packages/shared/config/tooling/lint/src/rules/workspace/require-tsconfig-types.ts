@@ -27,6 +27,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -52,6 +53,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
+
       if (!TSCONFIG_NAMES.has(name)) {
         continue;
       }
@@ -68,6 +70,7 @@ const rule: WorkspaceRule = {
       const entries: string[] = [];
 
       const { typeRoots } = compilerOptions;
+
       if (Array.isArray(typeRoots)) {
         for (const entry of typeRoots) {
           if (typeof entry === 'string') {
@@ -77,6 +80,7 @@ const rule: WorkspaceRule = {
       }
 
       const { types } = compilerOptions;
+
       if (Array.isArray(types)) {
         for (const entry of types) {
           if (typeof entry === 'string') {

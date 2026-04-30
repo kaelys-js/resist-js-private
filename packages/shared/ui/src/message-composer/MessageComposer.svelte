@@ -42,6 +42,7 @@
   const validated: MessageComposerProps = $derived.by(() => {
     const rawProps: MessageComposerProps = stripSvelteProps(allProps);
     const result = safeParse(MessageComposerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -43,6 +43,7 @@
   const validated: StackProps = $derived.by(() => {
     const rawProps: StackProps = stripSvelteProps(allProps);
     const result = safeParse(StackPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: BulletChartProps = $derived.by(() => {
     const rawProps: BulletChartProps = stripSvelteProps(allProps);
     const result = safeParse(BulletChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

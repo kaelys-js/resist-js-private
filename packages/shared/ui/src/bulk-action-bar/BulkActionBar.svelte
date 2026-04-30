@@ -43,6 +43,7 @@
   const validated: BulkActionBarProps = $derived.by(() => {
     const rawProps: BulkActionBarProps = stripSvelteProps(allProps);
     const result = safeParse(BulkActionBarPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: StackTraceProps = $derived.by(() => {
     const rawProps: StackTraceProps = stripSvelteProps(allProps);
     const result = safeParse(StackTracePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

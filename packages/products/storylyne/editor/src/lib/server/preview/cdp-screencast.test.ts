@@ -28,6 +28,7 @@ function createMockCdp(): {
   emit: (event: Str, params: unknown) => void;
 } {
   const listeners: Map<Str, Array<(params: unknown) => void>> = new Map();
+
   return {
     send: vi.fn().mockResolvedValue(undefined),
     on: vi.fn((event: Str, handler: (params: unknown) => void): void => {
@@ -39,6 +40,7 @@ function createMockCdp(): {
     listeners,
     emit(event: Str, params: unknown): void {
       const handlers = listeners.get(event) ?? [];
+
       for (const handler of handlers) {
         handler(params);
       }

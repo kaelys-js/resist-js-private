@@ -42,6 +42,7 @@
   const validated: SatisfactionRatingProps = $derived.by(() => {
     const rawProps: SatisfactionRatingProps = stripSvelteProps(allProps);
     const result = safeParse(SatisfactionRatingPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

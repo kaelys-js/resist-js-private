@@ -73,11 +73,13 @@ export function collectStateVariables(ast: AstNode): Set<string> {
     }
 
     const init: AstNode | undefined = node.init as AstNode | undefined;
+
     if (!init || !isRuneCall(init, '$state')) {
       return;
     }
 
     const id: AstNode | undefined = node.id as AstNode | undefined;
+
     if (id?.type === 'Identifier') {
       stateVars.add((id as unknown as { name: string }).name);
     }
@@ -101,11 +103,13 @@ export function collectDerivedVariables(ast: AstNode): Set<string> {
     }
 
     const init: AstNode | undefined = node.init as AstNode | undefined;
+
     if (!init || !isRuneCall(init, '$derived')) {
       return;
     }
 
     const id: AstNode | undefined = node.id as AstNode | undefined;
+
     if (id?.type === 'Identifier') {
       derivedVars.add((id as unknown as { name: string }).name);
     }
@@ -126,11 +130,13 @@ export function collectDerivedVariables(ast: AstNode): Set<string> {
  */
 export function getCallbackBody(callNode: AstNode): AstNode | undefined {
   const args: AstNode[] | undefined = callNode.arguments as AstNode[] | undefined;
+
   if (!args || args.length === 0) {
     return undefined;
   }
 
   const [callback] = args;
+
   if (!callback) {
     return undefined;
   }
@@ -174,11 +180,13 @@ export function findAssignmentTargets(body: AstNode): Array<{ name: string; node
   walkNode(body, (node: AstNode): void => {
     if (node.type === 'AssignmentExpression') {
       const left: AstNode | undefined = node.left as AstNode | undefined;
+
       if (left?.type === 'Identifier') {
         targets.push({ name: (left as unknown as { name: string }).name, node });
       }
     } else if (node.type === 'UpdateExpression') {
       const argument: AstNode | undefined = node.argument as AstNode | undefined;
+
       if (argument?.type === 'Identifier') {
         targets.push({ name: (argument as unknown as { name: string }).name, node });
       }
@@ -293,6 +301,7 @@ export function findSubscriptionPatterns(body: AstNode): string[] {
     // Direct call: addEventListener(...), setInterval(...), subscribe(...)
     if (callee.type === 'Identifier') {
       const { name } = callee as unknown as { name: string };
+
       if (SUBSCRIPTION_PATTERNS.has(name)) {
         patterns.push(name);
       }
@@ -304,8 +313,10 @@ export function findSubscriptionPatterns(body: AstNode): string[] {
       (callee.type === 'MemberExpression' && !(callee as { computed?: boolean }).computed)
     ) {
       const { property } = callee as { property?: AstNode };
+
       if (property?.type === 'Identifier') {
         const { name } = property as unknown as { name: string };
+
         if (SUBSCRIPTION_PATTERNS.has(name)) {
           patterns.push(name);
         }
@@ -332,14 +343,17 @@ export function hasCleanupReturn(body: AstNode, subscriptionPatterns: string[]):
     }
 
     const argument: AstNode | undefined = node.argument as AstNode | undefined;
+
     if (!argument) {
       return;
     }
 
     // Check if the return value or its body contains cleanup calls
     const returnText: string = JSON.stringify(argument);
+
     for (const pattern of subscriptionPatterns) {
       const counterpart: string | undefined = CLEANUP_COUNTERPARTS.get(pattern);
+
       if (counterpart && returnText.includes(counterpart)) {
         hasCleanup = true;
       }

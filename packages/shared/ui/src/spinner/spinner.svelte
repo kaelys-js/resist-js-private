@@ -42,6 +42,7 @@
   const validated: SpinnerProps = $derived.by(() => {
     const rawProps: SpinnerProps = stripSvelteProps(allProps);
     const result = safeParse(SpinnerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

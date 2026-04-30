@@ -32,6 +32,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -58,11 +59,13 @@ const rule: WorkspaceRule = {
 
     /* Collect all image file basenames. */
     const imageBasenames: Set<string> = new Set<string>();
+
     for (const filePath of allFiles) {
       const lowerPath: string = filePath.toLowerCase();
       const isImage: boolean = IMAGE_EXTENSIONS.some((ext: string): boolean =>
         lowerPath.endsWith(ext),
       );
+
       if (isImage) {
         imageBasenames.add(basename(filePath));
       }
@@ -74,11 +77,13 @@ const rule: WorkspaceRule = {
       const isSource: boolean = SOURCE_EXTENSIONS.some((ext: string): boolean =>
         lowerPath.endsWith(ext),
       );
+
       if (!isSource) {
         continue;
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {

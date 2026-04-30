@@ -42,6 +42,7 @@
   const validated: ErrorBoundaryProps = $derived.by(() => {
     const rawProps: ErrorBoundaryProps = stripSvelteProps(allProps);
     const result = safeParse(ErrorBoundaryPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

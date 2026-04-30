@@ -42,6 +42,7 @@
   const validated: ParallelCoordinatesProps = $derived.by(() => {
     const rawProps: ParallelCoordinatesProps = stripSvelteProps(allProps);
     const result = safeParse(ParallelCoordinatesPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

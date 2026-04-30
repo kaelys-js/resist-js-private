@@ -34,10 +34,12 @@ const rule: TypeScriptRule = {
         leftRaw !== null && typeof leftRaw === 'object' ? (leftRaw as AstNode) : undefined;
 
       let isMathRoundCall = false;
+
       if (leftNode && leftNode.type === 'CallExpression') {
         const calleeRaw: unknown = leftNode.callee;
         const calleeNode =
           calleeRaw !== null && typeof calleeRaw === 'object' ? (calleeRaw as AstNode) : undefined;
+
         if (calleeNode && calleeNode.type === 'MemberExpression') {
           const objRaw: unknown = calleeNode.object;
           const objNode =
@@ -47,6 +49,7 @@ const rule: TypeScriptRule = {
             propRaw !== null && typeof propRaw === 'object' ? (propRaw as AstNode) : undefined;
           const objName = objNode?.name as string | undefined;
           const propName = propNode?.name as string | undefined;
+
           if (
             objNode &&
             objNode.type === 'Identifier' &&

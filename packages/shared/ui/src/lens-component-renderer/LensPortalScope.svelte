@@ -41,6 +41,7 @@
   const rawProps: LensPortalScopeProps = $props();
   const validated: LensPortalScopeProps = $derived.by(() => {
     const result = safeParse(LensPortalScopePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }
@@ -57,6 +58,7 @@
     if (!anchorEl) {
       return;
     }
+
     const div: HTMLDivElement = document.createElement('div');
     // Position off-flow so it doesn't affect layout
     div.style.position = 'absolute';

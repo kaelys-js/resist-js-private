@@ -20,6 +20,7 @@ describe('process', () => {
   describe('createExitSpy', () => {
     it('captures a single exit code without terminating', () => {
       const exitSpy = createExitSpy(vi);
+
       try {
         process.exit(1);
         expect(exitSpy.called).toBe(true);
@@ -32,6 +33,7 @@ describe('process', () => {
 
     it('defaults missing exit code to 0', () => {
       const exitSpy = createExitSpy(vi);
+
       try {
         process.exit();
         expect(exitSpy.code).toBe(0);
@@ -42,6 +44,7 @@ describe('process', () => {
 
     it('reports called=false and code=undefined before any exit', () => {
       const exitSpy = createExitSpy(vi);
+
       try {
         expect(exitSpy.called).toBe(false);
         expect(exitSpy.code).toBeUndefined();
@@ -53,6 +56,7 @@ describe('process', () => {
 
     it('accumulates multiple exit codes in order', () => {
       const exitSpy = createExitSpy(vi);
+
       try {
         process.exit(1);
         process.exit(2);
@@ -66,6 +70,7 @@ describe('process', () => {
 
     it('exposes the underlying spy MockInstance', () => {
       const exitSpy = createExitSpy(vi);
+
       try {
         process.exit(7);
         expect(exitSpy.spy).toBeDefined();

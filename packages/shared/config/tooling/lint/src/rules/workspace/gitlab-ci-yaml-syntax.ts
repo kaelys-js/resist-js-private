@@ -25,6 +25,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -50,11 +51,13 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const rel: string = relative(ctx.rootDir, filePath);
+
       if (!CI_YAML_PATTERN.test(rel)) {
         continue;
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -88,8 +91,10 @@ const rule: WorkspaceRule = {
       if (!hasError) {
         let braces: number = 0;
         let brackets: number = 0;
+
         for (const line of lines) {
           const trimmed: string = line.trim();
+
           if (trimmed.startsWith('#')) {
             continue;
           }

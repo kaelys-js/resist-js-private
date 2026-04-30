@@ -42,6 +42,7 @@
   const validated: StreamingTextProps = $derived.by(() => {
     const rawProps: StreamingTextProps = stripSvelteProps(allProps);
     const result = safeParse(StreamingTextPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

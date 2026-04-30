@@ -41,6 +41,7 @@
   const validated: PinInputProps = $derived.by(() => {
     const rawProps: PinInputProps = stripSvelteProps(allProps);
     const result = safeParse(PinInputPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

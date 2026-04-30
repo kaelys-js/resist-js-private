@@ -42,6 +42,7 @@
   const validated: SlideOverProps = $derived.by(() => {
     const rawProps: SlideOverProps = stripSvelteProps(allProps);
     const result = safeParse(SlideOverPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

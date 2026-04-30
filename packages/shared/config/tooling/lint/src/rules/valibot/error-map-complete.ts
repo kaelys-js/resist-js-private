@@ -31,6 +31,7 @@ const rule: TypeScriptRule = {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const body = node.body as AstNode[] | undefined;
+
       if (!body) {
         return results;
       }
@@ -52,6 +53,7 @@ const rule: TypeScriptRule = {
         }
         if (stmt.type === 'ExportNamedDeclaration') {
           const declaration = stmt.declaration as AstNode | undefined;
+
           if (declaration?.type === 'VariableDeclaration') {
             varDecl = declaration;
           }
@@ -62,6 +64,7 @@ const rule: TypeScriptRule = {
         }
 
         const declarations = varDecl.declarations as AstNode[] | undefined;
+
         if (!declarations) {
           continue;
         }
@@ -69,6 +72,7 @@ const rule: TypeScriptRule = {
         for (const decl of declarations) {
           const id = decl.id as AstNode | undefined;
           const init = decl.init as AstNode | undefined;
+
           if (!id || !init) {
             continue;
           }
@@ -86,18 +90,23 @@ const rule: TypeScriptRule = {
 
             // Extract field names from the object literal argument
             const args = init.arguments as AstNode[] | undefined;
+
             if (args && args.length > 0) {
               const objArg = args[0] as AstNode;
+
               if (objArg.type === 'ObjectExpression') {
                 const props = objArg.properties as AstNode[] | undefined;
+
                 if (props) {
                   for (const prop of props) {
                     if (prop.type === 'SpreadElement') {
                       continue;
                     }
+
                     const key = prop.key as AstNode | undefined;
                     const keyName: string =
                       (key?.name as string) ?? (key as { value?: string })?.value ?? '';
+
                     if (keyName) {
                       schemaFields.add(keyName);
                     }
@@ -112,14 +121,17 @@ const rule: TypeScriptRule = {
             errorMapNode = stmt;
             errorMapName = name;
             const props = init.properties as AstNode[] | undefined;
+
             if (props) {
               for (const prop of props) {
                 if (prop.type === 'SpreadElement') {
                   continue;
                 }
+
                 const key = prop.key as AstNode | undefined;
                 const keyName: string =
                   (key?.name as string) ?? (key as { value?: string })?.value ?? '';
+
                 if (keyName) {
                   errorMapKeys.add(keyName);
                 }
@@ -132,6 +144,7 @@ const rule: TypeScriptRule = {
       // Only check if both schema and error map exist
       if (hasSchema && errorMapNode && schemaFields.size > 0) {
         const missingFields: string[] = [];
+
         for (const field of schemaFields) {
           if (!errorMapKeys.has(field)) {
             missingFields.push(field);

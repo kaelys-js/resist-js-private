@@ -42,6 +42,7 @@
   const validated: WizardProps = $derived.by(() => {
     const rawProps: WizardProps = stripSvelteProps(allProps);
     const result = safeParse(WizardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

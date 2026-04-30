@@ -42,6 +42,7 @@
   const validated: SubscriptionCardProps = $derived.by(() => {
     const rawProps: SubscriptionCardProps = stripSvelteProps(allProps);
     const result = safeParse(SubscriptionCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

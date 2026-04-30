@@ -43,6 +43,7 @@
   const validated: ScrollIndicatorProps = $derived.by(() => {
     const rawProps: ScrollIndicatorProps = stripSvelteProps(allProps);
     const result = safeParse(ScrollIndicatorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

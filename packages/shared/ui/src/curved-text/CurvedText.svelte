@@ -42,6 +42,7 @@
   const validated: CurvedTextProps = $derived.by(() => {
     const rawProps: CurvedTextProps = stripSvelteProps(allProps);
     const result = safeParse(CurvedTextPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

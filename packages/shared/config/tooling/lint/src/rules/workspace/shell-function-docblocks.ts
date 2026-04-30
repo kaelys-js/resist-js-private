@@ -22,6 +22,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -51,6 +52,7 @@ const rule: WorkspaceRule = {
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -61,15 +63,18 @@ const rule: WorkspaceRule = {
 
       for (let i: number = 0; i < lines.length; i++) {
         const match: RegExpMatchArray | null = (lines[i] ?? '').match(FUNC_PATTERN);
+
         if (!match?.[1]) {
           continue;
         }
+
         const [, funcName] = match;
 
         /** Extract the function body (lines from declaration to closing }). */
         let body: string = '';
         let braceCount: number = 0;
         let started: boolean = false;
+
         for (let j: number = i; j < lines.length; j++) {
           const line: string = lines[j] ?? '';
           body += `${line}\n`;
@@ -135,8 +140,10 @@ const rule: WorkspaceRule = {
 
         /** Check for raw echo/printf usage. */
         const bodyLines: string[] = body.split('\n');
+
         for (const bodyLine of bodyLines) {
           const trimmed: string = bodyLine.trim();
+
           if (trimmed.startsWith('#')) {
             continue;
           }

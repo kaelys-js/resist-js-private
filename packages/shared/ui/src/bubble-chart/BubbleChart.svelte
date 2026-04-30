@@ -42,6 +42,7 @@
   const validated: BubbleChartProps = $derived.by(() => {
     const rawProps: BubbleChartProps = stripSvelteProps(allProps);
     const result = safeParse(BubbleChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

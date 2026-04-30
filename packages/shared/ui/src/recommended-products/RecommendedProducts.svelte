@@ -42,6 +42,7 @@
   const validated: RecommendedProductsProps = $derived.by(() => {
     const rawProps: RecommendedProductsProps = stripSvelteProps(allProps);
     const result = safeParse(RecommendedProductsPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

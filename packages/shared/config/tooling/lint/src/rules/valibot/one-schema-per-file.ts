@@ -57,17 +57,21 @@ function isValibotSchemaCall(node: AstNode, context: VisitorContext): boolean {
   if (node.type !== 'CallExpression') {
     return false;
   }
+
   const callee = node.callee as AstNode | undefined;
+
   if (!callee) {
     return false;
   }
   if (callee.type !== 'StaticMemberExpression' && callee.type !== 'MemberExpression') {
     return false;
   }
+
   const obj = callee.object as AstNode | undefined;
   const prop = callee.property as AstNode | undefined;
   const objName: string = (obj?.name as string) ?? '';
   const methodName: string = (prop?.name as string) ?? '';
+
   return context.isImportedFrom(objName, 'valibot') && SCHEMA_FACTORIES.has(methodName);
 }
 
@@ -84,6 +88,7 @@ const rule: TypeScriptRule = {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const body = node.body as AstNode[] | undefined;
+
       if (!body) {
         return results;
       }
@@ -99,6 +104,7 @@ const rule: TypeScriptRule = {
         }
         if (stmt.type === 'ExportNamedDeclaration') {
           const declaration = stmt.declaration as AstNode | undefined;
+
           if (declaration?.type === 'VariableDeclaration') {
             varDecl = declaration;
           }
@@ -109,6 +115,7 @@ const rule: TypeScriptRule = {
         }
 
         const declarations = varDecl.declarations as AstNode[] | undefined;
+
         if (!declarations) {
           continue;
         }
@@ -116,11 +123,13 @@ const rule: TypeScriptRule = {
         for (const decl of declarations) {
           const id = decl.id as AstNode | undefined;
           const init = decl.init as AstNode | undefined;
+
           if (!id || !init) {
             continue;
           }
 
           const name: string = (id.name as string) ?? '';
+
           if (name.endsWith('Schema') && isValibotSchemaCall(init, context)) {
             schemaCount++;
           }

@@ -26,6 +26,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -56,11 +57,13 @@ const rule: WorkspaceRule = {
 
       /* Only process CI YAML files under .github/ or .gitlab/. */
       const relativePath: string = relative(ctx.rootDir, filePath);
+
       if (!relativePath.startsWith('.github/') && !relativePath.startsWith('.gitlab/')) {
         continue;
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -73,6 +76,7 @@ const rule: WorkspaceRule = {
 
       /* Extract declared stages from the `stages:` block. */
       let inStagesBlock: boolean = false;
+
       for (let i: number = 0; i < lines.length; i++) {
         const line: string = lines[i] ?? '';
 
@@ -83,11 +87,13 @@ const rule: WorkspaceRule = {
 
         if (inStagesBlock) {
           const stageEntry: RegExpMatchArray | null = line.match(/^\s+-\s+(.+)/);
+
           if (stageEntry === null) {
             /* Exit stages block when line doesn't match list item pattern. */
             inStagesBlock = false;
           } else {
             const stageName: string = (stageEntry[1] ?? '').trim().replaceAll(/^['"]|['"]$/g, '');
+
             if (stageName.length > 0) {
               declaredStages.set(stageName, i + 1);
             }
@@ -96,8 +102,10 @@ const rule: WorkspaceRule = {
 
         /* Extract stage references from job definitions. */
         const refMatch: RegExpMatchArray | null = line.match(STAGE_REF_PATTERN);
+
         if (refMatch !== null) {
           const stageName: string = (refMatch[1] ?? '').trim().replaceAll(/^['"]|['"]$/g, '');
+
           if (stageName.length > 0) {
             usedStages.add(stageName);
           }

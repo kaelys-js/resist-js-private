@@ -48,6 +48,7 @@
   const validated: SiteHeaderProps = $derived.by(() => {
     const rawProps: SiteHeaderProps = stripSvelteProps(restProps);
     const result = safeParse(SiteHeaderPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

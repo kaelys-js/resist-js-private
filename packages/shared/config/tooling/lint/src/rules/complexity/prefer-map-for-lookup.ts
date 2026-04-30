@@ -39,6 +39,7 @@ const rule: TypeScriptRule = {
       walkBody(node, (child: AstNode): boolean | void => {
         if (isCallTo(child, 'find')) {
           const objectName: string | undefined = getCalleeObjectName(child);
+
           if (objectName) {
             const existing: AstNode[] = findCalls.get(objectName) ?? [];
             existing.push(child);

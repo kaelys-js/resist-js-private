@@ -42,6 +42,7 @@
   const validated: StoreLocatorProps = $derived.by(() => {
     const rawProps: StoreLocatorProps = stripSvelteProps(allProps);
     const result = safeParse(StoreLocatorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

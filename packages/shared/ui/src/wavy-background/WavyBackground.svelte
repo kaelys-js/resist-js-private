@@ -42,6 +42,7 @@
   const validated: WavyBackgroundProps = $derived.by(() => {
     const rawProps: WavyBackgroundProps = stripSvelteProps(allProps);
     const result = safeParse(WavyBackgroundPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

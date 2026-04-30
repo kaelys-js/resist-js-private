@@ -43,6 +43,7 @@
   const validated: AddressAutocompleteProps = $derived.by(() => {
     const rawProps: AddressAutocompleteProps = stripSvelteProps(allProps);
     const result = safeParse(AddressAutocompletePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

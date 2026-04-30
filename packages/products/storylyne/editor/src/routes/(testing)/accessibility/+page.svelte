@@ -76,6 +76,7 @@
     const s: string = globPath as string;
     /* Strip leading /../../.. prefix and normalize to workspace-relative */
     const sharedIdx: number = s.indexOf('/shared/');
+
     if (sharedIdx >= 0) {
       return s.slice(sharedIdx + 1) as Str; /* removes everything before "shared/" */
     }
@@ -87,6 +88,7 @@
   const scanSources: Record<Str, Str> = Object.fromEntries(
     Object.entries(sourceModules).map(([path, content]: [Str, unknown]): [Str, Str] => {
       const wsPath: Str = toWorkspacePath(path as Str);
+
       return [wsPath, String(content) as Str];
     }),
   );
@@ -171,6 +173,7 @@
       ? PAGE_EXPORT_ITEMS
       : PAGE_EXPORT_ITEMS.filter((p: ExportItem): boolean => {
           const q: Str = exportSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q as string) ||
             p.description.toLowerCase().includes(q as string) ||
@@ -303,6 +306,7 @@
         const statusDiff: number =
           ((statusOrder[a.status] ?? (4 as Num)) as number) -
           ((statusOrder[b.status] ?? (4 as Num)) as number);
+
         if (statusDiff !== 0) {
           return statusDiff;
         }
@@ -344,10 +348,12 @@
   /** Per-category pass stats for Coverage Overview cards. */
   const categoryStats: Array<{ label: Str; passing: Num; total: Num }> = $derived.by(() => {
     const categories: Map<Str, { pass: Num; total: Num }> = new Map();
+
     for (const r of auditResult.rules) {
       if (r.status === 'not-applicable') {
         continue;
       }
+
       const std: Str = r.category;
       const existing = categories.get(std) ?? { pass: 0 as Num, total: 0 as Num };
       categories.set(std, {
@@ -389,6 +395,7 @@
     if (!sortField) {
       return '' as Str;
     }
+
     const names: Record<string, string> = {
       name: 'Name',
       standard: 'Standard',
@@ -400,6 +407,7 @@
       'failing-files': 'Failures',
     };
     const arrow: Str = (sortDir === 'asc' ? '\u2191' : '\u2193') as Str;
+
     return `${names[sortField] ?? sortField} ${arrow}` as Str;
   });
 
@@ -427,6 +435,7 @@
         'not-applicable': 2 as Num,
         pass: 3 as Num,
       };
+
       return (
         ((order[a.status] ?? (4 as Num)) as number) - ((order[b.status] ?? (4 as Num)) as number)
       );
@@ -459,6 +468,7 @@
    */
   function toggleCategory(cat: Str): void {
     const idx: Num = activeCategories.indexOf(cat) as Num;
+
     if ((idx as number) >= 0) {
       activeCategories = activeCategories.filter((c) => c !== cat);
     } else {
@@ -511,6 +521,7 @@
 
   function toggleExpanded(ruleId: Str): void {
     const next: Set<Str> = new Set(expandedRules);
+
     if (next.has(ruleId)) {
       next.delete(ruleId);
     } else {
@@ -601,6 +612,7 @@
       '| Rule | WCAG | Category | Status | Pass Rate | Evidence |' as Str,
       '|------|------|----------|--------|-----------|----------|' as Str,
     ];
+
     for (const rule of filteredRules) {
       lines.push(
         `| ${rule.label} | ${rule.wcag} | ${rule.category} | ${rule.status} | ${rule.passCount}/${rule.totalChecked} | ${rule.evidence} |` as Str,
@@ -635,6 +647,7 @@
         failingFiles: r.failingFiles,
       })),
     };
+
     return JSON.stringify(data, null, 2) as Str;
   }
 
@@ -688,6 +701,7 @@
     const raf: Num = requestAnimationFrame((): void => {
       node.style.minHeight = `${node.offsetHeight}px`;
     }) as Num;
+
     return {
       destroy(): void {
         cancelAnimationFrame(raf as number);

@@ -42,6 +42,7 @@
   const validated: TracingBeamProps = $derived.by(() => {
     const rawProps: TracingBeamProps = stripSvelteProps(allProps);
     const result = safeParse(TracingBeamPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

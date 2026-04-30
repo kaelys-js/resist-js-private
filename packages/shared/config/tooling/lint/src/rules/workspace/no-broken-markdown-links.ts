@@ -52,6 +52,7 @@ const rule: WorkspaceRule = {
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -62,6 +63,7 @@ const rule: WorkspaceRule = {
       const fileDir: string = dirname(filePath);
 
       let match: RegExpExecArray | null = MARKDOWN_LINK_PATTERN.exec(content);
+
       while (match !== null) {
         const href: string = match[2] ?? '';
 

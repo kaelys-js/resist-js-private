@@ -42,6 +42,7 @@
   const validated: ParticleTrailProps = $derived.by(() => {
     const rawProps: ParticleTrailProps = stripSvelteProps(allProps);
     const result = safeParse(ParticleTrailPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

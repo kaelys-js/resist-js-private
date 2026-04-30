@@ -28,6 +28,7 @@ const rule: TypeScriptRule = {
   visitor: {
     LabeledStatement(node: AstNode, context: VisitorContext): LintResult[] {
       const label: AstNode | undefined = node.label as AstNode | undefined;
+
       if (!label || (label as { name?: string }).name !== '$') {
         return [];
       }

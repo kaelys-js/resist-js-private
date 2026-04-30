@@ -43,6 +43,7 @@ async function findNearestPackageType(
       try {
         const content: string = await read(pkgPath);
         const parsed: PackageJsonType = JSON.parse(content) as PackageJsonType;
+
         return parsed.type;
       } catch {
         return undefined;
@@ -71,6 +72,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 

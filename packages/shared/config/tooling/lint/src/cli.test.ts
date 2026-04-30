@@ -59,6 +59,7 @@ const CLI_CACHE: Map<string, Promise<CliResult>> = new Map();
 function runCli(args: string[]): Promise<CliResult> {
   const key: string = JSON.stringify(args);
   let cached: Promise<CliResult> | undefined = CLI_CACHE.get(key);
+
   if (cached !== undefined) {
     return cached;
   }
@@ -132,6 +133,7 @@ function makeCliArgs(overrides: Partial<CliArgs> = {}): CliArgs {
 function captureOutput(): { stdoutLines: string[]; stderrLines: string[]; output: CliOutput } {
   const stdoutLines: string[] = [];
   const stderrLines: string[] = [];
+
   return {
     stdoutLines,
     stderrLines,

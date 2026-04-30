@@ -42,6 +42,7 @@
   const validated: JsonViewerProps = $derived.by(() => {
     const rawProps: JsonViewerProps = stripSvelteProps(allProps);
     const result = safeParse(JsonViewerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

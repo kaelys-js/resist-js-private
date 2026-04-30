@@ -42,6 +42,7 @@
   const validated: SpeedDialProps = $derived.by(() => {
     const rawProps: SpeedDialProps = stripSvelteProps(allProps);
     const result = safeParse(SpeedDialPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

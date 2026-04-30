@@ -43,6 +43,7 @@
   const validated: ConsentCheckboxProps = $derived.by(() => {
     const rawProps: ConsentCheckboxProps = stripSvelteProps(allProps);
     const result = safeParse(ConsentCheckboxPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

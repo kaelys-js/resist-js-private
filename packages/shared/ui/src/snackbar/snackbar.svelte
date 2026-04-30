@@ -42,6 +42,7 @@
   const validated: SnackbarProps = $derived.by(() => {
     const rawProps: SnackbarProps = stripSvelteProps(allProps);
     const result = safeParse(SnackbarPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

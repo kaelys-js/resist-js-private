@@ -46,6 +46,7 @@ const rule: WorkspaceRule = {
       }
 
       let buf: Buffer;
+
       try {
         buf = readFileSync(filePath);
       } catch {
@@ -57,6 +58,7 @@ const rule: WorkspaceRule = {
       }
 
       const chunk: string = buf.subarray(12, 16).toString('ascii');
+
       if (chunk === 'VP8L') {
         results.push(
           createResult(

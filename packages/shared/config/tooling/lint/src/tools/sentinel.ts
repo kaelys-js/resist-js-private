@@ -32,6 +32,7 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  */
 export function transformSentinelOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -41,6 +42,7 @@ export function transformSentinelOutput(output: string, strings: LintStrings): L
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }

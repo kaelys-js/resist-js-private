@@ -42,6 +42,7 @@
   const validated: FlickeringGridProps = $derived.by(() => {
     const rawProps: FlickeringGridProps = stripSvelteProps(allProps);
     const result = safeParse(FlickeringGridPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }
