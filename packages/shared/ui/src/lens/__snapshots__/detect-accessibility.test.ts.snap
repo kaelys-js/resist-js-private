@@ -11,6 +11,9 @@ exports[`auditAccessibility — global > failing rule IDs match snapshot 1`] = `
   "aria-required-attrs",
   "aria-required-children",
   "arrow-key-navigation",
+  "audio-description",
+  "audio-description-aa",
+  "audio-video-alternatives",
   "button-a11y",
   "character-key-shortcuts",
   "color-not-sole-indicator",
@@ -42,13 +45,14 @@ exports[`auditAccessibility — global > failing rule IDs match snapshot 1`] = `
   "timing-adjustable",
   "toast-a11y",
   "tooltip-a11y",
+  "video-captions",
   "wcag-2.1-aa",
 ]
 `;
 
-exports[`auditAccessibility — global > failing rule count matches snapshot 1`] = `41`;
+exports[`auditAccessibility — global > failing rule count matches snapshot 1`] = `45`;
 
-exports[`auditAccessibility — global > overall score matches snapshot baseline 1`] = `51`;
+exports[`auditAccessibility — global > overall score matches snapshot baseline 1`] = `49`;
 
 exports[`auditAccessibility — global > passing rule count matches snapshot 1`] = `57`;
 
@@ -60,6 +64,7 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   ],
   "affix": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "alert": [
@@ -67,14 +72,18 @@ exports[`auditAccessibility — per-component regressions > component failure ma
     "semantic-html",
   ],
   "alert-dialog": [
+    "link-distinguishable",
     "semantic-html",
     "status-messages",
   ],
   "aspect-ratio": [
+    "link-distinguishable",
     "semantic-html",
   ],
   "autocomplete": [
     "color-not-sole-indicator",
+    "escape-to-close",
+    "link-distinguishable",
     "semantic-html",
   ],
   "avatar": [
@@ -85,6 +94,10 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   ],
   "backdrop": [
     "color-not-sole-indicator",
+    "content-on-hover-focus",
+    "escape-to-close",
+    "focus-restoration",
+    "link-distinguishable",
     "semantic-html",
   ],
   "badge": [
@@ -92,10 +105,12 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   ],
   "banner": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "bleed": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "breadcrumb": [
@@ -113,10 +128,12 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   "calendar": [
     "content-on-hover-focus",
     "focus-restoration",
+    "link-distinguishable",
     "semantic-html",
   ],
   "callout": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "card": [
@@ -128,10 +145,13 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   ],
   "cascader": [
     "color-not-sole-indicator",
+    "escape-to-close",
+    "link-distinguishable",
     "semantic-html",
   ],
   "center": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "checkbox": [
@@ -139,14 +159,17 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   ],
   "chip": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "clipboard": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "code": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "collapsible": [
@@ -156,6 +179,8 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   ],
   "combobox": [
     "color-not-sole-indicator",
+    "escape-to-close",
+    "link-distinguishable",
     "semantic-html",
   ],
   "command": [
@@ -167,21 +192,26 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   ],
   "confetti": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "container": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "context-menu": [
+    "link-distinguishable",
     "semantic-html",
   ],
   "countdown": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "descriptions": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "dialog": [
@@ -192,23 +222,27 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   ],
   "diff": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "divider": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "dock": [
-    "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "drawer": [
     "escape-to-close",
+    "focus-restoration",
     "semantic-html",
   ],
   "dropdown": [
     "color-not-sole-indicator",
     "escape-to-close",
+    "link-distinguishable",
     "semantic-html",
   ],
   "dropdown-menu": [
@@ -218,20 +252,24 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   ],
   "editable": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "empty": [
     "semantic-html",
   ],
   "field": [
+    "link-distinguishable",
     "semantic-html",
   ],
   "fieldset": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "flex": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "form-field": [
@@ -240,41 +278,53 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   ],
   "galleria": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "gauge": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "globe": [
     "color-not-sole-indicator",
+    "link-distinguishable",
+    "pause-stop-controls",
     "semantic-html",
   ],
   "group": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "hero": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "highlight": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "hover-card": [
+    "link-distinguishable",
     "semantic-html",
   ],
   "image": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "indicator": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
+    "status-messages",
   ],
   "inplace": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "input": [
@@ -286,7 +336,7 @@ exports[`auditAccessibility — per-component regressions > component failure ma
     "semantic-html",
   ],
   "input-group": [
-    "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "input-otp": [
@@ -294,6 +344,7 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   ],
   "inset": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "item": [
@@ -301,6 +352,7 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   ],
   "knob": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "label": [
@@ -308,34 +360,46 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   ],
   "lamp": [
     "color-not-sole-indicator",
+    "link-distinguishable",
+    "pause-stop-controls",
     "semantic-html",
   ],
   "link": [
+    "aria-labels",
     "color-not-sole-indicator",
+    "en-301-549",
+    "link-distinguishable",
     "semantic-html",
+    "wcag-2.1-aa",
   ],
   "list": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "listbox": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "marquee": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "masonry": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "mention": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "menu": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "menubar": [
@@ -343,10 +407,13 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   ],
   "message": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
+    "status-messages",
   ],
   "meter": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "native-select": [
@@ -359,18 +426,22 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   ],
   "navbar": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "navigation-menu": [
+    "escape-to-close",
     "semantic-html",
   ],
   "notification": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
     "status-messages",
   ],
   "orbit": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "pagination": [
@@ -379,18 +450,25 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   ],
   "panel": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "paper": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "persona": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "popconfirm": [
     "color-not-sole-indicator",
+    "content-on-hover-focus",
+    "escape-to-close",
+    "focus-restoration",
+    "link-distinguishable",
     "semantic-html",
   ],
   "popover": [
@@ -401,9 +479,11 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   ],
   "progress": [
     "aria-live-regions",
+    "link-distinguishable",
     "semantic-html",
   ],
   "radio-group": [
+    "link-distinguishable",
     "semantic-html",
   ],
   "range-calendar": [
@@ -414,24 +494,30 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   ],
   "ripple": [
     "color-not-sole-indicator",
+    "link-distinguishable",
+    "pause-stop-controls",
     "semantic-html",
   ],
   "scroll-area": [
+    "link-distinguishable",
     "semantic-html",
   ],
   "searchbox": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "section": [
     "color-not-sole-indicator",
-    "semantic-html",
+    "html-section-no-name",
+    "link-distinguishable",
   ],
   "select": [
     "escape-to-close",
     "semantic-html",
   ],
   "separator": [
+    "link-distinguishable",
     "semantic-html",
   ],
   "sheet": [
@@ -448,7 +534,6 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   ],
   "skeleton": [
     "aria-live-regions",
-    "link-distinguishable",
     "pause-stop-controls",
     "semantic-html",
   ],
@@ -457,53 +542,68 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   ],
   "snackbar": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
     "status-messages",
+    "toast-a11y",
   ],
   "snippet": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "sonner": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
     "status-messages",
     "toast-a11y",
   ],
   "spacer": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "sparkles": [
     "color-not-sole-indicator",
+    "link-distinguishable",
+    "pause-stop-controls",
     "semantic-html",
   ],
   "spinner": [
     "color-not-sole-indicator",
+    "link-distinguishable",
+    "pause-stop-controls",
     "semantic-html",
   ],
   "spoiler": [
+    "accordion-a11y",
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "spotlight": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "stack": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "stat": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "stepper": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "swap": [
-    "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "switch": [
@@ -519,10 +619,12 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   ],
   "tag": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "terminal": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "textarea": [
@@ -535,10 +637,12 @@ exports[`auditAccessibility — per-component regressions > component failure ma
   ],
   "timeline": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "toast": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
     "status-messages",
     "toast-a11y",
@@ -548,51 +652,64 @@ exports[`auditAccessibility — per-component regressions > component failure ma
     "semantic-html",
   ],
   "toggle-group": [
+    "link-distinguishable",
     "semantic-html",
   ],
   "toolbar": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "tooltip": [
-    "link-distinguishable",
     "semantic-html",
     "tooltip-a11y",
   ],
   "tour": [
     "color-not-sole-indicator",
+    "content-on-hover-focus",
+    "escape-to-close",
+    "focus-restoration",
+    "link-distinguishable",
     "semantic-html",
   ],
   "tracker": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "transfer": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "transition": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "truncate": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "typography": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "watermark": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "window": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
   "wrap": [
     "color-not-sole-indicator",
+    "link-distinguishable",
     "semantic-html",
   ],
 }
