@@ -1,6 +1,9 @@
 <script lang="ts">
   /**
-   * Tooltip popup content rendered inside a portal with enter/exit animations and an arrow.
+   * TooltipContent Svelte component — popup panel rendered
+   * inside a portal with enter/exit animations and an arrow.
+   *
+   * @module
    */
   import { Tooltip as TooltipPrimitive } from 'bits-ui';
   import { cn, type WithoutChildrenOrChild } from '../utils.js';

@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Lens example — basic Tooltip appearing above the Button
+   * trigger on hover.
+   *
+   * @module
+   */
   import Button from '@/ui/button/button.svelte';
   import * as Tooltip from '@/ui/tooltip';
 </script>

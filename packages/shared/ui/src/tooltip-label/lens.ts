@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the TooltipLabel component (overlay
+ * category) — label + keyboard shortcut badge. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

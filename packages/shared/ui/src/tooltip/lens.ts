@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Tooltip component (overlay category)
+ * — hover/focus contextual popup. @module
+ */
+
 import type { LensExample, LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
