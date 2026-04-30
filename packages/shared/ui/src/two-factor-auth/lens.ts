@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the TwoFactorAuth component (form
+ * category) — TOTP / 2FA code entry. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
