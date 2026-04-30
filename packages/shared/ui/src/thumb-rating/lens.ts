@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the ThumbRating component (form
+ * category) — thumbs up/down binary feedback. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {

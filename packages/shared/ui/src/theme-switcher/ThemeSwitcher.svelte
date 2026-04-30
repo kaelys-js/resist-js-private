@@ -1,4 +1,11 @@
 <script module lang="ts">
+  /**
+   * ThemeSwitcher Svelte component — color theme selection
+   * dropdown with search and live colour-dot preview, designed
+   * to be rendered inside a DropdownMenu.Sub.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema, type Str } from '@/schemas/common';
 
