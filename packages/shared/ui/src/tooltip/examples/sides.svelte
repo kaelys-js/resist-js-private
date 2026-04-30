@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * Lens example — Tooltip rendered on all four sides of its
+   * trigger via the `side` prop.
+   *
+   * @module
+   */
   import Button from '@/ui/button/button.svelte';
   import * as Tooltip from '@/ui/tooltip';
 </script>

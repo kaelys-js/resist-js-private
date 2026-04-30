@@ -1,3 +1,12 @@
+/**
+ * Barrel re-export for the tooltip component — exposes the
+ * Tooltip root and its Bits UI subcomponent wrappers
+ * (Trigger, Content, Provider, Portal) under stable public
+ * names.
+ *
+ * @module
+ */
+
 import Root from './tooltip.svelte';
 import Trigger from './tooltip-trigger.svelte';
 import Content from './tooltip-content.svelte';

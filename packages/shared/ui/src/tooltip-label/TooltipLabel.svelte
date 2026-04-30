@@ -1,4 +1,12 @@
 <script module lang="ts">
+  /**
+   * TooltipLabel Svelte component — standardised tooltip
+   * content with a label and optional `<kbd>` keyboard
+   * shortcut badge. Designed to be rendered inside a
+   * `<Tooltip.Content>`.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema, BoolSchema } from '@/schemas/common';
 

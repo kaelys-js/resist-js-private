@@ -1,4 +1,10 @@
 <script lang="ts">
+  /**
+   * TooltipTrigger Svelte component — element wrapper that
+   * activates the Tooltip on hover / focus.
+   *
+   * @module
+   */
   import { Tooltip as TooltipPrimitive } from 'bits-ui';
 
   let { ref = $bindable(null), ...restProps }: TooltipPrimitive.TriggerProps = $props();

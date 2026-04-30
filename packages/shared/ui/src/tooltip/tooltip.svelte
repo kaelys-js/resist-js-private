@@ -1,7 +1,11 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
   /**
-   * Tooltip root that manages open/close state and anchors content to a trigger element.
+   * Tooltip root Svelte component — Bits UI `Tooltip.Root`
+   * wrapper that manages open / close state and anchors
+   * content to its trigger.
+   *
+   * @module
    */
   import { Tooltip as TooltipPrimitive } from 'bits-ui';
 
