@@ -1,3 +1,11 @@
+/**
+ * Barrel re-export for the visually-hidden component —
+ * exposes the VisuallyHidden Svelte component, its props
+ * type / schema, and `visuallyHiddenVariants` (tv helper).
+ *
+ * @module
+ */
+
 import Root, {
   type VisuallyHiddenInputProps,
   type VisuallyHiddenProps,

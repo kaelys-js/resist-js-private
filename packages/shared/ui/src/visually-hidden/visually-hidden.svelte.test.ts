@@ -1,4 +1,6 @@
 /**
+ * @module
+ *
  * Unit tests for the VisuallyHidden component schema, variants, and exports.
  *
  * Tests schema validation, tv() variant output, focusable behavior,

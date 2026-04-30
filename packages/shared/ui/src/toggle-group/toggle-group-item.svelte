@@ -1,4 +1,11 @@
 <script lang="ts">
+  /**
+   * ToggleGroupItem Svelte component — single toggle button
+   * inside a ToggleGroup that inherits variant + size from
+   * the parent's context.
+   *
+   * @module
+   */
   import { ToggleGroup as ToggleGroupPrimitive } from 'bits-ui';
   import { getToggleGroupCtx } from './toggle-group.svelte';
   import { cn } from '../utils.js';

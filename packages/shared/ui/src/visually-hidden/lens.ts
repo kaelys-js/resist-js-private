@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the VisuallyHidden component (a11y
+ * category) — screen-reader-only content wrapper. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
