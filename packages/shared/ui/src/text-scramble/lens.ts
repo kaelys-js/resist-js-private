@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the TextScramble component (animation
+ * category) — scrambled-text reveal animation. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
