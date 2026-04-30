@@ -27,7 +27,12 @@ import { CONFIG_FILENAME, LINTER_NAME, SCHEMA_FILENAME } from '@/lint/constants.
 import { CACHE_FILENAME, computeRuleHash, LintCache } from '@/lint/framework/cache.ts';
 import { fingerprintFiles } from '@/lint/framework/file-fingerprint.ts';
 import { formatResults, type OutputFormat } from '@/lint/framework/formatters.ts';
-import { runTypeScriptRules, EMBEDDED_CODE_EXTENSIONS } from '@/lint/framework/oxc-runner.ts';
+import {
+  runTypeScriptRules,
+  EMBEDDED_CODE_EXTENSIONS,
+  SCRIPT_BLOCK_EXTENSIONS,
+  extractScriptBlocks,
+} from '@/lint/framework/oxc-runner.ts';
 import { createWorkspaceContext } from '@/lint/framework/rule-context.ts';
 import { loadAllRules } from '@/lint/framework/rule-loader.ts';
 import {
@@ -815,6 +820,63 @@ export function applyFixes(content: string, fixes: LintFix[]): string {
     result = result.slice(0, fix.range.start) + fix.text + result.slice(fix.range.end);
   }
   return result;
+}
+
+/**
+ * Translate a byte offset from extracted-script-space to original-file-space.
+ *
+ * When linting embedded script files (.svelte, .astro, etc.), the parser
+ * operates on `extractScriptBlocks(content)` which blanks non-script lines
+ * to empty strings. AST byte offsets (and therefore fix ranges) are relative
+ * to this extracted content. But `applyFixes` splices into the original file
+ * content, which has longer non-script lines. This function computes the
+ * correct original-file offset for a given extracted-content offset.
+ *
+ * @param {number} offset - Byte offset in extracted script content
+ * @param {string} extracted - Script content with non-script lines blanked
+ * @param {string} original - Original file content
+ * @returns {number} Corresponding byte offset in the original file
+ */
+function translateOffset(offset: number, extracted: string, original: string): number {
+  const extractedLines: string[] = extracted.split('\n');
+  const originalLines: string[] = original.split('\n');
+  let adjustment: number = 0;
+  let cursor: number = 0;
+
+  for (let i: number = 0; i < extractedLines.length; i++) {
+    const eLine: string = extractedLines[i] ?? '';
+    const oLine: string = originalLines[i] ?? '';
+    const lineEnd: number = cursor + eLine.length;
+
+    if (offset <= lineEnd) {
+      return offset + adjustment;
+    }
+
+    adjustment += oLine.length - eLine.length;
+    cursor = lineEnd + 1;
+  }
+
+  return offset + adjustment;
+}
+
+/**
+ * Translate fix byte ranges from extracted-script-space to original-file-space.
+ *
+ * @param {LintFix[]} fixes - Fixes with offsets relative to extracted script content
+ * @param {string} extracted - Script content with non-script lines blanked
+ * @param {string} original - Original file content
+ * @returns {LintFix[]} Fixes with offsets translated to original file positions
+ */
+function translateFixes(fixes: LintFix[], extracted: string, original: string): LintFix[] {
+  return fixes.map(
+    (fix: LintFix): LintFix => ({
+      range: {
+        start: translateOffset(fix.range.start, extracted, original),
+        end: translateOffset(fix.range.end, extracted, original),
+      },
+      text: fix.text,
+    }),
+  );
 }
 
 // =============================================================================
@@ -1847,7 +1909,13 @@ export async function _runLintCore(
       }
       try {
         const original: string = fixRead.value;
-        const fixed: string = applyFixes(original, fixes);
+        const isEmbedded: boolean = SCRIPT_BLOCK_EXTENSIONS.some((ext: string): boolean =>
+          filePath.endsWith(ext),
+        );
+        const translatedFixes: LintFix[] = isEmbedded
+          ? translateFixes(fixes, extractScriptBlocks(original), original)
+          : fixes;
+        const fixed: string = applyFixes(original, translatedFixes);
         if (fixed !== original) {
           writeFileSync(filePath, fixed, 'utf8');
           fixesApplied++;
