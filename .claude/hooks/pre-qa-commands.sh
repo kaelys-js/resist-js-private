@@ -41,7 +41,7 @@ fi
 # the user explicitly asks for a fresh run via .claude/approved-relint).
 LINT_TRACKER="$REPO_ROOT/.claude/.last-lint-run"
 
-if echo "$CMD" | grep -qE 'pnpm\s+(-w\s+)?run\s+qa:lint'; then
+if echo "$CMD" | grep -qE 'qa:lint|lint/src/cli\.ts|resist-lint'; then
   # Allow if user has approved a re-run
   RELINT_MARKER="$REPO_ROOT/.claude/approved-relint"
   if [[ -f "$RELINT_MARKER" ]]; then
