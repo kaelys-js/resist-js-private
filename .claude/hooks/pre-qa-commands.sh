@@ -46,6 +46,8 @@ if echo "$CMD" | grep -qE 'qa:lint|lint/src/cli\.ts|resist-lint'; then
   RELINT_MARKER="$REPO_ROOT/.claude/approved-relint"
   if [[ -f "$RELINT_MARKER" ]]; then
     rm -f "$RELINT_MARKER"
+    # Force fresh results — delete lint cache so stale data can't leak through
+    rm -f "$REPO_ROOT/.resist-lint-cache.json"
     # Update tracker
     date +%s > "$LINT_TRACKER" 2>/dev/null || true
     exit 0
@@ -57,7 +59,7 @@ if echo "$CMD" | grep -qE 'qa:lint|lint/src/cli\.ts|resist-lint'; then
     NOW=$(date +%s)
     ELAPSED=$(( NOW - LAST_RUN ))
     if [[ "$ELAPSED" -lt 120 ]]; then
-      echo "⛔ qa:lint already ran <2min ago. Use existing output. Override: user runs touch .claude/approved-relint" >&2
+      echo "⛔ qa:lint already ran <2min ago. Do NOT investigate previous output — it may be stale. Override: user runs touch .claude/approved-relint" >&2
       exit 2
     fi
   fi
