@@ -156,7 +156,7 @@ cat > "$REPO_ROOT/.claude/active-plan.json" <<EOF
 EOF
 OUT=$(echo '{}' | bash "$HOOKS_DIR/stop-active-plan-block.sh" 2>&1)
 RC=$?
-if [ $RC -ne 0 ] && echo "$OUT" | grep -q "ACTIVE PLAN NOT COMPLETE"; then
+if [ $RC -ne 0 ] && echo "$OUT" | grep -q "Plan incomplete"; then
   if [ -f "$REPO_ROOT/.claude/active-plan.json" ]; then
     pass "criterion unmet → block stop, marker preserved"
   else

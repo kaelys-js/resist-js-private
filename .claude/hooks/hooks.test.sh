@@ -92,7 +92,7 @@ echo "Orphaned hook file check:"
 # User-invoked hooks (NOT registered in settings — invoked by the user via
 # explicit `bash .claude/hooks/X.sh` from the prompt). These are the only
 # legitimate "orphans" — they bypass settings registration intentionally.
-USER_INVOKED_HOOKS=("abandon-plan.sh")
+USER_INVOKED_HOOKS=("abandon-plan.sh" "pause-plan.sh")
 
 DISK_HOOKS=$(ls "$HOOKS_DIR"/*.sh 2>/dev/null | grep -v '\.test\.sh$' | sort)
 for hook_file in $DISK_HOOKS; do
@@ -348,7 +348,6 @@ expect_output "$QA" "cd packages/shared/locale; pnpm qa:lint" '"deny"' "pre-qa-c
 
 # pre-qa-commands.sh: additional allowed patterns
 expect_allow "$QA" "pnpm -w run qa:test" "pre-qa-commands.sh allows pnpm -w run qa:test"
-expect_allow "$QA" "pnpm -w run qa:lint --tools" "pre-qa-commands.sh allows pnpm -w run qa:lint"
 
 # pre-qa-commands.sh: pipe-filter on qa:lint is denied (plan 2026-04-24-lint-scope-and-grep-block TASK 3)
 expect_output "$QA" "pnpm -w run qa:lint | grep foo" '"deny"' "pre-qa-commands.sh blocks qa:lint | grep"
@@ -356,12 +355,27 @@ expect_output "$QA" "pnpm -w run qa:lint 2>&1 | head" '"deny"' "pre-qa-commands.
 expect_output "$QA" "pnpm -w run qa:lint | tail -20" '"deny"' "pre-qa-commands.sh blocks qa:lint | tail"
 expect_output "$QA" "pnpm -w run qa:lint | wc -l" '"deny"' "pre-qa-commands.sh blocks qa:lint | wc"
 expect_output "$QA" "pnpm -w run qa:lint | awk {print}" '"deny"' "pre-qa-commands.sh blocks qa:lint | awk"
-
-# pre-qa-commands.sh: pipe-filter exemptions and scoped invocations
-expect_allow "$QA" "pnpm -w run qa:lint packages/x" "pre-qa-commands.sh allows scoped qa:lint path"
-expect_allow "$QA" "pnpm -w run qa:lint --package @/lint" "pre-qa-commands.sh allows qa:lint --package"
-expect_allow "$QA" "pnpm -w run qa:lint | tee out.log" "pre-qa-commands.sh allows qa:lint | tee"
 expect_allow "$QA" "pnpm -w run qa:format | grep something" "pre-qa-commands.sh allows qa:format | grep (rule is qa:lint-specific)"
+
+# Flush async tests before synchronous qa:lint cooldown tests (cooldown tracker races with async subshells)
+flush_active_tests
+
+# pre-qa-commands.sh: qa:lint allow tests run synchronously to avoid cooldown tracker races
+rm -f "$REPO_ROOT/.claude/.last-lint-run"
+run_hook "$QA" '{"tool_input":{"command":"pnpm -w run qa:lint --tools"}}'
+if [ "$HOOK_EXIT" = "0" ]; then pass "pre-qa-commands.sh allows pnpm -w run qa:lint"; else fail "pre-qa-commands.sh allows pnpm -w run qa:lint (exit=$HOOK_EXIT)"; fi
+
+rm -f "$REPO_ROOT/.claude/.last-lint-run"
+run_hook "$QA" '{"tool_input":{"command":"pnpm -w run qa:lint packages/x"}}'
+if [ "$HOOK_EXIT" = "0" ]; then pass "pre-qa-commands.sh allows scoped qa:lint path"; else fail "pre-qa-commands.sh allows scoped qa:lint path (exit=$HOOK_EXIT)"; fi
+
+rm -f "$REPO_ROOT/.claude/.last-lint-run"
+run_hook "$QA" '{"tool_input":{"command":"pnpm -w run qa:lint --package @/lint"}}'
+if [ "$HOOK_EXIT" = "0" ]; then pass "pre-qa-commands.sh allows qa:lint --package"; else fail "pre-qa-commands.sh allows qa:lint --package (exit=$HOOK_EXIT)"; fi
+
+rm -f "$REPO_ROOT/.claude/.last-lint-run"
+run_hook "$QA" '{"tool_input":{"command":"pnpm -w run qa:lint | tee out.log"}}'
+if [ "$HOOK_EXIT" = "0" ]; then pass "pre-qa-commands.sh allows qa:lint | tee"; else fail "pre-qa-commands.sh allows qa:lint | tee (exit=$HOOK_EXIT)"; fi
 
 # pre-lint-rule-edit.sh: should ask for lint rule files
 run_hook "$HOOKS_DIR/pre-lint-rule-edit.sh" "{\"tool_input\":{\"file_path\":\"$REPO_ROOT/packages/shared/config/tooling/lint/src/rules/typescript/no-throw.ts\"}}"
@@ -468,7 +482,7 @@ expect_allow "$BW" "turbo run build" "pre-bash-no-file-writes.sh allows turbo"
 
 # session-start-orientation.sh: should output reminder
 RESULT=$(bash "$HOOKS_DIR/session-start-orientation.sh")
-if echo "$RESULT" | grep -q "user.*most recent message"; then
+if echo "$RESULT" | grep -q "user's last message"; then
   pass "session-start-orientation.sh outputs reminder"
 else
   fail "session-start-orientation.sh missing reminder"
@@ -498,7 +512,7 @@ if echo "test" > "$_CV_TEMP" && git -C "$REPO_ROOT" add "$_CV_TEMP" 2>/dev/null;
   _CV_RESULT="$HOOK_STDERR"
   git -C "$REPO_ROOT" reset HEAD -- "$_CV_TEMP" >/dev/null 2>&1 || true
   rm -f "$_CV_TEMP"
-  if echo "$_CV_RESULT" | grep -q "MANDATORY CHECKS"; then
+  if echo "$_CV_RESULT" | grep -q "Pre-Commit.*Verify"; then
     pass "pre-commit-verify.sh outputs verification for git commit"
   else
     fail "pre-commit-verify.sh missing verification output for git commit"
