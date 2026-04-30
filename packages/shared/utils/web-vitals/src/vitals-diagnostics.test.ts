@@ -1,4 +1,6 @@
 /**
+ * @module
+ *
  * Tests for Web Vitals Diagnostics module.
  *
  * Mocks browser Performance APIs to verify diagnostic collection

@@ -1,3 +1,9 @@
+/**
+ * Tests for the dev-toolbar-registry feature-flag and
+ * preference discovery helpers.
+ *
+ * @module
+ */
 import * as v from 'valibot';
 import { describe, expect, it } from 'vitest';
 import {

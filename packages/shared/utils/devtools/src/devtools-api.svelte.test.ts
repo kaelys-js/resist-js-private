@@ -1,3 +1,9 @@
+/**
+ * Tests for `createDevtoolsAPI` and `getDevtoolsKey` —
+ * the Svelte-context devtools API factory.
+ *
+ * @module
+ */
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import type { Str, Num, Bool, Name, MillisecondTimestamp } from '@/schemas/common';
 import { createDevtoolsAPI, getDevtoolsKey, type DevtoolsAPI } from './devtools-api.svelte';
