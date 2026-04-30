@@ -746,7 +746,7 @@ export async function runTypeScriptRules(
   // original-file-space offsets — cli-helpers can apply fixes directly.
   if (parseContent !== content) {
     for (const result of results) {
-      const fix = result.fix;
+      const { fix } = result;
 
       if (fix.range.start === 0 && fix.range.end === 0 && fix.text === '') {
         continue; // no-op placeholder
