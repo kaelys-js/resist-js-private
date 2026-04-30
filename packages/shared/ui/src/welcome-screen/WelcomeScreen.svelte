@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * WelcomeScreen Svelte component — first-run welcome /
+   * onboarding intro surface. Placeholder shell awaiting
+   * full implementation; ships with a class prop for
+   * root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
