@@ -73,24 +73,7 @@ if [[ -z "$BLOCKED_REASON" ]]; then
 fi
 
 if [[ -n "$BLOCKED_REASON" ]]; then
-  cat <<EOF >&2
-⛔ BLOCKED: Multi-file shell-loop bulk edit detected ($BLOCKED_REASON).
-
-This pattern bypasses pre-bash-block-bulk-script.sh by using shell
-constructs (find -exec / for / xargs) instead of python3 / sed -i directly.
-The same restriction applies: per-site Edits via the Edit tool are the
-right approach for plan-bound grinds. Bulk shell loops break code in
-ways that cost more compute to debug + revert + retry than per-site
-edits would have cost.
-
-If a bulk operation is genuinely required:
-  1. STOP this command.
-  2. Ask the user explicitly:
-     "May I run this bulk shell command across <N> files? <one-line justification>"
-  3. The user creates the approval:
-     touch .claude/approved-bulk-script
-  4. Retry. The marker will be consumed automatically.
-EOF
+  echo "⛔ Multi-file shell loop blocked ($BLOCKED_REASON). Use per-site Edit calls. Override: user runs touch .claude/approved-bulk-script" >&2
   exit 2
 fi
 

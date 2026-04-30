@@ -82,10 +82,10 @@ export function map<T, U>(result: Result<T>, fn: (data: T) => U): Result<U> {
  *   options: { cause: e },
  * }));
  * ```
-  * @param {(error: AppError) => { code: KnownErrorCode; message?: string; options?: ErrOptions }} fn - Description
-  * @param {(error: AppError) => { code: KnownErrorCode; message?: string; options?: ErrOptions }} fn - Description
-  * @param {(error: AppError) => { code: KnownErrorCode; message?: string; options?: ErrOptions }} fn - Description
-  * @param {(error: AppError) => { code: KnownErrorCode; message?: string; options?: ErrOptions }} fn - Description
+ * @param {(error: AppError) => { code: KnownErrorCode; message?: string; options?: ErrOptions }} fn - Description
+ * @param {(error: AppError) => { code: KnownErrorCode; message?: string; options?: ErrOptions }} fn - Description
+ * @param {(error: AppError) => { code: KnownErrorCode; message?: string; options?: ErrOptions }} fn - Description
+ * @param {(error: AppError) => { code: KnownErrorCode; message?: string; options?: ErrOptions }} fn - Description
  */
 export function mapErr<T>(
   result: Result<T>,

@@ -71,26 +71,7 @@ jq -nc \
 
 # Block on 2nd or later revert
 if [[ "$REVERT_COUNT" -ge 2 ]]; then
-  cat <<EOF >&2
-⛔ BLOCKED: Self-revert thrashing detected on $FILE.
-
-You have reverted your own changes to this file $REVERT_COUNT times in
-the recent history (.claude/edit-history.jsonl). This is a strong
-indicator of thrashing — script-script-revert-script cycles are exactly
-what your prior session-failure-mode #4 (token-cost aversion → bulk
-shortcuts → break → revert) produces.
-
-STOP. Do not proceed with another script-based attempt.
-
-Required next step:
-  1. Read the file fully to understand the current state.
-  2. Present a per-site Edit plan to the user.
-  3. Wait for explicit approval.
-  4. Execute per-site only.
-
-To override (user only):
-  touch .claude/approved-revert
-EOF
+  echo "⛔ Thrashing on $FILE ($REVERT_COUNT reverts). Stop, present plan to user. Override: user runs touch .claude/approved-revert" >&2
   exit 2
 fi
 

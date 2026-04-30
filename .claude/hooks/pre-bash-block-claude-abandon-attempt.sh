@@ -21,27 +21,7 @@ if [[ -z "$COMMAND" ]]; then
 fi
 
 if echo "$COMMAND" | grep -qE '(\bbash\s+|\bsh\s+|^|\s|/|;)\.claude/hooks/abandon-plan\.sh\b'; then
-  cat <<EOF >&2
-⛔ BLOCKED: Claude is not authorized to invoke abandon-plan.sh.
-
-abandon-plan.sh is a USER-ONLY mechanism. The user reads the active plan,
-decides whether to abandon it, and runs the script themselves from their
-own prompt.
-
-If you genuinely believe the active plan is impossible or wrong:
-  1. STOP this command.
-  2. Present concrete evidence to the user:
-     - What the success_check is and why it cannot be met
-     - What workspace-level decision is required
-     - What changes the plan to make it tractable
-  3. Wait for the user to either:
-     - Run abandon-plan.sh themselves (with a reason they choose), or
-     - Tell you to proceed despite the obstacle
-
-DO NOT propose abandonment as an "easy way out" of a hard grind. The
-binding contract from the active-plan marker is the point — your job is
-to satisfy the success_check, not to argue your way out of it.
-EOF
+  echo "⛔ abandon-plan.sh is USER-ONLY. Present evidence to user and let them decide." >&2
   exit 2
 fi
 

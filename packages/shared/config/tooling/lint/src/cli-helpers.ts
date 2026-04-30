@@ -845,7 +845,7 @@ let schemaWritten: boolean = false;
  * @param {LintStrings} strings - Locale strings used for schema descriptions
  * @param {string}eRule[]} wsRules - Optional workspace-level rules
  * @param {string} cwd - Project root used to resolve the schema output path
-  * @param {WorkspaceRule[]} wsRules - Description
+ * @param {WorkspaceRule[]} wsRules - Description
  */
 export function writeJsonSchema(
   tsRules: TypeScriptRule[],

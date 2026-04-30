@@ -69,26 +69,7 @@ fi
 # is NOT blocked — that's user-approved file moves, not a bulk-edit script.
 
 if [[ -n "$BLOCKED_REASON" ]]; then
-  cat <<EOF >&2
-⛔ BLOCKED: Bulk-edit script detected ($BLOCKED_REASON).
-
-Bulk Python/sed scripts that touch many files are forbidden by default.
-They consistently break code in ways that cost more compute to debug + revert
-+ retry than per-site Edit-tool invocations would have cost.
-
-If a per-site grind is genuinely impractical:
-  1. STOP this command.
-  2. Ask the user explicitly:
-     "May I run a bulk script across <N> files to fix <pattern>?
-      I will verify with `pnpm --filter @/<pkg> run qa:test` after."
-  3. The user creates the marker:
-     touch .claude/approved-bulk-script
-  4. Retry. The marker will be consumed.
-
-Per-site Edits via the Edit tool ARE the right approach for plan-bound
-grinds. They cost more wall-clock time but use COMPUTE PREDICTABLY.
-That predictability is what the user wants.
-EOF
+  echo "⛔ Bulk script blocked ($BLOCKED_REASON). Use per-site Edit calls. Override: user runs touch .claude/approved-bulk-script" >&2
   exit 2
 fi
 
