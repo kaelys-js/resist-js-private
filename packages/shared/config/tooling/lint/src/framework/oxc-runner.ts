@@ -171,6 +171,7 @@ export function extractCodeFences(content: string): string {
       }
     } else {
       const match: RegExpMatchArray | null = trimmed.match(CODE_FENCE_OPEN_RE);
+
       if (match) {
         inFence = true;
         foundAny = true;
@@ -199,6 +200,7 @@ export function extractCodeFences(content: string): string {
  */
 function buildLineStarts(content: string): number[] {
   const starts: number[] = [0];
+
   for (let i: number = 0; i < content.length; i++) {
     if (content[i] === '\n') {
       starts.push(i + 1);
@@ -220,6 +222,7 @@ function offsetToLoc(offset: number, lineStarts: number[]): { line: number; colu
 
   while (low < high) {
     const mid: number = Math.ceil((low + high) / 2);
+
     if ((lineStarts[mid] ?? 0) <= offset) {
       low = mid;
     } else {
@@ -279,6 +282,7 @@ function patchLoc(node: unknown, lineStarts: number[]): void {
     if (key === 'loc') {
       continue;
     }
+
     const value: unknown = astNode[key];
 
     if (Array.isArray(value)) {
@@ -317,6 +321,7 @@ export function walkNode(node: unknown, callback: (node: AstNode) => void): void
     if (key === 'loc') {
       continue;
     }
+
     const value: unknown = astNode[key];
 
     if (Array.isArray(value)) {
@@ -348,6 +353,7 @@ function extractImports(ast: AstNode): ImportInfo[] {
     }
 
     const source: string | undefined = (node.source as { value?: string })?.value;
+
     if (!source) {
       return;
     }
@@ -463,6 +469,47 @@ export const EMBEDDED_CODE_EXTENSIONS: string[] = [
 ];
 
 // =============================================================================
+// Offset Translation (template AST ↔ extracted script)
+// =============================================================================
+
+/**
+ * Translate a byte offset from original-file-space to extracted-script-space.
+ *
+ * Template AST nodes carry offsets relative to the original `.svelte` file,
+ * but the downstream `translateFixes()` in cli-helpers expects ALL fix offsets
+ * in extracted-script-space (parseContent) so it can uniformly translate them
+ * back to original-space.  This function performs the reverse mapping.
+ *
+ * @param {number} offset - Byte offset in original-file-space
+ * @param {string[]} originalLines - Lines of the original file content
+ * @param {string[]} extractedLines - Lines of the extracted/blanked content
+ * @returns {number} Byte offset in extracted-script-space
+ */
+function reverseTranslateOffset(
+  offset: number,
+  originalLines: string[],
+  extractedLines: string[],
+): number {
+  let adjustment: number = 0;
+  let cursor: number = 0;
+
+  for (let i: number = 0; i < originalLines.length; i++) {
+    const oLine: string = originalLines[i] ?? '';
+    const eLine: string = extractedLines[i] ?? '';
+    const lineEnd: number = cursor + oLine.length;
+
+    if (offset <= lineEnd) {
+      return offset + adjustment;
+    }
+
+    adjustment += eLine.length - oLine.length;
+    cursor = lineEnd + 1; // +1 for the newline character
+  }
+
+  return offset + adjustment;
+}
+
+// =============================================================================
 // Rule Execution
 // =============================================================================
 
@@ -486,6 +533,7 @@ export async function runTypeScriptRules(
   }
 
   const hasParser: boolean = await ensureOxcParser();
+
   if (!hasParser || !parseSync) {
     return [
       {
@@ -511,6 +559,7 @@ export async function runTypeScriptRules(
 
   if (SCRIPT_BLOCK_EXTENSIONS.some((ext: string): boolean => filePath.endsWith(ext))) {
     const extracted: string = extractScriptBlocks(content);
+
     if (extracted.trim() === '' && !isSvelteFile) {
       return []; // No script block — nothing to lint (unless .svelte with template-only rules)
     }
@@ -518,6 +567,7 @@ export async function runTypeScriptRules(
     parseFilePath = `${filePath}.ts`; // Tell oxc-parser to treat as TypeScript
   } else if (isCodeFenceFile) {
     const extracted: string = extractCodeFences(content);
+
     if (extracted.trim() === '') {
       return []; // No code fences — nothing to lint
     }
@@ -542,12 +592,15 @@ export async function runTypeScriptRules(
       // For code fence files (.md/.mdx), suppress parse errors entirely —
       // documentation code fences are often intentionally fragmentary.
       const astBody: unknown[] | undefined = (ast as { body?: unknown[] }).body;
+
       if (result.errors && result.errors.length > 0 && (!astBody || astBody.length === 0)) {
         if (isCodeFenceFile) {
           return [];
         }
+
         const lineStarts: number[] = buildLineStarts(parseContent);
         const parseResults: LintResult[] = [];
+
         for (const parseErr of result.errors) {
           const offset: number = parseErr.labels?.[0]?.start ?? 0;
           const loc: { line: number; column: number } = offsetToLoc(offset, lineStarts);
@@ -565,6 +618,7 @@ export async function runTypeScriptRules(
       }
     } catch (error: unknown) {
       const message: string = error instanceof Error ? error.message : String(error);
+
       return [
         {
           file: filePath,
@@ -602,8 +656,10 @@ export async function runTypeScriptRules(
 
   // For .svelte files, parse the template AST using svelte/compiler
   let templateAst: AstNode | undefined;
+
   if (isSvelteFile) {
     const parseResult: SvelteParseResult = await parseSvelteTemplate(content);
+
     if (parseResult.ok) {
       // Patch loc on template nodes using the ORIGINAL content's line map
       // (template node positions reference the original file, not extracted script)
@@ -625,6 +681,7 @@ export async function runTypeScriptRules(
   }
 
   const contexts: Map<string, VisitorContext> = new Map();
+
   for (const rule of rules) {
     const ruleOpts: Record<string, unknown> | undefined = allRuleOptions?.[rule.id];
     contexts.set(
@@ -652,11 +709,13 @@ export async function runTypeScriptRules(
       for (const rule of rules) {
         const visitorFn: VisitorFn | undefined =
           rule.visitor[node.type as keyof typeof rule.visitor];
+
         if (!visitorFn) {
           continue;
         }
 
         const context: VisitorContext | undefined = contexts.get(rule.id);
+
         if (!context) {
           continue;
         }
@@ -683,17 +742,37 @@ export async function runTypeScriptRules(
     });
   }
 
-  // Walk Svelte template AST — invoke template-level visitors
+  // Walk Svelte template AST — invoke template-level visitors.
+  // Template AST node offsets reference the ORIGINAL file, not the extracted
+  // script content (parseContent).  Visitors that read `context.content` (e.g.
+  // `hasBlankLineBetween`) need the original text so byte-offset lookups resolve
+  // correctly.  We temporarily swap `context.content` to the original file
+  // content for the duration of the template walk, then reverse-translate any
+  // generated fix offsets back into parseContent-space so that the downstream
+  // `translateFixes()` in cli-helpers can uniformly translate ALL fixes forward.
   if (templateAst) {
+    const isEmbeddedFile: boolean = parseContent !== content;
+
+    // Swap context.content → original for template visitors
+    if (isEmbeddedFile) {
+      for (const ctx of contexts.values()) {
+        (ctx as { content: string }).content = content;
+      }
+    }
+
+    const templateResultStart: number = results.length;
+
     walkSvelteNode(templateAst, (node: AstNode): void => {
       for (const rule of rules) {
         const visitorFn: VisitorFn | undefined =
           rule.visitor[node.type as keyof typeof rule.visitor];
+
         if (!visitorFn) {
           continue;
         }
 
         const context: VisitorContext | undefined = contexts.get(rule.id);
+
         if (!context) {
           continue;
         }
@@ -718,10 +797,33 @@ export async function runTypeScriptRules(
         }
       }
     });
+
+    // Restore context.content → parseContent and reverse-translate template
+    // fix offsets from original-space → parseContent-space.
+    if (isEmbeddedFile) {
+      for (const ctx of contexts.values()) {
+        (ctx as { content: string }).content = parseContent;
+      }
+
+      const originalLines: string[] = content.split('\n');
+      const extractedLines: string[] = parseContent.split('\n');
+
+      for (let r: number = templateResultStart; r < results.length; r++) {
+        const fix = results[r]?.fix;
+
+        if (!fix || (fix.range.start === 0 && fix.range.end === 0 && fix.text === '')) {
+          continue; // no-op fix placeholder — skip
+        }
+
+        fix.range.start = reverseTranslateOffset(fix.range.start, originalLines, extractedLines);
+        fix.range.end = reverseTranslateOffset(fix.range.end, originalLines, extractedLines);
+      }
+    }
   }
 
   /* Backfill `source` on results that don't already have it — use original content for source lines */
   const lines: string[] = content.split('\n');
+
   for (const result of results) {
     if (!result.source && result.line >= 1 && result.line <= lines.length) {
       result.source = lines[result.line - 1];
