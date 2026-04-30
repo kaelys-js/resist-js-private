@@ -43,6 +43,7 @@
   const validated: DataTableProps = $derived.by(() => {
     const rawProps: DataTableProps = stripSvelteProps(allProps);
     const result = safeParse(DataTablePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

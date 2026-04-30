@@ -42,6 +42,7 @@
   const validated: DotPatternProps = $derived.by(() => {
     const rawProps: DotPatternProps = stripSvelteProps(allProps);
     const result = safeParse(DotPatternPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: GroupAvatarProps = $derived.by(() => {
     const rawProps: GroupAvatarProps = stripSvelteProps(allProps);
     const result = safeParse(GroupAvatarPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

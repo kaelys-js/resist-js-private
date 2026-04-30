@@ -43,6 +43,7 @@
   const validated: SocialProofProps = $derived.by(() => {
     const rawProps: SocialProofProps = stripSvelteProps(allProps);
     const result = safeParse(SocialProofPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

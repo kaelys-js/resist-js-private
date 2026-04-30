@@ -57,6 +57,7 @@ function validateUrl(url: Str): void {
   }
 
   let parsed: URL;
+
   try {
     parsed = new URL(url);
   } catch {

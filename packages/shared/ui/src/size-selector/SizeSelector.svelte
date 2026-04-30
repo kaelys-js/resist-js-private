@@ -42,6 +42,7 @@
   const validated: SizeSelectorProps = $derived.by(() => {
     const rawProps: SizeSelectorProps = stripSvelteProps(allProps);
     const result = safeParse(SizeSelectorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

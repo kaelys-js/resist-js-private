@@ -41,6 +41,7 @@
   const validated: LoginFormProps = $derived.by(() => {
     const rawProps: LoginFormProps = stripSvelteProps(allProps);
     const result = safeParse(LoginFormPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

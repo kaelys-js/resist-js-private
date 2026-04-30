@@ -37,6 +37,7 @@ import { fileURLToPath } from 'node:url';
 function resolveUiSrcDir(): Str {
   const currentDir: Str = dirname(fileURLToPath(import.meta.url)) as Str;
   let dir: Str = currentDir;
+
   for (let i: Num = 0 as Num; i < 20; i++) {
     try {
       statSync(join(dir, 'pnpm-workspace.yaml'));
@@ -57,6 +58,7 @@ function resolveUiSrcDir(): Str {
 function resolveEditorSrcDir(): Str {
   const currentDir: Str = dirname(fileURLToPath(import.meta.url)) as Str;
   let dir: Str = currentDir;
+
   for (let i: Num = 0 as Num; i < 20; i++) {
     try {
       statSync(join(dir, 'pnpm-workspace.yaml'));
@@ -88,6 +90,7 @@ function collectComponentSources(componentDir: Str, uiSrcDir: Str): Map<Str, Str
 
   while (queue.length > 0) {
     const dir: Str | undefined = queue.shift();
+
     if (!dir) {
       continue;
     }
@@ -97,6 +100,7 @@ function collectComponentSources(componentDir: Str, uiSrcDir: Str): Map<Str, Str
     visited.add(dir);
 
     let entries: string[];
+
     try {
       entries = readdirSync(dir);
     } catch {
@@ -106,8 +110,10 @@ function collectComponentSources(componentDir: Str, uiSrcDir: Str): Map<Str, Str
 
     for (const entry of entries) {
       const filePath: Str = join(dir, entry) as Str;
+
       try {
         const stat = statSync(filePath);
+
         if (stat.isDirectory()) {
           // Skip examples/ subdirectory — not needed for standalone build
           if (entry !== 'examples' && entry !== 'node_modules') {
@@ -136,8 +142,10 @@ function collectComponentSources(componentDir: Str, uiSrcDir: Str): Map<Str, Str
         ...src.matchAll(/from\s+['"]\.\.\/([^/'"\s]+)\//g),
         ...src.matchAll(/from\s+['"]\.\/([^/'"\s]+)\//g),
       ];
+
       for (const match of importMatches) {
         const siblingDir: Str = join(uiSrcDir, match[1]) as Str;
+
         if (!visited.has(siblingDir)) {
           queue.push(siblingDir);
         }
@@ -205,6 +213,7 @@ function extractCandidates(sources: Map<Str, Str>): Str[] {
 async function generateTailwindCss(candidates: Str[], editorSrcDir: Str): Promise<Str> {
   // Read app.css for the Tailwind config (theme, custom variants, etc.)
   let appCss: Str;
+
   try {
     appCss = readFileSync(join(editorSrcDir, 'app.css'), 'utf8') as Str;
   } catch {
@@ -298,6 +307,7 @@ function resolveWorkspaceAlias(importPath: Str, workspaceRoot: Str): Str | undef
 
       // Try with .ts extension first (most tsconfig wildcards map to *.ts)
       const withTs: Str = `${basePath}.ts` as Str;
+
       try {
         statSync(withTs);
         return withTs;
@@ -316,6 +326,7 @@ function resolveWorkspaceAlias(importPath: Str, workspaceRoot: Str): Str | undef
       // Try index.ts / index.js
       for (const indexFile of ['index.ts', 'index.js']) {
         const indexPath: Str = join(basePath, indexFile) as Str;
+
         try {
           statSync(indexPath);
           return indexPath;
@@ -349,6 +360,7 @@ function compileSvelteFile(source: Str, filename: Str): Str {
     filename,
     css: 'injected',
   });
+
   return result.js.code as Str;
 }
 
@@ -392,6 +404,7 @@ async function bundleWithEsbuild(
               args.path as Str,
               workspaceRoot,
             );
+
             if (resolved) {
               if (compiledFiles.has(resolved)) {
                 return { path: resolved, namespace: 'svelte-compiled' };
@@ -403,6 +416,7 @@ async function bundleWithEsbuild(
           // Resolve compiled .svelte files
           build.onResolve({ filter: /\.svelte$/ }, (args) => {
             const resolved: Str = resolve(args.resolveDir, args.path) as Str;
+
             if (compiledFiles.has(resolved)) {
               return { path: resolved, namespace: 'svelte-compiled' };
             }
@@ -436,9 +450,11 @@ async function bundleWithEsbuild(
           // Load compiled Svelte/TS files from our virtual map
           build.onLoad({ filter: /.*/, namespace: 'svelte-compiled' }, (args) => {
             const contents: Str | undefined = compiledFiles.get(args.path as Str);
+
             if (contents) {
               // Use correct loader based on file extension
               const loader: 'js' | 'ts' = args.path.endsWith('.ts') ? 'ts' : 'js';
+
               return { contents, loader, resolveDir: dirname(args.path) };
             }
           });
@@ -450,6 +466,7 @@ async function bundleWithEsbuild(
               const compiled = svelteCompileModule(source, {
                 filename: basename(args.path) as Str,
               });
+
               return {
                 contents: compiled.js.code,
                 loader: 'js' as const,
@@ -474,6 +491,7 @@ async function bundleWithEsbuild(
                 filename: basename(args.path) as Str,
                 css: 'injected',
               });
+
               return {
                 contents: compiled.js.code,
                 loader: 'js' as const,
@@ -509,6 +527,7 @@ async function bundleWithEsbuild(
  */
 function extractThemeVars(editorSrcDir: Str, darkMode: Bool, theme: Str): Str {
   let appCss: Str;
+
   try {
     appCss = readFileSync(join(editorSrcDir, 'app.css'), 'utf8') as Str;
   } catch {
@@ -518,6 +537,7 @@ function extractThemeVars(editorSrcDir: Str, darkMode: Bool, theme: Str): Str {
   const blocks: Str[] = [];
   // Extract :root block (always needed)
   const rootMatch: RegExpMatchArray | null = appCss.match(/:root\s*\{[^}]+\}/);
+
   if (rootMatch) {
     blocks.push(rootMatch[0] as Str);
   }
@@ -525,6 +545,7 @@ function extractThemeVars(editorSrcDir: Str, darkMode: Bool, theme: Str): Str {
   // Extract .dark block if in dark mode
   if (darkMode) {
     const darkMatch: RegExpMatchArray | null = appCss.match(/\.dark\s*\{[^}]+\}/);
+
     if (darkMatch) {
       blocks.push(darkMatch[0] as Str);
     }
@@ -580,6 +601,7 @@ function assembleHtml(
   componentName: Str,
 ): Str {
   const htmlAttrs: Str[] = ['lang="en"' as Str];
+
   if (darkMode) {
     htmlAttrs.push('class="dark"' as Str);
   }
@@ -718,6 +740,7 @@ export const POST: RequestHandler = async ({ request }) => {
   }
 
   let primaryPath: Str | undefined;
+
   for (const candidate of primaryCandidates) {
     if (compiledFiles.has(candidate)) {
       primaryPath = candidate;
@@ -775,10 +798,12 @@ mount(Component, { target, props });
 
   // 5. Bundle everything with esbuild
   let bundledJs: Str;
+
   try {
     bundledJs = await bundleWithEsbuild(entryCode, compiledFiles, uiSrcDir, componentDir);
   } catch (error: unknown) {
     const msg: Str = error instanceof Error ? error.message : 'Unknown bundling error';
+
     return new Response(`esbuild bundling failed: ${msg}`, { status: 500 });
   }
 

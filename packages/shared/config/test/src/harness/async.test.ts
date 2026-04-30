@@ -274,7 +274,9 @@ describe('async', () => {
           if (prop === 'reason') {
             return undefined;
           }
+
           const value: unknown = Reflect.get(target, prop);
+
           return typeof value === 'function' ? value.bind(target) : value;
         },
       });
@@ -299,7 +301,9 @@ describe('async', () => {
           if (prop === 'reason') {
             return undefined;
           }
+
           const value: unknown = Reflect.get(target, prop);
+
           return typeof value === 'function' ? value.bind(target) : value;
         },
       });

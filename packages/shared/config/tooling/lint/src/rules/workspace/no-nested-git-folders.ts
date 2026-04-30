@@ -21,6 +21,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -49,8 +50,10 @@ const rule: WorkspaceRule = {
       const rel: string = relative(ctx.rootDir, filePath);
       const segments: string[] = rel.split('/');
       const gitIndex: number = segments.indexOf('.git');
+
       if (gitIndex !== -1) {
         const nestedGitDir: string = segments.slice(0, gitIndex + 1).join('/');
+
         if (!reported.has(nestedGitDir)) {
           reported.add(nestedGitDir);
           results.push(

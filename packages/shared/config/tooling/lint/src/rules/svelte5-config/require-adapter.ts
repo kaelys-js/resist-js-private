@@ -31,11 +31,13 @@ const rule: TypeScriptRule = {
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const configObj: AstNode | undefined = getDefaultExportObject(context.ast);
+
       if (!configObj) {
         return [];
       }
 
       const kitObj: AstNode | undefined = getNestedValue(configObj, 'kit');
+
       if (!kitObj || kitObj.type !== 'ObjectExpression') {
         return [];
       }

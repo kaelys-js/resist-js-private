@@ -38,6 +38,7 @@ const rule: TypeScriptRule = {
         }
 
         const body: AstNode[] | undefined = node.body as AstNode[] | undefined;
+
         if (!body) {
           return;
         }
@@ -48,6 +49,7 @@ const rule: TypeScriptRule = {
           }
 
           const value: AstNode | undefined = member.value as AstNode | undefined;
+
           if (!value || !isRuneCall(value, '$state')) {
             continue;
           }

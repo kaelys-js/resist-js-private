@@ -33,16 +33,19 @@ const rule: TypeScriptRule = {
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const configObj: AstNode | undefined = getDefaultExportObject(context.ast);
+
       if (!configObj) {
         return [];
       }
 
       const excludeValue: AstNode | undefined = getNestedValue(configObj, 'optimizeDeps.exclude');
+
       if (!excludeValue || excludeValue.type !== 'ArrayExpression') {
         return [];
       }
 
       const elements: AstNode[] | undefined = excludeValue.elements as AstNode[] | undefined;
+
       if (!elements) {
         return [];
       }
@@ -55,6 +58,7 @@ const rule: TypeScriptRule = {
         }
 
         const pkg: string | undefined = getStringValue(el);
+
         if (pkg && SVELTE_PACKAGES.has(pkg)) {
           results.push({
             file: context.file,

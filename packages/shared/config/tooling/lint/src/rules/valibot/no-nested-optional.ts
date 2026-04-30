@@ -30,6 +30,7 @@ const rule: TypeScriptRule = {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const callee = node.callee as AstNode | undefined;
+
       if (!callee) {
         return results;
       }
@@ -51,16 +52,19 @@ const rule: TypeScriptRule = {
 
       // Check if the first argument is also a v.optional() or v.nullable() call
       const args = node.arguments as AstNode[] | undefined;
+
       if (!args || args.length === 0) {
         return results;
       }
 
       const innerNode = args[0] as AstNode;
+
       if (innerNode.type !== 'CallExpression') {
         return results;
       }
 
       const innerCallee = innerNode.callee as AstNode | undefined;
+
       if (!innerCallee) {
         return results;
       }

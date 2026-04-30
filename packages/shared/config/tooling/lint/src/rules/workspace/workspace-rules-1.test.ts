@@ -156,6 +156,7 @@ function mockContext(
     readFile: (path: string): Promise<string> =>
       new Promise<string>((resolve: (v: string) => void, reject: (e: Error) => void): void => {
         const content: string | undefined = files.get(path);
+
         if (content === undefined) {
           reject(new Error(`File not found: ${path}`));
           return;
@@ -4649,6 +4650,7 @@ const STD_PACKAGES_FIXTURE: WorkspacePackage[] = [
 
 function ctxWithRejectingPackages(): WorkspaceContext {
   const base: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+
   return {
     ...base,
     getWorkspacePackages: (): Promise<WorkspacePackage[]> =>
@@ -4798,6 +4800,7 @@ describe('workspace-rules-1 — bulk inputs() smoke-coverage', () => {
       if (typeof rule.inputs !== 'function') {
         return;
       }
+
       const ctx: WorkspaceContext = mockContext({
         rootDir: '/workspace',
         files: new Map([

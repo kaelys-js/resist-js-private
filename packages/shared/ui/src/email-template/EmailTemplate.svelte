@@ -42,6 +42,7 @@
   const validated: EmailTemplateProps = $derived.by(() => {
     const rawProps: EmailTemplateProps = stripSvelteProps(allProps);
     const result = safeParse(EmailTemplatePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

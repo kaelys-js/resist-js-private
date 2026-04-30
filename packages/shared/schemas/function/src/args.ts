@@ -68,6 +68,7 @@ export function args<TArgs extends unknown[], TReturn = unknown>(
     (fn: FnType<unknown[], TReturn>): FnType<TArgs, TReturn> => {
       // Check if already wrapped (by a prior returns() in the pipe)
       const existingMeta: WrapperMeta | undefined = getWrapperMeta(fn);
+
       if (existingMeta) {
         // Update the existing wrapper with args schema
         return createWrapper<TArgs, TReturn>(

@@ -48,6 +48,7 @@ const OCAML_LINE: RegExp =
  */
 export function transformOcamlOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -57,8 +58,10 @@ export function transformOcamlOutput(output: string): LintResult[] {
   /* Join continuation lines into single diagnostic lines */
   const rawLines: string[] = trimmed.split('\n');
   const diagnosticLines: string[] = [];
+
   for (const raw of rawLines) {
     const stripped: string = raw.trim();
+
     if (stripped.length === 0) {
       continue;
     }
@@ -71,6 +74,7 @@ export function transformOcamlOutput(output: string): LintResult[] {
 
   for (const line of diagnosticLines) {
     const match: RegExpMatchArray | null = OCAML_LINE.exec(line);
+
     if (!match) {
       continue;
     }

@@ -42,6 +42,7 @@
   const validated: DockManagerProps = $derived.by(() => {
     const rawProps: DockManagerProps = stripSvelteProps(allProps);
     const result = safeParse(DockManagerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

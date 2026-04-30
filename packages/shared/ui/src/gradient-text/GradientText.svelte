@@ -42,6 +42,7 @@
   const validated: GradientTextProps = $derived.by(() => {
     const rawProps: GradientTextProps = stripSvelteProps(allProps);
     const result = safeParse(GradientTextPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

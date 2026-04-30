@@ -24,6 +24,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -53,6 +54,7 @@ const rule: WorkspaceRule = {
       /** Only check CI YAML files under .github/ or .gitlab/ directories. */
       const isGitHub: boolean = relativePath.startsWith('.github/');
       const isGitLab: boolean = relativePath.startsWith('.gitlab/');
+
       if (!isGitHub && !isGitLab) {
         continue;
       }
@@ -61,6 +63,7 @@ const rule: WorkspaceRule = {
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -68,6 +71,7 @@ const rule: WorkspaceRule = {
       }
 
       const lines: string[] = content.split('\n');
+
       for (const [i, line] of lines.entries()) {
         if (INLINE_SCRIPT_PATTERN.test(line)) {
           results.push(

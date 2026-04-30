@@ -90,6 +90,7 @@ export function arity(constraint: ArityConstraint): Result<v.CheckAction<FnType,
       NonNegativeIntegerSchema,
       constraint,
     );
+
     if (!parsed.success) {
       return err(
         ERRORS.FUNCTION.INVALID_ARITY,
@@ -107,6 +108,7 @@ export function arity(constraint: ArityConstraint): Result<v.CheckAction<FnType,
         NonNegativeIntegerSchema,
         constraint.min,
       );
+
       if (!parsedMin.success) {
         return err(
           ERRORS.FUNCTION.INVALID_ARITY,
@@ -123,6 +125,7 @@ export function arity(constraint: ArityConstraint): Result<v.CheckAction<FnType,
         NonNegativeIntegerSchema,
         constraint.max,
       );
+
       if (!parsedMax.success) {
         return err(
           ERRORS.FUNCTION.INVALID_ARITY,
@@ -145,11 +148,13 @@ export function arity(constraint: ArityConstraint): Result<v.CheckAction<FnType,
     MessageSchema,
     descriptionRaw,
   );
+
   if (!descriptionParsed.success) {
     return err(ERRORS.FUNCTION.INVALID_ARITY, 'Failed to construct arity description message', {
       meta: { constraint, issues: descriptionParsed.issues },
     });
   }
+
   const description: Message = descriptionParsed.output;
 
   const action: v.CheckAction<FnType, Message> = v.check<FnType, Message>((fn: FnType): boolean => {
@@ -159,10 +164,13 @@ export function arity(constraint: ArityConstraint): Result<v.CheckAction<FnType,
       NonNegativeIntegerSchema,
       fn.length,
     );
+
     if (!lenParsed.success) {
       return false;
     }
+
     const len: NonNegativeInteger = lenParsed.output;
+
     if (min !== undefined && len < min) {
       return false;
     }

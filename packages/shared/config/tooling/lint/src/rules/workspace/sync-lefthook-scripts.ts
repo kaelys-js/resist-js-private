@@ -38,6 +38,7 @@ function extractPnpmScripts(content: string): Array<{ script: string; line: numb
 
     /* Match run: fields */
     const runMatch: RegExpMatchArray | null = line.match(/^\s*run:\s*(.+)$/);
+
     if (!runMatch) {
       continue;
     }
@@ -51,6 +52,7 @@ function extractPnpmScripts(content: string): Array<{ script: string; line: numb
     while (pnpmMatch) {
       const script: string = pnpmMatch[1] ?? '';
       /* Skip flags and known non-script arguments */
+
       if (script.length > 0 && !script.startsWith('-') && !script.startsWith('--')) {
         results.push({ script, line: i + 1 });
       }
@@ -81,6 +83,7 @@ async function findFirstExisting(
     fullPaths.map((p: string): Promise<boolean> => ctx.fileExists(p)),
   );
   const idx: number = checks.indexOf(true);
+
   return idx >= 0 ? (fullPaths[idx] ?? null) : null;
 }
 
@@ -122,11 +125,13 @@ const rule: WorkspaceRule = {
 
     /* Read package.json scripts */
     const pkgPath: string = join(ctx.rootDir, 'package.json');
+
     if (!(await ctx.fileExists(pkgPath))) {
       return results;
     }
 
     let pkg: Record<string, unknown>;
+
     try {
       pkg = JSON.parse(await ctx.readFile(pkgPath)) as Record<string, unknown>;
     } catch {
@@ -138,6 +143,7 @@ const rule: WorkspaceRule = {
 
     /* Parse lefthook config */
     let content: string;
+
     try {
       content = await ctx.readFile(lefthookPath);
     } catch {

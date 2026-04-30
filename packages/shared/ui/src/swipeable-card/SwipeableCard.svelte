@@ -42,6 +42,7 @@
   const validated: SwipeableCardProps = $derived.by(() => {
     const rawProps: SwipeableCardProps = stripSvelteProps(allProps);
     const result = safeParse(SwipeableCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -172,8 +172,10 @@
    */
   function calcDomDepth(el: Element): Num {
     let maxDepth: Num = 0;
+
     for (const childEl of el.children) {
       const childDepth: Num = calcDomDepth(childEl);
+
       if (childDepth > maxDepth) {
         maxDepth = childDepth;
       }
@@ -190,6 +192,7 @@
   function countTextNodes(el: Element): Num {
     let count: Num = 0;
     const walker: TreeWalker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+
     while (walker.nextNode()) {
       count++;
     }
@@ -212,7 +215,9 @@
     if (el.getAttribute('title')) {
       return true;
     }
+
     const id: Str | null = el.getAttribute('id');
+
     if (id && document.querySelector(`label[for="${id}"]`)) {
       return true;
     }
@@ -231,12 +236,15 @@
    */
   function getParentContext(el: Element): Str {
     const parent: Element | null = el.parentElement;
+
     if (!parent) {
       return '';
     }
+
     const tag: Str = parent.tagName.toLowerCase();
     const cls: Str = parent.className ? String(parent.className).slice(0, 30) : '';
     const role: Str | null = parent.getAttribute('role');
+
     if (role) {
       return `<${tag} role="${role}">`;
     }
@@ -301,6 +309,7 @@
       'oninvalid',
     ];
     let count: Num = 0;
+
     for (const el of root.querySelectorAll('*')) {
       for (const attr of handlerAttrs) {
         if (el.hasAttribute(attr)) {
@@ -320,6 +329,7 @@
    */
   function auditHeadings(root: HTMLDivElement): { headings: HeadingInfo[]; skips: Bool } {
     const headings: HeadingInfo[] = [];
+
     for (const el of root.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
       const level: Num = Number.parseInt(el.tagName.charAt(1), 10);
       headings.push({
@@ -329,9 +339,11 @@
     }
 
     let skips: Bool = false;
+
     for (let i: Num = 1; i < headings.length; i++) {
       const prev: HeadingInfo | undefined = headings[i - 1];
       const curr: HeadingInfo | undefined = headings[i];
+
       if (prev && curr && curr.level > prev.level + 1) {
         skips = true;
         break;
@@ -360,6 +372,7 @@
     ];
 
     const found: Str[] = [];
+
     for (const lm of landmarkSelectors) {
       if (root.querySelector(lm.selector)) {
         found.push(lm.name);
@@ -376,8 +389,10 @@
    */
   function detectFocusOrderIssues(root: HTMLDivElement): FocusOrderIssue[] {
     const issues: FocusOrderIssue[] = [];
+
     for (const el of root.querySelectorAll('[tabindex]')) {
       const tabVal: Num = Number.parseInt(el.getAttribute('tabindex') ?? '0', 10);
+
       if (tabVal > 0) {
         issues.push({
           tag: el.tagName.toLowerCase(),
@@ -408,6 +423,7 @@
 
     for (const el of elements) {
       const tabVal: Num = Number.parseInt(el.getAttribute('tabindex') ?? '0', 10);
+
       if (tabVal > 0) {
         positive.push({ el, idx: tabVal });
       } else {
@@ -443,7 +459,9 @@
     if (!color || color === 'transparent' || color === 'rgba(0, 0, 0, 0)') {
       return null;
     }
+
     const rgbMatch: RegExpMatchArray | null = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+
     if (rgbMatch) {
       return [Number(rgbMatch[1]), Number(rgbMatch[2]), Number(rgbMatch[3])];
     }
@@ -458,6 +476,7 @@
    */
   function srgbToLinear(channel: Num): Num {
     const c: Num = channel / 255;
+
     return c <= 0.040_45 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
   }
 
@@ -485,6 +504,7 @@
     const l2: Num = relativeLuminance(...rgb2);
     const lighter: Num = Math.max(l1, l2);
     const darker: Num = Math.min(l1, l2);
+
     return (lighter + 0.05) / (darker + 0.05);
   }
 
@@ -497,10 +517,12 @@
    */
   function getEffectiveBackground(el: Element): [Num, Num, Num] | null {
     let current: Element | null = el;
+
     while (current) {
       const style: CSSStyleDeclaration = getComputedStyle(current);
       const bg: Str = style.backgroundColor;
       const rgb: [Num, Num, Num] | null = parseColorToRgb(bg);
+
       if (rgb) {
         return rgb;
       }
@@ -522,6 +544,7 @@
     const textElements: Element[] = [...root.querySelectorAll('*')]
       .filter((el: Element): boolean => {
         const text: Str = (el.textContent ?? '').trim();
+
         if (text.length === 0) {
           return false;
         }
@@ -537,6 +560,7 @@
       const style: CSSStyleDeclaration = getComputedStyle(el);
       const textRgb: [Num, Num, Num] | null = parseColorToRgb(style.color);
       const bgRgb: [Num, Num, Num] | null = getEffectiveBackground(el);
+
       if (!textRgb || !bgRgb) {
         continue;
       }
@@ -571,6 +595,7 @@
    */
   function countImagesWithoutAlt(root: HTMLDivElement): Num {
     let count: Num = 0;
+
     for (const img of root.querySelectorAll('img')) {
       if (!img.hasAttribute('alt')) {
         count++;
@@ -604,6 +629,7 @@
       if (issues.length >= 10) {
         break;
       }
+
       const tag: Str = el.tagName.toLowerCase();
       const text: Str = (el.textContent ?? '').trim().slice(0, 40);
       const role: Str | null = el.getAttribute('role');
@@ -625,6 +651,7 @@
       /* aria-labelledby pointing to non-existent ID */
       if (ariaLabelledby) {
         const [targetId]: Str[] = ariaLabelledby.split(' ');
+
         if (
           targetId &&
           targetId.length > 0 &&
@@ -655,6 +682,7 @@
           tag === 'select' ||
           tag === 'textarea' ||
           el.hasAttribute('tabindex');
+
         if (isFocusable) {
           issues.push({
             tag,
@@ -678,6 +706,7 @@
    */
   function countSvgsWithoutLabel(root: HTMLDivElement): Num {
     let count: Num = 0;
+
     for (const svg of root.querySelectorAll('svg')) {
       const hasAriaLabel: Bool = Boolean(svg.getAttribute('aria-label'));
       const hasAriaLabelledby: Bool = Boolean(svg.getAttribute('aria-labelledby'));
@@ -767,6 +796,7 @@
       } else {
         const textContent: Str = (el.textContent ?? '').trim().slice(0, 40);
         /* Skip elements that have visible text content — screen readers can use it */
+
         if (textContent.length === 0) {
           unlabeled.push({
             tag: el.tagName.toLowerCase(),
@@ -779,8 +809,10 @@
     }
 
     const rolesSet: Set<Str> = new Set<Str>();
+
     for (const roleEl of root.querySelectorAll('[role]')) {
       const role: Str | null = roleEl.getAttribute('role');
+
       if (role) {
         rolesSet.add(role);
       }
@@ -836,6 +868,7 @@
    */
   function worstLevel(budgets: MetricBudget[]): BudgetLevel {
     let worst: BudgetLevel = 'green';
+
     for (const b of budgets) {
       if (b.level === 'red') {
         return 'red';
@@ -908,8 +941,10 @@
     if (!el || !(el instanceof Element)) {
       return '(unknown)';
     }
+
     const tag: Str = el.tagName.toLowerCase();
     const cls: Str = el.className ? String(el.className).slice(0, 40) : '';
+
     return cls ? `<${tag} class="${cls}">` : `<${tag}>`;
   }
 
@@ -964,6 +999,7 @@
               value?: number;
               sources?: Array<{ node?: Node }>;
             } = entry;
+
             if (shift.hadRecentInput) {
               continue;
             }
@@ -973,6 +1009,7 @@
 
             /* Check if any source node is within our component */
             let componentShift: Bool = false;
+
             for (const src of sources) {
               if (src.node && src.node instanceof Element && wrapper.contains(src.node)) {
                 componentShift = true;
@@ -1004,6 +1041,7 @@
           for (const entry of list.getEntries()) {
             /* Only count tasks that overlap with mount window (mountStart to mountStart + 1000ms) */
             const taskEnd: Num = entry.startTime + entry.duration;
+
             if (taskEnd >= mountStart && entry.startTime <= mountStart + 1000) {
               vitals.longTaskCount++;
               if (entry.duration > vitals.worstLongTaskMs) {
@@ -1023,6 +1061,7 @@
         (list: PerformanceObserverEntryList): Void => {
           for (const entry of list.getEntries()) {
             const relativeTime: Num = Math.round((entry.startTime - mountStart) * 100) / 100;
+
             if (entry.name === 'first-paint' && vitals.paintTimeMs < 0) {
               vitals.paintTimeMs = relativeTime;
             }
@@ -1042,6 +1081,7 @@
         (list: PerformanceObserverEntryList): Void => {
           for (const entry of list.getEntries()) {
             const lcpEntry: PerformanceEntry & { element?: Element; startTime: number } = entry;
+
             if (lcpEntry.element && wrapper.contains(lcpEntry.element)) {
               vitals.isLcpComponent = true;
               vitals.lcpTimeMs = Math.round(lcpEntry.startTime * 100) / 100;
@@ -1062,6 +1102,7 @@
             const fidEntry: PerformanceEntry & { target?: Element; processingStart?: number } =
               entry;
             /* Only attribute FID to this component if the interaction target is within wrapper */
+
             if (
               fidEntry.target &&
               fidEntry.target instanceof Element &&
@@ -1088,6 +1129,7 @@
               processingEnd?: number;
             } = entry;
             /* Only attribute INP to this component if the interaction target is within wrapper */
+
             if (
               eventEntry.target &&
               eventEntry.target instanceof Element &&
@@ -1095,6 +1137,7 @@
             ) {
               const duration: Num = entry.duration as Num;
               /* INP is the worst (highest) interaction latency */
+
               if (duration > vitals.inpMs) {
                 vitals.inpMs = Math.round(duration * 100) / 100;
               }
@@ -1115,9 +1158,11 @@
     try {
       const navEntries: PerformanceEntryList = performance.getEntriesByType('navigation');
       const [firstNav]: PerformanceEntry[] = navEntries;
+
       if (firstNav) {
         // Navigation timing entry exists — cast to access responseStart/requestStart
         const nav: PerformanceEntry & { responseStart?: number; requestStart?: number } = firstNav;
+
         if (
           typeof nav.responseStart === 'number' &&
           typeof nav.requestStart === 'number' &&
@@ -1200,6 +1245,7 @@
       const perfMemory: { usedJSHeapSize?: number } | undefined = (
         performance as unknown as { memory?: { usedJSHeapSize?: number } }
       ).memory;
+
       if (perfMemory && typeof perfMemory.usedJSHeapSize === 'number') {
         memoryDeltaBytes = perfMemory.usedJSHeapSize;
       }
@@ -1277,6 +1323,7 @@
 
       /* Vitals budgets — only add when the browser supports the APIs */
       const componentVitals: WebVitals = vitalsResult.vitals;
+
       if (componentVitals.supported) {
         if (supportsEntryType('layout-shift')) {
           budgets.push(
@@ -1507,6 +1554,7 @@
       /* Always-present a11y summary metrics */
       const labelRatio: Num = a11y.focusableCount > 0 ? a11y.labeledCount / a11y.focusableCount : 1;
       let labelLevel: BudgetLevel = 'red';
+
       if (labelRatio >= 1) {
         labelLevel = 'green';
       } else if (labelRatio >= 0.8) {
@@ -1535,6 +1583,7 @@
       });
 
       let animationLevel: BudgetLevel = 'green';
+
       if (a11y.animatedElementCount > 0 && !a11y.hasReducedMotionOverride) {
         animationLevel = 'yellow';
       }
@@ -1552,6 +1601,7 @@
       if (propsTotal > 0) {
         const propCoverage: Num = propsWithDefaults / propsTotal;
         let propLevel: BudgetLevel = 'red';
+
         if (propCoverage >= 1) {
           propLevel = 'green';
         } else if (propCoverage >= 0.5) {
@@ -1607,6 +1657,7 @@
         const rrBudget: MetricBudget | undefined = statsData.budgets.find(
           (b) => b.label === 'Re-renders',
         );
+
         if (rrBudget) {
           rrBudget.value = `${reRenderCount}`;
           rrBudget.level = evaluateBudget(reRenderCount, RERENDER_GREEN, RERENDER_YELLOW);
@@ -1638,6 +1689,7 @@
         const obs: MutationObserver | undefined = (
           wrapperRef as HTMLDivElement & { __lensObserver?: MutationObserver }
         ).__lensObserver;
+
         if (obs) {
           obs.disconnect();
         }

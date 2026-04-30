@@ -42,6 +42,7 @@
   const validated: CategoryBarProps = $derived.by(() => {
     const rawProps: CategoryBarProps = stripSvelteProps(allProps);
     const result = safeParse(CategoryBarPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

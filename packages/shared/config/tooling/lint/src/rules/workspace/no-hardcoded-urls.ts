@@ -74,6 +74,7 @@ const rule: WorkspaceRule = {
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {

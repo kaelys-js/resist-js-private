@@ -26,12 +26,14 @@ import type {
 function getJsDoc(node: AstNode, content: string): string | null {
   const before: string = content.slice(0, node.start);
   const trimmed: string = before.trimEnd();
+
   if (!trimmed.endsWith('*/')) {
     return null;
   }
 
   const docEnd: number = trimmed.length;
   const docStart: number = trimmed.lastIndexOf('/**');
+
   if (docStart === -1) {
     return null;
   }
@@ -61,6 +63,7 @@ function extractDocParams(jsDoc: string): DocParam[] {
   // Matches @param {Type} name  OR  @param name at JSDoc line starts
   const regex: RegExp = /^\s*\*\s*@param\s+(?:\{([^}]*)\}\s+)?(\w+)/gm;
   let match: RegExpExecArray | null = regex.exec(jsDoc);
+
   while (match) {
     params.push({
       type: match[1] ?? null,
@@ -85,17 +88,20 @@ function getParamType(param: AstNode, content: string): string | null {
   // AssignmentPattern (default values): check the left side
   if (param.type === 'AssignmentPattern') {
     const left = param.left as AstNode | undefined;
+
     if (left) {
       target = left;
     }
   }
 
   const typeAnnotation = target.typeAnnotation as AstNode | undefined;
+
   if (!typeAnnotation) {
     return null;
   }
 
   const innerType = typeAnnotation.typeAnnotation as AstNode | undefined;
+
   if (!innerType) {
     return content.slice(typeAnnotation.start, typeAnnotation.end).replace(/^:\s*/, '');
   }
@@ -128,18 +134,21 @@ function checkFunction(
 ): LintResult[] {
   const results: LintResult[] = [];
   const jsDoc: string | null = getJsDoc(exportNode, context.content);
+
   if (!jsDoc) {
     return results;
   }
 
   const docParams: DocParam[] = extractDocParams(jsDoc);
   const params = funcNode.params as AstNode[] | undefined;
+
   if (!params) {
     return results;
   }
 
   // Build a map of actual param name → type
   const actualTypes: Map<string, string> = new Map();
+
   for (const param of params) {
     let name: string | null = null;
 
@@ -147,11 +156,13 @@ function checkFunction(
       name = (param.name as string) ?? null;
     } else if (param.type === 'AssignmentPattern') {
       const left = param.left as AstNode | undefined;
+
       if (left?.type === 'Identifier') {
         name = (left.name as string) ?? null;
       }
     } else if (param.type === 'RestElement') {
       const arg = param.argument as AstNode | undefined;
+
       if (arg?.type === 'Identifier') {
         name = (arg.name as string) ?? null;
       }
@@ -159,6 +170,7 @@ function checkFunction(
 
     if (name) {
       const type: string | null = getParamType(param, context.content);
+
       if (type) {
         actualTypes.set(name, type);
       }
@@ -172,6 +184,7 @@ function checkFunction(
     } // No type in JSDoc — nothing to check
 
     const actualType: string | undefined = actualTypes.get(docParam.name);
+
     if (!actualType) {
       continue;
     } // Param not found — handled by require-param
@@ -218,6 +231,7 @@ const rule: TypeScriptRule = {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const declaration = node.declaration as AstNode | undefined;
+
       if (!declaration) {
         return results;
       }
@@ -228,12 +242,14 @@ const rule: TypeScriptRule = {
 
       if (declaration.type === 'VariableDeclaration') {
         const declarations = declaration.declarations as AstNode[] | undefined;
+
         if (!declarations) {
           return results;
         }
 
         for (const decl of declarations) {
           const init = decl.init as AstNode | undefined;
+
           if (
             init &&
             (init.type === 'ArrowFunctionExpression' || init.type === 'FunctionExpression')

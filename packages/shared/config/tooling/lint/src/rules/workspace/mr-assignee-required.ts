@@ -39,6 +39,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     const assignee: string | undefined = process.env['MR_ASSIGNEE'];
+
     if (assignee === undefined) {
       return Promise.resolve(results);
     }

@@ -42,6 +42,7 @@
   const validated: EnergyUsageProps = $derived.by(() => {
     const rawProps: EnergyUsageProps = stripSvelteProps(allProps);
     const result = safeParse(EnergyUsagePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

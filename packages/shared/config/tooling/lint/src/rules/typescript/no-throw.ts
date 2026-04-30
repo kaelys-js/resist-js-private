@@ -31,11 +31,13 @@ import type {
 function hasIntegrationBoundaryComment(node: AstNode, context: VisitorContext): boolean {
   const lines: string[] = context.content.split('\n');
   const lineIdx: number = node.loc.start.line - 1;
+
   if (lineIdx < 0 || lineIdx >= lines.length) {
     return false;
   }
 
   const currentLine: string = lines[lineIdx] ?? '';
+
   if (/\/\/.*integration boundary:\s*\S+/i.test(currentLine)) {
     return true;
   }
@@ -62,6 +64,7 @@ function hasIntegrationBoundaryComment(node: AstNode, context: VisitorContext): 
  */
 function isIntegrationBoundaryThrow(node: AstNode, context: VisitorContext): boolean {
   const argument = node.argument as AstNode | undefined;
+
   if (!argument) {
     return false;
   }

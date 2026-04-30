@@ -42,6 +42,7 @@
   const validated: MentionProps = $derived.by(() => {
     const rawProps: MentionProps = stripSvelteProps(allProps);
     const result = safeParse(MentionPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

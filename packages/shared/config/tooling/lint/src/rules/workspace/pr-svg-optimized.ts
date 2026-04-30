@@ -30,6 +30,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -67,6 +68,7 @@ const rule: WorkspaceRule = {
 
     for (const file of svgFiles) {
       let content: string;
+
       try {
         content = await ctx.readFile(file);
       } catch {

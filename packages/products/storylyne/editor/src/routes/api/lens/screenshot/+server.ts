@@ -60,6 +60,7 @@ function acquireSlot(): Promise<() => void> {
   const release = (): void => {
     activeCaptureCount = ((activeCaptureCount as number) - 1) as Num;
     const next: (() => void) | undefined = waitQueue.shift();
+
     if (next) {
       next();
     }
@@ -86,6 +87,7 @@ function acquireSlot(): Promise<() => void> {
  */
 async function getOrLaunchBrowser(engine: Str): Promise<Browser> {
   const cached: Browser | undefined = browserCache.get(engine);
+
   if (cached?.isConnected()) {
     return cached;
   }
@@ -94,6 +96,7 @@ async function getOrLaunchBrowser(engine: Str): Promise<Browser> {
   const pw = await import('playwright');
 
   let launcher: BrowserType;
+
   if (engine === 'firefox') {
     launcher = pw.firefox;
   } else if (engine === 'webkit') {
@@ -144,6 +147,7 @@ function engineDisplayName(engine: Str): Str {
 function stripConsoleFormatting(text: Str): Str {
   /* Remove %c markers, then collapse multiple spaces from the gaps */
   let cleaned: Str = text.replaceAll('%c', '') as Str;
+
   while (cleaned.includes('  ')) {
     cleaned = cleaned.replaceAll('  ', ' ') as Str;
   }
@@ -183,6 +187,7 @@ export const GET: RequestHandler = async ({ url }) => {
   /* ---- Parse & validate params ---- */
 
   const component: Str = (url.searchParams.get('component') ?? '') as Str;
+
   if (!component) {
     return new Response(JSON.stringify({ error: 'Missing required "component" parameter' }), {
       status: 400,
@@ -191,6 +196,7 @@ export const GET: RequestHandler = async ({ url }) => {
   }
 
   const engine: Str = (url.searchParams.get('browser') ?? 'chromium') as Str;
+
   if (!VALID_ENGINES.has(engine)) {
     return new Response(
       JSON.stringify({
@@ -259,6 +265,7 @@ export const GET: RequestHandler = async ({ url }) => {
     if (customWidth && customHeight) {
       const w: Num = Number(customWidth) as Num;
       const h: Num = Number(customHeight) as Num;
+
       if (!Number.isNaN(w) && !Number.isNaN(h) && w > 0 && h > 0) {
         contextOptions.viewport = { width: w, height: h };
       }
@@ -267,6 +274,7 @@ export const GET: RequestHandler = async ({ url }) => {
     /* Custom scale overrides device preset */
     if (customScale) {
       const s: Num = Number(customScale) as Num;
+
       if (!Number.isNaN(s) && s > 0) {
         contextOptions.deviceScaleFactor = s;
       }
@@ -300,6 +308,7 @@ export const GET: RequestHandler = async ({ url }) => {
       /* Collect console messages — strip %c CSS format specifiers */
       page.on('console', (msg: ConsoleMessage): void => {
         const cleaned: Str = stripConsoleFormatting(msg.text() as Str);
+
         if (!cleaned) {
           return;
         }
@@ -312,6 +321,7 @@ export const GET: RequestHandler = async ({ url }) => {
       /* Network throttling via route-level delay (works across all engines) */
       if (networkThrottle) {
         const delayMs: Num = Number(networkThrottle) as Num;
+
         if (!Number.isNaN(delayMs) && delayMs > 0) {
           await page.route('**/*', async (route) => {
             await new Promise<void>((resolve) => {
@@ -350,6 +360,7 @@ export const GET: RequestHandler = async ({ url }) => {
         );
 
         const result: Record<string, number> = {};
+
         if (nav) {
           result.domContentLoaded = Math.round(nav.domContentLoadedEventEnd - nav.startTime);
           result.load = Math.round(nav.loadEventEnd - nav.startTime);
@@ -399,6 +410,7 @@ export const GET: RequestHandler = async ({ url }) => {
     const message: Str = (
       error instanceof Error ? error.message : 'Screenshot capture failed'
     ) as Str;
+
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },

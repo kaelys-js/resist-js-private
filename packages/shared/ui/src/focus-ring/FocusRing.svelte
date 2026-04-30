@@ -42,6 +42,7 @@
   const validated: FocusRingProps = $derived.by(() => {
     const rawProps: FocusRingProps = stripSvelteProps(allProps);
     const result = safeParse(FocusRingPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

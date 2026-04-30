@@ -46,6 +46,7 @@ const rule: TypeScriptRule = {
 
       // Skip intersection types where InferOutput is one arm — generic params come from the & arm
       const typeAnnotation = node.typeAnnotation as AstNode | undefined;
+
       if (typeAnnotation?.type === 'TSIntersectionType') {
         return [];
       }

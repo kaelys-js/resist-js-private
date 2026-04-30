@@ -249,10 +249,13 @@ export const DEFAULT_SHORTCUTS: ShortcutRegistry = {
  */
 export function isEditableTarget(e: KeyboardEvent): Bool {
   const { target } = e;
+
   if (!(target instanceof HTMLElement)) {
     return false;
   }
+
   const tag: Str = target.tagName;
+
   if (tag === 'INPUT' || tag === 'TEXTAREA') {
     return true;
   }
@@ -378,6 +381,7 @@ export function formatShortcut(shortcut: KeyboardShortcut): Str {
 
   // Special key display names
   let keyDisplay: Str = shortcut.key;
+
   if (shortcut.key === 'Escape') {
     keyDisplay = 'Esc';
   } else if (shortcut.key === ' ') {
@@ -433,6 +437,7 @@ export function detectConflicts(registry: ShortcutRegistry): ShortcutConflict[] 
     for (let j: Num = i + 1; j < entries.length; j++) {
       const a: KeyboardShortcut | undefined = entries[i];
       const b: KeyboardShortcut | undefined = entries[j];
+
       if (!a || !b) {
         continue;
       }
@@ -445,6 +450,7 @@ export function detectConflicts(registry: ShortcutRegistry): ShortcutConflict[] 
       // Same modifiers (order-independent)?
       const aMods: Str = [...a.modifiers].toSorted().join(',');
       const bMods: Str = [...b.modifiers].toSorted().join(',');
+
       if (aMods !== bMods) {
         continue;
       }
@@ -452,6 +458,7 @@ export function detectConflicts(registry: ShortcutRegistry): ShortcutConflict[] 
       // Context overlap? (global overlaps everything, same context overlaps)
       const overlaps: Bool =
         a.context === 'global' || b.context === 'global' || a.context === b.context;
+
       if (!overlaps) {
         continue;
       }
@@ -488,6 +495,7 @@ export function detectConflicts(registry: ShortcutRegistry): ShortcutConflict[] 
 export function getAllShortcuts(registry: ShortcutRegistry): KeyboardShortcut[] {
   return Object.values(registry).toSorted((a, b) => {
     const contextCmp: Num = a.context.localeCompare(b.context);
+
     if (contextCmp !== 0) {
       return contextCmp;
     }
@@ -524,6 +532,7 @@ export function updateShortcut(
   modifiers: readonly ModifierKey[],
 ): Result<ShortcutRegistry> {
   const idResult: Result<ShortcutId> = safeParse(ShortcutIdSchema, id);
+
   if (!idResult.ok) {
     return err(ERRORS.VALIDATION.SCHEMA_FAILED, `Unknown shortcut ID: ${id}`);
   }
@@ -543,8 +552,10 @@ export function updateShortcut(
 
   // Check for conflicts
   const conflicts: ShortcutConflict[] = detectConflicts(updated);
+
   if (conflicts.length > 0) {
     const [conflict]: ShortcutConflict[] = conflicts;
+
     if (!conflict) {
       return err(ERRORS.VALIDATION.INVALID_FORMAT, 'Shortcut conflict (details unavailable)');
     }
@@ -573,6 +584,7 @@ export function updateShortcut(
  */
 export function resetShortcut(registry: ShortcutRegistry, id: Str): Result<ShortcutRegistry> {
   const idResult: Result<ShortcutId> = safeParse(ShortcutIdSchema, id);
+
   if (!idResult.ok) {
     return err(ERRORS.VALIDATION.SCHEMA_FAILED, `Unknown shortcut ID: ${id}`);
   }

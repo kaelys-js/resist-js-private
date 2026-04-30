@@ -41,6 +41,7 @@
   const validated: SwatchPickerProps = $derived.by(() => {
     const rawProps: SwatchPickerProps = stripSvelteProps(allProps);
     const result = safeParse(SwatchPickerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

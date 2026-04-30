@@ -41,6 +41,7 @@
   const validated: ImageZoomProps = $derived.by(() => {
     const rawProps: ImageZoomProps = stripSvelteProps(allProps);
     const result = safeParse(ImageZoomPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

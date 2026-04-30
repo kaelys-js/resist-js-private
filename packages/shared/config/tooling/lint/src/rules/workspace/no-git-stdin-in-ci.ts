@@ -44,6 +44,7 @@ const rule: WorkspaceRule = {
 
     for (const key of ['core.editor', 'sequence.editor'] as const) {
       let value: string;
+
       try {
         value = execSync(`git config --global --get ${key}`, {
           cwd: ctx.rootDir,

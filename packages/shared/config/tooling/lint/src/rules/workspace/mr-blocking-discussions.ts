@@ -39,11 +39,13 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     const countStr: string | undefined = process.env['MR_BLOCKING_DISCUSSIONS_COUNT'];
+
     if (countStr === undefined) {
       return Promise.resolve(results);
     }
 
     const count: number = Number(countStr);
+
     if (count > 0) {
       results.push(
         createResult(

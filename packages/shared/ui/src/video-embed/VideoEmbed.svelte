@@ -42,6 +42,7 @@
   const validated: VideoEmbedProps = $derived.by(() => {
     const rawProps: VideoEmbedProps = stripSvelteProps(allProps);
     const result = safeParse(VideoEmbedPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

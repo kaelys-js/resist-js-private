@@ -42,6 +42,7 @@
   const validated: ChannelListProps = $derived.by(() => {
     const rawProps: ChannelListProps = stripSvelteProps(allProps);
     const result = safeParse(ChannelListPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

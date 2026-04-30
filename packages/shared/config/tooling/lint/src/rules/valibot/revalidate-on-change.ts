@@ -52,6 +52,7 @@ const rule: TypeScriptRule = {
 
       // Count how many times safeParse appears — if only once and there is mutation, warn
       const parseCount: number = (context.content.match(/safeParse/g) ?? []).length;
+
       if (parseCount >= 2) {
         return results;
       }

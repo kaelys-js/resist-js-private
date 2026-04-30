@@ -42,6 +42,7 @@
   const validated: BurgerMenuProps = $derived.by(() => {
     const rawProps: BurgerMenuProps = stripSvelteProps(allProps);
     const result = safeParse(BurgerMenuPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

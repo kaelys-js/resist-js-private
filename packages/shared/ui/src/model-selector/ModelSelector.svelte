@@ -42,6 +42,7 @@
   const validated: ModelSelectorProps = $derived.by(() => {
     const rawProps: ModelSelectorProps = stripSvelteProps(allProps);
     const result = safeParse(ModelSelectorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

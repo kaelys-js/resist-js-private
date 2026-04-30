@@ -42,6 +42,7 @@
   const validated: DropZoneProps = $derived.by(() => {
     const rawProps: DropZoneProps = stripSvelteProps(allProps);
     const result = safeParse(DropZonePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: NavLinkProps = $derived.by(() => {
     const rawProps: NavLinkProps = stripSvelteProps(allProps);
     const result = safeParse(NavLinkPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: JobQueueViewerProps = $derived.by(() => {
     const rawProps: JobQueueViewerProps = stripSvelteProps(allProps);
     const result = safeParse(JobQueueViewerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

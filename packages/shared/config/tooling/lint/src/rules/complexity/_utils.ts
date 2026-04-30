@@ -28,12 +28,15 @@ export function walkBody(node: AstNode, callback: (child: AstNode) => boolean | 
     if (key === 'loc' || key === 'type' || key === 'start' || key === 'end') {
       continue;
     }
+
     const value: unknown = node[key];
+
     if (Array.isArray(value)) {
       for (const item of value) {
         if (item !== null && typeof item === 'object' && 'type' in item) {
           const child: AstNode = item as AstNode;
           const stop: boolean | void = callback(child);
+
           if (stop !== true) {
             walkBody(child, callback);
           }
@@ -42,6 +45,7 @@ export function walkBody(node: AstNode, callback: (child: AstNode) => boolean | 
     } else if (value !== null && typeof value === 'object' && 'type' in (value as object)) {
       const child: AstNode = value as AstNode;
       const stop: boolean | void = callback(child);
+
       if (stop !== true) {
         walkBody(child, callback);
       }
@@ -60,15 +64,21 @@ export function isCallTo(node: AstNode, methodName: string): boolean {
   if (node.type !== 'CallExpression') {
     return false;
   }
+
   const { callee } = node;
+
   if (callee === null || typeof callee !== 'object') {
     return false;
   }
+
   const calleeNode: AstNode = callee as AstNode;
+
   if (calleeNode.type === 'StaticMemberExpression' || calleeNode.type === 'MemberExpression') {
     const prop: unknown = calleeNode.property;
+
     if (prop !== null && typeof prop === 'object') {
       const propNode: AstNode = prop as AstNode;
+
       return (propNode.name as string) === methodName;
     }
   }
@@ -92,14 +102,19 @@ export function isLoopNode(node: AstNode): boolean {
  */
 export function getCalleeObjectName(node: AstNode): string | undefined {
   const { callee } = node;
+
   if (callee === null || typeof callee !== 'object') {
     return undefined;
   }
+
   const calleeNode: AstNode = callee as AstNode;
+
   if (calleeNode.type === 'StaticMemberExpression' || calleeNode.type === 'MemberExpression') {
     const obj: unknown = calleeNode.object;
+
     if (obj !== null && typeof obj === 'object') {
       const objNode: AstNode = obj as AstNode;
+
       if (objNode.type === 'Identifier') {
         return objNode.name as string;
       }
@@ -155,8 +170,10 @@ export function findNewExprInBody(node: AstNode, constructorName: string): AstNo
   walkBody(node, (child: AstNode): boolean | void => {
     if (child.type === 'NewExpression') {
       const { callee } = child;
+
       if (callee !== null && typeof callee === 'object') {
         const calleeNode: AstNode = callee as AstNode;
+
         if (calleeNode.type === 'Identifier' && (calleeNode.name as string) === constructorName) {
           found = child;
           return true;
@@ -200,14 +217,17 @@ export function findStaticMemberCallInBody(
   walkBody(node, (child: AstNode): boolean | void => {
     if (child.type === 'CallExpression') {
       const { callee } = child;
+
       if (callee !== null && typeof callee === 'object') {
         const calleeNode: AstNode = callee as AstNode;
+
         if (
           calleeNode.type === 'StaticMemberExpression' ||
           calleeNode.type === 'MemberExpression'
         ) {
           const obj: unknown = calleeNode.object;
           const prop: unknown = calleeNode.property;
+
           if (
             obj !== null &&
             typeof obj === 'object' &&

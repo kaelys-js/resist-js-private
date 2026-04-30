@@ -151,6 +151,7 @@ export async function waitForPageReady(
 
   ws.on('message', (data: Buffer | string) => {
     const raw: Str = data.toString() as Str;
+
     if (parseEvalResponse(raw)) {
       target.dispatchEvent(new CustomEvent('done', { detail: true }));
     }

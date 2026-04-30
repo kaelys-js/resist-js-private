@@ -43,6 +43,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     const branch: string | undefined = process.env['MR_SOURCE_BRANCH'];
+
     if (branch === undefined) {
       return Promise.resolve(results);
     }

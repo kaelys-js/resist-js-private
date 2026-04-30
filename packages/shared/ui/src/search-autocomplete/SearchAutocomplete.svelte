@@ -62,6 +62,7 @@
   const validated: SearchAutocompleteProps = $derived.by(() => {
     const rawProps: SearchAutocompleteProps = stripSvelteProps(restProps);
     const result = safeParse(SearchAutocompletePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }
@@ -81,6 +82,7 @@
    */
   const groupedItems: Array<{ name: Str; items: SearchItem[] }> = $derived.by(() => {
     const groups: Map<Str, SearchItem[]> = new Map();
+
     for (const frozenItem of validated.items) {
       // Shallow-copy to thaw deep-frozen Result.data — keywords becomes mutable string[]
       const item: SearchItem = {
@@ -89,6 +91,7 @@
       };
       const key: Str = item.group ?? '';
       const existing: SearchItem[] | undefined = groups.get(key);
+
       if (existing) {
         existing.push(item);
       } else {

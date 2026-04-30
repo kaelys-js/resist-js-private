@@ -43,6 +43,7 @@
   const validated: ComboCounterProps = $derived.by(() => {
     const rawProps: ComboCounterProps = stripSvelteProps(allProps);
     const result = safeParse(ComboCounterPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

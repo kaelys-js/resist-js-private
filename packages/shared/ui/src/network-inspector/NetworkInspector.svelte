@@ -42,6 +42,7 @@
   const validated: NetworkInspectorProps = $derived.by(() => {
     const rawProps: NetworkInspectorProps = stripSvelteProps(allProps);
     const result = safeParse(NetworkInspectorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

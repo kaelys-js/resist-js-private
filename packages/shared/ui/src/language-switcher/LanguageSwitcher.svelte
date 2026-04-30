@@ -74,6 +74,7 @@
   const validated: LanguageSwitcherProps = $derived.by(() => {
     const rawProps: LanguageSwitcherProps = stripSvelteProps(restProps);
     const result = safeParse(LanguageSwitcherPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }
@@ -116,6 +117,7 @@
     const raf: Num = requestAnimationFrame((): void => {
       node.style.minHeight = `${node.offsetHeight}px`;
     });
+
     return {
       destroy(): void {
         cancelAnimationFrame(raf);

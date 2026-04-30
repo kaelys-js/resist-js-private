@@ -50,6 +50,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     const changedFiles: string | undefined = process.env['MR_CHANGED_FILES'];
+
     if (changedFiles === undefined) {
       return Promise.resolve(results);
     }

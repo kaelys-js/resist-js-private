@@ -42,6 +42,7 @@
   const validated: SkillTreeProps = $derived.by(() => {
     const rawProps: SkillTreeProps = stripSvelteProps(allProps);
     const result = safeParse(SkillTreePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

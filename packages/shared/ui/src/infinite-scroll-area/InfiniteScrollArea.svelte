@@ -43,6 +43,7 @@
   const validated: InfiniteScrollAreaProps = $derived.by(() => {
     const rawProps: InfiniteScrollAreaProps = stripSvelteProps(allProps);
     const result = safeParse(InfiniteScrollAreaPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

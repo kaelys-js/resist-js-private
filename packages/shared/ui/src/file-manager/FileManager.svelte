@@ -42,6 +42,7 @@
   const validated: FileManagerProps = $derived.by(() => {
     const rawProps: FileManagerProps = stripSvelteProps(allProps);
     const result = safeParse(FileManagerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

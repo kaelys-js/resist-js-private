@@ -42,6 +42,7 @@
   const validated: BuffDebuffIconProps = $derived.by(() => {
     const rawProps: BuffDebuffIconProps = stripSvelteProps(allProps);
     const result = safeParse(BuffDebuffIconPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

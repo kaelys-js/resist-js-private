@@ -42,6 +42,7 @@
   const validated: CurrencyInputProps = $derived.by(() => {
     const rawProps: CurrencyInputProps = stripSvelteProps(allProps);
     const result = safeParse(CurrencyInputPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

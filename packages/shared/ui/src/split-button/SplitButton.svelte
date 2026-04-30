@@ -42,6 +42,7 @@
   const validated: SplitButtonProps = $derived.by(() => {
     const rawProps: SplitButtonProps = stripSvelteProps(allProps);
     const result = safeParse(SplitButtonPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

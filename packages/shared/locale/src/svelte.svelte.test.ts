@@ -30,6 +30,7 @@ function makeRegistry() {
     defaultLocale: 'en',
     locales: { en, es, ja },
   });
+
   if (!result.ok) {
     throw new Error('Registry creation failed');
   }
@@ -75,6 +76,7 @@ describe('createLocaleStore', () => {
   it('store.locale returns active locale code', () => {
     const registry = makeRegistry();
     const result = createLocaleStore(registry);
+
     if (!result.ok) {
       throw new Error('setup failed');
     }
@@ -84,6 +86,7 @@ describe('createLocaleStore', () => {
   it('store.t returns built strings object', () => {
     const registry = makeRegistry();
     const result = createLocaleStore(registry);
+
     if (!result.ok) {
       throw new Error('setup failed');
     }
@@ -94,6 +97,7 @@ describe('createLocaleStore', () => {
   it('store.setLocale switches locale', () => {
     const registry = makeRegistry();
     const result = createLocaleStore(registry);
+
     if (!result.ok) {
       throw new Error('setup failed');
     }
@@ -106,6 +110,7 @@ describe('createLocaleStore', () => {
   it('store.setLocale returns error for unknown locale', () => {
     const registry = makeRegistry();
     const result = createLocaleStore(registry);
+
     if (!result.ok) {
       throw new Error('setup failed');
     }
@@ -119,6 +124,7 @@ describe('createLocaleStore', () => {
   it('store.list returns available locale codes', () => {
     const registry = makeRegistry();
     const result = createLocaleStore(registry);
+
     if (!result.ok) {
       throw new Error('setup failed');
     }
@@ -135,6 +141,7 @@ describe('createLocaleStore', () => {
   it('store.has returns true for existing locale', () => {
     const registry = makeRegistry();
     const result = createLocaleStore(registry);
+
     if (!result.ok) {
       throw new Error('setup failed');
     }
@@ -149,6 +156,7 @@ describe('createLocaleStore', () => {
   it('store.has returns false for missing locale', () => {
     const registry = makeRegistry();
     const result = createLocaleStore(registry);
+
     if (!result.ok) {
       throw new Error('setup failed');
     }
@@ -166,11 +174,13 @@ describe('createLocaleStore', () => {
       defaultLocale: 'en',
       locales: { en },
     });
+
     if (!registry.ok) {
       throw new Error('setup failed');
     }
 
     const storeResult = createLocaleStore(registry.data);
+
     if (!storeResult.ok) {
       throw new Error('setup failed');
     }
@@ -179,6 +189,7 @@ describe('createLocaleStore', () => {
     expect(setResult.ok).toBe(true);
 
     const hasResult = storeResult.data.has('es');
+
     if (hasResult.ok) {
       expect(hasResult.data).toBe(true);
     }
@@ -187,6 +198,7 @@ describe('createLocaleStore', () => {
   it('store.remove removes a non-active locale', () => {
     const registry = makeRegistry();
     const result = createLocaleStore(registry);
+
     if (!result.ok) {
       throw new Error('setup failed');
     }
@@ -195,6 +207,7 @@ describe('createLocaleStore', () => {
     expect(removeResult.ok).toBe(true);
 
     const hasResult = result.data.has('ja');
+
     if (hasResult.ok) {
       expect(hasResult.data).toBe(false);
     }
@@ -203,6 +216,7 @@ describe('createLocaleStore', () => {
   it('store.remove rejects removing active locale', () => {
     const registry = makeRegistry();
     const result = createLocaleStore(registry);
+
     if (!result.ok) {
       throw new Error('setup failed');
     }
@@ -277,6 +291,7 @@ describe('store.setLocale — error paths', () => {
   it('returns error when safeParse(StrSchema, code) fails (lines 150-151)', () => {
     const registry = makeRegistry();
     const result = createLocaleStore(registry);
+
     if (!result.ok) {
       throw new Error('setup failed');
     }
@@ -306,6 +321,7 @@ describe('store.setLocale — error paths', () => {
     } as Partial<LocaleRegistry<typeof TestSchema>>);
 
     const storeResult = createLocaleStore(wrapped);
+
     if (!storeResult.ok) {
       throw new Error('setup failed');
     }
@@ -325,6 +341,7 @@ describe('store.set — error paths', () => {
     } as unknown as Partial<LocaleRegistry<typeof TestSchema>>);
 
     const storeResult = createLocaleStore(wrapped);
+
     if (!storeResult.ok) {
       throw new Error('setup failed');
     }
@@ -336,6 +353,7 @@ describe('store.set — error paths', () => {
   it('refreshes reactive state when set() updates the active locale (lines 188-194)', () => {
     const registry = makeRegistry();
     const storeResult = createLocaleStore(registry);
+
     if (!storeResult.ok) {
       throw new Error('setup failed');
     }
@@ -367,6 +385,7 @@ describe('store.set — error paths', () => {
     } as Partial<LocaleRegistry<typeof TestSchema>>);
 
     const storeResult = createLocaleStore(wrapped);
+
     if (!storeResult.ok) {
       throw new Error('setup failed');
     }

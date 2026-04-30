@@ -56,6 +56,7 @@
   const validated: ModeToggleProps = $derived.by(() => {
     const rawProps: ModeToggleProps = stripSvelteProps(restProps);
     const result = safeParse(ModeTogglePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

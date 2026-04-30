@@ -21,6 +21,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -46,6 +47,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
+
       if (!name.startsWith('tsconfig') || !name.endsWith('.json')) {
         continue;
       }
@@ -59,11 +61,13 @@ const rule: WorkspaceRule = {
       const relativePath: string = relative(ctx.rootDir, filePath);
 
       const moduleValue: unknown = compilerOptions.module;
+
       if (moduleValue !== 'ESNext') {
         continue;
       }
 
       const { moduleResolution } = compilerOptions;
+
       if (moduleResolution !== 'bundler') {
         results.push(
           createResult(

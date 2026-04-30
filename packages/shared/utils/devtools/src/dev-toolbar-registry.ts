@@ -144,6 +144,7 @@ export function discoverFeatureFlags(
   return Object.entries(schemaEntries).map(
     ([key, entry]: [Str, Record<Str, unknown>]): FlagDescriptor => {
       const defaultValue: unknown = entry.default;
+
       return {
         key,
         default: typeof defaultValue === 'boolean' ? defaultValue : true,
@@ -169,6 +170,7 @@ export function discoverAppPreferences(
         options?: Str[];
         default: unknown;
       } = introspectEntry(entry);
+
       return { key, ...info };
     },
   );
@@ -191,6 +193,7 @@ export function discoverDebugFields(
         options?: Str[];
         default: unknown;
       } = introspectEntry(entry);
+
       return { key, ...info };
     },
   );
@@ -230,6 +233,7 @@ export function generateDebugUrl(
 
   // App preferences
   const { app } = appStore;
+
   for (const key of Object.keys(config.appPreferencesSchema)) {
     const value: unknown = app[key as keyof typeof app];
     params.set(`${prefix}${key}`, String(value));
@@ -240,8 +244,10 @@ export function generateDebugUrl(
   const flags: FlagDescriptor[] = discoverFeatureFlags(
     config.featureFlagsSchema as Record<Str, Record<Str, unknown>>,
   );
+
   for (const flag of flags) {
     const current: Bool | undefined = features[flag.key as keyof typeof features];
+
     if (current === undefined) {
       continue;
     }
@@ -266,6 +272,7 @@ export function generateDebugUrl(
 export function humanizeKey(key: Str): Str {
   // Insert space before uppercase letters, then capitalize first letter
   const spaced: Str = key.replaceAll(/([A-Z])/g, ' $1');
+
   return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 }
 
@@ -301,6 +308,7 @@ const OPTION_LABELS: Record<Str, Record<Str, Str>> = {
 export function humanizeOption(key: Str, value: Str): Str {
   const fieldLabels: Record<Str, Str> | undefined = OPTION_LABELS[key];
   const label: Str | undefined = fieldLabels?.[value];
+
   if (label !== undefined) {
     return label;
   }

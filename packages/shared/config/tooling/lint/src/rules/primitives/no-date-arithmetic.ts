@@ -16,10 +16,13 @@ import type {
 
 function isNewDateExpression(node: AstNode): boolean {
   const { callee } = node;
+
   if (callee === null || typeof callee !== 'object') {
     return false;
   }
+
   const calleeNode = callee as AstNode;
+
   return (
     node.type === 'NewExpression' &&
     calleeNode.type === 'Identifier' &&
@@ -40,6 +43,7 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const operator = node.operator as string;
+
       if (operator !== '-') {
         return results;
       }

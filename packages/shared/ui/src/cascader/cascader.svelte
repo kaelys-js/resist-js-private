@@ -43,6 +43,7 @@
   const validated: CascaderProps = $derived.by(() => {
     const rawProps: CascaderProps = stripSvelteProps(allProps);
     const result = safeParse(CascaderPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

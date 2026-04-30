@@ -46,6 +46,7 @@ function makeCliArgs(overrides: Partial<CliArgs> = {}): CliArgs {
 function captureOutput(): { stdoutLines: string[]; stderrLines: string[]; output: CliOutput } {
   const stdoutLines: string[] = [];
   const stderrLines: string[] = [];
+
   return {
     stdoutLines,
     stderrLines,
@@ -175,6 +176,7 @@ describe.concurrent('runLinter — per-file severity override', () => {
     );
 
     const combined: string = stdoutLines.join('');
+
     if (combined.trim().length > 2) {
       const results: LintResult[] = JSON.parse(combined) as LintResult[];
       // Some results may have been downgraded to warning by per-file overrides

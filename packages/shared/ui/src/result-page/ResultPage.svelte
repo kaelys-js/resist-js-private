@@ -42,6 +42,7 @@
   const validated: ResultPageProps = $derived.by(() => {
     const rawProps: ResultPageProps = stripSvelteProps(allProps);
     const result = safeParse(ResultPagePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

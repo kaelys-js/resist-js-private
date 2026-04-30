@@ -42,6 +42,7 @@ const rule: TypeScriptRule = {
         const propNameVal = property?.name as string | undefined;
         const propValueVal: unknown = property?.value;
         let propertyName: string | undefined;
+
         if (property?.type === 'Identifier') {
           propertyName = propNameVal;
         } else if (property?.type === 'Literal' && typeof propValueVal === 'string') {

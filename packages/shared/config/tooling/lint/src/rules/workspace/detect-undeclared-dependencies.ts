@@ -100,6 +100,7 @@ const rule: WorkspaceRule = {
       for (const filePath of await ctx.allFiles()) {
         /* Only check files inside this package. */
         const relToPackage: string = relative(pkgDir, filePath);
+
         if (relToPackage.startsWith('..') || relToPackage.startsWith('/')) {
           continue;
         }
@@ -108,6 +109,7 @@ const rule: WorkspaceRule = {
         const hasSourceExt: boolean = [...SOURCE_EXTENSIONS].some((ext: string) =>
           filePath.endsWith(ext),
         );
+
         if (!hasSourceExt) {
           continue;
         }

@@ -42,6 +42,7 @@
   const validated: StackedBarChartProps = $derived.by(() => {
     const rawProps: StackedBarChartProps = stripSvelteProps(allProps);
     const result = safeParse(StackedBarChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

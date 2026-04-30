@@ -42,6 +42,7 @@
   const validated: GdprBannerProps = $derived.by(() => {
     const rawProps: GdprBannerProps = stripSvelteProps(allProps);
     const result = safeParse(GdprBannerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

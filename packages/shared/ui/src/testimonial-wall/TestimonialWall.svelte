@@ -42,6 +42,7 @@
   const validated: TestimonialWallProps = $derived.by(() => {
     const rawProps: TestimonialWallProps = stripSvelteProps(allProps);
     const result = safeParse(TestimonialWallPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -27,6 +27,7 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const operator = node.operator as string;
+
       if (operator !== 'in') {
         return results;
       }
@@ -41,6 +42,7 @@ const rule: TypeScriptRule = {
 
       if (right.type === 'Literal') {
         const valueType = typeof (right.value as unknown);
+
         if (valueType === 'string' || valueType === 'number' || valueType === 'boolean') {
           results.push({
             file: context.file,

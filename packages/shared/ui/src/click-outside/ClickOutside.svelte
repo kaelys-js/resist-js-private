@@ -43,6 +43,7 @@
   const validated: ClickOutsideProps = $derived.by(() => {
     const rawProps: ClickOutsideProps = stripSvelteProps(allProps);
     const result = safeParse(ClickOutsidePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

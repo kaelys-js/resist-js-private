@@ -42,6 +42,7 @@
   const validated: SlideGroupProps = $derived.by(() => {
     const rawProps: SlideGroupProps = stripSvelteProps(allProps);
     const result = safeParse(SlideGroupPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

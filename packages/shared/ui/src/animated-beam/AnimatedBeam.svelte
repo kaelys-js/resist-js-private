@@ -42,6 +42,7 @@
   const validated: AnimatedBeamProps = $derived.by(() => {
     const rawProps: AnimatedBeamProps = stripSvelteProps(allProps);
     const result = safeParse(AnimatedBeamPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

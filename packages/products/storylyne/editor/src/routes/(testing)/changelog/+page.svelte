@@ -107,6 +107,7 @@
    */
   function detectEntryType(message: Str, isNew: boolean): EntryType {
     const msg: Str = message.toLowerCase() as Str;
+
     if (msg.includes('breaking') || msg.includes('break')) {
       return 'breaking';
     }
@@ -332,7 +333,9 @@
     if (!exportSearch) {
       return EXPORT_OPTIONS;
     }
+
     const q: Str = exportSearch.toLowerCase() as Str;
+
     return EXPORT_OPTIONS.filter(
       (o: ExportOption): boolean =>
         o.label.toLowerCase().includes(q) ||
@@ -351,7 +354,9 @@
     if (!viewModeSearch) {
       return VIEW_MODES;
     }
+
     const q: Str = viewModeSearch.toLowerCase() as Str;
+
     return VIEW_MODES.filter(
       (o) => o.label.toLowerCase().includes(q) || o.description.toLowerCase().includes(q),
     );
@@ -399,6 +404,7 @@
     if (!sortField) {
       return '' as Str;
     }
+
     const names: Record<string, string> = {
       date: 'Date',
       type: 'Type',
@@ -407,6 +413,7 @@
       hash: 'Hash',
     };
     const arrow: Str = (sortDir === 'asc' ? '\u2191' : '\u2193') as Str;
+
     return `${names[sortField] ?? sortField} ${arrow}` as Str;
   });
 
@@ -482,6 +489,7 @@
    */
   function formatGroupDate(dateStr: Str): Str {
     const d: Date = new Date(dateStr);
+
     return d.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
@@ -511,6 +519,7 @@
    */
   function toggleGroup(dateKey: Str): void {
     const next: Set<Str> = new Set(collapsedGroups);
+
     if (next.has(dateKey)) {
       next.delete(dateKey);
     } else {
@@ -526,6 +535,7 @@
    */
   function toggleRowExpand(hash: Str): void {
     const next: Set<Str> = new Set(expandedRows);
+
     if (next.has(hash)) {
       next.delete(hash);
     } else {
@@ -617,6 +627,7 @@
             `## ${formatGroupDate(g.date)}\n\n${g.entries
               .map((e) => {
                 const t: EntryType = detectEntryType(e.message as Str, e.isNew);
+
                 return `- **[${t}]** ${e.message} (${e.components.join(', ')})`;
               })
               .join('\n')}`,
@@ -631,11 +642,13 @@
       URL.revokeObjectURL(url);
     } else if (formatId === 'csv') {
       const rows: string[] = ['Date,Hash,Type,Message,Author,Components'];
+
       for (const e of entriesData) {
         rows.push(
           `"${e.date}","${e.hash}","${e.type}","${e.message.replaceAll('"', '""')}","${e.author}","${e.components.join('; ')}"`,
         );
       }
+
       const blob: Blob = new Blob([rows.join('\n')], { type: 'text/csv' });
       const url: string = URL.createObjectURL(blob);
       const a: HTMLAnchorElement = document.createElement('a');
@@ -982,6 +995,7 @@
             <FilterIcon class="size-3 shrink-0 opacity-60" />
           {/if}
           {opt.label}
+
           {#if isActive}
             <X class="size-3 opacity-70" />
           {/if}
@@ -1623,3 +1637,4 @@
     {/if}
   </div>
 </div>
+

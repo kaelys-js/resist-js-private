@@ -14,6 +14,7 @@ describe('temp-dir', () => {
   describe('createTempDir', () => {
     it('returns an absolute path inside os.tmpdir()', () => {
       const dir = createTempDir();
+
       try {
         expect(path.isAbsolute(dir.path)).toBe(true);
         expect(dir.path.startsWith(tmpdir())).toBe(true);
@@ -24,6 +25,7 @@ describe('temp-dir', () => {
 
     it('uses the default "test-" prefix when none is provided', () => {
       const dir = createTempDir();
+
       try {
         const base: string = path.basename(dir.path);
         expect(base.startsWith('test-')).toBe(true);
@@ -34,6 +36,7 @@ describe('temp-dir', () => {
 
     it('uses a custom prefix when provided', () => {
       const dir = createTempDir('custom-prefix-');
+
       try {
         const base: string = path.basename(dir.path);
         expect(base.startsWith('custom-prefix-')).toBe(true);
@@ -45,6 +48,7 @@ describe('temp-dir', () => {
     it('creates a unique directory on each call', () => {
       const a = createTempDir();
       const b = createTempDir();
+
       try {
         expect(a.path).not.toBe(b.path);
       } finally {
@@ -55,6 +59,7 @@ describe('temp-dir', () => {
 
     it('write returns the absolute path and creates the file', () => {
       const dir = createTempDir();
+
       try {
         const full: string = dir.write('file.txt', 'hello');
         expect(full).toBe(path.join(dir.path, 'file.txt'));
@@ -67,6 +72,7 @@ describe('temp-dir', () => {
 
     it('write auto-creates parent directories when they do not exist', () => {
       const dir = createTempDir();
+
       try {
         const full: string = dir.write('a/b/c/nested.txt', 'contents');
         expect(existsSync(full)).toBe(true);
@@ -79,6 +85,7 @@ describe('temp-dir', () => {
 
     it('write skips mkdir when parent directory already exists', () => {
       const dir = createTempDir();
+
       try {
         /* First write creates the parent; second write should take the else branch. */
         dir.write('shared/first.txt', 'one');
@@ -93,6 +100,7 @@ describe('temp-dir', () => {
 
     it('write skips mkdir for files at the temp-dir root', () => {
       const dir = createTempDir();
+
       try {
         /* Parent is dir.path which already exists. */
         const full: string = dir.write('top.txt', 'x');
@@ -104,6 +112,7 @@ describe('temp-dir', () => {
 
     it('mkdir creates a directory recursively and returns the absolute path', () => {
       const dir = createTempDir();
+
       try {
         const full: string = dir.mkdir('deep/nested/dir');
         expect(full).toBe(path.join(dir.path, 'deep/nested/dir'));
@@ -116,6 +125,7 @@ describe('temp-dir', () => {
 
     it('mkdir is idempotent for existing directories', () => {
       const dir = createTempDir();
+
       try {
         dir.mkdir('already');
         expect((): void => {
@@ -128,6 +138,7 @@ describe('temp-dir', () => {
 
     it('resolve joins variadic segments onto the temp-dir path', () => {
       const dir = createTempDir();
+
       try {
         expect(dir.resolve('a', 'b', 'c.txt')).toBe(path.join(dir.path, 'a', 'b', 'c.txt'));
       } finally {
@@ -137,6 +148,7 @@ describe('temp-dir', () => {
 
     it('resolve with no segments returns the temp-dir path itself', () => {
       const dir = createTempDir();
+
       try {
         expect(dir.resolve()).toBe(dir.path);
       } finally {
@@ -146,6 +158,7 @@ describe('temp-dir', () => {
 
     it('read returns UTF-8 file contents', () => {
       const dir = createTempDir();
+
       try {
         dir.write('u.txt', 'héllo — unicode');
         expect(dir.read('u.txt')).toBe('héllo — unicode');
@@ -156,6 +169,7 @@ describe('temp-dir', () => {
 
     it('read throws when the file does not exist', () => {
       const dir = createTempDir();
+
       try {
         expect((): string => dir.read('missing.txt')).toThrow();
       } finally {
@@ -165,6 +179,7 @@ describe('temp-dir', () => {
 
     it('exists returns true for written files', () => {
       const dir = createTempDir();
+
       try {
         dir.write('present.txt', 'x');
         expect(dir.exists('present.txt')).toBe(true);
@@ -175,6 +190,7 @@ describe('temp-dir', () => {
 
     it('exists returns true for created directories', () => {
       const dir = createTempDir();
+
       try {
         dir.mkdir('sub');
         expect(dir.exists('sub')).toBe(true);
@@ -185,6 +201,7 @@ describe('temp-dir', () => {
 
     it('exists returns false for missing paths', () => {
       const dir = createTempDir();
+
       try {
         expect(dir.exists('does-not-exist')).toBe(false);
       } finally {

@@ -159,6 +159,7 @@ describe('getLanguageDisplayNames', () => {
     if (!result.ok) {
       return;
     }
+
     const english: LanguageDisplayInfo | undefined = result.data.find(
       (l: LanguageDisplayInfo) => l.code === ('en' as Str),
     );
@@ -172,6 +173,7 @@ describe('getLanguageDisplayNames', () => {
     if (!result.ok) {
       return;
     }
+
     const japanese: LanguageDisplayInfo | undefined = result.data.find(
       (l: LanguageDisplayInfo) => l.code === ('ja' as Str),
     );

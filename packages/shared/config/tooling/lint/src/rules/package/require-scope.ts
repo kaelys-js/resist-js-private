@@ -29,12 +29,15 @@ const rule: PackageJsonRule = {
   },
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
+
     if (context.isRoot) {
       return results;
     }
+
     const scope: string =
       typeof context.ruleOptions?.['scope'] === 'string' ? context.ruleOptions['scope'] : '@/';
     const { name } = context.pkg;
+
     if (!name) {
       results.push({
         file: context.file,

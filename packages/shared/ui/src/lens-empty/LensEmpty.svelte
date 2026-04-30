@@ -51,6 +51,7 @@
   const validated: LensEmptyPropsValidated = $derived.by(() => {
     const rawProps: LensEmptyProps = stripSvelteProps(restProps);
     const result = safeParse(LensEmptyPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

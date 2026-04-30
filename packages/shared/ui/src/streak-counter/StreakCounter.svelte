@@ -42,6 +42,7 @@
   const validated: StreakCounterProps = $derived.by(() => {
     const rawProps: StreakCounterProps = stripSvelteProps(allProps);
     const result = safeParse(StreakCounterPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -212,6 +212,7 @@
       icon,
       footer,
     });
+
     if (!result.ok) {
       throw result.error;
     }

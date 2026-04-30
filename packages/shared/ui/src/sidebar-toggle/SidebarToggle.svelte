@@ -44,6 +44,7 @@
   const validated: SidebarToggleProps = $derived.by(() => {
     const rawProps: SidebarToggleProps = stripSvelteProps(restProps);
     const result = safeParse(SidebarTogglePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

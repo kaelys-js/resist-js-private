@@ -42,6 +42,7 @@
   const validated: SocialShareButtonsProps = $derived.by(() => {
     const rawProps: SocialShareButtonsProps = stripSvelteProps(allProps);
     const result = safeParse(SocialShareButtonsPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

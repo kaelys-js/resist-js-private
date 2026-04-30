@@ -66,6 +66,7 @@ function dataUrlToBlob(dataUrl: Str): Blob {
   const binary: Str = atob(b64);
   const buffer: ArrayBuffer = new ArrayBuffer(binary.length);
   const bytes: Uint8Array<ArrayBuffer> = new Uint8Array(buffer);
+
   for (let i: Num = 0; i < binary.length; i++) {
     bytes[i] = binary.codePointAt(i) ?? 0;
   }
@@ -218,6 +219,7 @@ export async function exportWebp(
     backgroundColor: options?.backgroundColor,
   });
   // Browser may not support WebP — check actual type
+
   if (blob.type === 'image/webp') {
     downloadBlob(blob, `${filename}.webp`);
   } else {
@@ -267,6 +269,7 @@ export async function copyDataUri(element: HTMLElement, options?: ExportOptions)
     scale: options?.scale ?? 2,
     backgroundColor: options?.backgroundColor,
   });
+
   return clipboardCopy(dataUrl);
 }
 
@@ -284,6 +287,7 @@ export async function copyDataUri(element: HTMLElement, options?: ExportOptions)
  */
 function inlineComputedStyles(clone: HTMLElement, source: HTMLElement): void {
   const computed: CSSStyleDeclaration = getComputedStyle(source);
+
   for (const prop of computed) {
     clone.style.setProperty(prop, computed.getPropertyValue(prop));
   }
@@ -291,9 +295,11 @@ function inlineComputedStyles(clone: HTMLElement, source: HTMLElement): void {
   const cloneChildren: HTMLCollection = clone.children;
   const sourceChildren: HTMLCollection = source.children;
   const len: Num = Math.min(cloneChildren.length, sourceChildren.length) as Num;
+
   for (let i: Num = 0; i < len; i++) {
     const cloneChild: Element = cloneChildren[i] as Element;
     const sourceChild: Element = sourceChildren[i] as Element;
+
     if (cloneChild instanceof HTMLElement && sourceChild instanceof HTMLElement) {
       inlineComputedStyles(cloneChild, sourceChild);
     }
@@ -315,6 +321,7 @@ function extractCssCustomProperties(isDark: Bool, theme: Str): Str {
   try {
     for (const sheet of document.styleSheets) {
       let cssRules: CSSRuleList;
+
       try {
         ({ cssRules } = sheet);
       } catch {
@@ -326,6 +333,7 @@ function extractCssCustomProperties(isDark: Bool, theme: Str): Str {
         if (!(rule instanceof CSSStyleRule)) {
           continue;
         }
+
         const sel: Str = rule.selectorText;
 
         // Collect :root vars (base theme)
@@ -341,6 +349,7 @@ function extractCssCustomProperties(isDark: Bool, theme: Str): Str {
 
         // Extract only custom property declarations
         const props: Str[] = [];
+
         for (const prop of rule.style) {
           if (prop.startsWith('--')) {
             props.push(`  ${prop}: ${rule.style.getPropertyValue(prop)};`);
@@ -380,6 +389,7 @@ function buildSelfContainedHtml(element: HTMLElement): Str {
   const cssVars: Str = extractCssCustomProperties(isDark, theme);
 
   const htmlAttrs: Str[] = ['lang="en"'];
+
   if (isDark) {
     htmlAttrs.push('class="dark"');
   }
@@ -388,6 +398,7 @@ function buildSelfContainedHtml(element: HTMLElement): Str {
   }
 
   const bodyStyles: Str[] = ['margin: 0', 'padding: 16px'];
+
   if (bgColor) {
     bodyStyles.push(`background-color: ${bgColor}`);
   }
@@ -402,6 +413,7 @@ function buildSelfContainedHtml(element: HTMLElement): Str {
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
   ];
+
   if (cssVars) {
     headParts.push(`<style>\n${cssVars}\n</style>`);
   }
@@ -437,6 +449,7 @@ export function downloadHtml(element: HTMLElement, filename: Str): void {
  */
 export function copyHtml(element: HTMLElement): Promise<Bool> {
   const html: Str = buildSelfContainedHtml(element);
+
   return clipboardCopy(html);
 }
 
@@ -460,6 +473,7 @@ export function copyChainJson(nodes: ChainExportNode[], componentName: Str): Pro
       .filter((n: ChainExportNode): boolean => n.parentId !== '')
       .map((n: ChainExportNode) => ({ from: n.parentId, to: n.id })),
   };
+
   return clipboardCopy(JSON.stringify(data, null, 2));
 }
 
@@ -486,6 +500,7 @@ export function copyChainMermaid(nodes: ChainExportNode[]): Promise<Bool> {
     if (node.parentId === '') {
       continue;
     }
+
     const fromId: Str = nodeIds.get(node.parentId) ?? node.parentId;
     const toId: Str = nodeIds.get(node.id) ?? node.id;
     const label: Str = mermaidEdgeLabel(node.kind);
@@ -527,6 +542,7 @@ export function copyChainDot(nodes: ChainExportNode[], componentName: Str): Prom
     if (node.parentId === '') {
       continue;
     }
+
     const fromId: Str = nodeIds.get(node.parentId) ?? node.parentId;
     const toId: Str = nodeIds.get(node.id) ?? node.id;
     const attrs: Str = node.kind === 'default' ? '' : `label="${node.kind}"`;
@@ -547,6 +563,7 @@ export function copyChainDot(nodes: ChainExportNode[], componentName: Str): Prom
  */
 export function copyChainCsv(nodes: ChainExportNode[]): Promise<Bool> {
   const lines: Str[] = ['Name,Kind,Category,Parent'];
+
   for (const node of nodes) {
     const parent: Str =
       node.parentId === '' ? '' : (nodes.find((n) => n.id === node.parentId)?.label ?? '');
@@ -581,6 +598,7 @@ export function copyChainPlantUml(nodes: ChainExportNode[], componentName: Str):
     if (node.parentId === '') {
       continue;
     }
+
     const fromId: Str = nodeIds.get(node.parentId) ?? node.parentId;
     const toId: Str = nodeIds.get(node.id) ?? node.id;
     const label: Str = node.kind === 'default' ? '' : ` : ${node.kind}`;
@@ -603,6 +621,7 @@ export function copyChainMarkdown(nodes: ChainExportNode[], componentName: Str):
 
   // Build parent→children map
   const childrenOf: Map<Str, ChainExportNode[]> = new Map();
+
   for (const node of nodes) {
     const siblings: ChainExportNode[] = childrenOf.get(node.parentId) ?? [];
     siblings.push(node);
@@ -617,6 +636,7 @@ export function copyChainMarkdown(nodes: ChainExportNode[], componentName: Str):
    */
   function renderNode(nodeId: Str, depth: Num): void {
     const children: ChainExportNode[] = childrenOf.get(nodeId) ?? [];
+
     for (const child of children) {
       const indent: Str = '  '.repeat(depth);
       const kindSuffix: Str = child.kind === 'default' ? '' : ` *(${child.kind})*`;
@@ -628,6 +648,7 @@ export function copyChainMarkdown(nodes: ChainExportNode[], componentName: Str):
 
   // Start from root (parentId === '')
   const roots: ChainExportNode[] = nodes.filter((n) => n.parentId === '');
+
   for (const root of roots) {
     lines.push(`- **${root.label}** *(root)*`);
     renderNode(root.id, 1 as Num);

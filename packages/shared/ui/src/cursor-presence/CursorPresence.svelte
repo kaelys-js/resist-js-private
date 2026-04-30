@@ -43,6 +43,7 @@
   const validated: CursorPresenceProps = $derived.by(() => {
     const rawProps: CursorPresenceProps = stripSvelteProps(allProps);
     const result = safeParse(CursorPresencePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

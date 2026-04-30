@@ -33,6 +33,7 @@ const rule: TypeScriptRule = {
         // Check for disable comment on preceding line
         const lines: string[] = context.content.split('\n');
         const prevLine: string = lines[line - 2] ?? '';
+
         if (prevLine.includes('resist-lint-disable-next-line: hygiene/no-bare-catch')) {
           return [];
         }

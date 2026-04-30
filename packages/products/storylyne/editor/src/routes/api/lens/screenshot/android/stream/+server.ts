@@ -62,9 +62,11 @@ async function emitFrame(
     const base64: Str = await captureEmulatorScreenshot(adbPath, serial);
     const binaryStr: string = atob(base64 as string);
     const bytes: Uint8Array = new Uint8Array(binaryStr.length);
+
     for (let i: Num = 0 as Num; i < binaryStr.length; i++) {
       bytes[i] = binaryStr.codePointAt(i) ?? 0;
     }
+
     const header: string = `${BOUNDARY}\r\nContent-Type: image/png\r\nContent-Length: ${bytes.length}\r\n\r\n`;
     controller.enqueue(encoder.encode(header));
     controller.enqueue(bytes);
@@ -89,11 +91,13 @@ async function emitFrame(
  */
 export const GET: RequestHandler = async (event) => {
   const { url } = event;
+
   if (!dev) {
     return new Response('Stream API is dev-only', { status: 404 });
   }
 
   const sdk = await checkAndroidSdk();
+
   if (!sdk.installed || !sdk.paths) {
     return new Response(JSON.stringify({ error: 'Android SDK not available' }), {
       status: 503,

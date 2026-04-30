@@ -43,6 +43,7 @@
   const validated: AutosizeTextareaProps = $derived.by(() => {
     const rawProps: AutosizeTextareaProps = stripSvelteProps(allProps);
     const result = safeParse(AutosizeTextareaPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

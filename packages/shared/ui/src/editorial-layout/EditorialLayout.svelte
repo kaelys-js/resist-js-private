@@ -42,6 +42,7 @@
   const validated: EditorialLayoutProps = $derived.by(() => {
     const rawProps: EditorialLayoutProps = stripSvelteProps(allProps);
     const result = safeParse(EditorialLayoutPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

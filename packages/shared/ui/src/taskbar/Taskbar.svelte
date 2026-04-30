@@ -42,6 +42,7 @@
   const validated: TaskbarProps = $derived.by(() => {
     const rawProps: TaskbarProps = stripSvelteProps(allProps);
     const result = safeParse(TaskbarPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

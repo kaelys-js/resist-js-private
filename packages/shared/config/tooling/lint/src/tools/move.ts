@@ -40,6 +40,7 @@ const MOVE_ERROR: RegExp = /^error\[([A-Z]\d+)\]:\s*(.+?)\s*-->\s*(.+?):(\d+):(\
  */
 export function transformMoveOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -53,11 +54,13 @@ export function transformMoveOutput(output: string): LintResult[] {
 
   for (const line of trimmed.split('\n')) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = MOVE_ERROR.exec(stripped);
+
     if (!match) {
       continue;
     }

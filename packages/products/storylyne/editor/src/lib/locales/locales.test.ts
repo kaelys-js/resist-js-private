@@ -23,13 +23,17 @@ const localeModules: Record<Str, Record<Str, EditorLocaleRaw>> = import.meta.glo
 );
 
 const ALL_LOCALES: Record<Str, EditorLocaleRaw> = {};
+
 for (const [path, mod] of Object.entries(localeModules)) {
   const match: RegExpMatchArray | null = path.match(/\/(\w+)\.ts$/);
+
   if (!match) {
     continue;
   }
+
   const [, code]: RegExpMatchArray = match;
   const [data]: EditorLocaleRaw[] = Object.values(mod);
+
   if (data) {
     ALL_LOCALES[code!] = data;
   }
@@ -46,8 +50,10 @@ const LOCALE_CODES: readonly Str[] = Object.keys(ALL_LOCALES);
  */
 function leafKeys(obj: Record<Str, unknown>, prefix = ''): Str[] {
   const keys: Str[] = [];
+
   for (const [k, v] of Object.entries(obj)) {
     const path: Str = prefix ? `${prefix}.${k}` : k;
+
     if (typeof v === 'object' && v !== null && !Array.isArray(v)) {
       keys.push(...leafKeys(v as Record<Str, unknown>, path));
     } else {
@@ -86,8 +92,10 @@ describe('locale structural parity', () => {
  */
 function leafEntries(obj: Record<Str, unknown>, prefix = ''): Array<[Str, unknown]> {
   const entries: Array<[Str, unknown]> = [];
+
   for (const [k, v] of Object.entries(obj)) {
     const path: Str = prefix ? `${prefix}.${k}` : k;
+
     if (typeof v === 'object' && v !== null && !Array.isArray(v)) {
       entries.push(...leafEntries(v as Record<Str, unknown>, path));
     } else {
@@ -101,6 +109,7 @@ describe('no empty strings in any locale', () => {
   for (const code of LOCALE_CODES) {
     it(`${code} has no empty string values`, () => {
       const entries = leafEntries(ALL_LOCALES[code]!);
+
       for (const [path, value] of entries) {
         expect(typeof value, `${code}.${path} should be a string`).toBe('string');
         // Cast safe: typeof check on previous line guarantees string

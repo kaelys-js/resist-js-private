@@ -42,6 +42,7 @@
   const validated: TextDividerProps = $derived.by(() => {
     const rawProps: TextDividerProps = stripSvelteProps(allProps);
     const result = safeParse(TextDividerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -146,6 +146,7 @@ function validateArgs(
 ): unknown | null {
   const result: v.SafeParseResult<v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>> =
     v.safeParse(argsSchema, argsArray);
+
   if (result.success) {
     return null;
   }
@@ -191,6 +192,7 @@ function validateReturn(
 
     const result: v.SafeParseResult<v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>> =
       v.safeParse(returnsSchema, value.data);
+
     if (result.success) {
       return value;
     }
@@ -210,6 +212,7 @@ function validateReturn(
   // Non-Result: validate the raw return value
   const result: v.SafeParseResult<v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>> =
     v.safeParse(returnsSchema, value);
+
   if (result.success) {
     return value;
   }
@@ -262,6 +265,7 @@ export function createWrapper<TArgs extends unknown[], TReturn>(
     // 1. Validate arguments
     if (argsSchema) {
       const argError: unknown | null = validateArgs(argsSchema, fnArgs, fnName, onError);
+
       if (argError !== null) {
         return argError as TReturn;
       }
@@ -279,6 +283,7 @@ export function createWrapper<TArgs extends unknown[], TReturn>(
     if (result instanceof Promise) {
       return (async () => {
         const resolved: unknown = await result;
+
         return validateReturn(returnsSchema, resolved, fnName, onError);
       })() as TReturn;
     }

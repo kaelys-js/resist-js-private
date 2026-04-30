@@ -42,6 +42,7 @@
   const validated: MeteorEffectProps = $derived.by(() => {
     const rawProps: MeteorEffectProps = stripSvelteProps(allProps);
     const result = safeParse(MeteorEffectPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -40,6 +40,7 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
       const source = node.source as AstNode | undefined;
       const value: string | undefined = (source as { value?: string } | undefined)?.value;
+
       if (value !== 'valibot') {
         return results;
       }
@@ -50,6 +51,7 @@ const rule: TypeScriptRule = {
       }
 
       const specifiers = node.specifiers as AstNode[] | undefined;
+
       if (!specifiers || specifiers.length === 0) {
         return results;
       }
@@ -58,6 +60,7 @@ const rule: TypeScriptRule = {
       const hasNamespace: boolean = specifiers.some(
         (s: AstNode): boolean => s.type === 'ImportNamespaceSpecifier',
       );
+
       if (hasNamespace) {
         return results;
       }
@@ -66,6 +69,7 @@ const rule: TypeScriptRule = {
       const allTypes: boolean = specifiers.every((s: AstNode): boolean => {
         const imported = s.imported as AstNode | undefined;
         const name: string = (imported?.name as string) ?? '';
+
         return TYPE_IDENTIFIERS.has(name);
       });
 

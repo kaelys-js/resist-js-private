@@ -41,6 +41,7 @@
   const validated: MonthViewProps = $derived.by(() => {
     const rawProps: MonthViewProps = stripSvelteProps(allProps);
     const result = safeParse(MonthViewPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

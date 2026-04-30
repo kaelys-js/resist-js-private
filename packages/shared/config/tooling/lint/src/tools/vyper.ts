@@ -44,6 +44,7 @@ const VYPER_EXCEPTION: RegExp = /^vyper\.exceptions\.(\w+):\s*(.+?)\s*\((.+?),\s
  */
 export function transformVyperOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -52,11 +53,13 @@ export function transformVyperOutput(output: string): LintResult[] {
 
   for (const line of trimmed.split('\n')) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = VYPER_EXCEPTION.exec(stripped);
+
     if (!match) {
       continue;
     }

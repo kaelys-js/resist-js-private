@@ -42,6 +42,7 @@
   const validated: GestureHandlerProps = $derived.by(() => {
     const rawProps: GestureHandlerProps = stripSvelteProps(allProps);
     const result = safeParse(GestureHandlerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -26,6 +26,7 @@ vi.mock('@/lint/framework/exec.ts', () => ({
 
 vi.mock('node:fs', async (importOriginal) => {
   const actual = await importOriginal<typeof NodeFsModule>();
+
   return {
     ...actual,
     existsSync: vi.fn(),
@@ -38,6 +39,7 @@ vi.mock('node:fs', async (importOriginal) => {
  * environments where svelte-check is not on PATH. */
 vi.mock('@/lint/framework/tool-orchestrator.ts', async (importOriginal) => {
   const actual = await importOriginal<typeof ToolOrchestratorModule>();
+
   return {
     ...actual,
     isCommandAvailable: vi.fn((): boolean => true),
@@ -81,6 +83,7 @@ describe('discoverSveltePackageDirs', () => {
   it('finds package with .svelte file', () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
+
       if (s === '/workspace/packages') {
         return true;
       }
@@ -95,6 +98,7 @@ describe('discoverSveltePackageDirs', () => {
 
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike, _opts?: unknown): unknown[] => {
       const d = String(dir);
+
       if (d === '/workspace/packages') {
         return [makeDirent('my-app', { isDirectory: true })];
       }
@@ -112,6 +116,7 @@ describe('discoverSveltePackageDirs', () => {
     vi.mocked(existsSync).mockReturnValue(true);
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike, _opts?: unknown): unknown[] => {
       const d = String(dir);
+
       if (d === '/workspace/packages') {
         return [
           makeDirent('node_modules', { isDirectory: true }),
@@ -139,6 +144,7 @@ describe('discoverSveltePackageDirs', () => {
   it('finds nested svelte files in subdirectories', () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
+
       if (s === '/workspace/packages') {
         return true;
       }
@@ -153,6 +159,7 @@ describe('discoverSveltePackageDirs', () => {
 
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike, _opts?: unknown): unknown[] => {
       const d = String(dir);
+
       if (d === '/workspace/packages') {
         return [makeDirent('lib', { isDirectory: true })];
       }
@@ -172,6 +179,7 @@ describe('discoverSveltePackageDirs', () => {
   it('skips directory without package.json even if it has svelte files', () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
+
       if (s === '/workspace/packages') {
         return true;
       }
@@ -181,6 +189,7 @@ describe('discoverSveltePackageDirs', () => {
 
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike, _opts?: unknown): unknown[] => {
       const d = String(dir);
+
       if (d === '/workspace/packages') {
         return [makeDirent('no-pkg', { isDirectory: true })];
       }
@@ -214,6 +223,7 @@ describe('runSvelteCheckAllPackages', () => {
     /* Setup: one svelte package discovered */
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
+
       if (s === '/ws/packages') {
         return true;
       }
@@ -227,6 +237,7 @@ describe('runSvelteCheckAllPackages', () => {
     });
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike, _opts?: unknown): unknown[] => {
       const d = String(dir);
+
       if (d === '/ws/packages') {
         return [makeDirent('app', { isDirectory: true })];
       }
@@ -250,6 +261,7 @@ describe('runSvelteCheckAllPackages', () => {
   it('captures stdout from svelte-check that exits non-zero', async () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
+
       if (s === '/ws/packages') {
         return true;
       }
@@ -263,6 +275,7 @@ describe('runSvelteCheckAllPackages', () => {
     });
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike, _opts?: unknown): unknown[] => {
       const d = String(dir);
+
       if (d === '/ws/packages') {
         return [makeDirent('app', { isDirectory: true })];
       }
@@ -285,6 +298,7 @@ describe('runSvelteCheckAllPackages', () => {
   it('emits tool-crash when svelte-check throws without stdout', async () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
+
       if (s === '/ws/packages') {
         return true;
       }
@@ -298,6 +312,7 @@ describe('runSvelteCheckAllPackages', () => {
     });
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike, _opts?: unknown): unknown[] => {
       const d = String(dir);
+
       if (d === '/ws/packages') {
         return [makeDirent('app', { isDirectory: true })];
       }
@@ -320,6 +335,7 @@ describe('runSvelteCheckAllPackages', () => {
   it('aggregates results from multiple svelte packages', async () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
+
       if (s === '/ws/packages') {
         return true;
       }
@@ -339,6 +355,7 @@ describe('runSvelteCheckAllPackages', () => {
     });
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike, _opts?: unknown): unknown[] => {
       const d = String(dir);
+
       if (d === '/ws/packages') {
         return [
           makeDirent('app1', { isDirectory: true }),
@@ -373,6 +390,7 @@ describe('runSvelteCheckAllPackages', () => {
   it('scopes svelte-check to a single package when one file is passed', async () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
+
       if (s === '/ws/packages') {
         return true;
       }
@@ -392,6 +410,7 @@ describe('runSvelteCheckAllPackages', () => {
     });
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike, _opts?: unknown): unknown[] => {
       const d = String(dir);
+
       if (d === '/ws/packages') {
         return [
           makeDirent('app1', { isDirectory: true }),
@@ -417,6 +436,7 @@ describe('runSvelteCheckAllPackages', () => {
   it('runs no svelte-check calls when files are outside all svelte packages', async () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
+
       if (s === '/ws/packages') {
         return true;
       }
@@ -430,6 +450,7 @@ describe('runSvelteCheckAllPackages', () => {
     });
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike, _opts?: unknown): unknown[] => {
       const d = String(dir);
+
       if (d === '/ws/packages') {
         return [makeDirent('app1', { isDirectory: true })];
       }
@@ -466,6 +487,7 @@ describe('runSvelteCheckAllPackages', () => {
   it('skips execFileAsync on cache hit for a Svelte package', async () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
+
       if (s === '/ws/packages') {
         return true;
       }
@@ -479,6 +501,7 @@ describe('runSvelteCheckAllPackages', () => {
     });
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike): unknown[] => {
       const d = String(dir);
+
       if (d === '/ws/packages') {
         return [makeDirent('app', { isDirectory: true })];
       }
@@ -515,6 +538,7 @@ describe('runSvelteCheckAllPackages', () => {
   it('runs execFileAsync on cache miss and stores result via setTool', async () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
+
       if (s === '/ws/packages') {
         return true;
       }
@@ -528,6 +552,7 @@ describe('runSvelteCheckAllPackages', () => {
     });
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike): unknown[] => {
       const d = String(dir);
+
       if (d === '/ws/packages') {
         return [makeDirent('app', { isDirectory: true })];
       }
@@ -557,6 +582,7 @@ describe('runSvelteCheckAllPackages', () => {
   it('does not cache crash results (transient errors should re-run on next invocation)', async () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
+
       if (s === '/ws/packages') {
         return true;
       }
@@ -570,6 +596,7 @@ describe('runSvelteCheckAllPackages', () => {
     });
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike): unknown[] => {
       const d = String(dir);
+
       if (d === '/ws/packages') {
         return [makeDirent('app', { isDirectory: true })];
       }
@@ -594,6 +621,7 @@ describe('runSvelteCheckAllPackages', () => {
   it('passes --incremental and --tsgo to svelte-check', async () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
+
       if (s === '/ws/packages') {
         return true;
       }
@@ -607,6 +635,7 @@ describe('runSvelteCheckAllPackages', () => {
     });
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike): unknown[] => {
       const d = String(dir);
+
       if (d === '/ws/packages') {
         return [makeDirent('app', { isDirectory: true })];
       }

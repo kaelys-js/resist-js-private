@@ -50,6 +50,7 @@ describe('isPortAvailable', () => {
       });
     });
     const addr = server.address();
+
     if (typeof addr === 'object' && addr !== null && 'port' in addr) {
       const portNum = addr.port;
       const result: Result<Bool> = await isPortAvailable(portNum as Port);

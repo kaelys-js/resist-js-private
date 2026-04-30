@@ -53,6 +53,7 @@ const rule: WorkspaceRule = {
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -60,6 +61,7 @@ const rule: WorkspaceRule = {
       }
 
       const match: RegExpExecArray | null = SCHEMA_DIRECTIVE_RE.exec(content);
+
       if (match === null) {
         continue;
       }

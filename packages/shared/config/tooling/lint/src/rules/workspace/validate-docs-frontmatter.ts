@@ -35,6 +35,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -65,11 +66,13 @@ const rule: WorkspaceRule = {
 
       /* Only process .md files under a docs/ directory segment. */
       const relativePath: string = relative(ctx.rootDir, filePath);
+
       if (!relativePath.includes('docs/')) {
         continue;
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -82,6 +85,7 @@ const rule: WorkspaceRule = {
       }
 
       const secondDelimiter: number = content.indexOf('---', 3);
+
       if (secondDelimiter === -1) {
         continue;
       }
@@ -91,16 +95,20 @@ const rule: WorkspaceRule = {
 
       /* Parse key: value pairs from frontmatter. */
       const fields: Map<string, string> = new Map();
+
       for (const fmLine of frontmatterLines) {
         const colonIndex: number = fmLine.indexOf(':');
+
         if (colonIndex === -1) {
           continue;
         }
+
         const key: string = fmLine.slice(0, colonIndex).trim();
         const value: string = fmLine
           .slice(colonIndex + 1)
           .trim()
           .replaceAll(/^['"]|['"]$/g, '');
+
         if (key.length > 0) {
           fields.set(key, value);
         }
@@ -127,6 +135,7 @@ const rule: WorkspaceRule = {
 
       /* Validate description length. */
       const description: string | undefined = fields.get('description');
+
       if (description !== undefined && description.length < MIN_DESCRIPTION_LENGTH) {
         results.push(
           createResult(
@@ -146,6 +155,7 @@ const rule: WorkspaceRule = {
 
       /* Validate slug format. */
       const slug: string | undefined = fields.get('slug');
+
       if (slug !== undefined && slug.length > 0 && SLUG_PATTERN.test(slug) === false) {
         results.push(
           createResult(
@@ -165,6 +175,7 @@ const rule: WorkspaceRule = {
 
       /* Validate updated date format. */
       const updated: string | undefined = fields.get('updated');
+
       if (updated !== undefined && updated.length > 0 && DATE_PATTERN.test(updated) === false) {
         results.push(
           createResult(

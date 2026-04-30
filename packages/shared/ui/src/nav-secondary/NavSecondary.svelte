@@ -49,6 +49,7 @@
   const validated: NavSecondaryProps = $derived.by(() => {
     const rawProps: NavSecondaryProps = stripSvelteProps(allProps);
     const result = safeParse(NavSecondaryPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }
@@ -57,6 +58,7 @@
   });
   const restProps = $derived.by(() => {
     const { items: _items, ...rest }: NavSecondaryProps = validated;
+
     return rest;
   });
 </script>

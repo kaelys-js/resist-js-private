@@ -82,7 +82,9 @@ export function getEnvironmentFromBranch(branch: Str): Result<StandardEnvironmen
     return branchResult;
   }
   // Check exact matches first
+
   const mapped: StandardEnvironment | undefined = DEFAULT_BRANCH_MAPPING[branchResult.data];
+
   if (mapped !== undefined) {
     return ok(StandardEnvironmentSchema, mapped);
   }
@@ -128,6 +130,7 @@ export function getParentEnvironment(
   if (!envResult.ok) {
     return envResult;
   }
+
   const idx: Num = ENVIRONMENT_HIERARCHY.indexOf(envResult.data);
 
   if (idx <= 0) {
@@ -160,10 +163,12 @@ export function getChildEnvironments(
   if (!envResult.ok) {
     return envResult;
   }
+
   const idx: Num = ENVIRONMENT_HIERARCHY.indexOf(envResult.data);
 
   const next: StandardEnvironment | undefined =
     idx === -1 ? undefined : ENVIRONMENT_HIERARCHY[idx + 1];
+
   if (next === undefined) {
     return okUnchecked([]);
   }
@@ -201,6 +206,7 @@ export function canAccessEnvironment(
   if (!requestingEnvResult.ok) {
     return requestingEnvResult;
   }
+
   const targetEnvResult: Result<StandardEnvironment> = safeParse(
     StandardEnvironmentSchema,
     targetEnv,
@@ -209,6 +215,7 @@ export function canAccessEnvironment(
   if (!targetEnvResult.ok) {
     return targetEnvResult;
   }
+
   const requestingIdx: Num = ENVIRONMENT_HIERARCHY.indexOf(requestingEnvResult.data);
   const targetIdx: Num = ENVIRONMENT_HIERARCHY.indexOf(targetEnvResult.data);
 

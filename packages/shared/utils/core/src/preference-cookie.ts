@@ -73,13 +73,16 @@ export function getPreferenceCookie(storagePrefix: Str, name: Str): Str | null {
   const cookieName: Str = `${storagePrefix}:${name}=`;
   // Cookie Store API is async and lacks SSR/Safari support; we need synchronous read.
   const cookies: Str = (Reflect.get(document, 'cookie') ?? '') as Str;
+
   if (!cookies) {
     return null;
   }
 
   const parts: Str[] = cookies.split(';');
+
   for (const part of parts) {
     const trimmed: Str = part.trim();
+
     if (trimmed.startsWith(cookieName)) {
       return trimmed.slice(cookieName.length).trim();
     }
@@ -108,11 +111,15 @@ export function sanitizeSidebarWidth(raw: Str | null): Num | null {
   if (raw === null || raw === '') {
     return null;
   }
+
   const parsed: Num = Number(raw);
+
   if (!Number.isFinite(parsed)) {
     return null;
   }
+
   const rounded: Num = Math.round(parsed);
+
   if (rounded < SIDEBAR_MIN_PX || rounded > SIDEBAR_MAX_PX) {
     return null;
   }

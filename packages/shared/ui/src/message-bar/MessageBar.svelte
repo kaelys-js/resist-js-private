@@ -42,6 +42,7 @@
   const validated: MessageBarProps = $derived.by(() => {
     const rawProps: MessageBarProps = stripSvelteProps(allProps);
     const result = safeParse(MessageBarPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

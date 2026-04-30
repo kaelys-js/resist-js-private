@@ -37,6 +37,7 @@ test.describe('scene navigation', () => {
     // Hover over first scene to reveal the "More" action
     await page.getByText('Overworld').hover();
     const moreButton = page.getByRole('button', { name: 'More' }).first();
+
     if (await moreButton.isVisible()) {
       await moreButton.click();
       // Context menu should show rename/duplicate/delete

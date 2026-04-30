@@ -42,6 +42,7 @@
   const validated: DataListProps = $derived.by(() => {
     const rawProps: DataListProps = stripSvelteProps(allProps);
     const result = safeParse(DataListPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

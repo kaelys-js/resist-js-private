@@ -43,11 +43,13 @@ import { createResult, type LintResult } from '@/lint/framework/types.ts';
  */
 export function transformGroovyLintOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
 
   let parsed: unknown;
+
   try {
     parsed = JSON.parse(trimmed) as unknown;
   } catch {
@@ -72,6 +74,7 @@ export function transformGroovyLintOutput(output: string): LintResult[] {
       const rule: string = (obj.rule as string) ?? 'unknown';
 
       let severity: 'error' | 'warning' | 'info' = 'warning';
+
       if (severityRaw === 'error') {
         severity = 'error';
       } else if (severityRaw === 'info') {

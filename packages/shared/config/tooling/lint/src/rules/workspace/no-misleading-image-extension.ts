@@ -45,12 +45,15 @@ const rule: WorkspaceRule = {
 
       if (lower.endsWith('.svg')) {
         let content: string;
+
         try {
           content = await ctx.readFile(filePath);
         } catch {
           continue;
         }
+
         const trimmed: string = content.trimStart();
+
         if (
           !trimmed.startsWith('<svg') &&
           !trimmed.startsWith('<?xml') &&
@@ -72,6 +75,7 @@ const rule: WorkspaceRule = {
         }
       } else if (lower.endsWith('.webp')) {
         let buf: Buffer;
+
         try {
           buf = readFileSync(filePath);
         } catch {
@@ -80,6 +84,7 @@ const rule: WorkspaceRule = {
         if (buf.length >= 12) {
           const riff: string = buf.subarray(0, 4).toString('ascii');
           const webp: string = buf.subarray(8, 12).toString('ascii');
+
           if (riff !== 'RIFF' || webp !== 'WEBP') {
             results.push(
               createResult(
@@ -98,6 +103,7 @@ const rule: WorkspaceRule = {
         }
       } else if (lower.endsWith('.ico')) {
         let buf: Buffer;
+
         try {
           buf = readFileSync(filePath);
         } catch {

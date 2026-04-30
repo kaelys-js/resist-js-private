@@ -35,6 +35,7 @@ const CONF_LINE: RegExp = /^(.+?):(\d+):\s+(.+)$/;
  */
 export function transformConfOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -44,11 +45,13 @@ export function transformConfOutput(output: string): LintResult[] {
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = CONF_LINE.exec(stripped);
+
     if (!match) {
       continue;
     }

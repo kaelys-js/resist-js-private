@@ -26,6 +26,7 @@ import type {
 function hasComment(catchBody: AstNode, content: string): boolean {
   const bodyText: string = content.slice(catchBody.start, catchBody.end);
   // Check for block comments /* ... */ or line comments //
+
   return /\/\*[\s\S]*?\*\//.test(bodyText) || /\/\//.test(bodyText);
 }
 
@@ -92,6 +93,7 @@ const rule: TypeScriptRule = {
       }
 
       const body = node.body as AstNode | undefined;
+
       if (!body) {
         return results;
       }

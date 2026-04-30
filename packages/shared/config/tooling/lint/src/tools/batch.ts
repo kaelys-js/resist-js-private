@@ -36,6 +36,7 @@ const BATCH_LINE: RegExp = /^(.+?):(\d+): (.+)$/;
  */
 export function transformBatchOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -44,6 +45,7 @@ export function transformBatchOutput(output: string): LintResult[] {
 
   for (const line of trimmed.split('\n')) {
     const match: RegExpMatchArray | null = BATCH_LINE.exec(line.trim());
+
     if (!match) {
       continue;
     }

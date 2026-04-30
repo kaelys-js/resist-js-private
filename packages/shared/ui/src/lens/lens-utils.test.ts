@@ -382,6 +382,7 @@ const v2 = safeParse(S, r);
     );
     const r1 = result.violations.filter((v) => v.rule === 1);
     // 'class' should NOT be flagged
+
     for (const violation of r1) {
       expect(violation.message).not.toContain('.class');
     }

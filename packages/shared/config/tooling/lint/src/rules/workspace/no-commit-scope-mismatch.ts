@@ -43,6 +43,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     let branch: string;
+
     try {
       branch = execSync('git rev-parse --abbrev-ref HEAD', {
         cwd: ctx.rootDir,
@@ -57,6 +58,7 @@ const rule: WorkspaceRule = {
     }
 
     let subject: string;
+
     try {
       subject = execSync('git log -1 --pretty=%s', {
         cwd: ctx.rootDir,
@@ -67,6 +69,7 @@ const rule: WorkspaceRule = {
     }
 
     const match = /^[a-z]+\(([^)]+)\)/.exec(subject);
+
     if (!match) {
       return results;
     }

@@ -42,6 +42,7 @@
   const validated: BackgroundGradientProps = $derived.by(() => {
     const rawProps: BackgroundGradientProps = stripSvelteProps(allProps);
     const result = safeParse(BackgroundGradientPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

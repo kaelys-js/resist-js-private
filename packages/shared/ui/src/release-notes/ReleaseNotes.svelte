@@ -42,6 +42,7 @@
   const validated: ReleaseNotesProps = $derived.by(() => {
     const rawProps: ReleaseNotesProps = stripSvelteProps(allProps);
     const result = safeParse(ReleaseNotesPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

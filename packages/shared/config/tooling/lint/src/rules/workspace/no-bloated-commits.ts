@@ -41,6 +41,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     let output: string;
+
     try {
       output = execSync('git diff --name-only HEAD~1 HEAD', {
         cwd: ctx.rootDir,

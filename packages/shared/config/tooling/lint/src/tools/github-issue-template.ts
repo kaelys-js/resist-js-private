@@ -49,6 +49,7 @@ export function transformGithubIssueTemplateOutput(
   strings: LintStrings,
 ): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -64,11 +65,13 @@ export function transformGithubIssueTemplateOutput(
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = stripped.match(pattern);
+
     if (match) {
       const file: string = match[1] ?? '';
       const lineNum: number = Number.parseInt(match[2] ?? '1', 10);
@@ -109,6 +112,7 @@ export function validateIssueTemplate(
   strings: LintStrings,
 ): LintResult[] {
   const trimmed: string = content.trim();
+
   if (trimmed.length === 0) {
     return [
       createResult(
@@ -135,8 +139,10 @@ export function validateIssueTemplate(
   const keyPattern: RegExp = /^([a-zA-Z_][a-zA-Z0-9_-]*):/;
 
   const lines: string[] = trimmed.split('\n');
+
   for (const line of lines) {
     const match: RegExpMatchArray | null = line.match(keyPattern);
+
     if (match && match[1]) {
       topLevelKeys.add(match[1]);
     }

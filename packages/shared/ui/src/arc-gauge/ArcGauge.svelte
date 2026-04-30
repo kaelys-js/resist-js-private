@@ -43,6 +43,7 @@
   const validated: ArcGaugeProps = $derived.by(() => {
     const rawProps: ArcGaugeProps = stripSvelteProps(allProps);
     const result = safeParse(ArcGaugePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

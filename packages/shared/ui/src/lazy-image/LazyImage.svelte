@@ -42,6 +42,7 @@
   const validated: LazyImageProps = $derived.by(() => {
     const rawProps: LazyImageProps = stripSvelteProps(allProps);
     const result = safeParse(LazyImagePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

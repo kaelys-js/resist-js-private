@@ -34,11 +34,15 @@ function isNegativeZero(n: AstNode): boolean {
   if (n.type !== 'UnaryExpression' || (n.operator as string) !== '-') {
     return false;
   }
+
   const argRaw: unknown = n.argument;
+
   if (argRaw === null || typeof argRaw !== 'object') {
     return false;
   }
+
   const argNode = argRaw as AstNode;
+
   return argNode.type === 'Literal' && (argNode.value as unknown) === 0;
 }
 
@@ -55,6 +59,7 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const operator = node.operator as string;
+
       if (operator !== '===' && operator !== '!==') {
         return results;
       }

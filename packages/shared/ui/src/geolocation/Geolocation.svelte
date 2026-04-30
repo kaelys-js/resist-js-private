@@ -42,6 +42,7 @@
   const validated: GeolocationProps = $derived.by(() => {
     const rawProps: GeolocationProps = stripSvelteProps(allProps);
     const result = safeParse(GeolocationPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

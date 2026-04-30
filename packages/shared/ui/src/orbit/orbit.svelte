@@ -42,6 +42,7 @@
   const validated: OrbitProps = $derived.by(() => {
     const rawProps: OrbitProps = stripSvelteProps(allProps);
     const result = safeParse(OrbitPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

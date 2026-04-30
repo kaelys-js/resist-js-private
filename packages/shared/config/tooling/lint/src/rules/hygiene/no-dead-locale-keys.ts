@@ -33,6 +33,7 @@ function isTestFile(filePath: string): boolean {
  */
 function isSchemaFile(filePath: string): boolean {
   const lower: string = filePath.toLowerCase();
+
   return lower.includes('schema');
 }
 
@@ -79,6 +80,7 @@ function parseLocaleKeys(content: string): Array<{ key: string; line: number }> 
 
     /* Check for a group start: `groupName: {` */
     const groupMatch: RegExpMatchArray | null = line.match(/^(\w+)\s*:\s*\{/);
+
     if (groupMatch && groupMatch[1]) {
       groupStack.push(groupMatch[1]);
       depth += openBraces;
@@ -88,6 +90,7 @@ function parseLocaleKeys(content: string): Array<{ key: string; line: number }> 
 
     /* Check for a leaf key: `keyName: 'value'` or `keyName: "value"` or `keyName: `value`` */
     const keyMatch: RegExpMatchArray | null = line.match(/^(\w+)\s*:\s*[`'"]/);
+
     if (keyMatch && keyMatch[1] && groupStack.length > 0) {
       const dotPath: string = [...groupStack, keyMatch[1]].join('.');
       keys.push({ key: dotPath, line: i + 1 });

@@ -25,8 +25,10 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     try {
       const packages = await ctx.getWorkspacePackages();
+
       return packages.map((p) => p.path);
     } catch {
       return [];
@@ -55,6 +57,7 @@ const rule: WorkspaceRule = {
     const licensePath: string = join(ctx.rootDir, 'docs/en-US/LICENSE');
 
     let licenseContent: string;
+
     try {
       licenseContent = await ctx.readFile(licensePath);
     } catch {
@@ -72,6 +75,7 @@ const rule: WorkspaceRule = {
     }
 
     const spdxMatch: RegExpMatchArray | null = licenseContent.match(SPDX_RE);
+
     if (!spdxMatch) {
       results.push(
         createResult(
@@ -92,6 +96,7 @@ const rule: WorkspaceRule = {
 
     for (const pkg of packages) {
       let pkgContent: string;
+
       try {
         pkgContent = await ctx.readFile(pkg.path);
       } catch {

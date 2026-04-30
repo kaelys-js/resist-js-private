@@ -168,12 +168,14 @@ function load(): Result<Void> {
   }
   try {
     const raw: Str | null = localStorage.getItem(STORAGE_KEY);
+
     if (raw === null) {
       return okUnchecked<Void>(undefined);
     }
 
     const parsed: unknown = JSON.parse(raw);
     const result = safeParse(EditorStateSchema, parsed);
+
     if (!result.ok) {
       return result;
     }
@@ -199,6 +201,7 @@ function load(): Result<Void> {
 function setAppName(name: Str): Result<Void> {
   const nameSchema = v.pipe(v.string(), v.minLength(1));
   const result = safeParse(nameSchema, name);
+
   if (!result.ok) {
     return result;
   }
@@ -216,6 +219,7 @@ function setAppName(name: Str): Result<Void> {
 function setTheme(theme: Str): Result<Void> {
   const themeSchema = v.picklist([...SUPPORTED_THEMES]);
   const result = safeParse(themeSchema, theme);
+
   if (!result.ok) {
     return result;
   }
@@ -238,6 +242,7 @@ function setTheme(theme: Str): Result<Void> {
 function setMode(mode: Str): Result<Void> {
   const modeSchema = v.picklist([...SUPPORTED_MODES]);
   const result = safeParse(modeSchema, mode);
+
   if (!result.ok) {
     return result;
   }
@@ -255,6 +260,7 @@ function setMode(mode: Str): Result<Void> {
 function setLocale(locale: Str): Result<Void> {
   const localeSchema = v.picklist([...SUPPORTED_LOCALES]);
   const result = safeParse(localeSchema, locale);
+
   if (!result.ok) {
     return result;
   }
@@ -271,6 +277,7 @@ function setLocale(locale: Str): Result<Void> {
  */
 function setSidebarOpen(open: Bool): Result<Void> {
   const result = safeParse(v.boolean(), open);
+
   if (!result.ok) {
     return result;
   }
@@ -288,6 +295,7 @@ function setSidebarOpen(open: Bool): Result<Void> {
 function setUserName(name: Str): Result<Void> {
   const nameSchema = v.pipe(v.string(), v.minLength(1));
   const result = safeParse(nameSchema, name);
+
   if (!result.ok) {
     return result;
   }
@@ -304,6 +312,7 @@ function setUserName(name: Str): Result<Void> {
  */
 function setUserEmail(email: Str): Result<Void> {
   const result = safeParse(v.string(), email);
+
   if (!result.ok) {
     return result;
   }
@@ -320,6 +329,7 @@ function setUserEmail(email: Str): Result<Void> {
  */
 function setUserAvatar(url: Str): Result<Void> {
   const result = safeParse(v.string(), url);
+
   if (!result.ok) {
     return result;
   }
@@ -337,6 +347,7 @@ function setUserAvatar(url: Str): Result<Void> {
 function setMockDataDelay(ms: Num): Result<Void> {
   const msSchema = v.pipe(v.number(), v.minValue(0), v.maxValue(10_000));
   const result = safeParse(msSchema, ms);
+
   if (!result.ok) {
     return result;
   }
@@ -354,6 +365,7 @@ function setMockDataDelay(ms: Num): Result<Void> {
 function setSubscriptionPlan(plan: Str): Result<Void> {
   const planSchema = v.picklist([...SUPPORTED_PLANS]);
   const result = safeParse(planSchema, plan);
+
   if (!result.ok) {
     return result;
   }
@@ -376,6 +388,7 @@ function setFeature(flag: Str, enabled: Bool): Result<Void> {
   }
 
   const boolResult = safeParse(v.boolean(), enabled);
+
   if (!boolResult.ok) {
     return boolResult;
   }
@@ -457,6 +470,7 @@ let _singleton: EditorStore | null = null;
  */
 export function initEditorStore(): EditorStore {
   const result = createEditorStore();
+
   if (!result.ok) {
     throw new Error(`EditorStore creation failed: ${result.error.message}`);
   }

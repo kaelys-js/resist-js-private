@@ -42,6 +42,7 @@
   const validated: MapClusterProps = $derived.by(() => {
     const rawProps: MapClusterProps = stripSvelteProps(allProps);
     const result = safeParse(MapClusterPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

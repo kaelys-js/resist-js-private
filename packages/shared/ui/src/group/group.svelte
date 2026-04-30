@@ -42,6 +42,7 @@
   const validated: GroupProps = $derived.by(() => {
     const rawProps: GroupProps = stripSvelteProps(allProps);
     const result = safeParse(GroupPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

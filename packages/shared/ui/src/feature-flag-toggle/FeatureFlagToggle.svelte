@@ -42,6 +42,7 @@
   const validated: FeatureFlagToggleProps = $derived.by(() => {
     const rawProps: FeatureFlagToggleProps = stripSvelteProps(allProps);
     const result = safeParse(FeatureFlagTogglePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

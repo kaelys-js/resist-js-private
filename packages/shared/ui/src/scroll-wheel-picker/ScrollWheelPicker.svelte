@@ -42,6 +42,7 @@
   const validated: ScrollWheelPickerProps = $derived.by(() => {
     const rawProps: ScrollWheelPickerProps = stripSvelteProps(allProps);
     const result = safeParse(ScrollWheelPickerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

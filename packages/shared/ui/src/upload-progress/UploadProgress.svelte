@@ -42,6 +42,7 @@
   const validated: UploadProgressProps = $derived.by(() => {
     const rawProps: UploadProgressProps = stripSvelteProps(allProps);
     const result = safeParse(UploadProgressPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

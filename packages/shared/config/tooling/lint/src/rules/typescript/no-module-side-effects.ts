@@ -26,6 +26,7 @@ import type {
  */
 function containsThrow(statement: AstNode): boolean {
   const source: string = JSON.stringify(statement);
+
   return source.includes('"type":"ThrowStatement"');
 }
 
@@ -45,6 +46,7 @@ function isIntegrationBoundaryIf(statement: AstNode, context: VisitorContext): b
 
   for (let i: number = startLine; i <= endLine && i < lines.length; i++) {
     const currentLine = lines[i] as string | undefined;
+
     if (currentLine && /\/\/.*integration boundary:\s*\S+/i.test(currentLine)) {
       return true;
     }
@@ -65,6 +67,7 @@ const rule: TypeScriptRule = {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const body = node.body as AstNode[] | undefined;
+
       if (!body) {
         return results;
       }
@@ -127,6 +130,7 @@ const rule: TypeScriptRule = {
         // Flag top-level ExpressionStatement with function calls (side effects)
         if (statement.type === 'ExpressionStatement') {
           const expr = statement.expression as AstNode | undefined;
+
           if (expr?.type === 'CallExpression' || expr?.type === 'AwaitExpression') {
             results.push({
               file: context.file,

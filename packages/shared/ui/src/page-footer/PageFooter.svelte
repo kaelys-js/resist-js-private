@@ -42,6 +42,7 @@
   const validated: PageFooterProps = $derived.by(() => {
     const rawProps: PageFooterProps = stripSvelteProps(allProps);
     const result = safeParse(PageFooterPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

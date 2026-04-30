@@ -39,6 +39,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     const countStr: string | undefined = process.env['MR_APPROVAL_COUNT'];
+
     if (countStr === undefined) {
       return Promise.resolve(results);
     }

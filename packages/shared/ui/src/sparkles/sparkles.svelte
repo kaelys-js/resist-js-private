@@ -43,6 +43,7 @@
   const validated: SparklesProps = $derived.by(() => {
     const rawProps: SparklesProps = stripSvelteProps(allProps);
     const result = safeParse(SparklesPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

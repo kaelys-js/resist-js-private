@@ -28,6 +28,7 @@ const rule: TypeScriptRule = {
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const configObj: AstNode | undefined = getDefaultExportObject(context.ast);
+
       if (!configObj) {
         return [];
       }
@@ -36,8 +37,10 @@ const rule: TypeScriptRule = {
 
       // Check kit.outDir
       const outDirValue: AstNode | undefined = getNestedValue(configObj, 'kit.outDir');
+
       if (outDirValue) {
         const outDir: string | undefined = getStringValue(outDirValue);
+
         if (outDir && DANGEROUS_DIRS.has(outDir)) {
           results.push({
             file: context.file,
@@ -54,15 +57,19 @@ const rule: TypeScriptRule = {
 
       // Check adapter pages/assets options
       const adapterValue: AstNode | undefined = getNestedValue(configObj, 'kit.adapter');
+
       if (adapterValue?.type === 'CallExpression') {
         const args: AstNode[] | undefined = adapterValue.arguments as AstNode[] | undefined;
+
         if (args && args.length > 0 && args[0]?.type === 'ObjectExpression') {
           const [adapterOpts] = args;
 
           for (const prop of ['pages', 'assets'] as const) {
             const propValue: AstNode | undefined = getNestedValue(adapterOpts, prop);
+
             if (propValue) {
               const dir: string | undefined = getStringValue(propValue);
+
               if (dir && DANGEROUS_DIRS.has(dir)) {
                 results.push({
                   file: context.file,

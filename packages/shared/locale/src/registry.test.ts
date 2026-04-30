@@ -77,9 +77,11 @@ describe('registry.active', () => {
       defaultLocale: 'en',
       locales: { en, es },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
+
     const result = reg.data.active();
     expect(result.ok).toBe(true);
     if (result.ok) {
@@ -95,6 +97,7 @@ describe('registry.setActive', () => {
       defaultLocale: 'en',
       locales: { en, es },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -103,6 +106,7 @@ describe('registry.setActive', () => {
     expect(setResult.ok).toBe(true);
 
     const active = reg.data.active();
+
     if (active.ok) {
       expect(active.data).toBe('es');
     }
@@ -114,6 +118,7 @@ describe('registry.setActive', () => {
       defaultLocale: 'en',
       locales: { en },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -130,6 +135,7 @@ describe('registry.list', () => {
       defaultLocale: 'en',
       locales: { en, es, ja },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -152,6 +158,7 @@ describe('registry.get', () => {
       defaultLocale: 'en',
       locales: { en },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -166,6 +173,7 @@ describe('registry.get', () => {
       defaultLocale: 'en',
       locales: { en },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -182,6 +190,7 @@ describe('registry.has', () => {
       defaultLocale: 'en',
       locales: { en, es },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -199,6 +208,7 @@ describe('registry.has', () => {
       defaultLocale: 'en',
       locales: { en },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -218,6 +228,7 @@ describe('registry.set', () => {
       defaultLocale: 'en',
       locales: { en },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -226,6 +237,7 @@ describe('registry.set', () => {
     expect(setResult.ok).toBe(true);
 
     const hasResult = reg.data.has('ja');
+
     if (hasResult.ok) {
       expect(hasResult.data).toBe(true);
     }
@@ -237,6 +249,7 @@ describe('registry.set', () => {
       defaultLocale: 'en',
       locales: { en },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -253,6 +266,7 @@ describe('registry.t', () => {
       defaultLocale: 'en',
       locales: { en },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -269,6 +283,7 @@ describe('registry.remove', () => {
       defaultLocale: 'en',
       locales: { en, es, ja },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -277,6 +292,7 @@ describe('registry.remove', () => {
     expect(result.ok).toBe(true);
 
     const hasResult = reg.data.has('ja');
+
     if (hasResult.ok) {
       expect(hasResult.data).toBe(false);
     }
@@ -288,6 +304,7 @@ describe('registry.remove', () => {
       defaultLocale: 'en',
       locales: { en, es },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -302,6 +319,7 @@ describe('registry.remove', () => {
       defaultLocale: 'en',
       locales: { en, es },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -317,6 +335,7 @@ describe('registry.remove', () => {
       defaultLocale: 'en',
       locales: { en },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -384,6 +403,7 @@ describe('createNamespacedRegistry', () => {
         common: { schema: TestSchema, locales: { en } },
       },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -403,6 +423,7 @@ describe('createNamespacedRegistry', () => {
         auth: { schema: AuthSchema, locales: { en: authEn, es: authEs } },
       },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -411,6 +432,7 @@ describe('createNamespacedRegistry', () => {
     expect(result.ok).toBe(true);
 
     const active = reg.data.active();
+
     if (active.ok) {
       expect(active.data).toBe('es');
     }
@@ -423,6 +445,7 @@ describe('createNamespacedRegistry', () => {
         common: { schema: TestSchema, locales: { en } },
       },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -438,6 +461,7 @@ describe('createNamespacedRegistry', () => {
         common: { schema: TestSchema, locales: { en } },
       },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -454,6 +478,7 @@ describe('createNamespacedRegistry', () => {
         auth: { schema: AuthSchema, locales: { en: authEn, es: authEs } },
       },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -475,6 +500,7 @@ describe('createNamespacedRegistry', () => {
         common: { schema: TestSchema, locales: { en } },
       },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -486,6 +512,7 @@ describe('createNamespacedRegistry', () => {
     expect(result.ok).toBe(true);
 
     const has = reg.data.hasNamespace('auth');
+
     if (has.ok) {
       expect(has.data).toBe(true);
     }
@@ -499,6 +526,7 @@ describe('createNamespacedRegistry', () => {
         auth: { schema: AuthSchema, locales: { en: authEn } },
       },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -507,6 +535,7 @@ describe('createNamespacedRegistry', () => {
     expect(result.ok).toBe(true);
 
     const has = reg.data.hasNamespace('auth');
+
     if (has.ok) {
       expect(has.data).toBe(false);
     }
@@ -519,6 +548,7 @@ describe('createNamespacedRegistry', () => {
         common: { schema: TestSchema, locales: { en } },
       },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -535,6 +565,7 @@ describe('createNamespacedRegistry', () => {
         auth: { schema: AuthSchema, locales: { en: authEn } },
       },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -554,6 +585,7 @@ describe('createNamespacedRegistry', () => {
         common: { schema: TestSchema, locales: { en } },
       },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -569,6 +601,7 @@ describe('createNamespacedRegistry', () => {
         common: { schema: TestSchema, locales: { en } },
       },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -584,6 +617,7 @@ describe('createNamespacedRegistry', () => {
         common: { schema: TestSchema, locales: { en } },
       },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -602,6 +636,7 @@ describe('createNamespacedRegistry', () => {
         common: { schema: TestSchema, locales: { en } },
       },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -618,6 +653,7 @@ describe('createNamespacedRegistry', () => {
       defaultLocale: 'en',
       namespaces: {},
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -680,17 +716,20 @@ describe('non-strict mode with nested schema objects', () => {
         expect(titleResult.data).toBe('Bienvenue');
       }
       // nav.home kept from partial
+
       const homeResult = data.nav.home();
       expect(homeResult.ok).toBe(true);
       if (homeResult.ok) {
         expect(homeResult.data).toBe('Accueil');
       }
       // nav.about and nav.contact filled from fallback
+
       const aboutResult = data.nav.about();
       expect(aboutResult.ok).toBe(true);
       if (aboutResult.ok) {
         expect(aboutResult.data).toBe('About');
       }
+
       const contactResult = data.nav.contact();
       expect(contactResult.ok).toBe(true);
       if (contactResult.ok) {
@@ -735,11 +774,13 @@ describe('non-strict mode with nested schema objects', () => {
       if (homeResult.ok) {
         expect(homeResult.data).toBe('Home');
       }
+
       const aboutResult = data.nav.about();
       expect(aboutResult.ok).toBe(true);
       if (aboutResult.ok) {
         expect(aboutResult.data).toBe('About');
       }
+
       const contactResult = data.nav.contact();
       expect(contactResult.ok).toBe(true);
       if (contactResult.ok) {
@@ -763,6 +804,7 @@ describe('registry.t() with missing active locale', () => {
       defaultLocale: 'en',
       locales: { en },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -778,6 +820,7 @@ describe('registry.t() with missing active locale', () => {
       defaultLocale: 'en',
       locales: { en, es },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -811,6 +854,7 @@ describe('createNamespacedRegistry additional branches', () => {
         common: { schema: TestSchema, locales: { en } },
       },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -833,6 +877,7 @@ describe('createNamespacedRegistry additional branches', () => {
         auth: { schema: AuthSchema, locales: { en: authEn } },
       },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -843,6 +888,7 @@ describe('createNamespacedRegistry additional branches', () => {
 
     // active should be 'es'
     const active = reg.data.active();
+
     if (active.ok) {
       expect(active.data).toBe('es');
     }
@@ -860,6 +906,7 @@ describe('createNamespacedRegistry additional branches', () => {
         auth: { schema: AuthSchema, locales: { en: authEn } },
       },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -879,6 +926,7 @@ describe('createNamespacedRegistry additional branches', () => {
         common: { schema: TestSchema, locales: { en } },
       },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -899,6 +947,7 @@ describe('createNamespacedRegistry additional branches', () => {
         auth: { schema: AuthSchema, locales: { en: authEn } },
       },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -917,12 +966,14 @@ describe('createNamespacedRegistry additional branches', () => {
         auth: { schema: AuthSchema, locales: { en: authEn } },
       },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
 
     // Before: list should only have 'en' (intersection)
     const before = reg.data.list();
+
     if (before.ok) {
       expect(before.data).toEqual(['en']);
     }
@@ -933,6 +984,7 @@ describe('createNamespacedRegistry additional branches', () => {
 
     // After: list should include 'en' and 'es'
     const after = reg.data.list();
+
     if (after.ok) {
       expect(after.data).toContain('en');
       expect(after.data).toContain('es');
@@ -977,6 +1029,7 @@ describe('non-strict fallback chain with multiple fallbacks', () => {
       if (greetingResult.ok) {
         expect(greetingResult.data).toBe('Bonjour');
       }
+
       const farewellResult = data.farewell!();
       expect(farewellResult.ok).toBe(true);
       if (farewellResult.ok) {
@@ -1034,6 +1087,7 @@ describe('exact error codes', () => {
       defaultLocale: 'en',
       locales: { en },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -1051,6 +1105,7 @@ describe('exact error codes', () => {
       defaultLocale: 'en',
       locales: { en, es },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -1085,6 +1140,7 @@ describe('registry method validation failures', () => {
       defaultLocale: 'en',
       locales: { en, es },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -1164,10 +1220,12 @@ describe('registry.set — buildLocale failure (line 398)', () => {
       defaultLocale: 'en',
       locales: { en },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
     // set() with data that fails schema validation hits the validation branch, not build
+
     const result = reg.data.set('fr', { greeting: 123 } as never);
     expect(result.ok).toBe(false);
   });
@@ -1184,9 +1242,11 @@ describe('registry.t — active locale missing from built map (line 412)', () =>
       defaultLocale: 'en',
       locales: { en },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
+
     const result = reg.data.t();
     expect(result.ok).toBe(true);
   });
@@ -1237,6 +1297,7 @@ describe('createNamespacedRegistry — addNamespace without fallbackLocales (lin
       },
       // No fallbackLocales — triggers undefined branch at line 704 in addNamespace
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -1303,6 +1364,7 @@ describe('createNamespacedRegistry — list intersection filter (line 669)', () 
         ns3: { schema: SmallSchema, locales: { en: { title: 'Hello' }, fr: { title: 'Bonjour' } } },
       },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }
@@ -1342,6 +1404,7 @@ describe('createNamespacedRegistry — validation failures', () => {
         auth: { schema: AuthSchema, locales: { en: authEn } },
       },
     });
+
     if (!reg.ok) {
       throw new Error('setup failed');
     }

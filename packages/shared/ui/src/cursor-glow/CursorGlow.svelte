@@ -42,6 +42,7 @@
   const validated: CursorGlowProps = $derived.by(() => {
     const rawProps: CursorGlowProps = stripSvelteProps(allProps);
     const result = safeParse(CursorGlowPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: OrderTrackingProps = $derived.by(() => {
     const rawProps: OrderTrackingProps = stripSvelteProps(allProps);
     const result = safeParse(OrderTrackingPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: MultiStepFormProps = $derived.by(() => {
     const rawProps: MultiStepFormProps = stripSvelteProps(allProps);
     const result = safeParse(MultiStepFormPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -43,6 +43,7 @@
   const validated: TextHoverEffectProps = $derived.by(() => {
     const rawProps: TextHoverEffectProps = stripSvelteProps(allProps);
     const result = safeParse(TextHoverEffectPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: TextGenerateEffectProps = $derived.by(() => {
     const rawProps: TextGenerateEffectProps = stripSvelteProps(allProps);
     const result = safeParse(TextGenerateEffectPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

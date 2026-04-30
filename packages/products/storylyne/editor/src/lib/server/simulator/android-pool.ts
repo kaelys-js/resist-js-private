@@ -54,6 +54,7 @@ const BASE_PORT: Num = 5554 as Num;
  */
 export function assignSerial(index: Num): Str {
   const port: Num = ((BASE_PORT as number) + (index as number) * 2) as Num;
+
   return `emulator-${port}` as Str;
 }
 
@@ -85,6 +86,7 @@ export async function acquireEmulator(
 ): Promise<EmulatorInstance | null> {
   /* Check for existing idle slot */
   const existing: PoolSlot | undefined = pool.get(avdName as string);
+
   if (existing?.instance && !existing.inUse) {
     existing.inUse = true as Bool;
     return existing.instance;
@@ -105,6 +107,7 @@ export async function acquireEmulator(
 
   /* Wait for boot */
   const booted: Bool = await waitForBoot(adbPath, serial);
+
   if (!booted) {
     killEmulatorProcess(instance);
     pool.delete(avdName as string);
@@ -126,6 +129,7 @@ export async function acquireEmulator(
  */
 export function releaseEmulator(avdName: Str): void {
   const slot: PoolSlot | undefined = pool.get(avdName as string);
+
   if (slot) {
     slot.inUse = false as Bool;
   }

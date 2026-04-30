@@ -42,6 +42,7 @@
   const validated: PathBarProps = $derived.by(() => {
     const rawProps: PathBarProps = stripSvelteProps(allProps);
     const result = safeParse(PathBarPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

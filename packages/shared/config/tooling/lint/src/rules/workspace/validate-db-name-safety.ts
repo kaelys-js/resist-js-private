@@ -27,6 +27,7 @@ const SAFE_DB_NAME_PATTERN: RegExp = /^[a-zA-Z][a-zA-Z0-9_-]*$/;
  */
 function getD1Databases(obj: Record<string, unknown>): unknown[] {
   const val: unknown = obj.d1_databases;
+
   return Array.isArray(val) ? (val as unknown[]) : [];
 }
 
@@ -40,6 +41,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -72,6 +74,7 @@ const rule: WorkspaceRule = {
 
       const relativePath: string = relative(ctx.rootDir, filePath);
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -79,6 +82,7 @@ const rule: WorkspaceRule = {
       }
 
       let config: Record<string, unknown>;
+
       try {
         config = JSON.parse(content) as Record<string, unknown>;
       } catch {
@@ -88,6 +92,7 @@ const rule: WorkspaceRule = {
       /* Check top-level d1_databases */
       for (const item of getD1Databases(config)) {
         const entry: Record<string, unknown> = item as Record<string, unknown>;
+
         if (
           typeof entry.database_name === 'string' &&
           !SAFE_DB_NAME_PATTERN.test(entry.database_name)
@@ -110,13 +115,17 @@ const rule: WorkspaceRule = {
 
       /* Check env-level d1_databases */
       const { env } = config;
+
       if (typeof env === 'object' && env !== null) {
         const envObj: Record<string, unknown> = env as Record<string, unknown>;
+
         for (const envName of Object.keys(envObj)) {
           const envConfig: unknown = envObj[envName];
+
           if (typeof envConfig === 'object' && envConfig !== null) {
             for (const item of getD1Databases(envConfig as Record<string, unknown>)) {
               const entry: Record<string, unknown> = item as Record<string, unknown>;
+
               if (
                 typeof entry.database_name === 'string' &&
                 !SAFE_DB_NAME_PATTERN.test(entry.database_name)

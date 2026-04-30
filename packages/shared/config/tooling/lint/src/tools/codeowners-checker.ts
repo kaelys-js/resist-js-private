@@ -36,6 +36,7 @@ export function transformCodeownersCheckerOutput(
   strings: LintStrings,
 ): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -59,6 +60,7 @@ export function transformCodeownersCheckerOutput(
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
@@ -68,12 +70,14 @@ export function transformCodeownersCheckerOutput(
     let message: string = stripped;
 
     const matchWithLine: RegExpMatchArray | null = stripped.match(patternWithLine);
+
     if (matchWithLine) {
       file = matchWithLine[1] ?? 'CODEOWNERS';
       lineNum = Number.parseInt(matchWithLine[2] ?? '1', 10);
       message = matchWithLine[3] ?? '';
     } else {
       const matchWithoutLine: RegExpMatchArray | null = stripped.match(patternWithoutLine);
+
       if (matchWithoutLine) {
         file = matchWithoutLine[1] ?? 'CODEOWNERS';
         message = matchWithoutLine[2] ?? '';

@@ -42,6 +42,7 @@
   const validated: MasonryProps = $derived.by(() => {
     const rawProps: MasonryProps = stripSvelteProps(allProps);
     const result = safeParse(MasonryPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

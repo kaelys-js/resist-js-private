@@ -46,6 +46,7 @@ function readTsconfigPaths(dir: string): Map<string, string> {
     }
 
     const tsPaths: Record<string, string[]> = compilerOptions.paths as Record<string, string[]>;
+
     for (const [alias] of Object.entries(tsPaths)) {
       // Strip trailing /* from alias for comparison
       const cleanAlias: string = alias.replace(/\/\*$/, '');
@@ -69,11 +70,13 @@ const rule: TypeScriptRule = {
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const configObj: AstNode | undefined = getDefaultExportObject(context.ast);
+
       if (!configObj) {
         return [];
       }
 
       const aliasObj: AstNode | undefined = getNestedValue(configObj, 'kit.alias');
+
       if (!aliasObj || aliasObj.type !== 'ObjectExpression') {
         return [];
       }

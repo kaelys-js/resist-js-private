@@ -43,6 +43,7 @@
   const validated: StreamGraphProps = $derived.by(() => {
     const rawProps: StreamGraphProps = stripSvelteProps(allProps);
     const result = safeParse(StreamGraphPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

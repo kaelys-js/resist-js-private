@@ -83,11 +83,13 @@ async function emitFrame(
  */
 export const GET: RequestHandler = async (event) => {
   const { url } = event;
+
   if (!dev) {
     return new Response('Stream API is dev-only', { status: 404 });
   }
 
   const xcrunAvailable: boolean = await isXcrunAvailable();
+
   if (!xcrunAvailable) {
     return new Response(JSON.stringify({ error: 'xcrun not available' }), {
       status: 503,

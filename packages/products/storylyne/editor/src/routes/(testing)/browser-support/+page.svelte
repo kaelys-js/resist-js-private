@@ -64,6 +64,7 @@
   const scanSources: Record<Str, Str> = Object.fromEntries(
     Object.entries(cssModules).map(([path, content]: [Str, unknown]): [Str, Str] => {
       const shortName: Str = (path.split('/').pop() ?? path) as Str;
+
       return [shortName, String(content) as Str];
     }),
   );
@@ -229,6 +230,7 @@
       ? PAGE_EXPORT_ITEMS
       : PAGE_EXPORT_ITEMS.filter((p: ExportItem): boolean => {
           const q: Str = exportSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q as string) ||
             p.description.toLowerCase().includes(q as string) ||
@@ -347,10 +349,13 @@
       result = [...result].toSorted((a, b) => {
         if (sortField === 'status') {
           const order: Record<string, number> = { supported: 0, partial: 1, unsupported: 2 };
+
           return ((mul as number) * ((order[a.status] ?? 3) - (order[b.status] ?? 3))) as Num;
         }
+
         const aVal: Str = getSortValue(a, sortField);
         const bVal: Str = getSortValue(b, sortField);
+
         return ((mul as number) * aVal.localeCompare(bVal)) as Num;
       });
     }
@@ -378,7 +383,9 @@
     if (activeCategories.length > 0) {
       return `${filteredEntryCount} entries in ${activeCategories.length} categor${activeCategories.length === 1 ? 'y' : 'ies'}` as Str;
     }
+
     const featureCount: Num = supportResult.features.length as Num;
+
     return `${supportResult.browsers.length} browsers \u00B7 ${featureCount} CSS features detected \u00B7 ${supportResult.frameworks.length} frameworks` as Str;
   });
 
@@ -398,6 +405,7 @@
     if (!sortField) {
       return '' as Str;
     }
+
     const names: Record<string, string> = {
       name: 'Name',
       version: 'Version',
@@ -406,14 +414,17 @@
       notes: 'Notes',
     };
     const arrow: Str = (sortDir === 'asc' ? '↑' : '↓') as Str;
+
     return `${names[sortField] ?? sortField} ${arrow}` as Str;
   });
 
   /** Entries grouped by category for card view. */
   const groupedEntries: Array<{ category: Str; entries: BrowserEntry[] }> = $derived.by(() => {
     const groups: Array<{ category: Str; entries: BrowserEntry[] }> = [];
+
     for (const entry of filteredEntries) {
       const existing = groups.find((g) => g.category === entry.category);
+
       if (existing) {
         existing.entries.push(entry);
       } else {
@@ -454,6 +465,7 @@
    */
   function toggleCategory(cat: Str): void {
     const idx: Num = activeCategories.indexOf(cat) as Num;
+
     if ((idx as number) >= 0) {
       activeCategories = activeCategories.filter((c) => c !== cat);
     } else {
@@ -548,6 +560,7 @@
     const browsers: BrowserEntry[] = entries.filter(
       (e) => e.category === ('Desktop' as Str) || e.category === ('Unsupported' as Str),
     );
+
     if (browsers.length > 0) {
       const bRows: Str[] = browsers.map(
         (e) =>
@@ -559,6 +572,7 @@
     }
 
     const frameworks: BrowserEntry[] = entries.filter((e) => e.category === ('Framework' as Str));
+
     if (frameworks.length > 0) {
       const fRows: Str[] = frameworks.map(
         (e) => `| ${e.name} | ${e.minVersion} | ${e.notes} |` as Str,
@@ -571,12 +585,14 @@
     const cssFeatures: BrowserEntry[] = entries.filter(
       (e) => e.category === ('CSS Features' as Str),
     );
+
     if (cssFeatures.length > 0) {
       const cRows: Str[] = cssFeatures.map((e) => {
         const feat = supportResult.features.find((f) => f.name === e.name);
         const support: Str = feat
           ? (`Chrome ${feat.support.chrome}+ · Firefox ${feat.support.firefox}+ · Safari ${feat.support.safari}+` as Str)
           : ('' as Str);
+
         return `| ${e.name} | ${feat?.usageCount ?? ''} | ${feat?.files.length ?? ''} | ${feat?.description ?? ''} | ${support} |` as Str;
       });
       sections.push(
@@ -603,8 +619,10 @@
         notes: e.notes,
         category: e.category,
       };
+
       if (e.category === ('CSS Features' as Str)) {
         const feat = supportResult.features.find((f) => f.name === e.name);
+
         if (feat) {
           return {
             ...base,
@@ -617,6 +635,7 @@
       }
       return base;
     });
+
     return JSON.stringify(data, null, 2) as Str;
   }
 
@@ -670,6 +689,7 @@
     const raf: Num = requestAnimationFrame((): void => {
       node.style.minHeight = `${node.offsetHeight}px`;
     }) as Num;
+
     return {
       destroy(): void {
         cancelAnimationFrame(raf as number);

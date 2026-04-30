@@ -23,6 +23,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -48,6 +49,7 @@ const rule: WorkspaceRule = {
     const filePath: string = join(ctx.rootDir, '.all-contributorsrc');
 
     const exists: boolean = await ctx.fileExists(filePath);
+
     if (!exists) {
       return [];
     }
@@ -56,6 +58,7 @@ const rule: WorkspaceRule = {
     const relativePath: string = relative(ctx.rootDir, filePath);
 
     let parsed: unknown;
+
     try {
       parsed = JSON.parse(content);
     } catch {
@@ -141,8 +144,10 @@ const rule: WorkspaceRule = {
     }
 
     const contributors: unknown[] = obj['contributors'] as unknown[];
+
     for (let i: number = 0; i < contributors.length; i++) {
       const contributor: unknown = contributors[i];
+
       if (typeof contributor !== 'object' || contributor === null || Array.isArray(contributor)) {
         results.push(
           createResult(

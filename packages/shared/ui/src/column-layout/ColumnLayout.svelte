@@ -42,6 +42,7 @@
   const validated: ColumnLayoutProps = $derived.by(() => {
     const rawProps: ColumnLayoutProps = stripSvelteProps(allProps);
     const result = safeParse(ColumnLayoutPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

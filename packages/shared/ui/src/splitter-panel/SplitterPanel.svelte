@@ -42,6 +42,7 @@
   const validated: SplitterPanelProps = $derived.by(() => {
     const rawProps: SplitterPanelProps = stripSvelteProps(allProps);
     const result = safeParse(SplitterPanelPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

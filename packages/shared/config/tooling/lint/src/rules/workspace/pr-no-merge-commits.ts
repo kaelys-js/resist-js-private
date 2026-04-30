@@ -42,6 +42,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     const commits: string | undefined = process.env['MR_COMMITS'];
+
     if (commits === undefined) {
       return Promise.resolve(results);
     }
@@ -50,6 +51,7 @@ const rule: WorkspaceRule = {
 
     for (const message of commitMessages) {
       const isMergeCommit: boolean = MERGE_PATTERNS.some((p: RegExp) => p.test(message));
+
       if (isMergeCommit) {
         results.push(
           createResult(

@@ -64,6 +64,7 @@ function detectRepoUrl(): Str {
     let url: Str = remote;
     /* SSH format: git@github.com:org/repo.git → https://github.com/org/repo */
     const sshMatch: RegExpMatchArray | null = remote.match(/^git@([^:]+):(.+?)(?:\.git)?$/);
+
     if (sshMatch) {
       url = `https://${sshMatch[1]}/${sshMatch[2]}` as Str;
     } else {
@@ -87,6 +88,7 @@ function detectRepoUrl(): Str {
 function resolveUiSrcDir(): Str {
   const currentDir: Str = dirname(fileURLToPath(import.meta.url)) as Str;
   let dir: Str = currentDir;
+
   for (let i: Num = 0 as Num; i < 20; i++) {
     try {
       statSync(join(dir, 'pnpm-workspace.yaml'));
@@ -127,6 +129,7 @@ function countTotalCommits(componentDir: Str): Num {
       encoding: 'utf8',
       timeout: 5000,
     }).trim() as Str;
+
     return (Number.parseInt(output, 10) || 0) as Num;
   } catch {
     /* git command failed — return 0 */
@@ -146,6 +149,7 @@ function countTotalCommits(componentDir: Str): Num {
 function getChangelog(componentName: Str): { entries: ChangelogEntry[]; total: Num } {
   const cached: ChangelogEntry[] | undefined = cache.get(componentName);
   const cachedTotal: Num | undefined = totalCache.get(componentName);
+
   if (cached && cachedTotal !== undefined) {
     return { entries: cached, total: cachedTotal };
   }
@@ -179,6 +183,7 @@ function getChangelog(componentName: Str): { entries: ChangelogEntry[]; total: N
       .filter((record: Str): boolean => record.trim().length > 0)
       .map((record: Str): ChangelogEntry | null => {
         const parts: Str[] = record.trim().split(FIELD_SEP) as Str[];
+
         if (parts.length < 5) {
           return null;
         }
@@ -232,6 +237,7 @@ function computeDiffAnchor(componentName: Str, componentPath: Str): Str {
   try {
     const files: Str[] = readdirSync(componentDir) as Str[];
     const svelteFiles: Str[] = files.filter((f: Str): boolean => f.endsWith('.svelte'));
+
     if (svelteFiles.length === 0) {
       return '' as Str;
     }
@@ -258,6 +264,7 @@ function computeDiffAnchor(componentName: Str, componentPath: Str): Str {
  */
 export const GET: RequestHandler = ({ params }) => {
   const name: Str = (params.name ?? '') as Str;
+
   if (!name) {
     return new Response(JSON.stringify([]), {
       headers: { 'Content-Type': 'application/json' },

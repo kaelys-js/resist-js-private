@@ -43,6 +43,7 @@
   const validated: ResponsiveGridProps = $derived.by(() => {
     const rawProps: ResponsiveGridProps = stripSvelteProps(allProps);
     const result = safeParse(ResponsiveGridPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

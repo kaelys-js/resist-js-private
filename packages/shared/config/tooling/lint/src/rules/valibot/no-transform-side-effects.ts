@@ -42,6 +42,7 @@ const rule: TypeScriptRule = {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const callee = node.callee as AstNode | undefined;
+
       if (!callee) {
         return results;
       }
@@ -57,15 +58,18 @@ const rule: TypeScriptRule = {
         ) {
           // Get the callback argument text
           const args = node.arguments as AstNode[] | undefined;
+
           if (!args || args.length === 0) {
             return results;
           }
 
           // The callback is the last argument (pipe-style: transform(fn), old-style: transform(schema, fn))
           const callbackArg = args.at(-1) as AstNode | undefined;
+
           if (!callbackArg) {
             return results;
           }
+
           const callbackText: string = context.content.slice(callbackArg.start, callbackArg.end);
 
           // Check for side-effect patterns

@@ -43,6 +43,7 @@
   const validated: ThermostatControlProps = $derived.by(() => {
     const rawProps: ThermostatControlProps = stripSvelteProps(allProps);
     const result = safeParse(ThermostatControlPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

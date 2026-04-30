@@ -125,6 +125,7 @@ function lookupDimensions(deviceTypeIdentifier: Str): DeviceDimensions {
 
   /* Try exact match first */
   const exact: DeviceDimensions | undefined = DEVICE_DIMENSIONS.get(suffix);
+
   if (exact) {
     return exact;
   }
@@ -177,9 +178,11 @@ export function parseRuntimeVersion(runtimeId: Str): Str {
   /* Replace hyphens with dots for version, keep OS name */
   /* 'iOS-26-0' → 'iOS 26.0' */
   const osMatch: RegExpMatchArray | null = suffix.match(/^(\w+)-(.+)$/);
+
   if (osMatch) {
     const os: Str = osMatch[1] as Str;
     const version: Str = (osMatch[2] ?? '').replaceAll('-', '.') as Str;
+
     return `${os} ${version}` as Str;
   }
 
@@ -219,6 +222,7 @@ export async function listSimulatorDevices(): Promise<SimulatorDevice[]> {
 
     for (const raw of devices) {
       const d: Record<Str, unknown> = raw as Record<Str, unknown>;
+
       if (d.isAvailable !== true) {
         continue;
       }

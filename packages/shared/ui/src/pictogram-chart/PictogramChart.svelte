@@ -42,6 +42,7 @@
   const validated: PictogramChartProps = $derived.by(() => {
     const rawProps: PictogramChartProps = stripSvelteProps(allProps);
     const result = safeParse(PictogramChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

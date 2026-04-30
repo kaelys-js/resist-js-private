@@ -42,6 +42,7 @@
   const validated: HeatmapProps = $derived.by(() => {
     const rawProps: HeatmapProps = stripSvelteProps(allProps);
     const result = safeParse(HeatmapPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

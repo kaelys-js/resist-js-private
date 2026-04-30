@@ -42,6 +42,7 @@
   const validated: UserPresenceProps = $derived.by(() => {
     const rawProps: UserPresenceProps = stripSvelteProps(allProps);
     const result = safeParse(UserPresencePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

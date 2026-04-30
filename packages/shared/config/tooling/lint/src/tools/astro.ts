@@ -38,6 +38,7 @@ const ASTRO_LINE: RegExp = /^(.+):(\d+):(\d+)\s+-\s+(error|warning|hint):\s+(.+)
  */
 export function transformAstroOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -47,11 +48,13 @@ export function transformAstroOutput(output: string): LintResult[] {
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = ASTRO_LINE.exec(stripped);
+
     if (!match) {
       continue;
     }
@@ -63,6 +66,7 @@ export function transformAstroOutput(output: string): LintResult[] {
     const message: string = match[5] ?? '';
 
     let severity: 'error' | 'warning' | 'info' = 'warning';
+
     if (level === 'error') {
       severity = 'error';
     } else if (level === 'hint') {

@@ -40,6 +40,7 @@ const rule: WorkspaceRule = {
 
     const forcePushedAt: string | undefined = process.env['MR_FORCE_PUSHED_AT'];
     const approvedAt: string | undefined = process.env['MR_APPROVED_AT'];
+
     if (!forcePushedAt || !approvedAt) {
       return Promise.resolve(results);
     }

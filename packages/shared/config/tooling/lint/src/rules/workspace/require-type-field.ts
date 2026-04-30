@@ -22,8 +22,10 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     try {
       const packages = await ctx.getWorkspacePackages();
+
       return packages.map((p) => p.path);
     } catch {
       return [];
@@ -60,6 +62,7 @@ const rule: WorkspaceRule = {
     for (const pkg of packages) {
       const groupKey: string = dirname(pkg.dir);
       const group: WorkspacePackage[] | undefined = groups.get(groupKey);
+
       if (group) {
         group.push(pkg);
       } else {
@@ -73,6 +76,7 @@ const rule: WorkspaceRule = {
       }
 
       const types: Set<string> = new Set<string>();
+
       for (const pkg of groupPkgs) {
         const typeValue: string =
           typeof pkg.packageJson.type === 'string' ? pkg.packageJson.type : 'commonjs';

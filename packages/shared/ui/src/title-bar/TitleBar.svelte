@@ -42,6 +42,7 @@
   const validated: TitleBarProps = $derived.by(() => {
     const rawProps: TitleBarProps = stripSvelteProps(allProps);
     const result = safeParse(TitleBarPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -144,6 +144,7 @@ export async function applyAccessibilitySettings(
   settings: IosAccessibilitySettings,
 ): Promise<Num> {
   const commands: SimctlCommand[] = buildAccessibilityCommands(udid, settings);
+
   if (commands.length === 0) {
     return 0 as Num;
   }
@@ -241,11 +242,13 @@ export function parseAccessibilityParams(searchParams: URLSearchParams): IosAcce
   const settings: IosAccessibilitySettings = {};
 
   const appearance: Str = (searchParams.get('appearance') ?? '') as Str;
+
   if (appearance === 'dark' || appearance === 'light') {
     settings.appearance = appearance as Str;
   }
 
   const contentSize: Str = (searchParams.get('contentSize') ?? '') as Str;
+
   if (contentSize && contentSize in (CONTENT_SIZE_MAP as Record<string, string>)) {
     settings.contentSize = contentSize as Str;
   }

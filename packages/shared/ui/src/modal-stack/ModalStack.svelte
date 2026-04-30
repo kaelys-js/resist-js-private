@@ -42,6 +42,7 @@
   const validated: ModalStackProps = $derived.by(() => {
     const rawProps: ModalStackProps = stripSvelteProps(allProps);
     const result = safeParse(ModalStackPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

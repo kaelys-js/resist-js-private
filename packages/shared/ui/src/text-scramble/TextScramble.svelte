@@ -42,6 +42,7 @@
   const validated: TextScrambleProps = $derived.by(() => {
     const rawProps: TextScrambleProps = stripSvelteProps(allProps);
     const result = safeParse(TextScramblePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

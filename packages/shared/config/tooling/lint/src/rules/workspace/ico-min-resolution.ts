@@ -46,6 +46,7 @@ const rule: WorkspaceRule = {
       }
 
       let buf: Buffer;
+
       try {
         buf = readFileSync(filePath);
       } catch {

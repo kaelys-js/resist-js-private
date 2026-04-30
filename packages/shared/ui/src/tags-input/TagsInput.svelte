@@ -43,6 +43,7 @@
   const validated: TagsInputProps = $derived.by(() => {
     const rawProps: TagsInputProps = stripSvelteProps(allProps);
     const result = safeParse(TagsInputPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

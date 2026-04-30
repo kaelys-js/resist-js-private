@@ -55,6 +55,7 @@ function getCallExpression(node: AstNode): AstNode | null {
 
   if (node.type === 'AwaitExpression') {
     const argument = node.argument as AstNode | undefined;
+
     if (argument?.type === 'CallExpression') {
       return argument;
     }
@@ -71,6 +72,7 @@ function getCallExpression(node: AstNode): AstNode | null {
  */
 function getFunctionName(node: AstNode): string | null {
   const callee = node.callee as AstNode | undefined;
+
   if (!callee) {
     return null;
   }
@@ -81,6 +83,7 @@ function getFunctionName(node: AstNode): string | null {
 
   if (callee.type === 'MemberExpression' || callee.type === 'StaticMemberExpression') {
     const property = callee.property as AstNode | undefined;
+
     if (property?.type === 'Identifier') {
       return (property.name as string) ?? null;
     }
@@ -99,6 +102,7 @@ function getFunctionName(node: AstNode): string | null {
  */
 function isNativeCollectionMethod(callNode: AstNode, context: VisitorContext): boolean {
   const callee = callNode.callee as AstNode | undefined;
+
   if (!callee) {
     return false;
   }
@@ -107,6 +111,7 @@ function isNativeCollectionMethod(callNode: AstNode, context: VisitorContext): b
   }
 
   const object = callee.object as AstNode | undefined;
+
   if (!object || object.type !== 'Identifier') {
     return false;
   }
@@ -162,16 +167,19 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const expression = node.expression as AstNode | undefined;
+
       if (!expression) {
         return results;
       }
 
       const callExpr: AstNode | null = getCallExpression(expression);
+
       if (!callExpr) {
         return results;
       }
 
       const funcName: string | null = getFunctionName(callExpr);
+
       if (!funcName) {
         return results;
       }

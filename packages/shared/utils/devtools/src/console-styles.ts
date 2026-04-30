@@ -66,6 +66,7 @@ export function formatTimestamp(): Str {
   const m: Str = String(now.getMinutes()).padStart(2, '0');
   const s: Str = String(now.getSeconds()).padStart(2, '0');
   const ms: Str = String(now.getMilliseconds()).padStart(3, '0');
+
   return `${h}:${m}:${s}.${ms}`;
 }
 

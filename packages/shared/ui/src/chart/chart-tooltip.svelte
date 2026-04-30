@@ -75,9 +75,11 @@
     }
 
     const [item] = tooltipCtx.payload;
+
     if (!item) {
       return null;
     }
+
     const key = labelKey ?? item.label ?? item.name ?? 'value';
 
     const itemConfig = getPayloadConfigFromPayload(chart.config, item, key);

@@ -43,6 +43,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     let logOutput: string;
+
     try {
       logOutput = execSync("git log --pretty=format:'%h %s' -30", {
         cwd: ctx.rootDir,
@@ -58,6 +59,7 @@ const rule: WorkspaceRule = {
 
     for (const line of lines) {
       const spaceIdx: number = line.indexOf(' ');
+
       if (spaceIdx === -1) {
         continue;
       }

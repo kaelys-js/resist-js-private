@@ -42,6 +42,7 @@
   const validated: ChordDiagramProps = $derived.by(() => {
     const rawProps: ChordDiagramProps = stripSvelteProps(allProps);
     const result = safeParse(ChordDiagramPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

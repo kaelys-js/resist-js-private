@@ -26,12 +26,14 @@ import type {
 function getJsDoc(node: AstNode, content: string): string | null {
   const before: string = content.slice(0, node.start);
   const trimmed: string = before.trimEnd();
+
   if (!trimmed.endsWith('*/')) {
     return null;
   }
 
   const docEnd: number = trimmed.length;
   const docStart: number = trimmed.lastIndexOf('/**');
+
   if (docStart === -1) {
     return null;
   }
@@ -49,6 +51,7 @@ function getJsDoc(node: AstNode, content: string): string | null {
 function getJsDocEndOffset(node: AstNode, content: string): number {
   const before: string = content.slice(0, node.start);
   const trimmed: string = before.trimEnd();
+
   if (!trimmed.endsWith('*/')) {
     return -1;
   }
@@ -78,11 +81,14 @@ type ParamEntry = v.InferOutput<typeof ParamEntrySchema>;
 function findParamInsertOffset(paramName: string, exportNode: AstNode, content: string): number {
   const before: string = content.slice(0, exportNode.start);
   const trimmed: string = before.trimEnd();
+
   if (!trimmed.endsWith('*/')) {
     return -1;
   }
+
   const docEnd: number = trimmed.length;
   const docStart: number = trimmed.lastIndexOf('/**');
+
   if (docStart === -1) {
     return -1;
   }
@@ -91,14 +97,17 @@ function findParamInsertOffset(paramName: string, exportNode: AstNode, content: 
   // Match @param without {Type} followed by the specific param name
   const pattern = new RegExp(`@param\\s+(\\[?${paramName}\\]?)`, 'gm');
   const match: RegExpExecArray | null = pattern.exec(jsDocText);
+
   if (!match) {
     return -1;
   }
   // Insert point is right after "@param " (before the param name)
   // match.index is the start of "@param", we need position after "@param "
+
   const atParamStart: number = docStart + match.index;
   const afterAtParam: string = content.slice(atParamStart);
   const spaceBeforeName: RegExpExecArray | null = /^@param\s+/.exec(afterAtParam);
+
   if (!spaceBeforeName) {
     return -1;
   }
@@ -115,6 +124,7 @@ function extractParamEntries(jsDoc: string): ParamEntry[] {
   const entries: ParamEntry[] = [];
   const tagRegex: RegExp = /^\s*\*\s*@param\s+/gm;
   let tagMatch: RegExpExecArray | null = tagRegex.exec(jsDoc);
+
   while (tagMatch) {
     const afterTag: number = tagMatch.index + tagMatch[0].length;
     let hasType: boolean = false;
@@ -124,6 +134,7 @@ function extractParamEntries(jsDoc: string): ParamEntry[] {
     if (jsDoc[afterTag] === '{') {
       let depth: number = 0;
       let i: number = afterTag;
+
       for (; i < jsDoc.length; i++) {
         if (jsDoc[i] === '{') {
           depth++;
@@ -144,6 +155,7 @@ function extractParamEntries(jsDoc: string): ParamEntry[] {
 
     // Extract param name (optional brackets for [optionalParam])
     const nameMatch: RegExpExecArray | null = /\[?([\w.]+)\]?/.exec(jsDoc.slice(nameStart));
+
     if (nameMatch) {
       entries.push({ name: nameMatch[1] ?? '', hasType });
     }
@@ -161,10 +173,13 @@ function extractParamEntries(jsDoc: string): ParamEntry[] {
  */
 function extractParamType(param: AstNode, content: string): string {
   const annotation = param.typeAnnotation as AstNode | undefined;
+
   if (!annotation) {
     return 'unknown';
   }
+
   const typeNode = annotation.typeAnnotation as AstNode | undefined;
+
   if (!typeNode) {
     return 'unknown';
   }
@@ -179,24 +194,30 @@ function extractParamType(param: AstNode, content: string): string {
  */
 function extractFunctionParamNames(params: AstNode[]): string[] {
   const names: string[] = [];
+
   for (const param of params) {
     if (param.type === 'Identifier') {
       const name: string | undefined = param.name as string | undefined;
+
       if (name) {
         names.push(name);
       }
     } else if (param.type === 'AssignmentPattern') {
       const left = param.left as AstNode | undefined;
+
       if (left?.type === 'Identifier') {
         const name: string | undefined = left.name as string | undefined;
+
         if (name) {
           names.push(name);
         }
       }
     } else if (param.type === 'RestElement') {
       const argument = param.argument as AstNode | undefined;
+
       if (argument?.type === 'Identifier') {
         const name: string | undefined = argument.name as string | undefined;
+
         if (name) {
           names.push(name);
         }
@@ -223,11 +244,13 @@ function checkFunction(
 ): LintResult[] {
   const results: LintResult[] = [];
   const jsDoc: string | null = getJsDoc(exportNode, context.content);
+
   if (!jsDoc) {
     return results;
   }
 
   const params = funcNode.params as AstNode[] | undefined;
+
   if (!params || params.length === 0) {
     return results;
   }
@@ -245,9 +268,11 @@ function checkFunction(
 
     if (!docParamNames.includes(paramName)) {
       const paramNode: AstNode | undefined = params[i];
+
       if (paramNode === undefined) {
         continue;
       }
+
       const paramType: string = extractParamType(paramNode, context.content);
       const fixText: string = ` * @param {${paramType}} ${paramName} - Description\n `;
       results.push({
@@ -336,6 +361,7 @@ const rule: TypeScriptRule = {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const declaration = node.declaration as AstNode | undefined;
+
       if (!declaration) {
         return results;
       }
@@ -346,12 +372,14 @@ const rule: TypeScriptRule = {
 
       if (declaration.type === 'VariableDeclaration') {
         const declarations = declaration.declarations as AstNode[] | undefined;
+
         if (!declarations) {
           return results;
         }
 
         for (const decl of declarations) {
           const init = decl.init as AstNode | undefined;
+
           if (
             init &&
             (init.type === 'ArrowFunctionExpression' || init.type === 'FunctionExpression')

@@ -42,6 +42,7 @@
   const validated: SpacerProps = $derived.by(() => {
     const rawProps: SpacerProps = stripSvelteProps(allProps);
     const result = safeParse(SpacerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

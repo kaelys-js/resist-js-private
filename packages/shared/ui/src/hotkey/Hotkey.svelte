@@ -41,6 +41,7 @@
   const validated: HotkeyProps = $derived.by(() => {
     const rawProps: HotkeyProps = stripSvelteProps(allProps);
     const result = safeParse(HotkeyPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

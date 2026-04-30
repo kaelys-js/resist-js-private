@@ -34,6 +34,7 @@ function hasPropertyComment(propNode: AstNode, content: string): boolean {
   // Check for single-line comment on the preceding line
   const lastNewline: number = trimmed.lastIndexOf('\n');
   const lastLine: string = lastNewline === -1 ? trimmed : trimmed.slice(lastNewline + 1);
+
   if (lastLine.trim().startsWith('//')) {
     return true;
   }
@@ -42,6 +43,7 @@ function hasPropertyComment(propNode: AstNode, content: string): boolean {
   const afterProp: string = content.slice(propNode.end);
   const endOfLine: number = afterProp.indexOf('\n');
   const restOfLine: string = endOfLine === -1 ? afterProp : afterProp.slice(0, endOfLine);
+
   if (restOfLine.includes('//') || restOfLine.includes('/*')) {
     return true;
   }
@@ -60,6 +62,7 @@ const rule: TypeScriptRule = {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const callee = node.callee as AstNode | undefined;
+
       if (!callee) {
         return results;
       }
@@ -82,16 +85,19 @@ const rule: TypeScriptRule = {
 
       // Get the first argument (the object literal with schema fields)
       const args = node.arguments as AstNode[] | undefined;
+
       if (!args || args.length === 0) {
         return results;
       }
 
       const schemaObj = args[0] as AstNode; // cast safe: length checked above
+
       if (schemaObj.type !== 'ObjectExpression') {
         return results;
       }
 
       const properties = schemaObj.properties as AstNode[] | undefined;
+
       if (!properties) {
         return results;
       }
@@ -106,10 +112,12 @@ const rule: TypeScriptRule = {
       // Extract source gaps between properties (where top-level docs live)
       let topLevelDocCount: number = 0;
       let searchStart: number = schemaObj.start;
+
       for (const prop of namedProps) {
         // Count /** in the gap BEFORE this property (between previous prop end and this prop start)
         const gap: string = context.content.slice(searchStart, prop.start);
         const gapMatches: RegExpMatchArray | null = gap.match(/\/\*\*/g);
+
         if (gapMatches) {
           topLevelDocCount += gapMatches.length;
         }
@@ -133,6 +141,7 @@ const rule: TypeScriptRule = {
 
       for (const prop of namedProps) {
         const key = prop.key as AstNode | undefined;
+
         if (!key) {
           continue;
         }

@@ -49,6 +49,7 @@ const TAPLO_LINE: RegExp = /^(error|warning)\[([^\]]*)\]:\s+(.+?)(?:\s+-->\s+(.+
  */
 export function transformCargoTomlOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -58,11 +59,13 @@ export function transformCargoTomlOutput(output: string): LintResult[] {
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = TAPLO_LINE.exec(stripped);
+
     if (!match) {
       continue;
     }

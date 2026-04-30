@@ -39,20 +39,25 @@ function extractExportedFunctions(content: string): string[] {
   const names: string[] = [];
   const regex: RegExp = /export\s+(?:async\s+)?function\s+(\w+)/g;
   let match: RegExpExecArray | null = regex.exec(content);
+
   while (match) {
     names.push(match[1] ?? '');
     match = regex.exec(content);
   }
   // Also catch exported const arrow functions
+
   const arrowRegex: RegExp = /export\s+const\s+(\w+)\s*[=:]/g;
   let arrowMatch: RegExpExecArray | null = arrowRegex.exec(content);
+
   while (arrowMatch) {
     names.push(arrowMatch[1] ?? '');
     arrowMatch = arrowRegex.exec(content);
   }
   // Also catch exported type aliases
+
   const typeRegex: RegExp = /export\s+type\s+(\w+)\s*[=<]/g;
   let typeMatch: RegExpExecArray | null = typeRegex.exec(content);
+
   while (typeMatch) {
     names.push(typeMatch[1] ?? '');
     typeMatch = typeRegex.exec(content);
@@ -68,6 +73,7 @@ function extractExportedFunctions(content: string): string[] {
  */
 function getAllExports(pkgDir: string): string[] {
   const srcDir: string = join(pkgDir, 'src');
+
   if (!existsSync(srcDir)) {
     return [];
   }
@@ -96,6 +102,7 @@ function extractReadmeApiFunctions(readme: string): string[] {
 
   // Only scan the API Reference section — not the entire README
   const apiMatch: RegExpMatchArray | null = readme.match(/^#{2,3}\s+(?:API|API Reference)\s*$/im);
+
   if (!apiMatch || apiMatch.index === undefined) {
     return names;
   }
@@ -114,9 +121,11 @@ function extractReadmeApiFunctions(readme: string): string[] {
   // Only match the first cell (export name), not description cells
   const regex: RegExp = /^\|[ \t]*`?(\w+)`?[ \t]*\|/gm;
   let match: RegExpExecArray | null = regex.exec(apiSection);
+
   while (match) {
     const name: string = match[1] ?? '';
     // Skip table headers and common non-function words
+
     if (
       !/^(Export|Function|Kind|Description|Type|Signature|File|Import|Method|Member|Field|Level|Phase|Runtime|Code|When|Source)$/i.test(
         name,
@@ -137,9 +146,11 @@ const rule: PackageJsonRule = {
   fixable: false,
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
+
     if (context.isRoot) {
       return results;
     }
+
     const pkgDir: string = dirname(context.file);
     const readmePath: string = join(pkgDir, 'README.md');
 
@@ -163,6 +174,7 @@ const rule: PackageJsonRule = {
 
     // Check 2: Title matches package name
     const titleMatch: RegExpMatchArray | null = readme.match(/^#\s+(.+)$/m);
+
     if (!titleMatch) {
       results.push({
         file: readmePath,

@@ -43,6 +43,7 @@
   const validated: BookmarkButtonProps = $derived.by(() => {
     const rawProps: BookmarkButtonProps = stripSvelteProps(allProps);
     const result = safeParse(BookmarkButtonPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

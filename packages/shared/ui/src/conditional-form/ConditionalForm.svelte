@@ -43,6 +43,7 @@
   const validated: ConditionalFormProps = $derived.by(() => {
     const rawProps: ConditionalFormProps = stripSvelteProps(allProps);
     const result = safeParse(ConditionalFormPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

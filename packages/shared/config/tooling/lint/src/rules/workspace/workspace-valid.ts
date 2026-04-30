@@ -25,10 +25,13 @@ const RULE_ID: string = 'workspace/workspace-valid';
  */
 function findLineNumber(content: string, needle: string): number {
   const idx: number = content.indexOf(needle);
+
   if (idx < 0) {
     return 1;
   }
+
   let line: number = 1;
+
   for (let i: number = 0; i < idx; i++) {
     if (content[i] === '\n') {
       line++;
@@ -73,6 +76,7 @@ function parseWorkspaceYaml(content: string): { packages: unknown } | null {
 
       if (trimmed.startsWith('- ')) {
         const pattern: string = trimmed.slice(2).trim().replace(/^['"]/, '').replace(/['"]$/, '');
+
         if (pattern.length > 0) {
           packages.push(pattern);
         }
@@ -92,6 +96,7 @@ const rule: WorkspaceRule = {
   categories: ['workspace', 'pnpm'],
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -102,6 +107,7 @@ const rule: WorkspaceRule = {
 
     /* Check: File exists */
     const exists: boolean = await ctx.fileExists(workspaceFile);
+
     if (!exists) {
       results.push(
         createResult(RULE_ID, workspaceFile, 1, 1, 'error', 'Missing pnpm-workspace.yaml', {
@@ -114,6 +120,7 @@ const rule: WorkspaceRule = {
 
     /* Read and parse */
     let content: string;
+
     try {
       content = await ctx.readFile(workspaceFile);
     } catch {

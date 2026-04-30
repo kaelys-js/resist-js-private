@@ -42,6 +42,7 @@
   const validated: ImportWizardProps = $derived.by(() => {
     const rawProps: ImportWizardProps = stripSvelteProps(allProps);
     const result = safeParse(ImportWizardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

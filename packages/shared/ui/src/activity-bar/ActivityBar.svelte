@@ -42,6 +42,7 @@
   const validated: ActivityBarProps = $derived.by(() => {
     const rawProps: ActivityBarProps = stripSvelteProps(allProps);
     const result = safeParse(ActivityBarPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

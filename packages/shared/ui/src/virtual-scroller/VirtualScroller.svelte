@@ -43,6 +43,7 @@
   const validated: VirtualScrollerProps = $derived.by(() => {
     const rawProps: VirtualScrollerProps = stripSvelteProps(allProps);
     const result = safeParse(VirtualScrollerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

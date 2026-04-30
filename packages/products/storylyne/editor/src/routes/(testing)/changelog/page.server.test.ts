@@ -40,6 +40,7 @@ describe('(testing)/changelog +page.server load — real repo', () => {
     const result = (load as unknown as (event: Record<string, unknown>) => unknown)(
       {},
     ) as ChangelogData;
+
     for (const group of result.groups) {
       expect(group.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       expect(group.entries.length).toBeGreaterThan(0);
@@ -78,6 +79,7 @@ vi.mock('node:child_process', async (importOriginal) => {
     }
     return actual.execSync(cmd, opts as Parameters<typeof actual.execSync>[1]) as string | Buffer;
   };
+
   return {
     ...actual,
     default: { ...actual, execSync: wrap },
@@ -93,6 +95,7 @@ vi.mock('node:fs', async (importOriginal) => {
     }
     return actual.statSync(p);
   };
+
   return {
     ...actual,
     default: { ...actual, statSync: statWrapper },

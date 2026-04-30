@@ -42,6 +42,7 @@
   const validated: SensorReadingProps = $derived.by(() => {
     const rawProps: SensorReadingProps = stripSvelteProps(allProps);
     const result = safeParse(SensorReadingPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

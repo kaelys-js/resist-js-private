@@ -42,6 +42,7 @@
   const validated: PasswordInputProps = $derived.by(() => {
     const rawProps: PasswordInputProps = stripSvelteProps(allProps);
     const result = safeParse(PasswordInputPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

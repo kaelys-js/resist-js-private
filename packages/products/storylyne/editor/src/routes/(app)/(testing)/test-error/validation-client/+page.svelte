@@ -28,6 +28,7 @@
     });
 
     const result = safeParse(TestSchema, { name: '', age: -5, email: 'not-an-email' });
+
     if (!result.ok) {
       throw result.error;
     }

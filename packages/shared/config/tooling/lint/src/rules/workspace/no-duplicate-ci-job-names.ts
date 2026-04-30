@@ -43,6 +43,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -75,6 +76,7 @@ const rule: WorkspaceRule = {
       /** Only check CI YAML files under .github/ or .gitlab/ directories. */
       const isGitHub: boolean = relativePath.startsWith('.github/');
       const isGitLab: boolean = relativePath.startsWith('.gitlab/');
+
       if (!isGitHub && !isGitLab) {
         continue;
       }
@@ -83,6 +85,7 @@ const rule: WorkspaceRule = {
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -90,18 +93,22 @@ const rule: WorkspaceRule = {
       }
 
       const lines: string[] = content.split('\n');
+
       for (const [i, line] of lines.entries()) {
         const match: RegExpMatchArray | null = line.match(TOP_LEVEL_KEY_PATTERN);
+
         if (match === null) {
           continue;
         }
 
         const jobName: string = match[1] ?? '';
+
         if (RESERVED_KEYS.has(jobName)) {
           continue;
         }
 
         const existing: { file: string; line: number } | undefined = jobNameMap.get(jobName);
+
         if (existing === undefined) {
           jobNameMap.set(jobName, { file: filePath, line: i + 1 });
         } else {

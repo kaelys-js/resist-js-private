@@ -41,6 +41,7 @@
   const validated: PopconfirmProps = $derived.by(() => {
     const rawProps: PopconfirmProps = stripSvelteProps(allProps);
     const result = safeParse(PopconfirmPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

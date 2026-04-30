@@ -42,6 +42,7 @@
   const validated: SplitViewProps = $derived.by(() => {
     const rawProps: SplitViewProps = stripSvelteProps(allProps);
     const result = safeParse(SplitViewPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

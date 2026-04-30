@@ -31,6 +31,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -56,6 +57,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const ext: string = extname(filePath).toLowerCase();
+
       if (SENSITIVE_EXTENSIONS.has(ext)) {
         const relativePath: string = relative(ctx.rootDir, filePath);
         results.push(

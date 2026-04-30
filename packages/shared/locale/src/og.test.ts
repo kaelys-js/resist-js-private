@@ -55,6 +55,7 @@ describe('toOgLocale', () => {
 
   it('output always matches xx_YY format', () => {
     const locales: Str[] = ['en', 'ja', 'zh', 'ko', 'fr', 'de', 'es', 'pt', 'ru', 'ar'];
+
     for (const code of locales) {
       const result = toOgLocale(code);
       expect(result.ok).toBe(true);

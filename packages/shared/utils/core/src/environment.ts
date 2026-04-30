@@ -197,6 +197,7 @@ export function detectRuntime(): Result<RuntimeKind> {
 
   // 9. Browser — has window and document globals
   const browserResult: Result<Bool> = hasBrowserGlobals();
+
   if (!browserResult.ok) {
     return browserResult;
   }
@@ -206,6 +207,7 @@ export function detectRuntime(): Result<RuntimeKind> {
 
   // 10. Node TTY vs pipe
   const proc: OptionalNodeProcess = getProcess();
+
   if (!proc || proc.stdout === undefined) {
     // 11. Cloudflare Worker / edge — fallback
     return ok(RuntimeKindSchema, 'worker');
@@ -263,6 +265,7 @@ export function detectColorLevel(
   // 2. FORCE_COLOR — explicit override
   if (env.FORCE_COLOR !== undefined) {
     const val: Str = env.FORCE_COLOR;
+
     if (val === '0') {
       return ok(ColorLevelSchema, 0);
     }
@@ -283,12 +286,14 @@ export function detectColorLevel(
 
   // 4. COLORTERM=truecolor or 24bit → level 3
   const colorterm: Str | undefined = env.COLORTERM;
+
   if (colorterm === 'truecolor' || colorterm === '24bit') {
     return ok(ColorLevelSchema, 3);
   }
 
   // 5. 256-color terminals
   const term: Str | undefined = env.TERM;
+
   if (term !== undefined && term.includes('256color')) {
     return ok(ColorLevelSchema, 2);
   }
@@ -307,6 +312,7 @@ export function detectColorLevel(
       env.APPVEYOR !== undefined ||
       env.CODEBUILD_BUILD_ARN !== undefined ||
       env.TEAMCITY_VERSION !== undefined;
+
     if (ciWithColor) {
       return ok(ColorLevelSchema, 1);
     }
@@ -316,6 +322,7 @@ export function detectColorLevel(
 
   // 7. Windows — modern Windows terminal supports basic colors
   const proc: OptionalNodeProcess = getProcess();
+
   if (proc?.platform === 'win32') {
     return ok(ColorLevelSchema, 1);
   }
@@ -354,9 +361,11 @@ export function detectColorLevel(
  */
 export function detectRuntimeInfo(): Result<RuntimeInfo> {
   const runtimeResult: Result<RuntimeKind> = detectRuntime();
+
   if (!runtimeResult.ok) {
     return runtimeResult;
   }
+
   const kind: RuntimeKind = runtimeResult.data;
 
   const _g: Record<Str, unknown> = globalThis as Record<Str, unknown>;
@@ -365,36 +374,49 @@ export function detectRuntimeInfo(): Result<RuntimeInfo> {
     // Node.js — process.versions.node
     if (kind === 'node-tty' || kind === 'node-pipe') {
       const proc: OptionalNodeProcess = getProcess();
+
       if (!proc) {
         return;
       }
+
       const { versions } = proc as unknown as { versions?: { node?: Str } };
+
       if (typeof versions !== 'object' || versions === null) {
         return;
       }
+
       const nodeVer: unknown = (versions as Record<Str, unknown>).node;
+
       return typeof nodeVer === 'string' ? nodeVer : undefined;
     }
     // Deno — Deno.version.deno
     if (kind === 'deno') {
       const deno: unknown = _g.Deno;
+
       if (typeof deno !== 'object' || deno === null) {
         return;
       }
+
       const ver: unknown = (deno as Record<Str, unknown>).version;
+
       if (typeof ver !== 'object' || ver === null) {
         return;
       }
+
       const denoVer: unknown = (ver as Record<Str, unknown>).deno;
+
       return typeof denoVer === 'string' ? denoVer : undefined;
     }
     // Bun — Bun.version
     if (kind === 'bun') {
       const bun: unknown = _g.Bun;
+
       if (typeof bun !== 'object' || bun === null) {
         return;
       }
+
       const bunVer: unknown = (bun as Record<Str, unknown>).version;
+
       return typeof bunVer === 'string' ? bunVer : undefined;
     }
   })();
@@ -424,22 +446,27 @@ export function detectRuntimeInfo(): Result<RuntimeInfo> {
  */
 export function detectEnvironment(): Result<EnvironmentConfig> {
   const envResult: Result<EnvRecordWithUndefined> = getEnvRecord();
+
   if (!envResult.ok) {
     return envResult;
   }
+
   const env: EnvRecordWithUndefined = envResult.data;
 
   const ttyResult: Result<Bool> = isTTY();
+
   if (!ttyResult.ok) {
     return ttyResult;
   }
 
   const browserResult: Result<Bool> = hasBrowserGlobals();
+
   if (!browserResult.ok) {
     return browserResult;
   }
 
   const runtimeResult: Result<RuntimeKind> = detectRuntime();
+
   if (!runtimeResult.ok) {
     return runtimeResult;
   }
@@ -449,23 +476,31 @@ export function detectEnvironment(): Result<EnvironmentConfig> {
 
   const _hasElectron: Bool = (() => {
     const proc: OptionalNodeProcess = getProcess();
+
     if (!proc) {
       return false;
     }
+
     const { versions } = proc as unknown as { versions?: { electron?: Str } };
+
     return typeof versions === 'object' && versions !== null && 'electron' in versions;
   })();
 
   const _capacitorPlatform: Str | undefined = (() => {
     const cap: unknown = _globalRecord.Capacitor;
+
     if (typeof cap !== 'object' || cap === null) {
       return;
     }
+
     const { getPlatform } = cap as Record<Str, unknown>;
+
     if (typeof getPlatform !== 'function') {
       return;
     }
+
     const platform: unknown = (getPlatform as () => unknown)();
+
     if (platform === 'ios' || platform === 'android' || platform === 'web') {
       return platform as Str;
     }
@@ -473,12 +508,14 @@ export function detectEnvironment(): Result<EnvironmentConfig> {
 
   // ─── Provider detection ───
   const providerResult: Result<ProviderInfo | undefined> = detectProvider(env);
+
   if (!providerResult.ok) {
     return providerResult;
   }
 
   // ─── Agent detection ───
   const agentResult: Result<AgentInfo | undefined> = detectAgent(env);
+
   if (!agentResult.ok) {
     return agentResult;
   }
@@ -489,6 +526,7 @@ export function detectEnvironment(): Result<EnvironmentConfig> {
     ttyResult.data,
     env.CI !== undefined,
   );
+
   if (!colorResult.ok) {
     return colorResult;
   }
@@ -496,10 +534,13 @@ export function detectEnvironment(): Result<EnvironmentConfig> {
   // ─── Node version ───
   const nodeVersionStr: Str | undefined = (() => {
     const proc: OptionalNodeProcess = getProcess();
+
     if (!proc) {
       return;
     }
+
     const { versions } = proc as unknown as { versions?: { node?: Str } };
+
     return typeof versions === 'object' && versions !== null
       ? ((versions as Record<Str, unknown>).node as Str | undefined)
       : undefined;
@@ -551,6 +592,7 @@ export function detectEnvironment(): Result<EnvironmentConfig> {
     isTauri: _globalRecord.__TAURI__ !== undefined,
     isReactNative: (() => {
       const nav: unknown = _globalRecord.navigator;
+
       if (typeof nav !== 'object' || nav === null) {
         return false;
       }
@@ -562,6 +604,7 @@ export function detectEnvironment(): Result<EnvironmentConfig> {
     isAndroid: _capacitorPlatform === 'android',
     isMacOS: (() => {
       const proc: OptionalNodeProcess = getProcess();
+
       if (proc?.platform === 'darwin') {
         return true;
       }
@@ -585,10 +628,12 @@ export function detectEnvironment(): Result<EnvironmentConfig> {
     // Platform (OS)
     isWindows: (() => {
       const p: OptionalNodeProcess = getProcess();
+
       return p?.platform === 'win32';
     })(),
     isLinux: (() => {
       const p: OptionalNodeProcess = getProcess();
+
       return p?.platform === 'linux';
     })(),
 
@@ -648,10 +693,13 @@ export function detectEnvironment(): Result<EnvironmentConfig> {
  */
 export function requireRuntime(functionName: Str, runtime: RequiredRuntime): Result<never> {
   const nameResult: Result<Str> = safeParse(StrSchema, functionName);
+
   if (!nameResult.ok) {
     return nameResult;
   }
+
   const runtimeResult: Result<RequiredRuntime> = safeParse(RequiredRuntimeSchema, runtime);
+
   if (!runtimeResult.ok) {
     return runtimeResult;
   }

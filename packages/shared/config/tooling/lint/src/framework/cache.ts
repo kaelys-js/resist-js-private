@@ -153,6 +153,7 @@ export class LintCache {
       /* Migrate older shapes that lack toolEntries (defensive — CACHE_VERSION
        * bump should already invalidate, but be tolerant). */
       const data: LintCacheData = parsed as LintCacheData;
+
       if (!data.toolEntries) {
         data.toolEntries = {};
       }
@@ -216,12 +217,14 @@ export class LintCache {
    */
   get(filePath: string, content: string): LintResult[] | null {
     const entry: CacheEntry | undefined = this.data.entries[filePath];
+
     if (!entry) {
       this.missCount++;
       return null;
     }
 
     const currentHash: string = computeHash(content);
+
     if (entry.hash !== currentHash) {
       this.missCount++;
       return null;
@@ -259,6 +262,7 @@ export class LintCache {
   getTool(toolName: string, pkgDir: string, inputHash: string): LintResult[] | null {
     const key: string = `${toolName}|${pkgDir}`;
     const entry: ToolCacheEntry | undefined = this.data.toolEntries[key];
+
     if (!entry) {
       this.missCount++;
       return null;
@@ -314,8 +318,10 @@ export class LintCache {
    */
   getAllByPath(filePaths: readonly string[]): LintResult[] {
     const out: LintResult[] = [];
+
     for (const f of filePaths) {
       const entry: CacheEntry | undefined = this.data.entries[f];
+
       if (entry) {
         out.push(...entry.results);
       }
@@ -391,9 +397,12 @@ export function computeRuleHash(
   const sortedIds: string[] = [...ruleIds].toSorted();
   const sortedKeys: string[] = Object.keys(rulesConfig).toSorted();
   const sortedRules: Record<string, unknown> = {};
+
   for (const key of sortedKeys) {
     sortedRules[key] = rulesConfig[key];
   }
+
   const payload: string = `${sortedIds.join('\n')}\n----\n${JSON.stringify(sortedRules)}`;
+
   return computeHash(payload);
 }

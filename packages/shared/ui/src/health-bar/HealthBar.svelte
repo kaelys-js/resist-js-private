@@ -42,6 +42,7 @@
   const validated: HealthBarProps = $derived.by(() => {
     const rawProps: HealthBarProps = stripSvelteProps(allProps);
     const result = safeParse(HealthBarPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -92,10 +92,13 @@
 
   /** Metadata lookup by component name. */
   const metaByName: Map<Str, LensMeta> = new Map();
+
   for (const [key, mod] of Object.entries(lensMetaModules)) {
     const dir: Str = extractDir(key);
+
     if (mod.meta) {
       const result: Result<LensMeta> = parseLensMeta(mod.meta);
+
       if (result.ok) {
         metaByName.set(dir, {
           ...result.data,
@@ -112,6 +115,7 @@
   const categoryComponents: Str[] = $derived(
     allComponentNames.filter((n: Str): boolean => {
       const m: LensMeta | undefined = metaByName.get(n);
+
       return (m?.category ?? 'display') === category;
     }),
   );
@@ -203,6 +207,7 @@
     if (sortField === 'compatibility') {
       const aOk: Num = (compatByName.get(a)?.compatible ? 1 : 0) as Num;
       const bOk: Num = (compatByName.get(b)?.compatible ? 1 : 0) as Num;
+
       return (aOk - bOk) as Num;
     }
     if (sortField === 'status') {
@@ -213,6 +218,7 @@
       };
       const aS: Num = statusOrder[metaByName.get(a)?.status ?? ''] ?? (3 as Num);
       const bS: Num = statusOrder[metaByName.get(b)?.status ?? ''] ?? (3 as Num);
+
       return (aS - bS) as Num;
     }
     return 0 as Num;
@@ -227,14 +233,19 @@
       const q: Str = searchQuery.toLowerCase() as Str;
       names = names.filter((n: Str): boolean => {
         const label: Str = toTitle(n).toLowerCase() as Str;
+
         if (label.includes(q)) {
           return true;
         }
+
         const meta: LensMeta | undefined = metaByName.get(n);
+
         if (meta?.tags?.some((t: Str): boolean => t.toLowerCase().includes(q))) {
           return true;
         }
+
         const desc: Str = getDescription(n).toLowerCase() as Str;
+
         return desc.includes(q);
       });
     }
@@ -244,6 +255,7 @@
       const mul: Num = (sortDir === 'desc' ? -1 : 1) as Num;
       names = [...names].toSorted((a: Str, b: Str): Num => {
         const raw: Num = getSortValue(a, b);
+
         return (raw * mul) as Num;
       });
     }
@@ -282,8 +294,10 @@
     const sources: Str[] = Object.entries(rawSources)
       .filter(([k]: [Str, Str]): boolean => extractDir(k) === name)
       .map(([, v]: [Str, Str]): Str => v);
+
     for (const src of sources) {
       const desc: Str | undefined = extractComponentDescription(src);
+
       if (desc) {
         return desc;
       }
@@ -378,6 +392,7 @@
       ? PAGE_EXPORT_ITEMS
       : PAGE_EXPORT_ITEMS.filter((p: ExportItem): boolean => {
           const q: Str = exportSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q as string) ||
             p.description.toLowerCase().includes(q as string) ||

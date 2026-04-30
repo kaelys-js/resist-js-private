@@ -757,6 +757,7 @@ describe('rule metadata', () => {
     const svelteRules: TypeScriptRule[] = allRules.filter(
       (r: TypeScriptRule): boolean => r.id !== 'svelte5-config/vite-optimizeDeps',
     );
+
     for (const rule of svelteRules) {
       expect(rule.patterns).toContain('**/svelte.config.*');
     }

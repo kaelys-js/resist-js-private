@@ -42,6 +42,7 @@
   const validated: MovingBorderProps = $derived.by(() => {
     const rawProps: MovingBorderProps = stripSvelteProps(allProps);
     const result = safeParse(MovingBorderPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

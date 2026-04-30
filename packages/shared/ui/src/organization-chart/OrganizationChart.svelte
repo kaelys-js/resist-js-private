@@ -42,6 +42,7 @@
   const validated: OrganizationChartProps = $derived.by(() => {
     const rawProps: OrganizationChartProps = stripSvelteProps(allProps);
     const result = safeParse(OrganizationChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

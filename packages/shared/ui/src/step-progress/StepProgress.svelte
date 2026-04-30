@@ -42,6 +42,7 @@
   const validated: StepProgressProps = $derived.by(() => {
     const rawProps: StepProgressProps = stripSvelteProps(allProps);
     const result = safeParse(StepProgressPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

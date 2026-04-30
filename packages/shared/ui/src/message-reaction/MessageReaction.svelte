@@ -42,6 +42,7 @@
   const validated: MessageReactionProps = $derived.by(() => {
     const rawProps: MessageReactionProps = stripSvelteProps(allProps);
     const result = safeParse(MessageReactionPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

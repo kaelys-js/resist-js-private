@@ -42,6 +42,7 @@
   const validated: ExpenseCategoryProps = $derived.by(() => {
     const rawProps: ExpenseCategoryProps = stripSvelteProps(allProps);
     const result = safeParse(ExpenseCategoryPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

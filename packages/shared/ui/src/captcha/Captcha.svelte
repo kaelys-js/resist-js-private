@@ -42,6 +42,7 @@
   const validated: CaptchaProps = $derived.by(() => {
     const rawProps: CaptchaProps = stripSvelteProps(allProps);
     const result = safeParse(CaptchaPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

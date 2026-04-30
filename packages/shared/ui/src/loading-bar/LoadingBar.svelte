@@ -42,6 +42,7 @@
   const validated: LoadingBarProps = $derived.by(() => {
     const rawProps: LoadingBarProps = stripSvelteProps(allProps);
     const result = safeParse(LoadingBarPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -21,6 +21,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -50,6 +51,7 @@ const rule: WorkspaceRule = {
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -57,6 +59,7 @@ const rule: WorkspaceRule = {
       }
 
       let parsed: Record<string, unknown>;
+
       try {
         parsed = JSON.parse(content) as Record<string, unknown>;
       } catch {
@@ -66,6 +69,7 @@ const rule: WorkspaceRule = {
       const scripts: Record<string, unknown> | undefined = parsed['scripts'] as
         | Record<string, unknown>
         | undefined;
+
       if (!scripts || Object.keys(scripts).length === 0) {
         continue;
       }

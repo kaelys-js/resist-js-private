@@ -42,6 +42,7 @@
   const validated: PressMentionsProps = $derived.by(() => {
     const rawProps: PressMentionsProps = stripSvelteProps(allProps);
     const result = safeParse(PressMentionsPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: SparkChartProps = $derived.by(() => {
     const rawProps: SparkChartProps = stripSvelteProps(allProps);
     const result = safeParse(SparkChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

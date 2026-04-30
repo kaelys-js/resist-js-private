@@ -342,6 +342,7 @@ describe('auditAccessibility — synthetic sources', () => {
       { 'a.ts': APP_TS },
       { 'layout.svelte': LAYOUT_SVELTE, '+page.svelte': PAGE_SVELTE },
     ];
+
     for (const f of fixtures) {
       const audit: A11yAuditResult = auditAccessibility(f);
       expect(audit.overallScore).toBeGreaterThanOrEqual(0);
@@ -361,6 +362,7 @@ describe('auditAccessibility — synthetic sources', () => {
       'bad.svelte': BAD_SVELTE,
       'app.css': APP_CSS,
     });
+
     for (const r of audit.rules) {
       expect(typeof r.id).toBe('string');
       expect(typeof r.label).toBe('string');
@@ -496,6 +498,7 @@ describe('auditAccessibility — synthetic sources', () => {
   it('passRate is 0 when no files match and 100 when all pass', () => {
     /* Empty sources → many rules return not-applicable; none should report passRate > 100. */
     const empty: A11yAuditResult = auditAccessibility({});
+
     for (const r of empty.rules) {
       expect(r.passRate).toBeGreaterThanOrEqual(0);
       expect(r.passRate).toBeLessThanOrEqual(100);

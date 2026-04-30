@@ -42,6 +42,7 @@
   const validated: InsetProps = $derived.by(() => {
     const rawProps: InsetProps = stripSvelteProps(allProps);
     const result = safeParse(InsetPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

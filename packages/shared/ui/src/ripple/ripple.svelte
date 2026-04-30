@@ -42,6 +42,7 @@
   const validated: RippleProps = $derived.by(() => {
     const rawProps: RippleProps = stripSvelteProps(allProps);
     const result = safeParse(RipplePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

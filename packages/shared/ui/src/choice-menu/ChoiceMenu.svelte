@@ -42,6 +42,7 @@
   const validated: ChoiceMenuProps = $derived.by(() => {
     const rawProps: ChoiceMenuProps = stripSvelteProps(allProps);
     const result = safeParse(ChoiceMenuPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

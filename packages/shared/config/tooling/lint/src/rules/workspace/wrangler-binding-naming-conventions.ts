@@ -29,12 +29,14 @@ function extractAllBindingNames(config: Record<string, unknown>): string[] {
 
   for (const source of BINDING_SOURCES) {
     const items: unknown = config[source];
+
     if (!Array.isArray(items)) {
       continue;
     }
     for (const item of items) {
       if (typeof item === 'object' && item !== null) {
         const obj: Record<string, unknown> = item as Record<string, unknown>;
+
         if (typeof obj.binding === 'string') {
           names.push(obj.binding);
         }
@@ -43,12 +45,15 @@ function extractAllBindingNames(config: Record<string, unknown>): string[] {
   }
 
   const durableObjects: unknown = config.durable_objects;
+
   if (typeof durableObjects === 'object' && durableObjects !== null) {
     const doObj: Record<string, unknown> = durableObjects as Record<string, unknown>;
+
     if (Array.isArray(doObj.bindings)) {
       for (const item of doObj.bindings) {
         if (typeof item === 'object' && item !== null) {
           const obj: Record<string, unknown> = item as Record<string, unknown>;
+
           if (typeof obj.name === 'string') {
             names.push(obj.name);
           }
@@ -59,10 +64,12 @@ function extractAllBindingNames(config: Record<string, unknown>): string[] {
 
   /* Tail consumers. */
   const tailConsumers: unknown = config.tail_consumers;
+
   if (Array.isArray(tailConsumers)) {
     for (const item of tailConsumers) {
       if (typeof item === 'object' && item !== null) {
         const obj: Record<string, unknown> = item as Record<string, unknown>;
+
         if (typeof obj.service === 'string') {
           names.push(obj.service);
         }
@@ -83,6 +90,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -108,11 +116,13 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
+
       if (name !== 'wrangler.json' && name !== 'wrangler.jsonc') {
         continue;
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -120,6 +130,7 @@ const rule: WorkspaceRule = {
       }
 
       let parsed: Record<string, unknown>;
+
       try {
         parsed = JSON.parse(content) as Record<string, unknown>;
       } catch {
@@ -130,6 +141,7 @@ const rule: WorkspaceRule = {
 
       /* Check top-level bindings. */
       const topNames: string[] = extractAllBindingNames(parsed);
+
       for (const bindingName of topNames) {
         if (!BINDING_NAME_RE.test(bindingName)) {
           results.push(
@@ -150,13 +162,17 @@ const rule: WorkspaceRule = {
 
       /* Check env-level bindings. */
       const { env } = parsed;
+
       if (typeof env === 'object' && env !== null) {
         const envObj: Record<string, unknown> = env as Record<string, unknown>;
+
         for (const envConfig of Object.values(envObj)) {
           if (typeof envConfig !== 'object' || envConfig === null) {
             continue;
           }
+
           const envNames: string[] = extractAllBindingNames(envConfig as Record<string, unknown>);
+
           for (const bindingName of envNames) {
             if (!BINDING_NAME_RE.test(bindingName)) {
               results.push(

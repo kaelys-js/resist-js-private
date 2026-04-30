@@ -42,6 +42,7 @@
   const validated: FontSizeAdjusterProps = $derived.by(() => {
     const rawProps: FontSizeAdjusterProps = stripSvelteProps(allProps);
     const result = safeParse(FontSizeAdjusterPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

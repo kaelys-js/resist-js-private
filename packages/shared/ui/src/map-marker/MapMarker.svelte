@@ -42,6 +42,7 @@
   const validated: MapMarkerProps = $derived.by(() => {
     const rawProps: MapMarkerProps = stripSvelteProps(allProps);
     const result = safeParse(MapMarkerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

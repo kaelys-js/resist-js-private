@@ -37,11 +37,13 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const { test } = node;
+
       if (test === null || typeof test !== 'object') {
         return results;
       }
 
       const testNode: AstNode = test as AstNode;
+
       if (
         !(testNode.type === 'BooleanLiteral' || testNode.type === 'Literal') ||
         testNode.value !== true
@@ -50,6 +52,7 @@ const rule: TypeScriptRule = {
       }
 
       const pushCall: AstNode | undefined = findCallInBody(node, 'push');
+
       if (pushCall) {
         results.push({
           file: context.file,

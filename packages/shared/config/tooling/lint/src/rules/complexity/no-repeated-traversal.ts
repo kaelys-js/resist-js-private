@@ -44,6 +44,7 @@ const rule: TypeScriptRule = {
         for (const method of TRAVERSAL_METHODS) {
           if (isCallTo(child, method)) {
             const objectName: string | undefined = getCalleeObjectName(child);
+
             if (objectName) {
               const existing: Array<{ method: string; node: AstNode }> =
                 callsByObject.get(objectName) ?? [];

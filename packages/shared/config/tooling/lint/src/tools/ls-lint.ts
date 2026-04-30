@@ -35,6 +35,7 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  */
 export function transformLsLintOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -55,11 +56,13 @@ export function transformLsLintOutput(output: string, strings: LintStrings): Lin
 
   for (const line of lines) {
     const lineStr: string = line.trim();
+
     if (lineStr.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = lineStr.match(violationPattern);
+
     if (match) {
       const file: string = match[1] ?? '';
 

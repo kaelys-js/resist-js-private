@@ -39,9 +39,11 @@ const rule: TypeScriptRule = {
 
       if (callee.type === 'MemberExpression' || callee.type === 'StaticMemberExpression') {
         const propRaw: unknown = callee.property;
+
         if (propRaw !== null && typeof propRaw === 'object') {
           const propNode = propRaw as AstNode;
           const propName = propNode.name as string;
+
           if (propNode.type === 'Identifier' && PROTOTYPE_METHODS.has(propName)) {
             results.push({
               file: context.file,

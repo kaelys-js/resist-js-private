@@ -42,6 +42,7 @@
   const validated: TimelineProps = $derived.by(() => {
     const rawProps: TimelineProps = stripSvelteProps(allProps);
     const result = safeParse(TimelinePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

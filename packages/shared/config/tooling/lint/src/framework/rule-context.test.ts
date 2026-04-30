@@ -37,6 +37,7 @@ const THIS_DIR: string = import.meta.dirname;
 describe('getAllFiles', () => {
   it('yields files from a directory', async () => {
     const files: string[] = [];
+
     for await (const file of getAllFiles(THIS_DIR)) {
       files.push(file);
     }
@@ -45,15 +46,18 @@ describe('getAllFiles', () => {
 
   it('includes .ts files', async () => {
     const files: string[] = [];
+
     for await (const file of getAllFiles(THIS_DIR)) {
       files.push(file);
     }
+
     const tsFiles: string[] = files.filter((f: string): boolean => f.endsWith('.ts'));
     expect(tsFiles.length).toBeGreaterThan(0);
   });
 
   it('returns empty for non-existent directory', async () => {
     const files: string[] = [];
+
     for await (const file of getAllFiles('/non/existent/path')) {
       files.push(file);
     }
@@ -62,6 +66,7 @@ describe('getAllFiles', () => {
 
   it('skips node_modules', async () => {
     const files: string[] = [];
+
     for await (const file of getAllFiles(WORKSPACE_ROOT)) {
       files.push(file);
       /* Early exit to avoid scanning the entire monorepo */
@@ -69,6 +74,7 @@ describe('getAllFiles', () => {
         break;
       }
     }
+
     const nodeModulesFiles: string[] = files.filter((f: string): boolean =>
       f.includes('node_modules'),
     );
@@ -135,6 +141,7 @@ describe('getWorkspacePackages', () => {
 
   it('each package has required fields', async () => {
     const packages = await getWorkspacePackages(WORKSPACE_ROOT);
+
     for (const pkg of packages) {
       expect(typeof pkg.path).toBe('string');
       expect(typeof pkg.dir).toBe('string');
@@ -158,6 +165,7 @@ function mockReaderWithContent(content: string): () => Promise<string> {
     const deferred: Promise<string> = new Promise<string>((resolve: (v: string) => void): void => {
       resolve(content);
     });
+
     return deferred;
   };
 }
@@ -189,6 +197,7 @@ describe('search', () => {
     }
 
     const matches: Array<{ file: string; line: number; match: string }> = [];
+
     for await (const m of search(/createWorkspaceContext/, singleFile())) {
       matches.push(m);
     }
@@ -200,6 +209,7 @@ describe('search', () => {
     const reader = mockReaderWithContent('line one\nfoo bar baz\nline three');
 
     const matches: Array<{ line: number; column: number; match: string }> = [];
+
     for await (const m of search(/bar/, toAsyncIterable('/mock/file.ts'), reader)) {
       matches.push(m);
     }
@@ -213,6 +223,7 @@ describe('search', () => {
     const reader = mockReaderWithContent('no match here');
 
     const matches: unknown[] = [];
+
     for await (const m of search(
       /NONEXISTENT_PATTERN_XYZ/,
       toAsyncIterable('/mock/file.ts'),
@@ -284,6 +295,7 @@ describe('search — error handling', () => {
     };
 
     const matches: unknown[] = [];
+
     for await (const m of search(/test/, toAsyncIterable('/mock/file.ts'), failReader)) {
       matches.push(m);
     }
@@ -303,6 +315,7 @@ describe('search — error handling', () => {
     };
 
     const matches: Array<{ file: string }> = [];
+
     for await (const m of search(/findme/, twoMockFiles(), mixedReader)) {
       matches.push(m);
     }
@@ -320,6 +333,7 @@ describe('search — regex handling', () => {
     const reader = mockReaderWithContent('foo bar foo\nfoo again');
 
     const matches: Array<{ line: number; match: string }> = [];
+
     for await (const m of search(/foo/g, toAsyncIterable('/mock/file.ts'), reader)) {
       matches.push(m);
     }
@@ -333,6 +347,7 @@ describe('search — regex handling', () => {
     const reader = mockReaderWithContent('hello world');
 
     const matches: Array<{ column: number }> = [];
+
     for await (const m of search(/hello/, toAsyncIterable('/mock/file.ts'), reader)) {
       matches.push(m);
     }
@@ -348,24 +363,28 @@ describe('search — regex handling', () => {
 describe('getAllFiles — directory skipping', () => {
   it('skips .git directories', async () => {
     const files: string[] = [];
+
     for await (const file of getAllFiles(WORKSPACE_ROOT)) {
       files.push(file);
       if (files.length > 200) {
         break;
       }
     }
+
     const gitFiles: string[] = files.filter((f: string): boolean => f.includes('/.git/'));
     expect(gitFiles).toEqual([]);
   });
 
   it('skips dist directories', async () => {
     const files: string[] = [];
+
     for await (const file of getAllFiles(WORKSPACE_ROOT)) {
       files.push(file);
       if (files.length > 200) {
         break;
       }
     }
+
     const distFiles: string[] = files.filter((f: string): boolean => f.includes('/dist/'));
     expect(distFiles).toEqual([]);
   });
@@ -388,6 +407,7 @@ describe('getWorkspacePackages — edge cases', () => {
 
   it('packages have dir pointing to the package directory', async () => {
     const packages = await getWorkspacePackages(WORKSPACE_ROOT);
+
     for (const pkg of packages) {
       expect(pkg.path).toBe(join(pkg.dir, 'package.json'));
     }
@@ -403,6 +423,7 @@ describe('search — multi-line content', () => {
     const reader = mockReaderWithContent('alpha\nbeta\ngamma\nbeta again');
 
     const matches: Array<{ line: number; column: number; match: string; text: string }> = [];
+
     for await (const m of search(/beta/, toAsyncIterable('/mock/file.ts'), reader)) {
       matches.push(m);
     }
@@ -417,6 +438,7 @@ describe('search — multi-line content', () => {
     const reader = mockReaderWithContent('first line\nsecond target line\nthird line');
 
     const matches: Array<{ text: string }> = [];
+
     for await (const m of search(/target/, toAsyncIterable('/mock/file.ts'), reader)) {
       matches.push(m);
     }
@@ -470,9 +492,11 @@ describe('getAllFiles — ExcludeConfig', () => {
     const excludes: ExcludeConfig = parseExcludes(['rules']);
     const files: string[] = [];
     const lintSrcDir: string = join(THIS_DIR, '..');
+
     for await (const file of getAllFiles(lintSrcDir, excludes)) {
       files.push(file);
     }
+
     const rulesFiles: string[] = files.filter((f: string): boolean => f.includes('/rules/'));
     expect(rulesFiles).toEqual([]);
     expect(files.length).toBeGreaterThan(0);
@@ -482,9 +506,11 @@ describe('getAllFiles — ExcludeConfig', () => {
     const lintSrcDir: string = join(THIS_DIR, '..');
     const excludes: ExcludeConfig = parseExcludes(['rules/workspace']);
     const files: string[] = [];
+
     for await (const file of getAllFiles(lintSrcDir, excludes, lintSrcDir)) {
       files.push(file);
     }
+
     const workspaceRuleFiles: string[] = files.filter((f: string): boolean =>
       f.includes('/rules/workspace/'),
     );
@@ -496,12 +522,14 @@ describe('getAllFiles — ExcludeConfig', () => {
 
   it('still skips hardcoded SKIP_DIRS even without excludes', async () => {
     const files: string[] = [];
+
     for await (const file of getAllFiles(WORKSPACE_ROOT, undefined)) {
       files.push(file);
       if (files.length > 200) {
         break;
       }
     }
+
     const nodeModulesFiles: string[] = files.filter((f: string): boolean =>
       f.includes('node_modules'),
     );
@@ -602,6 +630,7 @@ describe('createWorkspaceContext — filesByExtension', () => {
     const ctx: WorkspaceContext = createWorkspaceContext(THIS_DIR);
     const all: readonly string[] = await ctx.allFiles();
     const tsFiles: readonly string[] = await ctx.filesByExtension('.ts');
+
     for (const f of tsFiles) {
       expect(all).toContain(f);
     }

@@ -27,6 +27,7 @@ export function transformTaploOutput(output: string): LintResult[] {
 
   for (const line of output.split('\n')) {
     const match: RegExpMatchArray | null = TAPLO_LINE.exec(line.trim());
+
     if (!match) {
       continue;
     }

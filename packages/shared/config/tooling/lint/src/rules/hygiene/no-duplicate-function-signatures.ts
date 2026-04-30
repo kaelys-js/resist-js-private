@@ -40,6 +40,7 @@ const rule: WorkspaceRule = {
 
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.filesByExtension('.ts');
   },
 
@@ -72,6 +73,7 @@ const rule: WorkspaceRule = {
 
           while (match !== null) {
             const fnName: string = match[1] ?? '';
+
             if (fnName.length > 0) {
               const locations: FnLocation[] = fnMap.get(fnName) ?? [];
               locations.push({ file, line: i + 1 });

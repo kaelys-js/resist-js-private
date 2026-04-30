@@ -42,6 +42,7 @@
   const validated: SpotlightProps = $derived.by(() => {
     const rawProps: SpotlightProps = stripSvelteProps(allProps);
     const result = safeParse(SpotlightPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

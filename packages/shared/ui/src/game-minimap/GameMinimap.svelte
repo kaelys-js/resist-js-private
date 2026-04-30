@@ -42,6 +42,7 @@
   const validated: GameMinimapProps = $derived.by(() => {
     const rawProps: GameMinimapProps = stripSvelteProps(allProps);
     const result = safeParse(GameMinimapPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

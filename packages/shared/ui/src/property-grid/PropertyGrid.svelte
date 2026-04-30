@@ -43,6 +43,7 @@
   const validated: PropertyGridProps = $derived.by(() => {
     const rawProps: PropertyGridProps = stripSvelteProps(allProps);
     const result = safeParse(PropertyGridPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

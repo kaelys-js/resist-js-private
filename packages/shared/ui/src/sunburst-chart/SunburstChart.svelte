@@ -42,6 +42,7 @@
   const validated: SunburstChartProps = $derived.by(() => {
     const rawProps: SunburstChartProps = stripSvelteProps(allProps);
     const result = safeParse(SunburstChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

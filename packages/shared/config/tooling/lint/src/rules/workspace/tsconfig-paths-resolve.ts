@@ -22,6 +22,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -47,6 +48,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
+
       if (!name.startsWith('tsconfig') || !name.endsWith('.json')) {
         continue;
       }
@@ -61,6 +63,7 @@ const rule: WorkspaceRule = {
       const configDir: string = dirname(filePath);
 
       const { paths } = compilerOptions;
+
       if (paths === undefined || paths === null || typeof paths !== 'object') {
         continue;
       }
@@ -69,6 +72,7 @@ const rule: WorkspaceRule = {
 
       for (const aliasKey of Object.keys(pathEntries)) {
         const values: unknown = pathEntries[aliasKey];
+
         if (!Array.isArray(values)) {
           continue;
         }
@@ -79,6 +83,7 @@ const rule: WorkspaceRule = {
           }
 
           const stripped: string = value.replace(/\*$/, '').replace(/\/$/, '');
+
           if (stripped === '') {
             continue;
           }

@@ -42,6 +42,7 @@
   const validated: LightboxProps = $derived.by(() => {
     const rawProps: LightboxProps = stripSvelteProps(allProps);
     const result = safeParse(LightboxPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

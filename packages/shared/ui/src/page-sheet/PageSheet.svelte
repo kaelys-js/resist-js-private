@@ -42,6 +42,7 @@
   const validated: PageSheetProps = $derived.by(() => {
     const rawProps: PageSheetProps = stripSvelteProps(allProps);
     const result = safeParse(PageSheetPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

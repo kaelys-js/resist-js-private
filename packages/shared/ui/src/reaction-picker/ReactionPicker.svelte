@@ -42,6 +42,7 @@
   const validated: ReactionPickerProps = $derived.by(() => {
     const rawProps: ReactionPickerProps = stripSvelteProps(allProps);
     const result = safeParse(ReactionPickerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

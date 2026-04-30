@@ -42,6 +42,7 @@
   const validated: CircularProgressProps = $derived.by(() => {
     const rawProps: CircularProgressProps = stripSvelteProps(allProps);
     const result = safeParse(CircularProgressPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

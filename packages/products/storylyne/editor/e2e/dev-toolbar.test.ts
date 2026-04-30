@@ -452,12 +452,14 @@ test.describe('dev toolbar — viewport resize', () => {
     await expect
       .poll(async () => {
         const box = await trigger.boundingBox();
+
         return box ? box.x + box.width : 9999;
       })
       .toBeLessThanOrEqual(600);
     await expect
       .poll(async () => {
         const box = await trigger.boundingBox();
+
         return box ? box.x : -9999;
       })
       .toBeGreaterThanOrEqual(0);
@@ -482,12 +484,14 @@ test.describe('dev toolbar — viewport resize', () => {
     await expect
       .poll(async () => {
         const box = await trigger.boundingBox();
+
         return box ? box.y + box.height : 9999;
       })
       .toBeLessThanOrEqual(400);
     await expect
       .poll(async () => {
         const box = await trigger.boundingBox();
+
         return box ? box.y : -9999;
       })
       .toBeGreaterThanOrEqual(0);

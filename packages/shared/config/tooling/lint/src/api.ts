@@ -150,15 +150,18 @@ export async function lint(options?: LintOptions): Promise<LintApiResult<LintRes
 
   /* Resolve locale */
   const localeResult = resolveLocale(opts.locale);
+
   if (!localeResult.ok) {
     return { ok: false, error: localeResult.error };
   }
+
   const { strings } = localeResult;
 
   const cwd: string = opts.cwd ?? process.cwd();
 
   /* Load config */
   let config: LintConfig;
+
   try {
     config = loadConfig(cwd, opts.configPath, strings);
   } catch (error: unknown) {
@@ -219,6 +222,7 @@ export async function lint(options?: LintOptions): Promise<LintApiResult<LintRes
 
   /* Run in-memory source linting */
   const sourceResults: LintResult[] = [];
+
   if (opts.sources && opts.sources.length > 0) {
     let tsRules: TypeScriptRule[] = [...loaded.typescript];
 
@@ -256,6 +260,7 @@ export async function lint(options?: LintOptions): Promise<LintApiResult<LintRes
           rule.patterns.some((pattern: string): boolean => {
             if (pattern.startsWith('**/*.')) {
               const ext: string = pattern.slice(4);
+
               return source.filePath.endsWith(ext);
             }
             return source.filePath.includes(pattern);
@@ -274,6 +279,7 @@ export async function lint(options?: LintOptions): Promise<LintApiResult<LintRes
         );
       }),
     );
+
     for (const results of perSourceResults) {
       sourceResults.push(...results);
     }

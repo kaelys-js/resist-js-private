@@ -41,6 +41,7 @@ const PERL_ERROR: RegExp = /^(.+?)\s+at\s+(.+?)\s+line\s+(\d+)/;
  */
 export function transformPerlOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -49,6 +50,7 @@ export function transformPerlOutput(output: string): LintResult[] {
 
   for (const line of trimmed.split('\n')) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
@@ -59,6 +61,7 @@ export function transformPerlOutput(output: string): LintResult[] {
     }
 
     const match: RegExpMatchArray | null = PERL_ERROR.exec(stripped);
+
     if (!match) {
       continue;
     }

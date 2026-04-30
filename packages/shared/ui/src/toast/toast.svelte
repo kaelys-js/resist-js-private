@@ -42,6 +42,7 @@
   const validated: ToastProps = $derived.by(() => {
     const rawProps: ToastProps = stripSvelteProps(allProps);
     const result = safeParse(ToastPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

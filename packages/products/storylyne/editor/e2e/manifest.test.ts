@@ -133,6 +133,7 @@ test.describe('manifest.webmanifest', () => {
   test('all screenshot src paths resolve to 200', async ({ request }) => {
     const response = await request.get('/manifest.webmanifest');
     const manifest = await response.json();
+
     for (const screenshot of manifest.screenshots) {
       const screenshotResponse = await request.get(screenshot.src);
       expect(screenshotResponse.status(), `${screenshot.src} should return 200`).toBe(200);
@@ -188,6 +189,7 @@ test.describe('manifest.webmanifest', () => {
   test('all icon src paths resolve to 200', async ({ request }) => {
     const response = await request.get('/manifest.webmanifest');
     const manifest = await response.json();
+
     for (const icon of manifest.icons) {
       const iconResponse = await request.get(icon.src);
       expect(iconResponse.status(), `${icon.src} should return 200`).toBe(200);

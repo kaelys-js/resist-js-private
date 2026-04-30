@@ -113,6 +113,7 @@ export function loadConfig(
     : resolve(cwd, CONFIG_FILENAME);
 
   const cached: LintConfig | undefined = CONFIG_CACHE.get(configPath);
+
   if (cached !== undefined) {
     /* Return a shallow copy so callers can mutate exclude/rules without poisoning the cache. */
     return { ...cached, exclude: [...cached.exclude], rules: { ...cached.rules } };
@@ -133,6 +134,7 @@ export function loadConfig(
   const stripped: string = stripJsoncComments(raw);
 
   let parsed: unknown;
+
   try {
     parsed = JSON.parse(stripped);
   } catch (error: unknown) {
@@ -152,9 +154,11 @@ export function loadConfig(
         const pathStr: string =
           issue.path?.map((p: { key?: unknown }): string => String(p.key ?? '')).join('.') ??
           'root';
+
         return `  - ${pathStr}: ${issue.message}`;
       })
       .join('\n');
+
     throw new Error(format(strings.errors.invalidConfig, { issues, path: configPath }));
   }
 
@@ -185,6 +189,7 @@ export function resolveRuleSeverity(
   /* Check overrides in reverse order — last match wins */
   for (let i: number = config.overrides.length - 1; i >= 0; i--) {
     const override: Override | undefined = config.overrides[i];
+
     if (!override) {
       continue;
     }
@@ -243,6 +248,7 @@ function fileMatchesPattern(filePath: string, pattern: string): boolean {
   /* Exact filename match (e.g. "*.test.ts") */
   if (pattern.startsWith('*.')) {
     const ext: string = pattern.slice(1);
+
     return filePath.endsWith(ext);
   }
 
@@ -253,14 +259,17 @@ function fileMatchesPattern(filePath: string, pattern: string): boolean {
     // Trailing "/**" means "anything under this directory"
     if (suffix.endsWith('/**')) {
       const dirFragment: string = suffix.slice(0, -3);
+
       return filePath.includes(dirFragment);
     }
 
     /* If suffix contains *, extract the extension for matching */
     if (suffix.includes('*')) {
       const dotIdx: number = suffix.lastIndexOf('.');
+
       if (dotIdx >= 0) {
         const ext: string = suffix.slice(dotIdx);
+
         return filePath.endsWith(ext);
       }
       return false;
@@ -292,8 +301,10 @@ function stripJsoncComments(input: string): string {
     /* Handle strings — preserve contents as-is */
     if (ch === '"') {
       let j: number = i + 1;
+
       while (j < len) {
         const sc: string = input[j] ?? '';
+
         if (sc === '\\') {
           j += 2;
           continue;
@@ -403,6 +414,7 @@ export function validateConfig(
 
     /* Validate individual option keys against the rule's declared optionsSchema */
     const schema: OptionsSchema | undefined = optionsSchemas?.get(ruleId);
+
     if (!schema) {
       warnings.push({
         path: `ruleOptions.${ruleId}`,
@@ -412,6 +424,7 @@ export function validateConfig(
     }
 
     const optionObj = config.ruleOptions[ruleId];
+
     if (optionObj && typeof optionObj === 'object') {
       for (const key of Object.keys(optionObj)) {
         if (!(key in schema)) {
@@ -448,6 +461,7 @@ export function validateConfig(
   /* Validate override rule keys and file patterns */
   for (let i = 0; i < config.overrides.length; i++) {
     const override: Override | undefined = config.overrides[i];
+
     if (!override) {
       continue;
     }
@@ -566,6 +580,7 @@ export function generateJsonSchema(
   // Build per-rule properties — each rule gets its own description, enum, and type
   const ruleProperties: Record<string, JsonSchemaProperty> = {};
   const ruleOptionProperties: Record<string, JsonSchemaProperty> = {};
+
   for (const id of ruleIds) {
     ruleProperties[id] = {
       description: ruleDescriptions.get(id) ?? '',
@@ -574,13 +589,16 @@ export function generateJsonSchema(
     };
 
     const optSchema: OptionsSchema | undefined = optionsSchemas?.get(id);
+
     if (optSchema) {
       const optProps: Record<string, JsonSchemaProperty> = {};
+
       for (const [key, def] of Object.entries(optSchema)) {
         const prop: JsonSchemaProperty = {
           description: def.description ?? '',
           type: def.type,
         };
+
         if (def.type === 'array' && def.items) {
           prop.items = { type: def.items };
         }

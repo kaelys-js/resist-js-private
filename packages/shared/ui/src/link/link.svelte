@@ -42,6 +42,7 @@
   const validated: LinkProps = $derived.by(() => {
     const rawProps: LinkProps = stripSvelteProps(allProps);
     const result = safeParse(LinkPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

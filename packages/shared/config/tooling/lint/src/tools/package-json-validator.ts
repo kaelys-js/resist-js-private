@@ -44,6 +44,7 @@ const VALIDATOR_LINE: RegExp = /^(.+?):(\d+):\s+(.+)$/;
  */
 export function transformPackageJsonValidatorOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -53,11 +54,13 @@ export function transformPackageJsonValidatorOutput(output: string): LintResult[
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = VALIDATOR_LINE.exec(stripped);
+
     if (!match) {
       continue;
     }
@@ -103,6 +106,7 @@ export function validatePackageJson(filename: string, content: string): string {
   const diagnostics: string[] = [];
 
   let parsed: Record<string, unknown>;
+
   try {
     parsed = JSON.parse(content) as Record<string, unknown>;
   } catch {
@@ -126,6 +130,7 @@ export function validatePackageJson(filename: string, content: string): string {
 
   /* Warn about ESM (.mjs) usage hints */
   const stringified: string = JSON.stringify(parsed);
+
   if (stringified.includes('.mjs')) {
     diagnostics.push(
       `${filename}:1: Package references .mjs files — consider using ESM-native "type": "module" instead`,

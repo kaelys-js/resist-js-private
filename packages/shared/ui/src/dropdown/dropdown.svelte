@@ -43,6 +43,7 @@
   const validated: DropdownProps = $derived.by(() => {
     const rawProps: DropdownProps = stripSvelteProps(allProps);
     const result = safeParse(DropdownPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

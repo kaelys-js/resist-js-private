@@ -42,6 +42,7 @@
   const validated: ApiResponseViewerProps = $derived.by(() => {
     const rawProps: ApiResponseViewerProps = stripSvelteProps(allProps);
     const result = safeParse(ApiResponseViewerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

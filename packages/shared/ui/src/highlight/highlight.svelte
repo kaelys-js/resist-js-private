@@ -42,6 +42,7 @@
   const validated: HighlightProps = $derived.by(() => {
     const rawProps: HighlightProps = stripSvelteProps(allProps);
     const result = safeParse(HighlightPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

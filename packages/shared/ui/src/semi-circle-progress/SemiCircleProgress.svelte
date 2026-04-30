@@ -42,6 +42,7 @@
   const validated: SemiCircleProgressProps = $derived.by(() => {
     const rawProps: SemiCircleProgressProps = stripSvelteProps(allProps);
     const result = safeParse(SemiCircleProgressPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

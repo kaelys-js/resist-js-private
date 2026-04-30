@@ -196,6 +196,7 @@ describe('vitals-diagnostics', () => {
 
     it('has thresholds for all core Web Vitals', () => {
       const coreMetrics: Str[] = ['LCP', 'CLS', 'FCP', 'TTFB', 'INP', 'FID', 'TBT', 'NTBT'];
+
       for (const name of coreMetrics) {
         const r = getThresholds(name);
         expect(r.ok && r.data, `Missing thresholds for ${name}`).not.toBeNull();
@@ -551,6 +552,7 @@ describe('vitals-diagnostics', () => {
       expect(diag).not.toBeNull();
       // Should contain movement detail with dx direction
       const shiftFinding = diag!.findings.find((f) => f.label === 'Shifted Element');
+
       if (shiftFinding) {
         expect(shiftFinding.value).toContain('50px');
       }

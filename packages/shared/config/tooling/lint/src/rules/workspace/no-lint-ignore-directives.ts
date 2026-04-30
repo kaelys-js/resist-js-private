@@ -53,6 +53,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -78,15 +79,19 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const dotIndex: number = filePath.lastIndexOf('.');
+
       if (dotIndex === -1) {
         continue;
       }
+
       const ext: string = filePath.slice(dotIndex);
+
       if (!SCANNABLE_EXTENSIONS.has(ext)) {
         continue;
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {

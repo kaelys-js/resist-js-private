@@ -117,10 +117,12 @@ export function formatText(
     lines.push(strings.output.toolSummaryHeader);
 
     const toolGroups: Map<string, LintResult[]> = new Map();
+
     for (const result of results) {
       const slashIndex: number = result.ruleId.indexOf('/');
       const toolName: string = slashIndex > 0 ? result.ruleId.slice(0, slashIndex) : 'custom';
       const group: LintResult[] | undefined = toolGroups.get(toolName);
+
       if (group) {
         group.push(result);
       } else {
@@ -147,9 +149,11 @@ export function formatText(
 
     for (const toolName of toolNames) {
       const group: LintResult[] | undefined = toolGroups.get(toolName);
+
       if (!group) {
         continue;
       }
+
       const toolErrors: number = group.filter(
         (r: LintResult): boolean => r.severity === 'error',
       ).length;
@@ -170,6 +174,7 @@ export function formatText(
 
         /* Deduplicated absolute file paths */
         const files: Set<string> = new Set<string>();
+
         for (const r of group) {
           files.add(resolve(cwd, r.file));
         }
@@ -266,12 +271,14 @@ export function formatSarif(results: LintResult[], ruleDescriptions: Map<string,
 
   /* Collect unique rule IDs */
   const ruleIds: Set<string> = new Set<string>();
+
   for (const r of results) {
     ruleIds.add(r.ruleId);
   }
 
   const rules: SarifRule[] = [...ruleIds].map((id: string): SarifRule => {
     const desc: string = ruleDescriptions.get(id) ?? id;
+
     return {
       id,
       shortDescription: { text: desc },
@@ -280,11 +287,13 @@ export function formatSarif(results: LintResult[], ruleDescriptions: Map<string,
 
   const sarifResults: SarifResult[] = results.map((r: LintResult): SarifResult => {
     let level: 'error' | 'warning' | 'note' = 'note';
+
     if (r.severity === 'error') {
       level = 'error';
     } else if (r.severity === 'warning') {
       level = 'warning';
     }
+
     const relPath: string = relative(cwd, r.file);
 
     return {
@@ -403,9 +412,11 @@ export function formatJunit(results: LintResult[], totalFiles: number): string {
 
   /* Group results by file */
   const byFile: Map<string, LintResult[]> = new Map();
+
   for (const result of results) {
     const relPath: string = relative(cwd, result.file);
     const existing: LintResult[] | undefined = byFile.get(relPath);
+
     if (existing) {
       existing.push(result);
     } else {

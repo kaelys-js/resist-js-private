@@ -46,6 +46,7 @@ const OWNER_PATTERN: RegExp = /^(@[\w-]+(?:\/[\w.-]+)?|[\w.+-]+@[\w.-]+\.\w+)$/;
  */
 export function transformCodeownersOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -61,11 +62,13 @@ export function transformCodeownersOutput(output: string, strings: LintStrings):
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = stripped.match(pattern);
+
     if (match) {
       const file: string = match[1] ?? '';
       const lineNum: number = Number.parseInt(match[2] ?? '1', 10);

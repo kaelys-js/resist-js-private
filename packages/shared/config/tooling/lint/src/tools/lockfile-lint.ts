@@ -35,6 +35,7 @@ import type { LintStrings } from '@/lint/locale/schema.ts';
  */
 export function transformLockfileLintOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -44,6 +45,7 @@ export function transformLockfileLintOutput(output: string, strings: LintStrings
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
@@ -68,6 +70,7 @@ export function transformLockfileLintOutput(output: string, strings: LintStrings
     const fileMatch: RegExpMatchArray | null = stripped.match(
       /^([\w./-]*(?:package-lock\.json|yarn\.lock|pnpm-lock\.yaml)):\s*(.+)$/,
     );
+
     if (fileMatch) {
       file = fileMatch[1] ?? file;
       message = fileMatch[2] ?? stripped;

@@ -147,6 +147,7 @@ import { tsgoTool, transformTsgoOutput } from './tsgo.ts';
 // Mock isCommandAvailable to avoid real `which` calls
 vi.mock('@/lint/framework/tool-orchestrator.ts', async (importOriginal) => {
   const actual = await importOriginal<typeof ToolOrchestratorModule>();
+
   return {
     ...actual,
     isCommandAvailable: vi.fn().mockResolvedValue(true),

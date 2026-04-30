@@ -27,6 +27,7 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
       const source = node.source as AstNode | undefined;
       const value: string | undefined = (source as { value?: string } | undefined)?.value;
+
       if (value !== 'valibot') {
         return results;
       }
@@ -37,6 +38,7 @@ const rule: TypeScriptRule = {
       }
 
       const specifiers = node.specifiers as AstNode[] | undefined;
+
       if (!specifiers) {
         return results;
       }
@@ -45,6 +47,7 @@ const rule: TypeScriptRule = {
       const isNamespace: boolean = specifiers.some(
         (s: AstNode): boolean => s.type === 'ImportNamespaceSpecifier',
       );
+
       if (isNamespace) {
         return results;
       }

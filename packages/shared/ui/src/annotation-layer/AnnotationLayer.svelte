@@ -43,6 +43,7 @@
   const validated: AnnotationLayerProps = $derived.by(() => {
     const rawProps: AnnotationLayerProps = stripSvelteProps(allProps);
     const result = safeParse(AnnotationLayerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

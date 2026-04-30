@@ -41,6 +41,7 @@
   const validated: EmailInputProps = $derived.by(() => {
     const rawProps: EmailInputProps = stripSvelteProps(allProps);
     const result = safeParse(EmailInputPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: RetroGridProps = $derived.by(() => {
     const rawProps: RetroGridProps = stripSvelteProps(allProps);
     const result = safeParse(RetroGridPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

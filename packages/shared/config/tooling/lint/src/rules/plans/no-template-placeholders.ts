@@ -60,6 +60,7 @@ const rule: WorkspaceRule = {
       for (const { pattern, label } of PLACEHOLDER_PATTERNS) {
         /* Reset regex lastIndex */
         const re: RegExp = new RegExp(pattern.source, pattern.flags);
+
         for (let i: number = 0; i < lines.length; i++) {
           if (re.test(lines[i] ?? '')) {
             results.push(

@@ -42,6 +42,7 @@
   const validated: EditableProps = $derived.by(() => {
     const rawProps: EditableProps = stripSvelteProps(allProps);
     const result = safeParse(EditablePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

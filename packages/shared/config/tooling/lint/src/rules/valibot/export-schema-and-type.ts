@@ -51,17 +51,21 @@ function isValibotSchemaCall(node: AstNode, context: VisitorContext): boolean {
   if (node.type !== 'CallExpression') {
     return false;
   }
+
   const callee = node.callee as AstNode | undefined;
+
   if (!callee) {
     return false;
   }
   if (callee.type !== 'StaticMemberExpression' && callee.type !== 'MemberExpression') {
     return false;
   }
+
   const obj = callee.object as AstNode | undefined;
   const prop = callee.property as AstNode | undefined;
   const objName: string = (obj?.name as string) ?? '';
   const methodName: string = (prop?.name as string) ?? '';
+
   return context.isImportedFrom(objName, 'valibot') && SCHEMA_FACTORIES.has(methodName);
 }
 
@@ -78,6 +82,7 @@ const rule: TypeScriptRule = {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const body = node.body as AstNode[] | undefined;
+
       if (!body) {
         return results;
       }
@@ -93,12 +98,14 @@ const rule: TypeScriptRule = {
 
         // Handle export { Foo, Bar } specifiers
         const specifiers = stmt.specifiers as AstNode[] | undefined;
+
         if (specifiers) {
           for (const spec of specifiers) {
             const exported = spec.exported as AstNode | undefined;
             const local = spec.local as AstNode | undefined;
             const exportedName: string =
               (exported?.name as string) ?? (local?.name as string) ?? '';
+
             if (exportedName) {
               exportedNames.add(exportedName);
             }
@@ -106,6 +113,7 @@ const rule: TypeScriptRule = {
         }
 
         const declaration = stmt.declaration as AstNode | undefined;
+
         if (!declaration) {
           continue;
         }
@@ -114,6 +122,7 @@ const rule: TypeScriptRule = {
         if (declaration.type === 'TSTypeAliasDeclaration') {
           const id = declaration.id as AstNode | undefined;
           const typeName: string = (id?.name as string) ?? '';
+
           if (typeName) {
             exportedNames.add(typeName);
           }
@@ -122,6 +131,7 @@ const rule: TypeScriptRule = {
         // Handle exported variable declarations (schemas)
         if (declaration.type === 'VariableDeclaration') {
           const declarations = declaration.declarations as AstNode[] | undefined;
+
           if (!declarations) {
             continue;
           }
@@ -129,11 +139,13 @@ const rule: TypeScriptRule = {
           for (const decl of declarations) {
             const id = decl.id as AstNode | undefined;
             const init = decl.init as AstNode | undefined;
+
             if (!id || !init) {
               continue;
             }
 
             const name: string = (id.name as string) ?? '';
+
             if (name) {
               exportedNames.add(name);
             }
@@ -152,6 +164,7 @@ const rule: TypeScriptRule = {
       // For each exported schema, check if the derived type is also exported
       for (const schema of exportedSchemas) {
         const expectedType: string = schema.name.replace(/Schema$/, '');
+
         if (!exportedNames.has(expectedType)) {
           results.push({
             column: schema.column,

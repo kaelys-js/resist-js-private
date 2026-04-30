@@ -42,6 +42,7 @@
   const validated: MinimapProps = $derived.by(() => {
     const rawProps: MinimapProps = stripSvelteProps(allProps);
     const result = safeParse(MinimapPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

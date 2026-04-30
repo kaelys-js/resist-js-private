@@ -42,6 +42,7 @@
   const validated: NpsSurveyProps = $derived.by(() => {
     const rawProps: NpsSurveyProps = stripSvelteProps(allProps);
     const result = safeParse(NpsSurveyPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

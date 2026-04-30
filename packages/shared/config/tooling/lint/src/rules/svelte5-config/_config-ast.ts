@@ -19,6 +19,7 @@ import type { AstNode, ImportInfo } from '@/lint/framework/types.ts';
  */
 export function getPropertyName(prop: AstNode): string | undefined {
   const key: AstNode | undefined = prop.key as AstNode | undefined;
+
   if (!key) {
     return undefined;
   }
@@ -47,6 +48,7 @@ export function findProperty(obj: AstNode, name: string): AstNode | undefined {
   }
 
   const properties: AstNode[] | undefined = obj.properties as AstNode[] | undefined;
+
   if (!properties) {
     return undefined;
   }
@@ -73,6 +75,7 @@ export function findProperty(obj: AstNode, name: string): AstNode | undefined {
  */
 export function getPropertyValueNode(obj: AstNode, name: string): AstNode | undefined {
   const prop: AstNode | undefined = findProperty(obj, name);
+
   if (!prop) {
     return undefined;
   }
@@ -137,6 +140,7 @@ export function isUndefinedValue(node: AstNode): boolean {
  */
 export function getDefaultExportObject(ast: AstNode): AstNode | undefined {
   const body: AstNode[] | undefined = ast.body as AstNode[] | undefined;
+
   if (!body) {
     return undefined;
   }
@@ -147,6 +151,7 @@ export function getDefaultExportObject(ast: AstNode): AstNode | undefined {
     }
 
     const decl: AstNode | undefined = stmt.declaration as AstNode | undefined;
+
     if (!decl) {
       continue;
     }
@@ -158,6 +163,7 @@ export function getDefaultExportObject(ast: AstNode): AstNode | undefined {
     // Handle `export default defineConfig({ ... })`
     if (decl.type === 'CallExpression') {
       const args: AstNode[] | undefined = decl.arguments as AstNode[] | undefined;
+
       if (args && args.length > 0 && args[0]?.type === 'ObjectExpression') {
         return args[0];
       }
@@ -219,6 +225,7 @@ export function collectPropertyPaths(obj: AstNode, prefix: string = ''): string[
   }
 
   const properties: AstNode[] | undefined = obj.properties as AstNode[] | undefined;
+
   if (!properties) {
     return paths;
   }
@@ -229,6 +236,7 @@ export function collectPropertyPaths(obj: AstNode, prefix: string = ''): string[
     }
 
     const name: string | undefined = getPropertyName(prop);
+
     if (!name) {
       continue;
     }
@@ -237,6 +245,7 @@ export function collectPropertyPaths(obj: AstNode, prefix: string = ''): string[
     paths.push(fullPath);
 
     const value: AstNode | undefined = prop.value as AstNode | undefined;
+
     if (value?.type === 'ObjectExpression') {
       paths.push(...collectPropertyPaths(value, fullPath));
     }
@@ -259,6 +268,7 @@ export function getPropertyEntries(obj: AstNode): Array<[string, AstNode]> {
   }
 
   const properties: AstNode[] | undefined = obj.properties as AstNode[] | undefined;
+
   if (!properties) {
     return entries;
   }

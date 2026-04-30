@@ -42,6 +42,7 @@
   const validated: BookingCalendarProps = $derived.by(() => {
     const rawProps: BookingCalendarProps = stripSvelteProps(allProps);
     const result = safeParse(BookingCalendarPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

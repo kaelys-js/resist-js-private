@@ -43,6 +43,7 @@
   const validated: StickyHeaderProps = $derived.by(() => {
     const rawProps: StickyHeaderProps = stripSvelteProps(allProps);
     const result = safeParse(StickyHeaderPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: ShineBorderProps = $derived.by(() => {
     const rawProps: ShineBorderProps = stripSvelteProps(allProps);
     const result = safeParse(ShineBorderPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

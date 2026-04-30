@@ -61,10 +61,13 @@
 
   /** Metadata lookup by component name. */
   const metaByName: Map<Str, LensMeta> = new Map();
+
   for (const [key, mod] of Object.entries(lensMetaModules)) {
     const dir: Str = extractDir(key);
+
     if (mod.meta) {
       const result: Result<LensMeta> = parseLensMeta(mod.meta);
+
       if (result.ok) {
         metaByName.set(dir, {
           ...result.data,
@@ -79,9 +82,11 @@
 
   /** Tag → component names mapping. */
   const tagMap: Map<Str, Str[]> = new Map();
+
   for (const [name, meta] of metaByName.entries()) {
     for (const tag of meta.tags) {
       const existing: Str[] | undefined = tagMap.get(tag);
+
       if (existing) {
         existing.push(name);
       } else {
@@ -127,12 +132,14 @@
   const filteredTags: Str[] = $derived.by((): Str[] => {
     const q: Str = searchQuery.trim().toLowerCase() as Str;
     let tags: Str[] = allTags;
+
     if (q) {
       tags = tags.filter((tag: Str): boolean => tag.toLowerCase().includes(q as string));
     }
 
     if (sortField) {
       const mul: Num = (sortDir === 'desc' ? -1 : 1) as Num;
+
       if (sortField === 'name') {
         tags = [...tags].toSorted(
           (a: Str, b: Str): Num => ((mul as number) * a.localeCompare(b)) as Num,
@@ -177,12 +184,14 @@
     if (!sortField) {
       return '' as Str;
     }
+
     const names: Record<string, string> = {
       name: 'Tag',
       count: 'Components',
       components: 'Sample Components',
     };
     const arrow: Str = (sortDir === 'asc' ? '\u2191' : '\u2193') as Str;
+
     return `${names[sortField] ?? sortField} ${arrow}` as Str;
   });
 
@@ -253,6 +262,7 @@
       ? PAGE_EXPORT_ITEMS
       : PAGE_EXPORT_ITEMS.filter((p: ExportItem): boolean => {
           const q: Str = exportSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q as string) ||
             p.description.toLowerCase().includes(q as string) ||

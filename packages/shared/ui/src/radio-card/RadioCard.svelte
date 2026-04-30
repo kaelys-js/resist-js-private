@@ -43,6 +43,7 @@
   const validated: RadioCardProps = $derived.by(() => {
     const rawProps: RadioCardProps = stripSvelteProps(allProps);
     const result = safeParse(RadioCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: ShareSheetProps = $derived.by(() => {
     const rawProps: ShareSheetProps = stripSvelteProps(allProps);
     const result = safeParse(ShareSheetPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

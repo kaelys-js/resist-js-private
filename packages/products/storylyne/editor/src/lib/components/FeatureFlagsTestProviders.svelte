@@ -15,6 +15,7 @@
   let { children, disabledFlags = [] }: { children: Snippet; disabledFlags?: Str[] } = $props();
 
   const store = initEditorStore();
+
   for (const flag of disabledFlags) {
     store.setFeature(flag, false);
   }

@@ -114,6 +114,7 @@ const BADGE_API =
 function buildKVBlock(entries: Array<[Str, Str]>, pad = 14): [Str, ...Str[]] {
   const parts: Str[] = [];
   const styleArgs: Str[] = [];
+
   for (const [key, value] of entries) {
     parts.push(`  %c${key.padEnd(pad)}%c ${value}`);
     styleArgs.push(styles.keyLabel, styles.valueText);
@@ -139,6 +140,7 @@ function logWelcomeBanner(
 
   // ── Build Info
   const buildResult = getBuildInfo();
+
   if (buildResult.ok) {
     const b = buildResult.data;
     console.groupCollapsed(`%c ${appName} · Build Info `, BADGE_BUILD);
@@ -156,6 +158,7 @@ function logWelcomeBanner(
   // ── Current State
   console.groupCollapsed(`%c ${appName} · Current State `, BADGE_STATE);
   const devtools = (window as unknown as Record<Str, DevtoolsAPI | undefined>)[devtoolsKey];
+
   if (devtools) {
     devtools.logState();
   }
@@ -175,6 +178,7 @@ function logWelcomeBanner(
   if (overrideKeys.length > 0) {
     const validKeys: Str[] = [];
     const unknownKeys: Str[] = [];
+
     for (const key of overrideKeys) {
       if (isRecognizedOverrideKey(key, config)) {
         validKeys.push(key);

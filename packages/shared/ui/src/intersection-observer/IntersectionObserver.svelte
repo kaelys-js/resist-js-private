@@ -43,6 +43,7 @@
   const validated: IntersectionObserverProps = $derived.by(() => {
     const rawProps: IntersectionObserverProps = stripSvelteProps(allProps);
     const result = safeParse(IntersectionObserverPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

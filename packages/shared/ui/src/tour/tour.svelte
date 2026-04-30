@@ -42,6 +42,7 @@
   const validated: TourProps = $derived.by(() => {
     const rawProps: TourProps = stripSvelteProps(allProps);
     const result = safeParse(TourPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

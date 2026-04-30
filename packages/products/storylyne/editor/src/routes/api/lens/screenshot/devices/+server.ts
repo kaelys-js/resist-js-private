@@ -48,12 +48,14 @@ let cache: DeviceInfo[] | null = null;
 function extractOS(ua: Str, name: Str): Str {
   /* iOS — "CPU iPhone OS 17_5 like Mac OS X" or "CPU OS 17_5 like Mac OS X" */
   const iosMatch: RegExpMatchArray | null = ua.match(/CPU (?:iPhone )?OS (\d+[_.\d]*)/);
+
   if (iosMatch) {
     return `iOS ${iosMatch[1].replaceAll('_', '.')}` as Str;
   }
 
   /* Android — "Android 14" */
   const androidMatch: RegExpMatchArray | null = ua.match(/Android (\d+[.\d]*)/);
+
   if (androidMatch) {
     return `Android ${androidMatch[1]}` as Str;
   }

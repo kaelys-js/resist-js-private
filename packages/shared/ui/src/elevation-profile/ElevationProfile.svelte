@@ -42,6 +42,7 @@
   const validated: ElevationProfileProps = $derived.by(() => {
     const rawProps: ElevationProfileProps = stripSvelteProps(allProps);
     const result = safeParse(ElevationProfilePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

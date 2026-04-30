@@ -87,6 +87,7 @@
       icon,
       onRemove,
     });
+
     if (!result.ok) {
       throw result.error;
     }

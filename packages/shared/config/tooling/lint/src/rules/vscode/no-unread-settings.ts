@@ -48,6 +48,7 @@ const rule: WorkspaceRule = {
     for (const pkg of packages) {
       const pkgJson = pkg.packageJson as Record<string, unknown>;
       const contributes = pkgJson['contributes'] as Record<string, unknown> | undefined;
+
       if (!contributes || !contributes['configuration']) {
         continue;
       }
@@ -57,9 +58,11 @@ const rule: WorkspaceRule = {
 
       /* Determine config section prefix */
       let configSection: string = '';
+
       if (await ctx.fileExists(brandPath)) {
         const brandSource: string = await ctx.readFile(brandPath);
         const configMatch: RegExpMatchArray | null = CONFIG_SECTION_RE.exec(brandSource);
+
         if (configMatch && configMatch[1]) {
           [, configSection] = configMatch;
         }
@@ -69,11 +72,13 @@ const rule: WorkspaceRule = {
       const configuration = contributes['configuration'] as
         | { properties: Record<string, unknown> }
         | undefined;
+
       if (!configuration || !configuration.properties) {
         continue;
       }
 
       const settingKeys: string[] = Object.keys(configuration.properties);
+
       if (settingKeys.length === 0) {
         continue;
       }
@@ -91,9 +96,11 @@ const rule: WorkspaceRule = {
 
       /* Collect all source content */
       const allContent: string[] = [];
+
       for (const file of extFiles) {
         allContent.push(await ctx.readFile(file));
       }
+
       const combinedSource: string = allContent.join('\n');
 
       /* Check each setting for references */

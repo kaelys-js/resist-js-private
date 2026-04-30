@@ -30,6 +30,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -69,6 +70,7 @@ const rule: WorkspaceRule = {
       }
 
       const existing: string[] | undefined = groups.get(parentDir);
+
       if (existing === undefined) {
         groups.set(parentDir, [filePath]);
       } else {
@@ -88,6 +90,7 @@ const rule: WorkspaceRule = {
       const referenceFile: string = sorted[0] as string;
 
       let referenceContent: string;
+
       try {
         referenceContent = await ctx.readFile(referenceFile);
       } catch {
@@ -95,6 +98,7 @@ const rule: WorkspaceRule = {
       }
 
       let referenceData: Record<string, unknown>;
+
       try {
         referenceData = JSON.parse(referenceContent) as Record<string, unknown>;
       } catch {
@@ -109,6 +113,7 @@ const rule: WorkspaceRule = {
         const comparisonFile: string = sorted[i] as string;
 
         let comparisonContent: string;
+
         try {
           comparisonContent = await ctx.readFile(comparisonFile);
         } catch {
@@ -116,6 +121,7 @@ const rule: WorkspaceRule = {
         }
 
         let comparisonData: Record<string, unknown>;
+
         try {
           comparisonData = JSON.parse(comparisonContent) as Record<string, unknown>;
         } catch {

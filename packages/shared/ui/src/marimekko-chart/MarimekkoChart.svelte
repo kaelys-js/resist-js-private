@@ -42,6 +42,7 @@
   const validated: MarimekkoChartProps = $derived.by(() => {
     const rawProps: MarimekkoChartProps = stripSvelteProps(allProps);
     const result = safeParse(MarimekkoChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

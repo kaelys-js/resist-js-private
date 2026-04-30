@@ -42,6 +42,7 @@
   const validated: CharacterSheetProps = $derived.by(() => {
     const rawProps: CharacterSheetProps = stripSvelteProps(allProps);
     const result = safeParse(CharacterSheetPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

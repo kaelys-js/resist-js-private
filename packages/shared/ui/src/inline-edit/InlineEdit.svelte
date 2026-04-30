@@ -42,6 +42,7 @@
   const validated: InlineEditProps = $derived.by(() => {
     const rawProps: InlineEditProps = stripSvelteProps(allProps);
     const result = safeParse(InlineEditPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

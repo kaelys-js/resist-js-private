@@ -38,6 +38,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -63,11 +64,13 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const rel: string = relative(ctx.rootDir, filePath);
+
       if (!CI_YAML_PATTERN.test(rel)) {
         continue;
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -89,6 +92,7 @@ const rule: WorkspaceRule = {
 
         if (inStages) {
           const stageMatch: RegExpMatchArray | null = line.match(/^\s+-\s+(.+)$/);
+
           if (stageMatch?.[1]) {
             declaredStages.push(stageMatch[1].trim());
           } else if (!/^\s*$/.test(line) && !line.trim().startsWith('#')) {
@@ -145,8 +149,10 @@ const rule: WorkspaceRule = {
       const filteredDeclared: string[] = declaredStages.filter((s: string): boolean =>
         approvedSet.has(s),
       );
+
       for (const [i, actual] of filteredDeclared.entries()) {
         const expected: string | undefined = APPROVED_STAGES[i];
+
         if (expected !== actual) {
           results.push(
             createResult(

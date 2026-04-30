@@ -42,6 +42,7 @@
   const validated: FeedPostProps = $derived.by(() => {
     const rawProps: FeedPostProps = stripSvelteProps(allProps);
     const result = safeParse(FeedPostPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

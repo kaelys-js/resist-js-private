@@ -21,6 +21,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -45,6 +46,7 @@ const rule: WorkspaceRule = {
     const vscodePath: string = join(ctx.rootDir, '.vscode');
 
     const exists: boolean = await ctx.dirExists(vscodePath);
+
     if (exists) {
       return [];
     }

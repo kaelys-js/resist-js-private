@@ -25,6 +25,7 @@ import type {
  */
 function getReturnTypeInsertPos(funcNode: AstNode, content: string): number {
   const params = funcNode.params as AstNode[] | undefined;
+
   if (!params) {
     return -1;
   }
@@ -35,6 +36,7 @@ function getReturnTypeInsertPos(funcNode: AstNode, content: string): number {
 
   // Search for ')' after the last param
   const parenIdx: number = content.indexOf(')', searchStart);
+
   if (parenIdx === -1) {
     return -1;
   }
@@ -79,6 +81,7 @@ const rule: TypeScriptRule = {
 
     ArrowFunctionExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
+
       if (node.returnType) {
         return results;
       }

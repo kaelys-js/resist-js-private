@@ -30,6 +30,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -57,6 +58,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const relativePath: string = relative(ctx.rootDir, filePath);
+
       if (relativePath === '.gitattributes') {
         gitattributesPath = filePath;
         break;
@@ -122,10 +124,13 @@ const rule: WorkspaceRule = {
 
     for (const line of lines) {
       const trimmed: string = line.trim();
+
       if (trimmed.length === 0 || trimmed.startsWith('#')) {
         continue;
       }
+
       const [firstWord]: string[] = trimmed.split(/\s+/);
+
       if (firstWord !== undefined) {
         globs.push(firstWord);
       }

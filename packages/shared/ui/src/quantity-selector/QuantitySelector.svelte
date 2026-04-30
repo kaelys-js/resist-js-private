@@ -42,6 +42,7 @@
   const validated: QuantitySelectorProps = $derived.by(() => {
     const rawProps: QuantitySelectorProps = stripSvelteProps(allProps);
     const result = safeParse(QuantitySelectorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

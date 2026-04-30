@@ -33,6 +33,7 @@ function hasPrecedingComment(node: AstNode, content: string): boolean {
   // Check for single-line comment on the preceding line
   const lastNewline: number = trimmed.lastIndexOf('\n');
   const lastLine: string = lastNewline === -1 ? trimmed : trimmed.slice(lastNewline + 1);
+
   if (lastLine.trim().startsWith('//')) {
     return true;
   }
@@ -52,6 +53,7 @@ const rule: TypeScriptRule = {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const body = node.body as AstNode[] | undefined;
+
       if (!body) {
         return results;
       }
@@ -66,6 +68,7 @@ const rule: TypeScriptRule = {
         // Exported: export const x = ...
         if (stmt.type === 'ExportNamedDeclaration') {
           const declaration = stmt.declaration as AstNode | undefined;
+
           if (declaration?.type === 'VariableDeclaration' && declaration.kind === 'const') {
             varDecl = stmt; // Check comment before the export, not the const
           }
@@ -81,14 +84,17 @@ const rule: TypeScriptRule = {
             varDecl.type === 'ExportNamedDeclaration' ? (varDecl.declaration as AstNode) : varDecl;
           const declarations = innerDecl.declarations as AstNode[] | undefined;
           const names: string[] = [];
+
           if (declarations) {
             for (const d of declarations) {
               const id = d.id as AstNode | undefined;
+
               if (id?.type === 'Identifier') {
                 names.push((id.name as string) ?? '');
               }
             }
           }
+
           const nameStr: string = names.join(', ') || '<unnamed>';
           results.push({
             file: context.file,

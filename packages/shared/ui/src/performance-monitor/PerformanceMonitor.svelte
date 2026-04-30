@@ -42,6 +42,7 @@
   const validated: PerformanceMonitorProps = $derived.by(() => {
     const rawProps: PerformanceMonitorProps = stripSvelteProps(allProps);
     const result = safeParse(PerformanceMonitorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

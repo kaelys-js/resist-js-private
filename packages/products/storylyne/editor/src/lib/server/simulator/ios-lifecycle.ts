@@ -51,6 +51,7 @@ export async function bootSimulator(udid: Str): Promise<Bool> {
   } catch (error: unknown) {
     /* Exit code 149 = already booted — not an error */
     const execError = error as { code?: Num };
+
     if (execError.code === ALREADY_BOOTED_EXIT_CODE) {
       return true as Bool;
     }
@@ -81,7 +82,9 @@ export function waitForBoot(udid: Str, timeoutMs: Num = BOOT_TIMEOUT_MS): Promis
     if (Date.now() >= deadline) {
       throw new Error(`Simulator ${udid} did not boot within ${timeoutMs}ms`);
     }
+
     const state: Str = await getDeviceState(udid);
+
     if (state === 'Booted') {
       return true as Bool;
     }
@@ -124,6 +127,7 @@ export async function getDeviceState(udid: Str): Promise<Str> {
   for (const devices of Object.values(devicesMap)) {
     for (const raw of devices) {
       const d: Record<Str, unknown> = raw as Record<Str, unknown>;
+
       if (d.udid === udid) {
         return (d.state ?? 'Shutdown') as Str;
       }

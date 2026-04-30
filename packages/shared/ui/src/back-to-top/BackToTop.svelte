@@ -43,6 +43,7 @@
   const validated: BackToTopProps = $derived.by(() => {
     const rawProps: BackToTopProps = stripSvelteProps(allProps);
     const result = safeParse(BackToTopPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

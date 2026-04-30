@@ -43,6 +43,7 @@
   const validated: AutocompleteProps = $derived.by(() => {
     const rawProps: AutocompleteProps = stripSvelteProps(allProps);
     const result = safeParse(AutocompletePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

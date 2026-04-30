@@ -42,6 +42,7 @@
   const validated: OverflowMenuProps = $derived.by(() => {
     const rawProps: OverflowMenuProps = stripSvelteProps(allProps);
     const result = safeParse(OverflowMenuPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

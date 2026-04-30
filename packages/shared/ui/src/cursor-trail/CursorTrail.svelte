@@ -42,6 +42,7 @@
   const validated: CursorTrailProps = $derived.by(() => {
     const rawProps: CursorTrailProps = stripSvelteProps(allProps);
     const result = safeParse(CursorTrailPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

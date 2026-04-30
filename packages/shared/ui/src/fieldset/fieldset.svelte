@@ -42,6 +42,7 @@
   const validated: FieldsetProps = $derived.by(() => {
     const rawProps: FieldsetProps = stripSvelteProps(allProps);
     const result = safeParse(FieldsetPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -43,6 +43,7 @@
   const validated: IndicatorProps = $derived.by(() => {
     const rawProps: IndicatorProps = stripSvelteProps(allProps);
     const result = safeParse(IndicatorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: PasskeyAuthProps = $derived.by(() => {
     const rawProps: PasskeyAuthProps = stripSvelteProps(allProps);
     const result = safeParse(PasskeyAuthPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

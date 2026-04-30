@@ -38,6 +38,7 @@ function parseWorkspaceGlobs(content: string): string[] {
 
       if (trimmed.startsWith('- ')) {
         const pattern: string = trimmed.slice(2).trim().replace(/^['"]/, '').replace(/['"]$/, '');
+
         if (pattern.length > 0) {
           globs.push(pattern);
         }
@@ -58,8 +59,10 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     try {
       const packages = await ctx.getWorkspacePackages();
+
       return packages.map((p) => p.path);
     } catch {
       return [];
@@ -87,6 +90,7 @@ const rule: WorkspaceRule = {
     const workspaceFile: string = join(ctx.rootDir, 'pnpm-workspace.yaml');
 
     const exists: boolean = await ctx.fileExists(workspaceFile);
+
     if (!exists) {
       return [];
     }
@@ -95,6 +99,7 @@ const rule: WorkspaceRule = {
     const globs: string[] = parseWorkspaceGlobs(content);
 
     let packages: WorkspacePackage[];
+
     try {
       packages = await ctx.getWorkspacePackages();
     } catch {
@@ -105,6 +110,7 @@ const rule: WorkspaceRule = {
 
     for (const glob of globs) {
       const prefix: string = glob.replace(/\/?\*+$/, '').replace(/\/\*\*\/?\*?$/, '');
+
       if (prefix.length === 0) {
         continue;
       }

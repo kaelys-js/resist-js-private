@@ -42,6 +42,7 @@
   const validated: TeachingPopoverProps = $derived.by(() => {
     const rawProps: TeachingPopoverProps = stripSvelteProps(allProps);
     const result = safeParse(TeachingPopoverPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

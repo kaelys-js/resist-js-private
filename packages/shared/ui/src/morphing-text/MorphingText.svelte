@@ -42,6 +42,7 @@
   const validated: MorphingTextProps = $derived.by(() => {
     const rawProps: MorphingTextProps = stripSvelteProps(allProps);
     const result = safeParse(MorphingTextPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

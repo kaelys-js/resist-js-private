@@ -42,6 +42,7 @@
   const validated: StockTickerProps = $derived.by(() => {
     const rawProps: StockTickerProps = stripSvelteProps(allProps);
     const result = safeParse(StockTickerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

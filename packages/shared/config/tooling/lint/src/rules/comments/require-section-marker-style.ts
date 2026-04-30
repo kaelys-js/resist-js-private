@@ -69,6 +69,7 @@ function extractBlockTitle(line1: string, line2: string, line3: string): string 
   }
 
   const titleMatch: RegExpMatchArray | null = l2.match(BLOCK_TITLE_PATTERN);
+
   if (!titleMatch) {
     return null;
   }
@@ -131,6 +132,7 @@ const rule: TypeScriptRule = {
 
         // --- Check block comment markers: /* ---...--- */ ---
         const blockTitle: string | null = extractBlockTitle(line1, line2, line3);
+
         if (blockTitle) {
           // Calculate byte offset for the fix
           const startOffset: number = lines
@@ -163,6 +165,7 @@ const rule: TypeScriptRule = {
 
         if (isTopLevel) {
           const dashTitle: string | null = extractDashTitle(line1, line2, line3);
+
           if (dashTitle) {
             const startOffset: number = lines
               .slice(0, i)

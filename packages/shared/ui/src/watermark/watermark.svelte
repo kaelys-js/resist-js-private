@@ -42,6 +42,7 @@
   const validated: WatermarkProps = $derived.by(() => {
     const rawProps: WatermarkProps = stripSvelteProps(allProps);
     const result = safeParse(WatermarkPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

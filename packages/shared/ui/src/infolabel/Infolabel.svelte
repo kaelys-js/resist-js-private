@@ -42,6 +42,7 @@
   const validated: InfolabelProps = $derived.by(() => {
     const rawProps: InfolabelProps = stripSvelteProps(allProps);
     const result = safeParse(InfolabelPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

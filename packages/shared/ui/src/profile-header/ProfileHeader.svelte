@@ -42,6 +42,7 @@
   const validated: ProfileHeaderProps = $derived.by(() => {
     const rawProps: ProfileHeaderProps = stripSvelteProps(allProps);
     const result = safeParse(ProfileHeaderPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

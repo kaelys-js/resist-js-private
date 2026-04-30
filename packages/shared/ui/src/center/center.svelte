@@ -42,6 +42,7 @@
   const validated: CenterProps = $derived.by(() => {
     const rawProps: CenterProps = stripSvelteProps(allProps);
     const result = safeParse(CenterPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -41,6 +41,7 @@ const NIM_LINE: RegExp = /^(.+?)\((\d+),\s*(\d+)\)\s+(Error|Warning|Hint):\s+(.+
  */
 export function transformNimOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -49,6 +50,7 @@ export function transformNimOutput(output: string): LintResult[] {
 
   for (const line of trimmed.split('\n')) {
     const match: RegExpMatchArray | null = NIM_LINE.exec(line.trim());
+
     if (!match) {
       continue;
     }
@@ -60,6 +62,7 @@ export function transformNimOutput(output: string): LintResult[] {
     const message: string = match[5] ?? '';
 
     let severity: 'error' | 'warning' | 'info' = 'error';
+
     if (level === 'Warning') {
       severity = 'warning';
     } else if (level === 'Hint') {

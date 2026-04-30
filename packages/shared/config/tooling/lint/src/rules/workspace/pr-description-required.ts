@@ -42,11 +42,13 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     const description: string | undefined = process.env['MR_DESCRIPTION'];
+
     if (description === undefined) {
       return Promise.resolve(results);
     }
 
     const trimmed: string = description.trim();
+
     if (trimmed.length < MIN_DESCRIPTION_LENGTH) {
       results.push(
         createResult(

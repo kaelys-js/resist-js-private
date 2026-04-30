@@ -24,6 +24,7 @@ const ARITHMETIC_OPERATORS = new Set(['+', '-', '*', '/', '%']);
  */
 function isBigIntLiteral(node: AstNode): boolean {
   const { bigint } = node;
+
   return node.type === 'Literal' && bigint !== undefined && bigint !== null;
 }
 
@@ -35,6 +36,7 @@ function isBigIntLiteral(node: AstNode): boolean {
  */
 function isNumberLiteral(node: AstNode): boolean {
   const { value } = node;
+
   return node.type === 'Literal' && typeof value === 'number';
 }
 
@@ -52,6 +54,7 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const operator = node.operator as string;
+
       if (!ARITHMETIC_OPERATORS.has(operator)) {
         return results;
       }

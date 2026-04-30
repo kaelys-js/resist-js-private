@@ -42,6 +42,7 @@
   const validated: PricingToggleProps = $derived.by(() => {
     const rawProps: PricingToggleProps = stripSvelteProps(allProps);
     const result = safeParse(PricingTogglePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

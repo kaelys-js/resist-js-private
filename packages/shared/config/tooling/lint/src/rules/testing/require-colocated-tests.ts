@@ -25,6 +25,7 @@ import type {
 function getExportedFunctionNames(ast: AstNode): string[] {
   const names: string[] = [];
   const body = ast.body as AstNode[] | undefined;
+
   if (!body) {
     return names;
   }
@@ -32,6 +33,7 @@ function getExportedFunctionNames(ast: AstNode): string[] {
   for (const node of body) {
     if (node.type === 'ExportNamedDeclaration') {
       const declaration = node.declaration as AstNode | undefined; // cast safe: AST property
+
       if (!declaration) {
         continue;
       }
@@ -39,6 +41,7 @@ function getExportedFunctionNames(ast: AstNode): string[] {
       if (declaration.type === 'FunctionDeclaration') {
         const id = declaration.id as AstNode | undefined; // cast safe: AST property
         const name: string = (id?.name as string) ?? ''; // cast safe: AST name
+
         if (name) {
           names.push(name);
         }
@@ -46,18 +49,21 @@ function getExportedFunctionNames(ast: AstNode): string[] {
 
       if (declaration.type === 'VariableDeclaration') {
         const declarations = declaration.declarations as AstNode[] | undefined; // cast safe: AST property
+
         if (!declarations) {
           continue;
         }
 
         for (const decl of declarations) {
           const init = decl.init as AstNode | undefined; // cast safe: AST property
+
           if (
             init &&
             (init.type === 'ArrowFunctionExpression' || init.type === 'FunctionExpression')
           ) {
             const id = decl.id as AstNode | undefined; // cast safe: AST property
             const name: string = (id?.name as string) ?? ''; // cast safe: AST name
+
             if (name) {
               names.push(name);
             }
@@ -68,6 +74,7 @@ function getExportedFunctionNames(ast: AstNode): string[] {
 
     if (node.type === 'ExportDefaultDeclaration') {
       const declaration = node.declaration as AstNode | undefined; // cast safe: AST property
+
       if (!declaration) {
         continue;
       }
@@ -96,6 +103,7 @@ function getExportedFunctionNames(ast: AstNode): string[] {
  */
 function getUntestedFunctions(testPath: string, functionNames: string[]): string[] {
   const testContent: string = readFileSync(testPath, 'utf8');
+
   return functionNames.filter((name: string): boolean => !testContent.includes(name));
 }
 
@@ -108,6 +116,7 @@ function getUntestedFunctions(testPath: string, functionNames: string[]): string
 function getTestFilePath(filePath: string): string {
   const dir: string = dirname(filePath);
   const base: string = basename(filePath, '.ts');
+
   return join(dir, `${base}.test.ts`);
 }
 /** The require-colocated-tests lint rule. */
@@ -122,6 +131,7 @@ const rule: TypeScriptRule = {
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const functionNames: string[] = getExportedFunctionNames(node);
+
       if (functionNames.length === 0) {
         return [];
       }
@@ -148,6 +158,7 @@ const rule: TypeScriptRule = {
 
       // Test file exists — check that every exported function is referenced
       const untested: string[] = getUntestedFunctions(testPath, functionNames);
+
       return untested.map(
         (name: string): LintResult => ({
           file: context.file,

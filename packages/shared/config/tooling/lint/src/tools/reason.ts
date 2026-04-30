@@ -46,6 +46,7 @@ const REASON_LOCATION: RegExp = /^File "(.+?)", line (\d+), characters (\d+)-(\d
  */
 export function transformReasonOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -60,11 +61,13 @@ export function transformReasonOutput(output: string): LintResult[] {
 
   for (let i: number = 0; i < lines.length; i++) {
     const stripped: string = (lines[i] ?? '').trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = REASON_LOCATION.exec(stripped);
+
     if (!match) {
       continue;
     }
@@ -77,11 +80,14 @@ export function transformReasonOutput(output: string): LintResult[] {
 
     /* Collect the error message — it may be inline or on subsequent lines */
     let message: string = inlineMsg;
+
     if (message.length === 0) {
       /* Look ahead for the error message on following lines */
       const messageParts: string[] = [];
+
       for (let j: number = i + 1; j < lines.length; j++) {
         const nextLine: string = (lines[j] ?? '').trim();
+
         if (nextLine.length === 0 || REASON_LOCATION.test(nextLine)) {
           break;
         }

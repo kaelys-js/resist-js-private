@@ -42,6 +42,7 @@
   const validated: FlipCardProps = $derived.by(() => {
     const rawProps: FlipCardProps = stripSvelteProps(allProps);
     const result = safeParse(FlipCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

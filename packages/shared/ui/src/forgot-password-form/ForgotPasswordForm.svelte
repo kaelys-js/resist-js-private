@@ -42,6 +42,7 @@
   const validated: ForgotPasswordFormProps = $derived.by(() => {
     const rawProps: ForgotPasswordFormProps = stripSvelteProps(allProps);
     const result = safeParse(ForgotPasswordFormPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

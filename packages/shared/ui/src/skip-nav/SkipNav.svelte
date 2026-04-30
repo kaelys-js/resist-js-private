@@ -42,6 +42,7 @@
   const validated: SkipNavProps = $derived.by(() => {
     const rawProps: SkipNavProps = stripSvelteProps(allProps);
     const result = safeParse(SkipNavPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -27,6 +27,7 @@ const rule: TypeScriptRule = {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const callee = node.callee as AstNode | undefined;
+
       if (!callee) {
         return results;
       }
@@ -41,28 +42,34 @@ const rule: TypeScriptRule = {
           context.isImportedFrom((object?.name as string) ?? '', 'valibot')
         ) {
           const args = node.arguments as AstNode[] | undefined;
+
           if (!args || args.length === 0) {
             return results;
           }
 
           const firstArg = args[0] as AstNode;
+
           if (firstArg.type !== 'ArrayExpression') {
             return results;
           }
 
           const elements = firstArg.elements as AstNode[] | undefined;
+
           if (!elements || elements.length === 0) {
             return results;
           }
 
           // Check if ALL elements are v.literal(...) calls
           let allLiterals: boolean = true;
+
           for (const elem of elements) {
             if (!elem) {
               allLiterals = false;
               break;
             }
+
             const elemText: string = context.content.slice(elem.start, elem.end);
+
             if (!elemText.startsWith('v.literal(') && !elemText.startsWith('valibot.literal(')) {
               allLiterals = false;
               break;

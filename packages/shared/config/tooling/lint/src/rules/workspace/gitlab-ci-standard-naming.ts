@@ -49,6 +49,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -74,11 +75,13 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const rel: string = relative(ctx.rootDir, filePath);
+
       if (!CI_YAML_PATTERN.test(rel)) {
         continue;
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -90,8 +93,10 @@ const rule: WorkspaceRule = {
       for (const [i, line] of lines.entries()) {
         /** Top-level key (job name). */
         const jobMatch: RegExpMatchArray | null = line.match(/^([a-zA-Z0-9_-]+):\s*$/);
+
         if (jobMatch?.[1]) {
           const [, jobName] = jobMatch;
+
           if (!ALLOWED_JOBS.has(jobName)) {
             results.push(
               createResult(
@@ -111,8 +116,10 @@ const rule: WorkspaceRule = {
 
         /** Stage value under a job. */
         const stageMatch: RegExpMatchArray | null = line.match(/^\s+stage:\s*([a-zA-Z0-9_-]+)\s*$/);
+
         if (stageMatch?.[1]) {
           const [, stage] = stageMatch;
+
           if (!ALLOWED_STAGES.has(stage)) {
             results.push(
               createResult(

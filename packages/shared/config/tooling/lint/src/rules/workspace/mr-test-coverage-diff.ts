@@ -40,6 +40,7 @@ const rule: WorkspaceRule = {
 
     const beforeStr: string | undefined = process.env['COVERAGE_BEFORE'];
     const afterStr: string | undefined = process.env['COVERAGE_AFTER'];
+
     if (beforeStr === undefined || afterStr === undefined) {
       return Promise.resolve(results);
     }

@@ -42,6 +42,7 @@
   const validated: SvgIconProps = $derived.by(() => {
     const rawProps: SvgIconProps = stripSvelteProps(allProps);
     const result = safeParse(SvgIconPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: VideoPlayerProps = $derived.by(() => {
     const rawProps: VideoPlayerProps = stripSvelteProps(allProps);
     const result = safeParse(VideoPlayerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

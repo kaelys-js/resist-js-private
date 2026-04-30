@@ -21,6 +21,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -45,11 +46,13 @@ const rule: WorkspaceRule = {
     const gitPath: string = join(ctx.rootDir, '.git');
 
     const isDir: boolean = await ctx.dirExists(gitPath);
+
     if (isDir) {
       return [];
     }
 
     const isFile: boolean = await ctx.fileExists(gitPath);
+
     if (isFile) {
       return [];
     }

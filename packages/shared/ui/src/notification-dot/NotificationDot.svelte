@@ -42,6 +42,7 @@
   const validated: NotificationDotProps = $derived.by(() => {
     const rawProps: NotificationDotProps = stripSvelteProps(allProps);
     const result = safeParse(NotificationDotPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

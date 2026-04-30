@@ -34,6 +34,7 @@ const HELM_LINE: RegExp = /^\[(ERROR|WARNING|INFO)\]\s+(.+)$/;
  */
 export function transformHelmLintOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -43,11 +44,13 @@ export function transformHelmLintOutput(output: string): LintResult[] {
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = HELM_LINE.exec(stripped);
+
     if (!match) {
       continue;
     }
@@ -56,6 +59,7 @@ export function transformHelmLintOutput(output: string): LintResult[] {
     const message: string = match[2] ?? '';
 
     let severity: 'error' | 'warning' | 'info' = 'error';
+
     if (level === 'WARNING') {
       severity = 'warning';
     } else if (level === 'INFO') {

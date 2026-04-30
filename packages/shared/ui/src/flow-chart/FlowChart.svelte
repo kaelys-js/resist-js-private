@@ -42,6 +42,7 @@
   const validated: FlowChartProps = $derived.by(() => {
     const rawProps: FlowChartProps = stripSvelteProps(allProps);
     const result = safeParse(FlowChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

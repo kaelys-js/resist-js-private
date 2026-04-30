@@ -83,6 +83,7 @@ vi.mock('node:child_process', (): Record<string, unknown> => {
     execFile: mockExecFile,
     spawn: mockSpawn,
   };
+
   return { ...module, default: module };
 });
 
@@ -113,6 +114,7 @@ describe('scrcpy-transcode', (): void => {
       listeners: stdoutListeners,
       emit(event: string, data: Buffer): void {
         const handlers = stdoutListeners.get(event) ?? [];
+
         for (const handler of handlers) {
           handler(data);
         }

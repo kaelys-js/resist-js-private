@@ -31,6 +31,7 @@ function extractRoutes(
         routes.push({ route, file: filePath });
       } else if (typeof route === 'object' && route !== null) {
         const routeObj: Record<string, unknown> = route as Record<string, unknown>;
+
         if (typeof routeObj.pattern === 'string') {
           routes.push({ route: routeObj.pattern, file: filePath });
         }
@@ -45,17 +46,21 @@ function extractRoutes(
 
   /* Environment-level routes. */
   const { env } = config;
+
   if (typeof env === 'object' && env !== null) {
     const envObj: Record<string, unknown> = env as Record<string, unknown>;
+
     for (const envConfig of Object.values(envObj)) {
       if (typeof envConfig === 'object' && envConfig !== null) {
         const envCfg: Record<string, unknown> = envConfig as Record<string, unknown>;
+
         if (Array.isArray(envCfg.routes)) {
           for (const route of envCfg.routes) {
             if (typeof route === 'string') {
               routes.push({ route, file: filePath });
             } else if (typeof route === 'object' && route !== null) {
               const routeObj: Record<string, unknown> = route as Record<string, unknown>;
+
               if (typeof routeObj.pattern === 'string') {
                 routes.push({ route: routeObj.pattern, file: filePath });
               }
@@ -82,6 +87,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -109,11 +115,13 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
+
       if (name !== 'wrangler.json' && name !== 'wrangler.jsonc') {
         continue;
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -121,6 +129,7 @@ const rule: WorkspaceRule = {
       }
 
       let parsed: Record<string, unknown>;
+
       try {
         parsed = JSON.parse(content) as Record<string, unknown>;
       } catch {
@@ -136,6 +145,7 @@ const rule: WorkspaceRule = {
 
     for (const entry of allRoutes) {
       const existing: string | undefined = seen.get(entry.route);
+
       if (existing === undefined) {
         seen.set(entry.route, entry.file);
       } else {

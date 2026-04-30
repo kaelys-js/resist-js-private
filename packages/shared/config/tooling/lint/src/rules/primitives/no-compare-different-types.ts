@@ -22,6 +22,7 @@ import type {
  */
 function isStringLiteral(n: AstNode): boolean {
   const val: unknown = n.value;
+
   return n.type === 'Literal' && typeof val === 'string';
 }
 
@@ -33,6 +34,7 @@ function isStringLiteral(n: AstNode): boolean {
  */
 function isNumberLiteral(n: AstNode): boolean {
   const val: unknown = n.value;
+
   return n.type === 'Literal' && typeof val === 'number';
 }
 
@@ -49,6 +51,7 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const operator = node.operator as string;
+
       if (operator !== '<' && operator !== '>' && operator !== '<=' && operator !== '>=') {
         return results;
       }

@@ -67,6 +67,7 @@ parentPort?.on('message', async (task: WorkerTask): Promise<void> => {
   try {
     /* Filter rules to only those requested */
     let rules: TypeScriptRule[] = allRules;
+
     if (task.ruleIds.length > 0) {
       const idSet: ReadonlySet<string> = new Set(task.ruleIds);
       rules = allRules.filter((r: TypeScriptRule): boolean => idSet.has(r.id));
@@ -77,6 +78,7 @@ parentPort?.on('message', async (task: WorkerTask): Promise<void> => {
       rule.patterns.some((pattern: string): boolean => {
         if (pattern.startsWith('**/*.')) {
           const ext: string = pattern.slice(4);
+
           return task.filePath.endsWith(ext);
         }
         return task.filePath.includes(pattern);

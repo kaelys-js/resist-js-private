@@ -43,6 +43,7 @@
   const validated: CascadeSelectProps = $derived.by(() => {
     const rawProps: CascadeSelectProps = stripSvelteProps(allProps);
     const result = safeParse(CascadeSelectPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

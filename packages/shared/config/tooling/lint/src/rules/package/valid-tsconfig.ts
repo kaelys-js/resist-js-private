@@ -38,6 +38,7 @@ const rule: PackageJsonRule = {
    */
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
+
     if (context.isRoot) {
       return results;
     }
@@ -73,6 +74,7 @@ const rule: PackageJsonRule = {
     }
 
     let tsconfig: Record<string, unknown>;
+
     try {
       tsconfig = JSON.parse(readFileSync(tsconfigPath, 'utf8')) as Record<string, unknown>;
     } catch {
@@ -113,6 +115,7 @@ const rule: PackageJsonRule = {
 
     // Must have include with "src"
     const { include }: Record<string, unknown> = tsconfig;
+
     if (
       !Array.isArray(include) ||
       !include.some((entry: unknown): boolean => typeof entry === 'string' && entry.includes('src'))
@@ -134,6 +137,7 @@ const rule: PackageJsonRule = {
       string,
       unknown
     >;
+
     for (const opt of PROTECTED_OPTIONS) {
       if (opt in compilerOptions) {
         results.push({

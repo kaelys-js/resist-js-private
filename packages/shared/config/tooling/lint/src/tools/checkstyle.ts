@@ -44,6 +44,7 @@ const CHECKSTYLE_LINE: RegExp = /^\[(ERROR|WARN)\]\s+(.+?):(\d+):(\d+):\s*(.+)$/
  */
 export function transformCheckstyleOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -53,11 +54,13 @@ export function transformCheckstyleOutput(output: string): LintResult[] {
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = CHECKSTYLE_LINE.exec(stripped);
+
     if (!match) {
       continue;
     }

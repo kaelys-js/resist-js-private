@@ -41,16 +41,19 @@ const rule: TypeScriptRule = {
       }
 
       const args = node.arguments as AstNode[] | undefined;
+
       if (!args || args.length === 0) {
         return results;
       }
 
       const callback: AstNode = args[0] as AstNode;
+
       if (!callback) {
         return results;
       }
 
       const spread: AstNode | undefined = findSpreadInBody(callback);
+
       if (spread) {
         results.push({
           file: context.file,

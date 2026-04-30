@@ -42,6 +42,7 @@
   const validated: EnvironmentSwitcherProps = $derived.by(() => {
     const rawProps: EnvironmentSwitcherProps = stripSvelteProps(allProps);
     const result = safeParse(EnvironmentSwitcherPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

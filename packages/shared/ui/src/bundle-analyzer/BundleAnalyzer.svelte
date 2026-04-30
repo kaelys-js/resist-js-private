@@ -42,6 +42,7 @@
   const validated: BundleAnalyzerProps = $derived.by(() => {
     const rawProps: BundleAnalyzerProps = stripSvelteProps(allProps);
     const result = safeParse(BundleAnalyzerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

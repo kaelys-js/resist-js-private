@@ -27,6 +27,7 @@ function createMockContext(
   packages: WorkspacePackage[],
 ): WorkspaceContext {
   const filePaths: string[] = Object.keys(files);
+
   return {
     rootDir: '/mock',
     allFiles: async (): Promise<readonly string[]> => filePaths,
@@ -49,6 +50,7 @@ function buildPkgJson(opts: {
   settings?: Record<string, unknown>;
 }): string {
   const contributes: Record<string, unknown> = {};
+
   if (opts.commands) {
     contributes['commands'] = opts.commands;
   }
@@ -68,6 +70,7 @@ function buildBrand(opts: { commands: Record<string, string>; configSection: str
   const entries: string = Object.entries(opts.commands)
     .map(([key, value]) => `  ${key}: '${value}'`)
     .join(',\n');
+
   return [
     `export const CONFIG_SECTION = '${opts.configSection}';`,
     '',

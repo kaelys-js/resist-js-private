@@ -42,6 +42,7 @@
   const validated: ConsoleOutputProps = $derived.by(() => {
     const rawProps: ConsoleOutputProps = stripSvelteProps(allProps);
     const result = safeParse(ConsoleOutputPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

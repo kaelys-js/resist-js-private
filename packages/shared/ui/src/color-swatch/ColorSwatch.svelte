@@ -42,6 +42,7 @@
   const validated: ColorSwatchProps = $derived.by(() => {
     const rawProps: ColorSwatchProps = stripSvelteProps(allProps);
     const result = safeParse(ColorSwatchPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

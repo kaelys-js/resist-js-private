@@ -42,6 +42,7 @@
   const validated: NavigationRailProps = $derived.by(() => {
     const rawProps: NavigationRailProps = stripSvelteProps(allProps);
     const result = safeParse(NavigationRailPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -57,6 +57,7 @@ const CRYSTAL_FILE_LINE: RegExp = /^(.+\.cr)$/;
  */
 export function transformCrystalOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -66,12 +67,14 @@ export function transformCrystalOutput(output: string, strings: LintStrings): Li
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     /* Try the standard "formatting 'file'" pattern */
     const formatMatch: RegExpMatchArray | null = CRYSTAL_FORMAT_LINE.exec(stripped);
+
     if (formatMatch) {
       const file: string = formatMatch[1] ?? '';
       const crystalTip: string = format(strings.tools.formatRunTool, {
@@ -95,6 +98,7 @@ export function transformCrystalOutput(output: string, strings: LintStrings): Li
 
     /* Try bare file path pattern */
     const fileMatch: RegExpMatchArray | null = CRYSTAL_FILE_LINE.exec(stripped);
+
     if (fileMatch) {
       const file: string = fileMatch[1] ?? '';
       results.push(

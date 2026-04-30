@@ -43,6 +43,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     let value: string;
+
     try {
       value = execSync('git config --get index.sparse', {
         cwd: ctx.rootDir,

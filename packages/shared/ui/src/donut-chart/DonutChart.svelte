@@ -42,6 +42,7 @@
   const validated: DonutChartProps = $derived.by(() => {
     const rawProps: DonutChartProps = stripSvelteProps(allProps);
     const result = safeParse(DonutChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

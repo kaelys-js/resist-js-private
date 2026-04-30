@@ -46,6 +46,7 @@ test.describe('robots.txt', () => {
       'Bytespider',
       'cohere-ai',
     ];
+
     for (const crawler of blockedCrawlers) {
       expect(text, `should block ${crawler}`).toContain(`User-agent: ${crawler}`);
     }
@@ -55,6 +56,7 @@ test.describe('robots.txt', () => {
     const response = await request.get('/robots.txt');
     const text = await response.text();
     const allowedCrawlers = ['ChatGPT-User', 'Claude-Web'];
+
     for (const crawler of allowedCrawlers) {
       expect(text, `should allow ${crawler}`).toContain(`User-agent: ${crawler}`);
     }

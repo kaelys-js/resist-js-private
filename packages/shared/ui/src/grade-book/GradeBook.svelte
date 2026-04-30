@@ -42,6 +42,7 @@
   const validated: GradeBookProps = $derived.by(() => {
     const rawProps: GradeBookProps = stripSvelteProps(allProps);
     const result = safeParse(GradeBookPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

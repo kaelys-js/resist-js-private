@@ -39,11 +39,13 @@ const SVELTE_AMBIENT_PARSE_SUPPRESSION: RegExp = /svelte\.d\.ts$/;
  */
 export function transformOxlintOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
 
   let parsed: unknown;
+
   try {
     parsed = JSON.parse(trimmed);
   } catch {
@@ -54,6 +56,7 @@ export function transformOxlintOutput(output: string): LintResult[] {
   const diagnostics: unknown[] = (root.diagnostics as unknown[]) ?? [];
 
   const results: LintResult[] = [];
+
   for (const item of diagnostics) {
     const diag: Record<string, unknown> = item as Record<string, unknown>;
     const message: string = (diag.message as string) ?? '';
@@ -67,6 +70,7 @@ export function transformOxlintOutput(output: string): LintResult[] {
     const labels: unknown[] = (diag.labels as unknown[]) ?? [];
     let line: number = 1;
     let column: number = 1;
+
     if (labels.length > 0) {
       const firstLabel: Record<string, unknown> = labels[0] as Record<string, unknown>;
       const span: Record<string, unknown> = (firstLabel.span as Record<string, unknown>) ?? {};
@@ -75,6 +79,7 @@ export function transformOxlintOutput(output: string): LintResult[] {
     }
 
     let severity: 'error' | 'warning' | 'info' = 'warning';
+
     if (rawSeverity === 'error') {
       severity = 'error';
     } else if (rawSeverity === 'info' || rawSeverity === 'help') {
@@ -119,6 +124,7 @@ export function transformOxlintOutput(output: string): LintResult[] {
 function normalizeRuleId(code: string): string {
   // Extract the rule name from parentheses: "eslint(rule-name)" → "rule-name"
   const match: RegExpExecArray | null = /\(([^)]+)\)/.exec(code);
+
   if (match?.[1]) {
     return `oxlint/${match[1]}`;
   }

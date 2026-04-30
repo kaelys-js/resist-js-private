@@ -17,7 +17,7 @@
   "extensions": [".ts", ".svelte.ts", ".svelte", ".astro", ".html", ".vue", ".md", ".mdx", ".mjs"],
   "rules": {
     "comments/no-lint-disable": "error",
-    "comments/require-blank-line-groups": "off",
+    "comments/require-blank-line-groups": "error",
     "comments/require-section-marker-style": "off",
     "comments/require-section-order": "off",
     "complexity/array-size-warning": "off",

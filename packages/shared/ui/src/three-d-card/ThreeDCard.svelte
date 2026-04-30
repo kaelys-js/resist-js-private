@@ -42,6 +42,7 @@
   const validated: ThreeDCardProps = $derived.by(() => {
     const rawProps: ThreeDCardProps = stripSvelteProps(allProps);
     const result = safeParse(ThreeDCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

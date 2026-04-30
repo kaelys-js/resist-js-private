@@ -46,6 +46,7 @@ export const GET: RequestHandler = async () => {
 
   /* Check Android SDK availability */
   const sdkStatus = await checkAndroidSdk();
+
   if (!sdkStatus.installed) {
     return new Response(
       JSON.stringify({
@@ -101,6 +102,7 @@ export const GET: RequestHandler = async () => {
     const message: Str = (
       error instanceof Error ? error.message : 'Failed to list Android devices'
     ) as Str;
+
     return new Response(
       JSON.stringify({
         available: false,

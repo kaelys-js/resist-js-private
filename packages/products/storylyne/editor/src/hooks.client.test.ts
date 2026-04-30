@@ -162,6 +162,7 @@ describe('handleError', () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
     const validationErr = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Bad input');
+
     if (validationErr.ok) {
       throw new Error('err() should return error');
     }
@@ -316,6 +317,7 @@ describe('handleError', () => {
     const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Bad input', {
       help: 'Check the field format',
     });
+
     if (result.ok) {
       throw new Error('err() should return error');
     }
@@ -347,6 +349,7 @@ describe('handleError', () => {
     const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Bad input', {
       source: { pointer: '/data/email', parameter: 'email' },
     });
+
     if (result.ok) {
       throw new Error('err() should return error');
     }
@@ -375,6 +378,7 @@ describe('handleError', () => {
 
     const related1 = err(ERRORS.VALIDATION.MISSING_FIELD, 'Missing name');
     const related2 = err(ERRORS.VALIDATION.INVALID_FORMAT, 'Bad email');
+
     if (related1.ok || related2.ok) {
       throw new Error('err() should return error');
     }
@@ -382,6 +386,7 @@ describe('handleError', () => {
     const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Multiple issues', {
       related: [related1.error, related2.error],
     });
+
     if (result.ok) {
       throw new Error('err() should return error');
     }
@@ -410,12 +415,15 @@ describe('handleError', () => {
 
     // Create an error with a cause chain
     const innerErr = err(ERRORS.VALIDATION.INVALID_FORMAT, 'bad email');
+
     if (innerErr.ok) {
       throw new Error('err() should return error');
     }
+
     const outerErr = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'validation failed', {
       cause: innerErr.error,
     });
+
     if (outerErr.ok) {
       throw new Error('err() should return error');
     }
@@ -563,6 +571,7 @@ describe('handleError', () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
     const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'bad', { httpStatus: 418 });
+
     if (result.ok) {
       throw new Error('err() should return error');
     }
@@ -826,6 +835,7 @@ describe('handleError', () => {
     // flows through reportError which may assign one. If not present, the
     // branch is just not exercised — skip the assertion in that case.
     const errRes = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'fp');
+
     if (errRes.ok) {
       throw new Error('err() should return error');
     }
@@ -847,14 +857,19 @@ describe('handleError', () => {
 
     // Build a deep cause chain: outer → inner → innermost
     const innermost = err(ERRORS.VALIDATION.INVALID_FORMAT, 'innermost');
+
     if (innermost.ok) {
       throw new Error('err() should return error');
     }
+
     const inner = err(ERRORS.VALIDATION.MISSING_FIELD, 'inner', { cause: innermost.error });
+
     if (inner.ok) {
       throw new Error('err() should return error');
     }
+
     const outer = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'outer', { cause: inner.error });
+
     if (outer.ok) {
       throw new Error('err() should return error');
     }

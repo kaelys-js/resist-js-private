@@ -43,6 +43,7 @@
   const validated: AnimatedNumberProps = $derived.by(() => {
     const rawProps: AnimatedNumberProps = stripSvelteProps(allProps);
     const result = safeParse(AnimatedNumberPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

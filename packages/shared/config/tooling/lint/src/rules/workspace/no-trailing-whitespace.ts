@@ -21,6 +21,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -46,6 +47,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -53,6 +55,7 @@ const rule: WorkspaceRule = {
       }
 
       const lines: string[] = content.split('\n');
+
       for (const [i, line] of lines.entries()) {
         if (/[ \t]+$/.test(line)) {
           const lineNum: number = i + 1;

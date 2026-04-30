@@ -42,6 +42,7 @@
   const validated: BoxPlotProps = $derived.by(() => {
     const rawProps: BoxPlotProps = stripSvelteProps(allProps);
     const result = safeParse(BoxPlotPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

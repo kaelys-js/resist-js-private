@@ -36,6 +36,7 @@ function getExpressionText(node: AstNode): string {
     node.type === 'BooleanLiteral'
   ) {
     const { value } = node as { value?: unknown };
+
     if (typeof value === 'string') {
       return `'${value}'`;
     }
@@ -48,6 +49,7 @@ function getExpressionText(node: AstNode): string {
 
   if (node.type === 'CallExpression') {
     const callee: AstNode | undefined = node.callee as AstNode | undefined;
+
     if (callee?.type === 'Identifier') {
       return `${(callee as unknown as { name: string }).name}()`;
     }
@@ -57,6 +59,7 @@ function getExpressionText(node: AstNode): string {
     ) {
       const obj: AstNode | undefined = (callee as { object?: AstNode }).object;
       const prop: AstNode | undefined = (callee as { property?: AstNode }).property;
+
       if (obj?.type === 'Identifier' && prop?.type === 'Identifier') {
         return `${(obj as unknown as { name: string }).name}.${(prop as unknown as { name: string }).name}()`;
       }
@@ -70,6 +73,7 @@ function getExpressionText(node: AstNode): string {
   ) {
     const obj: AstNode | undefined = (node as { object?: AstNode }).object;
     const prop: AstNode | undefined = (node as { property?: AstNode }).property;
+
     if (obj?.type === 'Identifier' && prop?.type === 'Identifier') {
       return `${(obj as unknown as { name: string }).name}.${(prop as unknown as { name: string }).name}`;
     }
@@ -119,6 +123,7 @@ const rule: TypeScriptRule = {
         }
 
         const callee: AstNode | undefined = node.callee as AstNode | undefined;
+
         if (
           !callee ||
           callee.type !== 'Identifier' ||
@@ -128,11 +133,13 @@ const rule: TypeScriptRule = {
         }
 
         const args: AstNode[] | undefined = node.arguments as AstNode[] | undefined;
+
         if (!args || args.length === 0) {
           return;
         }
 
         const [callback] = args;
+
         if (!callback) {
           return;
         }
@@ -143,6 +150,7 @@ const rule: TypeScriptRule = {
         }
 
         const body: AstNode | undefined = callback.body as AstNode | undefined;
+
         if (!body) {
           return;
         }
@@ -154,6 +162,7 @@ const rule: TypeScriptRule = {
         if (body.type === 'BlockStatement') {
           // Find the return statement
           const bodyStmts: AstNode[] | undefined = body.body as AstNode[] | undefined;
+
           if (bodyStmts) {
             for (const stmt of bodyStmts) {
               if (stmt.type === 'ReturnStatement') {

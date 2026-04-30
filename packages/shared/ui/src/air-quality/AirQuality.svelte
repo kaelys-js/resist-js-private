@@ -42,6 +42,7 @@
   const validated: AirQualityProps = $derived.by(() => {
     const rawProps: AirQualityProps = stripSvelteProps(allProps);
     const result = safeParse(AirQualityPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

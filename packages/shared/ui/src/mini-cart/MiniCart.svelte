@@ -42,6 +42,7 @@
   const validated: MiniCartProps = $derived.by(() => {
     const rawProps: MiniCartProps = stripSvelteProps(allProps);
     const result = safeParse(MiniCartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

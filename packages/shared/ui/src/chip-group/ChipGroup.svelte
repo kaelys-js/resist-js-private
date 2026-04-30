@@ -42,6 +42,7 @@
   const validated: ChipGroupProps = $derived.by(() => {
     const rawProps: ChipGroupProps = stripSvelteProps(allProps);
     const result = safeParse(ChipGroupPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

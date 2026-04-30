@@ -42,6 +42,7 @@
   const validated: MapViewProps = $derived.by(() => {
     const rawProps: MapViewProps = stripSvelteProps(allProps);
     const result = safeParse(MapViewPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

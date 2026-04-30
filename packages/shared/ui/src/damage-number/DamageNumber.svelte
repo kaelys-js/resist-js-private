@@ -42,6 +42,7 @@
   const validated: DamageNumberProps = $derived.by(() => {
     const rawProps: DamageNumberProps = stripSvelteProps(allProps);
     const result = safeParse(DamageNumberPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

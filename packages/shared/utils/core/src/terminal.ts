@@ -101,10 +101,13 @@ let currentColorLevel: ColorLevel = (() => {
     return 0 as ColorLevel;
   }
   // Node/Deno/Bun — detect from env
+
   const envResult: Result<EnvRecordWithUndefined> = getEnvRecord();
+
   if (!envResult.ok) {
     return 0 as ColorLevel;
   }
+
   const ttyResult: Result<Bool> = isTTY();
   const tty: Bool = ttyResult.ok ? ttyResult.data : false;
   const colorResult: Result<ColorLevel> = detectColorLevel(
@@ -112,6 +115,7 @@ let currentColorLevel: ColorLevel = (() => {
     tty,
     envResult.data.CI !== undefined,
   );
+
   return colorResult.ok ? colorResult.data : (0 as ColorLevel);
 })();
 
@@ -145,6 +149,7 @@ const useUnicode: Bool =
  */
 export function setColors(enabled: Bool): Result<Void> {
   const input: Result<Bool> = safeParse(BoolSchema, enabled);
+
   if (!input.ok) {
     return input;
   }
@@ -188,6 +193,7 @@ export function getColorLevel(): Result<ColorLevel> {
  */
 export function setColorLevel(level: ColorLevel): Result<Void> {
   const input: Result<ColorLevel> = safeParse(ColorLevelSchema, level);
+
   if (!input.ok) {
     return input;
   }
@@ -215,6 +221,7 @@ export function setColorLevel(level: ColorLevel): Result<Void> {
  */
 export function getTerminalWidth(): Result<PositiveInteger> {
   const colsResult: Result<NonNegativeInteger> = getColumns();
+
   if (!colsResult.ok) {
     return colsResult;
   }
@@ -237,6 +244,7 @@ export function getTerminalWidth(): Result<PositiveInteger> {
  */
 export function truncateLine(line: Str, maxWidth?: NonNegativeInteger): Result<Str> {
   const input: Result<Str> = safeParse(StrSchema, line);
+
   if (!input.ok) {
     return input;
   }
@@ -246,6 +254,7 @@ export function truncateLine(line: Str, maxWidth?: NonNegativeInteger): Result<S
       NonNegativeIntegerSchema,
       maxWidth,
     );
+
     if (!maxWidthResult.ok) {
       return maxWidthResult;
     }
@@ -253,10 +262,13 @@ export function truncateLine(line: Str, maxWidth?: NonNegativeInteger): Result<S
   }
 
   const widthResult: Result<PositiveInteger> = getTerminalWidth();
+
   if (!widthResult.ok) {
     return widthResult;
   }
+
   const width: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, widthResult.data);
+
   if (!width.ok) {
     return width;
   }
@@ -334,12 +346,15 @@ function ansiToBrowserArgs(text: Str): Str[] {
       parts.push(text.slice(lastIndex, match.index));
       cssArgs.push(currentCss.join(';'));
     }
+
     const sgr: Str[] = (match[1] ?? '').split(';');
+
     for (const code of sgr) {
       if (code === '0' || code === '') {
         currentCss = [];
       } else {
         const css: OptionalStr = ansiToCss[code];
+
         if (css) {
           currentCss.push(css);
         }
@@ -376,6 +391,7 @@ function ansiToBrowserArgs(text: Str): Str[] {
 function platformLog(stream: PrintStream, text: Str): void {
   // Fire-and-forget — lowest-level output primitive, cannot return Result
   const fn: ConsoleLogFn = stream === 'stderr' ? console.error : console.log;
+
   if (runtime === 'browser' && useColors) {
     const args: Str[] = ansiToBrowserArgs(text);
     fn(...args);
@@ -397,10 +413,13 @@ function platformLog(stream: PrintStream, text: Str): void {
  */
 function applyStyle(text: Str, name: StyleName): Result<Str> {
   const textResult: Result<Str> = safeParse(StrSchema, text);
+
   if (!textResult.ok) {
     return textResult;
   }
+
   const nameResult: Result<StyleName> = safeParse(StyleNameSchema, name);
+
   if (!nameResult.ok) {
     return nameResult;
   }
@@ -408,7 +427,9 @@ function applyStyle(text: Str, name: StyleName): Result<Str> {
   if (!useColors) {
     return ok(StrSchema, textResult.data);
   }
+
   const code: OptionalStr = codes[nameResult.data];
+
   if (!code) {
     return ok(StrSchema, textResult.data);
   }
@@ -555,6 +576,7 @@ export const style = {
  */
 function stripMarkup(text: Str): Result<Str> {
   const input: Result<Str> = safeParse(StrSchema, text);
+
   if (!input.ok) {
     return input;
   }
@@ -564,6 +586,7 @@ function stripMarkup(text: Str): Result<Str> {
     /\{symbol:(\w+)\}/g,
     (_match: string, name: string): string => {
       const symNameResult: Result<SymbolName> = safeParse(SymbolNameSchema, name);
+
       if (!symNameResult.ok) {
         return _match;
       }
@@ -576,6 +599,7 @@ function stripMarkup(text: Str): Result<Str> {
     /\{(bold|dim|italic|underline|inverse|strikethrough|red|green|yellow|blue|cyan|magenta|white|gray)\}(.*?)\{\/\}/gs,
     (_match: string, _tag: string, content: string): string => content,
   );
+
   return ok(StrSchema, stripped);
 }
 
@@ -608,6 +632,7 @@ function stripMarkup(text: Str): Result<Str> {
  */
 export function renderMarkup(text: Str): Result<Str> {
   const input: Result<Str> = safeParse(StrSchema, text);
+
   if (!input.ok) {
     return input;
   }
@@ -618,6 +643,7 @@ export function renderMarkup(text: Str): Result<Str> {
     /\{symbol:(\w+)\}/g,
     (_match: string, name: string): string => {
       const symNameResult: Result<SymbolName> = safeParse(SymbolNameSchema, name);
+
       if (!symNameResult.ok) {
         return _match;
       }
@@ -633,14 +659,19 @@ export function renderMarkup(text: Str): Result<Str> {
       if (!useColors) {
         return content;
       }
+
       const styleResult: Result<StyleName> = safeParse(StyleNameSchema, tag);
+
       if (!styleResult.ok) {
         return content;
       }
+
       const code: OptionalStr = codes[styleResult.data];
+
       return code ? `${code}${content}${codes.reset}` : content;
     },
   );
+
   return ok(StrSchema, rendered);
 }
 
@@ -803,6 +834,7 @@ let spinnerInterval: NullableIntervalId = null;
  */
 export function startSpinner(message: Str): Result<Void> {
   const input: Result<Str> = safeParse(StrSchema, message);
+
   if (!input.ok) {
     return input;
   }
@@ -816,12 +848,14 @@ export function startSpinner(message: Str): Result<Void> {
 
   spinnerIndex = 0;
   const frame: Result<Str> = style.cyan(spinnerFrames[spinnerIndex] ?? '');
+
   if (!frame.ok) {
     return frame;
   }
   writeStdout(`${frame.data} ${input.data}`);
 
   const zeroCol: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, 0);
+
   if (!zeroCol.ok) {
     return zeroCol;
   }
@@ -853,6 +887,7 @@ export function startSpinner(message: Str): Result<Void> {
 export function stopSpinner(finalMessage?: Str): Result<Void> {
   if (finalMessage !== undefined) {
     const input: Result<Str> = safeParse(StrSchema, finalMessage);
+
     if (!input.ok) {
       return input;
     }
@@ -866,6 +901,7 @@ export function stopSpinner(finalMessage?: Str): Result<Void> {
   if (runtime === 'node-tty') {
     clearLine();
     const zeroCol: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, 0);
+
     if (zeroCol.ok) {
       cursorTo(zeroCol.data as NonNegativeInteger);
     }
@@ -903,16 +939,19 @@ export function progressBar(
   width: PositiveInteger = DEFAULT_PROGRESS_BAR_WIDTH,
 ): Result<Str> {
   const currentResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, current);
+
   if (!currentResult.ok) {
     return currentResult;
   }
 
   const totalResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, total);
+
   if (!totalResult.ok) {
     return totalResult;
   }
 
   const widthResult: Result<PositiveInteger> = safeParse(PositiveIntegerSchema, width);
+
   if (!widthResult.ok) {
     return widthResult;
   }
@@ -926,15 +965,20 @@ export function progressBar(
   const empty: number = widthNum - filled;
 
   const filledBar: Result<Str> = style.green(symbols.progressFilled.repeat(filled));
+
   if (!filledBar.ok) {
     return filledBar;
   }
+
   const emptyBar: Result<Str> = style.dim(symbols.progressEmpty.repeat(empty));
+
   if (!emptyBar.ok) {
     return emptyBar;
   }
+
   const percentStr: Str = `${Math.round(percentage * 100)}%`.padStart(4);
   const dimPercent: Result<Str> = style.dim(percentStr);
+
   if (!dimPercent.ok) {
     return dimPercent;
   }
@@ -997,8 +1041,10 @@ function emitGitHubCommand(
   properties?: { file?: Str; line?: number; col?: number; title?: Str },
 ): Result<Void> {
   let cmd: Str = `::${command}`;
+
   if (properties) {
     const props: Str[] = [];
+
     if (properties.file) {
       props.push(`file=${properties.file}`);
     }
@@ -1037,6 +1083,7 @@ function emitGitHubCommand(
  */
 export function startGroup(title: Str): Result<Void> {
   const input: Result<Str> = safeParse(StrSchema, title);
+
   if (!input.ok) {
     return input;
   }
@@ -1065,6 +1112,7 @@ export function endGroup(): Result<Void> {
  */
 function getCurrentFormat(): OutputFormat | undefined {
   const formatResult: Result<OutputFormat> = getOutputFormat();
+
   return formatResult.ok ? formatResult.data : undefined;
 }
 
@@ -1078,6 +1126,7 @@ function getCurrentFormat(): OutputFormat | undefined {
  */
 function emitCompact(level: Str, message: Str, stream: PrintStream): Result<Void> {
   let prefix: Str;
+
   if (level === 'error') {
     prefix = 'ERR';
   } else if (level === 'warn') {
@@ -1112,27 +1161,36 @@ export const log = {
    */
   print: (message: Str, options?: PrintOptions): Result<Void> => {
     const machineResult: Result<Bool> = isMachineReadable();
+
     if (!machineResult.ok) {
       return machineResult;
     }
     if (machineResult.data) {
       return ok(VoidSchema, undefined);
     }
+
     const optionsResult: Result<PrintOptions> = safeParse(PrintOptionsSchema, options ?? {});
+
     if (!optionsResult.ok) {
       return optionsResult;
     }
+
     const msgResult: Result<Str> = safeParse(StrSchema, message);
+
     if (!msgResult.ok) {
       return msgResult;
     }
+
     const rendered: Result<Str> = renderMarkup(msgResult.data);
+
     if (!rendered.ok) {
       return rendered;
     }
+
     const { level } = optionsResult.data;
     const { stream } = optionsResult.data;
     const allowed: Result<Bool> = shouldLog(level);
+
     if (!allowed.ok) {
       return allowed;
     }
@@ -1151,10 +1209,13 @@ export const log = {
    */
   info: (message: Str): Result<Void> => {
     const msgResult: Result<Str> = safeParse(StrSchema, message);
+
     if (!msgResult.ok) {
       return msgResult;
     }
+
     const allowed: Result<Bool> = shouldLog('info');
+
     if (!allowed.ok) {
       return allowed;
     }
@@ -1165,17 +1226,21 @@ export const log = {
     // GitHub Actions format: emit ::notice:: (checked first so github-mode
     // hits the workflow-command branch rather than falling through to baseLog)
     const format: OutputFormat | undefined = getCurrentFormat();
+
     if (format === 'github') {
       const stripped: Result<Str> = stripMarkup(msgResult.data);
       const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+
       return emitGitHubCommand('notice', cleanMessage);
     }
 
     // In JSON/JUnit mode, delegate to base logger (strips markup, emits structured entry)
     const machineResult: Result<Bool> = isMachineReadable();
+
     if (machineResult.ok && machineResult.data) {
       const stripped: Result<Str> = stripMarkup(msgResult.data);
       const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+
       return baseLog.info(cleanMessage);
     }
 
@@ -1183,11 +1248,13 @@ export const log = {
     if (format === 'compact') {
       const stripped: Result<Str> = stripMarkup(msgResult.data);
       const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+
       return emitCompact('info', cleanMessage, 'stdout');
     }
 
     // Pretty mode: render markup with ANSI/CSS
     const rendered: Result<Str> = renderMarkup(msgResult.data);
+
     if (!rendered.ok) {
       return rendered;
     }
@@ -1204,10 +1271,13 @@ export const log = {
    */
   warn: (message: Str): Result<Void> => {
     const msgResult: Result<Str> = safeParse(StrSchema, message);
+
     if (!msgResult.ok) {
       return msgResult;
     }
+
     const allowed: Result<Bool> = shouldLog('warn');
+
     if (!allowed.ok) {
       return allowed;
     }
@@ -1218,17 +1288,21 @@ export const log = {
     // GitHub Actions format: emit ::warning:: (checked first so github-mode
     // hits the workflow-command branch rather than falling through to baseLog)
     const format: OutputFormat | undefined = getCurrentFormat();
+
     if (format === 'github') {
       const stripped: Result<Str> = stripMarkup(msgResult.data);
       const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+
       return emitGitHubCommand('warning', cleanMessage);
     }
 
     // In JSON/JUnit mode, delegate to base logger
     const machineResult: Result<Bool> = isMachineReadable();
+
     if (machineResult.ok && machineResult.data) {
       const stripped: Result<Str> = stripMarkup(msgResult.data);
       const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+
       return baseLog.warn(cleanMessage);
     }
 
@@ -1236,15 +1310,19 @@ export const log = {
     if (format === 'compact') {
       const stripped: Result<Str> = stripMarkup(msgResult.data);
       const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+
       return emitCompact('warn', cleanMessage, 'stdout');
     }
 
     // Pretty mode: render markup with symbol prefix
     const rendered: Result<Str> = renderMarkup(msgResult.data);
+
     if (!rendered.ok) {
       return rendered;
     }
+
     const sym: Result<Str> = style.yellow(symbols.warning);
+
     if (!sym.ok) {
       return sym;
     }
@@ -1261,10 +1339,13 @@ export const log = {
    */
   error: (message: Str): Result<Void> => {
     const msgResult: Result<Str> = safeParse(StrSchema, message);
+
     if (!msgResult.ok) {
       return msgResult;
     }
+
     const allowed: Result<Bool> = shouldLog('error');
+
     if (!allowed.ok) {
       return allowed;
     }
@@ -1275,17 +1356,21 @@ export const log = {
     // GitHub Actions format: emit ::error:: (checked first so github-mode
     // hits the workflow-command branch rather than falling through to baseLog)
     const format: OutputFormat | undefined = getCurrentFormat();
+
     if (format === 'github') {
       const stripped: Result<Str> = stripMarkup(msgResult.data);
       const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+
       return emitGitHubCommand('error', cleanMessage);
     }
 
     // In JSON/JUnit mode, delegate to base logger
     const machineResult: Result<Bool> = isMachineReadable();
+
     if (machineResult.ok && machineResult.data) {
       const stripped: Result<Str> = stripMarkup(msgResult.data);
       const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+
       return baseLog.error(cleanMessage);
     }
 
@@ -1293,15 +1378,19 @@ export const log = {
     if (format === 'compact') {
       const stripped: Result<Str> = stripMarkup(msgResult.data);
       const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+
       return emitCompact('error', cleanMessage, 'stderr');
     }
 
     // Pretty mode: render markup with symbol prefix
     const rendered: Result<Str> = renderMarkup(msgResult.data);
+
     if (!rendered.ok) {
       return rendered;
     }
+
     const sym: Result<Str> = style.red(symbols.error);
+
     if (!sym.ok) {
       return sym;
     }
@@ -1320,10 +1409,13 @@ export const log = {
    */
   debug: (message: Str, data?: JsonData): Result<Void> => {
     const msgResult: Result<Str> = safeParse(StrSchema, message);
+
     if (!msgResult.ok) {
       return msgResult;
     }
+
     const allowed: Result<Bool> = shouldLog('debug');
+
     if (!allowed.ok) {
       return allowed;
     }
@@ -1334,17 +1426,21 @@ export const log = {
     // GitHub Actions format: emit ::debug:: (checked first so github-mode
     // hits the workflow-command branch rather than falling through to baseLog)
     const format: OutputFormat | undefined = getCurrentFormat();
+
     if (format === 'github') {
       const stripped: Result<Str> = stripMarkup(msgResult.data);
       const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+
       return emitGitHubCommand('debug', cleanMessage);
     }
 
     // In JSON/JUnit mode, delegate to base logger
     const machineResult: Result<Bool> = isMachineReadable();
+
     if (machineResult.ok && machineResult.data) {
       const stripped: Result<Str> = stripMarkup(msgResult.data);
       const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+
       return baseLog.debug(cleanMessage, data);
     }
 
@@ -1352,15 +1448,19 @@ export const log = {
     if (format === 'compact') {
       const stripped: Result<Str> = stripMarkup(msgResult.data);
       const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+
       return emitCompact('debug', cleanMessage, 'stderr');
     }
 
     // Pretty mode: render markup with styled [DEBUG] prefix
     const rendered: Result<Str> = renderMarkup(msgResult.data);
+
     if (!rendered.ok) {
       return rendered;
     }
+
     const styled: Result<Str> = style.dim(`[DEBUG] ${rendered.data}`);
+
     if (!styled.ok) {
       return styled;
     }
@@ -1382,14 +1482,18 @@ export const log = {
    */
   json: (data: JsonData, indent?: NonNegativeInteger): Result<Void> => {
     let validatedIndent: NonNegativeInteger = DEFAULT_JSON_INDENT;
+
     if (indent !== undefined) {
       const indentResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, indent);
+
       if (!indentResult.ok) {
         return indentResult;
       }
       validatedIndent = indentResult.data as NonNegativeInteger;
     }
+
     const jsonResult: Result<Str> = safeStringify(data, validatedIndent);
+
     if (!jsonResult.ok) {
       return jsonResult;
     }
@@ -1407,10 +1511,13 @@ export const log = {
    */
   raw: (message: Str): Result<Void> => {
     const msgResult: Result<Str> = safeParse(StrSchema, message);
+
     if (!msgResult.ok) {
       return msgResult;
     }
+
     const rendered: Result<Str> = renderMarkup(msgResult.data);
+
     if (!rendered.ok) {
       return rendered;
     }
@@ -1429,10 +1536,13 @@ export const log = {
    */
   trace: (message: Str, data?: JsonData): Result<Void> => {
     const msgResult: Result<Str> = safeParse(StrSchema, message);
+
     if (!msgResult.ok) {
       return msgResult;
     }
+
     const allowed: Result<Bool> = shouldLog('trace');
+
     if (!allowed.ok) {
       return allowed;
     }
@@ -1443,17 +1553,21 @@ export const log = {
     // GitHub Actions format: emit ::debug:: — GitHub has no trace level (checked
     // first so github-mode hits the workflow-command branch rather than baseLog)
     const format: OutputFormat | undefined = getCurrentFormat();
+
     if (format === 'github') {
       const stripped: Result<Str> = stripMarkup(msgResult.data);
       const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+
       return emitGitHubCommand('debug', cleanMessage);
     }
 
     // In JSON/JUnit mode, delegate to base logger
     const machineResult: Result<Bool> = isMachineReadable();
+
     if (machineResult.ok && machineResult.data) {
       const stripped: Result<Str> = stripMarkup(msgResult.data);
       const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+
       return baseLog.trace(cleanMessage, data);
     }
 
@@ -1461,15 +1575,19 @@ export const log = {
     if (format === 'compact') {
       const stripped: Result<Str> = stripMarkup(msgResult.data);
       const cleanMessage: Str = stripped.ok ? stripped.data : msgResult.data;
+
       return emitCompact('trace', cleanMessage, 'stderr');
     }
 
     // Pretty mode: render markup with styled [TRACE] prefix
     const rendered: Result<Str> = renderMarkup(msgResult.data);
+
     if (!rendered.ok) {
       return rendered;
     }
+
     const styled: Result<Str> = style.dim(`[TRACE] ${rendered.data}`);
+
     if (!styled.ok) {
       return styled;
     }
@@ -1491,10 +1609,13 @@ export const log = {
    */
   rawError: (message: Str): Result<Void> => {
     const msgResult: Result<Str> = safeParse(StrSchema, message);
+
     if (!msgResult.ok) {
       return msgResult;
     }
+
     const rendered: Result<Str> = renderMarkup(msgResult.data);
+
     if (!rendered.ok) {
       return rendered;
     }

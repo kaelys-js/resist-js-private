@@ -42,6 +42,7 @@
   const validated: SchedulerProps = $derived.by(() => {
     const rawProps: SchedulerProps = stripSvelteProps(allProps);
     const result = safeParse(SchedulerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

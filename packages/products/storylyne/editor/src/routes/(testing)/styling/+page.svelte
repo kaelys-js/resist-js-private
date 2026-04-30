@@ -338,6 +338,7 @@
       ? PAGE_EXPORT_ITEMS
       : PAGE_EXPORT_ITEMS.filter((p: ExportItem): boolean => {
           const q: Str = exportSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q as string) ||
             p.description.toLowerCase().includes(q as string) ||
@@ -427,6 +428,7 @@
             item.label.toLowerCase().includes(q as string) ||
             item.description.toLowerCase().includes(q as string),
         ) ?? false) as Bool;
+
         return (titleMatch || descMatch || itemMatch) as boolean;
       });
     }
@@ -471,7 +473,9 @@
     if (!sortField) {
       return '' as Str;
     }
+
     const arrow: Str = (sortDir === 'asc' ? '\u2191' : '\u2193') as Str;
+
     return `Name ${arrow}` as Str;
   });
 
@@ -506,6 +510,7 @@
    */
   function toggleCategory(cat: Str): void {
     const idx: Num = activeCategories.indexOf(cat) as Num;
+
     if ((idx as number) >= 0) {
       activeCategories = activeCategories.filter((c) => c !== cat);
     } else {
@@ -563,6 +568,7 @@
    */
   function generateMarkdown(): Str {
     const lines: Str[] = [];
+
     for (const section of filteredSections) {
       lines.push(`## ${section.title}` as Str);
       lines.push('' as Str);
@@ -598,6 +604,7 @@
       items: s.items ?? [],
       codeExample: s.codeExample ?? null,
     }));
+
     return JSON.stringify(data, null, 2) as Str;
   }
 
@@ -651,6 +658,7 @@
     const raf: Num = requestAnimationFrame((): void => {
       node.style.minHeight = `${node.offsetHeight}px`;
     }) as Num;
+
     return {
       destroy(): void {
         cancelAnimationFrame(raf as number);

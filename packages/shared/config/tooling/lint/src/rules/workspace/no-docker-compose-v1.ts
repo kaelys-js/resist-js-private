@@ -51,6 +51,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
+
       if (!COMPOSE_FILENAMES.has(name)) {
         continue;
       }

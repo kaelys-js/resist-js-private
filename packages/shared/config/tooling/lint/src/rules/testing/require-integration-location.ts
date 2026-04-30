@@ -36,6 +36,7 @@ const rule: WorkspaceRule = {
    */
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -55,6 +56,7 @@ const rule: WorkspaceRule = {
 
     for (const file of allFiles) {
       const name: string = basename(file);
+
       if (!INTEGRATION_PATTERN.test(name)) {
         continue;
       }
@@ -66,8 +68,10 @@ const rule: WorkspaceRule = {
       const siblings: string[] = dirFiles.get(dir) ?? [];
       const hasSource: boolean = siblings.some((sibling: string): boolean => {
         const sibName: string = basename(sibling);
+
         return sibName.endsWith('.ts') && !TEST_FILE_PATTERN.test(sibName) && sibling !== file;
       });
+
       if (hasSource) {
         continue;
       }

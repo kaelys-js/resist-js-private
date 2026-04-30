@@ -28,6 +28,7 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const { value } = node;
+
       if (
         typeof value === 'number' &&
         Number.isInteger(value) &&

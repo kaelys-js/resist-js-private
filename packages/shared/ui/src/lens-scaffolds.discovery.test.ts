@@ -49,6 +49,7 @@ function compareScaffoldEntries(
 ): number {
   const [a] = entryA;
   const [b] = entryB;
+
   if (a < b) {
     return -1;
   }

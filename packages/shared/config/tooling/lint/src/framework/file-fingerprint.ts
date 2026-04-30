@@ -28,6 +28,7 @@ import { statSync, type Stats } from 'node:fs';
 export function fingerprintFiles(files: readonly string[]): string {
   const h: ReturnType<typeof createHash> = createHash('sha256');
   const sorted: string[] = [...files].toSorted();
+
   for (const f of sorted) {
     try {
       const s: Stats = statSync(f);

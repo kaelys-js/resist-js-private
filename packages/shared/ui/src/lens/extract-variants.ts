@@ -32,18 +32,21 @@ export function extractVariants(source: string): VariantMeta | null {
 
   // Find `tv({` in the source
   const tvIdx: number = source.indexOf('tv({');
+
   if (tvIdx === -1) {
     return null;
   }
 
   // Find the opening brace of the tv() argument
   const tvBraceIdx: number = source.indexOf('{', tvIdx + 2);
+
   if (tvBraceIdx === -1) {
     return null;
   }
 
   // Find the matching closing brace
   const tvEndIdx: number = findMatchingBrace(source, tvBraceIdx);
+
   if (tvEndIdx === -1) {
     return null;
   }
@@ -52,6 +55,7 @@ export function extractVariants(source: string): VariantMeta | null {
 
   // Extract the `variants: { ... }` block
   const variantsBlock: string | null = extractBlock(tvBody, 'variants');
+
   if (!variantsBlock) {
     return null;
   }
@@ -122,16 +126,19 @@ function findMatchingBrace(source: string, openIdx: number): number {
 function extractBlock(body: string, keyName: string): string | null {
   const keyPattern: RegExp = new RegExp(`${keyName}\\s*:\\s*\\{`);
   const match: RegExpExecArray | null = keyPattern.exec(body);
+
   if (!match) {
     return null;
   }
 
   const braceIdx: number = body.indexOf('{', (match.index ?? 0) + keyName.length);
+
   if (braceIdx === -1) {
     return null;
   }
 
   const endIdx: number = findMatchingBrace(body, braceIdx);
+
   if (endIdx === -1) {
     return null;
   }
@@ -150,9 +157,11 @@ function parseDefaults(block: string): Map<string, string> {
   // Match: key: 'value', or key: "value",
   const regex: RegExp = /(\w+)\s*:\s*['"]([^'"]*)['"]/g;
   let match: RegExpExecArray | null;
+
   while ((match = regex.exec(block)) !== null) {
     const key: string = match[1] ?? '';
     const value: string = match[2] ?? '';
+
     if (key) {
       defaults.set(key, value);
     }
@@ -180,17 +189,20 @@ function parseVariantKeys(block: string, defaults: Map<string, string>): Variant
 
   while ((match = keyRegex.exec(block)) !== null) {
     const key: string = match[1] ?? '';
+
     if (!key) {
       continue;
     }
 
     // Find the opening brace for this variant's options
     const braceIdx: number = block.indexOf('{', (match.index ?? 0) + key.length);
+
     if (braceIdx === -1) {
       continue;
     }
 
     const endIdx: number = findMatchingBrace(block, braceIdx);
+
     if (endIdx === -1) {
       continue;
     }
@@ -238,8 +250,10 @@ function parseOptionNames(block: string): string[] {
     // Try to match a quoted key: 'key-name': or "key-name":
     // Must be checked BEFORE string-skip to avoid consuming quoted keys as values
     const quotedMatch: RegExpExecArray | null = /^(['"])([^'"]+)\1\s*:/.exec(block.slice(i));
+
     if (quotedMatch) {
       const name: string = quotedMatch[2] ?? '';
+
       if (name) {
         names.push(name);
       }
@@ -251,8 +265,10 @@ function parseOptionNames(block: string): string[] {
 
     // Try to match an identifier key: keyName:
     const identMatch: RegExpExecArray | null = /^(\w+)\s*:/.exec(block.slice(i));
+
     if (identMatch) {
       const name: string = identMatch[1] ?? '';
+
       if (name) {
         names.push(name);
       }
@@ -288,6 +304,7 @@ function skipValue(block: string, start: number): number {
 
   const ch: string = block[i] ?? '';
   // If the value is a string literal, skip it entirely
+
   if (ch === "'" || ch === '"' || ch === '`') {
     const quote: string = ch;
     i++; // skip opening quote

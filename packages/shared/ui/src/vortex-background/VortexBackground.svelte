@@ -42,6 +42,7 @@
   const validated: VortexBackgroundProps = $derived.by(() => {
     const rawProps: VortexBackgroundProps = stripSvelteProps(allProps);
     const result = safeParse(VortexBackgroundPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

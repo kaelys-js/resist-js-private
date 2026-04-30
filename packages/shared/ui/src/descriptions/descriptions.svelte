@@ -43,6 +43,7 @@
   const validated: DescriptionsProps = $derived.by(() => {
     const rawProps: DescriptionsProps = stripSvelteProps(allProps);
     const result = safeParse(DescriptionsPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

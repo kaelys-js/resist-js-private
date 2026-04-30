@@ -42,6 +42,7 @@
   const validated: GlobeProps = $derived.by(() => {
     const rawProps: GlobeProps = stripSvelteProps(allProps);
     const result = safeParse(GlobePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

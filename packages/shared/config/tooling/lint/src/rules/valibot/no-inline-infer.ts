@@ -33,6 +33,7 @@ const rule: TypeScriptRule = {
       // We check the params and return type by examining the function text
       // up to the opening brace
       const braceIndex: number = nodeText.indexOf('{');
+
       if (braceIndex === -1) {
         return results;
       }

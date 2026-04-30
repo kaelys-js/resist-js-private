@@ -42,6 +42,7 @@
   const validated: LiquidEffectProps = $derived.by(() => {
     const rawProps: LiquidEffectProps = stripSvelteProps(allProps);
     const result = safeParse(LiquidEffectPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

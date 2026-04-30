@@ -42,6 +42,7 @@
   const validated: ApiPlaygroundProps = $derived.by(() => {
     const rawProps: ApiPlaygroundProps = stripSvelteProps(allProps);
     const result = safeParse(ApiPlaygroundPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

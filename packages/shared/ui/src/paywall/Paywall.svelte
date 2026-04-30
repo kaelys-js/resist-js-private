@@ -42,6 +42,7 @@
   const validated: PaywallProps = $derived.by(() => {
     const rawProps: PaywallProps = stripSvelteProps(allProps);
     const result = safeParse(PaywallPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

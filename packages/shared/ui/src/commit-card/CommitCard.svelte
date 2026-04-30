@@ -42,6 +42,7 @@
   const validated: CommitCardProps = $derived.by(() => {
     const rawProps: CommitCardProps = stripSvelteProps(allProps);
     const result = safeParse(CommitCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

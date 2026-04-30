@@ -43,6 +43,7 @@
   const validated: BackgroundBoxesProps = $derived.by(() => {
     const rawProps: BackgroundBoxesProps = stripSvelteProps(allProps);
     const result = safeParse(BackgroundBoxesPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

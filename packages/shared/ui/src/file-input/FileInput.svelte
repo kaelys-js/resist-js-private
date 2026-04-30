@@ -42,6 +42,7 @@
   const validated: FileInputProps = $derived.by(() => {
     const rawProps: FileInputProps = stripSvelteProps(allProps);
     const result = safeParse(FileInputPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

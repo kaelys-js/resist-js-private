@@ -24,6 +24,7 @@ import type { PageServerLoad } from './$types';
 function resolveUiSrcDir(): Str {
   const currentDir: Str = dirname(fileURLToPath(import.meta.url)) as Str;
   let dir: Str = currentDir;
+
   for (let i: Num = 0 as Num; i < 20; i++) {
     try {
       statSync(join(dir, 'pnpm-workspace.yaml'));
@@ -58,6 +59,7 @@ function detectRepoUrl(): Str {
     let url: Str = remote;
     /* SSH format: git@github.com:org/repo.git → https://github.com/org/repo */
     const sshMatch: RegExpMatchArray | null = remote.match(/^git@([^:]+):(.+?)(?:\.git)?$/);
+
     if (sshMatch) {
       url = `https://${sshMatch[1]}/${sshMatch[2]}` as Str;
     } else {
@@ -128,6 +130,7 @@ export const load: PageServerLoad = () => {
 
   /* First pass: get headers + file names */
   let raw: Str;
+
   try {
     raw = execSync(
       `git log --pretty=format:"${COMMIT_SEP}%h${FIELD_SEP}%s${FIELD_SEP}%an${FIELD_SEP}%aI" --name-only -200 -- "${uiSrcDir}"`,
@@ -144,6 +147,7 @@ export const load: PageServerLoad = () => {
 
   /* Second pass: get commit bodies keyed by hash */
   const bodyMap: Map<Str, Str> = new Map();
+
   try {
     const bodyRaw: Str = execSync(
       `git log --pretty=format:"%h${FIELD_SEP}%b${COMMIT_SEP}" -200 -- "${uiSrcDir}"`,
@@ -154,13 +158,17 @@ export const load: PageServerLoad = () => {
       },
     ) as Str;
     const bodyBlocks: Str[] = bodyRaw.split(COMMIT_SEP).filter(Boolean) as Str[];
+
     for (const block of bodyBlocks) {
       const sepIdx: number = block.indexOf(FIELD_SEP);
+
       if (sepIdx < 0) {
         continue;
       }
+
       const bHash: Str = block.slice(0, sepIdx).trim() as Str;
       const bBody: Str = block.slice(sepIdx + FIELD_SEP.length).trim() as Str;
+
       if (bHash && bBody) {
         bodyMap.set(bHash, bBody);
       }
@@ -174,12 +182,14 @@ export const load: PageServerLoad = () => {
 
   for (const block of commits) {
     const lines: Str[] = block.trim().split('\n') as Str[];
+
     if (lines.length === 0) {
       continue;
     }
 
     const headerLine: Str = lines[0] ?? ('' as Str);
     const parts: Str[] = headerLine.split(FIELD_SEP) as Str[];
+
     if (parts.length < 4) {
       continue;
     }
@@ -195,6 +205,7 @@ export const load: PageServerLoad = () => {
       const match: RegExpMatchArray | null = filePath.match(
         /^packages\/shared\/ui\/src\/([^/]+)\//,
       );
+
       if (match?.[1]) {
         componentSet.add(match[1] as Str);
       }
@@ -226,9 +237,11 @@ export const load: PageServerLoad = () => {
 
   /* Group by date (day) */
   const groupMap: Map<Str, ChangelogEntry[]> = new Map();
+
   for (const entry of entries) {
     const dayKey: Str = entry.date.slice(0, 10) as Str;
     const existing: ChangelogEntry[] | undefined = groupMap.get(dayKey);
+
     if (existing) {
       existing.push(entry);
     } else {

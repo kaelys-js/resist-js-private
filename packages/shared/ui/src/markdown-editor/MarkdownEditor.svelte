@@ -42,6 +42,7 @@
   const validated: MarkdownEditorProps = $derived.by(() => {
     const rawProps: MarkdownEditorProps = stripSvelteProps(allProps);
     const result = safeParse(MarkdownEditorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

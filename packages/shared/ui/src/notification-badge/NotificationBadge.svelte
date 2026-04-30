@@ -42,6 +42,7 @@
   const validated: NotificationBadgeProps = $derived.by(() => {
     const rawProps: NotificationBadgeProps = stripSvelteProps(allProps);
     const result = safeParse(NotificationBadgePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

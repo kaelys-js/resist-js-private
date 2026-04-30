@@ -33,28 +33,33 @@ function getStringValue(node: AstNode, context: VisitorContext): string | null {
 
   if (node.type === 'TemplateLiteral') {
     const quasis: AstNode[] | undefined = node.quasis as AstNode[] | undefined;
+
     if (!quasis || quasis.length === 0) {
       return null;
     }
 
     // Only handle simple template literals without expressions
     const expressions: unknown[] | undefined = node.expressions as unknown[] | undefined;
+
     if (expressions && expressions.length > 0) {
       return null;
     }
 
     const [firstQuasi] = quasis;
+
     if (!firstQuasi) {
       return null;
     }
 
     const cooked: string | undefined = (firstQuasi.value as { cooked?: string })?.cooked;
+
     if (cooked !== undefined) {
       return cooked;
     }
 
     // Fallback: extract raw text from source
     const nodeText: string = context.getNodeText(node);
+
     if (nodeText.startsWith('`') && nodeText.endsWith('`')) {
       return nodeText.slice(1, -1);
     }
@@ -93,6 +98,7 @@ const rule: TypeScriptRule = {
  */
 function checkNode(node: AstNode, context: VisitorContext): LintResult[] {
   const value: string | null = getStringValue(node, context);
+
   if (!value) {
     return [];
   }
@@ -102,6 +108,7 @@ function checkNode(node: AstNode, context: VisitorContext): LintResult[] {
   }
 
   const extracted: string = extractScriptBlocks(value);
+
   if (extracted.trim() === '') {
     return [];
   }
@@ -110,6 +117,7 @@ function checkNode(node: AstNode, context: VisitorContext): LintResult[] {
   const codeLines: number = extracted
     .split('\n')
     .filter((line: string): boolean => line.trim() !== '').length;
+
   if (codeLines === 0) {
     return [];
   }

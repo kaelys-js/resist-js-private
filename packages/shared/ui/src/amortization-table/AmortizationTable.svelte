@@ -42,6 +42,7 @@
   const validated: AmortizationTableProps = $derived.by(() => {
     const rawProps: AmortizationTableProps = stripSvelteProps(allProps);
     const result = safeParse(AmortizationTablePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

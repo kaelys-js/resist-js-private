@@ -25,6 +25,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -50,6 +51,7 @@ const rule: WorkspaceRule = {
 
     /** Collect all file paths in a single pass (allFiles is async iterable). */
     const allPaths: string[] = [];
+
     for (const filePath of await ctx.allFiles()) {
       allPaths.push(filePath);
     }
@@ -76,6 +78,7 @@ const rule: WorkspaceRule = {
       testsDirsExist.add(testsDirPath);
 
       const fileName: string = basename(filePath);
+
       if (TEST_FILE_RE.test(fileName)) {
         testsDirsWithTests.add(testsDirPath);
       }

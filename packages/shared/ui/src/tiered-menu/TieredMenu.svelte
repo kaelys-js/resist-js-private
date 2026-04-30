@@ -42,6 +42,7 @@
   const validated: TieredMenuProps = $derived.by(() => {
     const rawProps: TieredMenuProps = stripSvelteProps(allProps);
     const result = safeParse(TieredMenuPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: PaymentFormProps = $derived.by(() => {
     const rawProps: PaymentFormProps = stripSvelteProps(allProps);
     const result = safeParse(PaymentFormPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

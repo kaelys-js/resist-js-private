@@ -23,11 +23,14 @@ import type {
 function hasJsDoc(node: AstNode, content: string): boolean {
   const before: string = content.slice(0, node.start);
   const trimmed: string = before.trimEnd();
+
   if (!trimmed.endsWith('*/')) {
     return false;
   }
+
   const closeIdx: number = trimmed.lastIndexOf('*/');
   const openIdx: number = trimmed.lastIndexOf('/**');
+
   return openIdx !== -1 && openIdx < closeIdx;
 }
 
@@ -39,6 +42,7 @@ function hasJsDoc(node: AstNode, content: string): boolean {
  */
 function getFunctionName(node: AstNode): string | null {
   const id = node.id as AstNode | undefined;
+
   return (id?.name as string) ?? null;
 }
 /** The require-jsdoc lint rule. */
@@ -54,6 +58,7 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const declaration = node.declaration as AstNode | undefined;
+
       if (!declaration) {
         return results;
       }
@@ -90,12 +95,14 @@ const rule: TypeScriptRule = {
 
       if (declaration.type === 'VariableDeclaration') {
         const declarations = declaration.declarations as AstNode[] | undefined;
+
         if (!declarations) {
           return results;
         }
 
         for (const decl of declarations) {
           const init = decl.init as AstNode | undefined;
+
           if (
             init &&
             (init.type === 'ArrowFunctionExpression' || init.type === 'FunctionExpression') &&

@@ -130,11 +130,13 @@ export function parseConfigIni(content: Str): Record<Str, Str> {
 
   for (const line of (content as string).split('\n')) {
     const trimmed: Str = line.trim() as Str;
+
     if (!(trimmed as string) || (trimmed as string).startsWith('#')) {
       continue;
     }
 
     const eqIndex: Num = (trimmed as string).indexOf('=') as Num;
+
     if ((eqIndex as number) < 0) {
       continue;
     }
@@ -158,6 +160,7 @@ export function parseConfigIni(content: Str): Record<Str, Str> {
 function extractApiLevel(config: Record<Str, Str>): Num {
   const sysdir: Str = config['image.sysdir.1'] ?? ('' as Str);
   const match: RegExpMatchArray | null = (sysdir as string).match(/android-(\d+)/);
+
   if (!match?.[1]) {
     return 0 as Num;
   }
@@ -222,6 +225,7 @@ export function parseDeviceProfiles(output: Str): DeviceProfile[] {
 
     /* Match id line: 'id: N or "device_id"' */
     const idMatch: RegExpMatchArray | null = trimmed.match(/^id:\s+\d+\s+or\s+"([^"]+)"/);
+
     if (idMatch?.[1]) {
       /* Save previous entry if complete */
       if (currentId && currentName) {
@@ -241,6 +245,7 @@ export function parseDeviceProfiles(output: Str): DeviceProfile[] {
 
     /* Match Name line */
     const nameMatch: RegExpMatchArray | null = trimmed.match(/^Name:\s+(.+)$/);
+
     if (nameMatch?.[1] && currentId) {
       currentName = nameMatch[1].trim() as Str;
       continue;
@@ -248,6 +253,7 @@ export function parseDeviceProfiles(output: Str): DeviceProfile[] {
 
     /* Match OEM line */
     const oemMatch: RegExpMatchArray | null = trimmed.match(/^OEM\s*:\s+(.+)$/);
+
     if (oemMatch?.[1] && currentId) {
       currentOem = oemMatch[1].trim() as Str;
       continue;
@@ -255,6 +261,7 @@ export function parseDeviceProfiles(output: Str): DeviceProfile[] {
 
     /* Match Tag line */
     const tagMatch: RegExpMatchArray | null = trimmed.match(/^Tag\s*:\s+(.+)$/);
+
     if (tagMatch?.[1] && currentId) {
       currentTag = tagMatch[1].trim() as Str;
       continue;
@@ -398,6 +405,7 @@ export function filterPhoneAndTabletProfiles(profiles: DeviceProfile[]): DeviceP
 export async function listAvds(emulatorPath: Str): Promise<Str[]> {
   try {
     const { stdout } = await execFileAsync(emulatorPath as string, ['-list-avds']);
+
     return parseAvdList(stdout as Str);
   } catch {
     /* emulator not available */
@@ -418,6 +426,7 @@ export async function listDeviceProfiles(avdmanagerPath: Str): Promise<DevicePro
   try {
     const { stdout } = await execFileAsync(avdmanagerPath as string, ['list', 'device']);
     const allProfiles: DeviceProfile[] = parseDeviceProfiles(stdout as Str);
+
     return filterPhoneAndTabletProfiles(allProfiles);
   } catch {
     /* avdmanager not available */
@@ -440,12 +449,15 @@ export async function listSystemImages(avdmanagerPath: Str): Promise<Str[]> {
     ) as Str;
     const { stdout } = await execFileAsync(sdkmanagerPath as string, ['--list_installed']);
     const images: Str[] = [];
+
     for (const line of (stdout as string).split('\n')) {
       const trimmed: string = line.trim();
+
       if (trimmed.startsWith('system-images;')) {
         /* Extract the package identifier (first column, pipe-separated) */
         const parts: string[] = trimmed.split('|');
         const pkg: Str = (parts[0] ?? '').trim() as Str;
+
         if (pkg) {
           images.push(pkg);
         }
@@ -482,9 +494,11 @@ export async function getAndroidDevices(emulatorPath: Str): Promise<AndroidDevic
    */
   async function readAvdProfile(name: Str): Promise<AndroidDevice> {
     const configPath: Str = join(avdHome as string, `${name}.avd`, 'config.ini') as Str;
+
     try {
       const content: Str = (await readFile(configPath as string, 'utf8')) as Str;
       const config: Record<Str, Str> = parseConfigIni(content);
+
       return buildDeviceFromConfig(name, config);
     } catch {
       /* config.ini not readable — return defaults */
@@ -502,6 +516,7 @@ export async function getAndroidDevices(emulatorPath: Str): Promise<AndroidDevic
   }
 
   const devicePromises: Array<Promise<AndroidDevice>> = avdNames.map(readAvdProfile);
+
   return Promise.all(devicePromises);
 }
 
@@ -531,6 +546,7 @@ export async function getAndroidDeviceProfiles(
 
   /* Collect device IDs from existing AVDs for deduplication */
   const existingDeviceIds: Set<Str> = new Set<Str>();
+
   for (const device of existingDevices) {
     if (device.deviceId) {
       existingDeviceIds.add(device.deviceId);
@@ -539,6 +555,7 @@ export async function getAndroidDeviceProfiles(
 
   /* Build uncreated device entries from profiles */
   const uncreatedDevices: AndroidDevice[] = [];
+
   for (const profile of profiles) {
     if (existingDeviceIds.has(profile.deviceId)) {
       continue;

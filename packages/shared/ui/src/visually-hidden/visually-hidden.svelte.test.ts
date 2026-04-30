@@ -46,6 +46,7 @@ describe('VisuallyHiddenPropsSchema', () => {
       'label' as Str,
       'a' as Str,
     ];
+
     for (const el of validElements) {
       const result = safeParse(VisuallyHiddenPropsSchema, { as: el });
       expect(result.ok, `as="${el}" should be valid`).toBe(true);
@@ -128,6 +129,7 @@ describe('type exports', () => {
     if (!result.ok) {
       return;
     }
+
     const props: VisuallyHiddenProps = result.data;
     expect(props.as).toBeDefined();
     expect(props.focusable).toBeDefined();

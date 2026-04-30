@@ -42,6 +42,7 @@
   const validated: SidebarLayoutProps = $derived.by(() => {
     const rawProps: SidebarLayoutProps = stripSvelteProps(allProps);
     const result = safeParse(SidebarLayoutPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

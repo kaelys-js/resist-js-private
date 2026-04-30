@@ -42,6 +42,7 @@
   const validated: ActionSheetProps = $derived.by(() => {
     const rawProps: ActionSheetProps = stripSvelteProps(allProps);
     const result = safeParse(ActionSheetPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

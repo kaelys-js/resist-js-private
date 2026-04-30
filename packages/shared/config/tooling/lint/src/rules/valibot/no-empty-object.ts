@@ -29,6 +29,7 @@ const rule: TypeScriptRule = {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const callee = node.callee as AstNode | undefined;
+
       if (!callee) {
         return results;
       }
@@ -49,16 +50,19 @@ const rule: TypeScriptRule = {
       }
 
       const args = node.arguments as AstNode[] | undefined;
+
       if (!args || args.length === 0) {
         return results;
       }
 
       const schemaObj = args[0] as AstNode;
+
       if (schemaObj.type !== 'ObjectExpression') {
         return results;
       }
 
       const properties = schemaObj.properties as AstNode[] | undefined;
+
       if (!properties || properties.length === 0) {
         results.push({
           column: node.loc.start.column + 1,

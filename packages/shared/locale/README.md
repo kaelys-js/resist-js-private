@@ -13,7 +13,8 @@ import { StrSchema, NonNegativeIntegerSchema } from '@/schemas/common';
 const MySchema = v.strictObject({
   greeting: messageTemplate({ name: StrSchema }),
   farewell: messageTemplate(),
-  files: messageTemplate({ count: NonNegativeIntegerSchema }),
+  files: messageTemplate({ count: NonNegativeInte
+gerSchema }),
 });
 
 // 2. Write raw locale strings (validated against the schema)
@@ -39,7 +40,8 @@ t.files({ count: 5 });          // ok('5 files')
 This package has six source files at separate import paths. No barrel re-exports.
 
 | File | Import Path | Description |
-|------|-------------|-------------|
+|------|--
+-----------|-------------|
 | `src/template.ts` | `@/locale` | Template engine — schemas, builder, renderer |
 | `src/format.ts` | `@/locale/format` | Number, date/time, list, unit, duration formatting via `Intl` APIs |
 | `src/direction.ts` | `@/locale/direction` | Text direction detection (LTR/RTL) |
@@ -57,16 +59,19 @@ This package has six source files at separate import paths. No barrel re-exports
 |--------|------|-------------|
 | `messageTemplate()` | Function | Creates a Valibot schema for a locale template string |
 | `messageTemplate(params)` | Function | Creates a parameterized template schema with placeholder validation |
-| `buildLocale(schema, raw, context?, locale?, formatters?)` | Function | Transforms raw locale strings into callable locale object |
+| `buil
+dLocale(schema, raw, context?, locale?, formatters?)` | Function | Transforms raw locale strings into callable locale object |
 | `renderMessage(template, params, locale?, resolver?, formatters?)` | Function | Renders a template string with ICU message processing and placeholder substitution |
 | `TemplateSchema<TParams>` | Type | Valibot string schema with attached param metadata |
 | `BuiltLocale<TSchema>` | Type | Mapped type — transforms schema shape into function signatures |
-| `FormatterMap` | Type | Map of formatter names to `(value: Str, locale: Str \| undefined) => Result<Str>` |
+| `FormatterMap` | Type | Map of formatter names to `(value: Str, 
+locale: Str \| undefined) => Result<Str>` |
 
 ### Formatting (`@/locale/format`)
 
 | Export | Kind | Description |
-|--------|------|-------------|
+|-------
+-|------|-------------|
 | `formatNumber(value, locale, options?)` | Function | Formats a number via `Intl.NumberFormat` |
 | `formatCurrency(value, locale, currency)` | Function | Formats a number as currency |
 | `formatDate(value, locale, style?, options?)` | Function | Formats a date via `Intl.DateTimeFormat` |
@@ -185,7 +190,8 @@ Transforms raw locale strings into a callable locale object. For each key in the
 
 - **Nested object schema** → recurses into sub-object
 - **`messageTemplate()` (no params)** → `() => Result<Str>`
-- **`messageTemplate({ ... })` (with params)** → `(params) => Result<Str>` that validates each param via `safeParse` before rendering
+- **`messageTemplate({ ...
+ })` (with params)** → `(params) => Result<Str>` that validates each param via `safeParse` before rendering
 - **Plain `v.string()`** → `() => Result<Str>` with optional context substitution
 - **Array values** → context substitution applied to string fields in each element
 
@@ -197,19 +203,24 @@ built.data.configNotFound({ configFilename: 'resist.config.ts' });
 // ok('resist.config.ts not found, will create from defaults')
 
 built.data.success();
-// ok('Sync completed successfully!')
+// ok('Sync completed successfully!'
+)
 ```
 
 **Parameters:**
 - `schema` — The Valibot locale schema (e.g., `SyncStringsSchema`)
-- `rawStrs` — Raw locale strings object (e.g., imported `en`)
+- `rawStrs` — 
+Raw locale strings object (e.g., imported `en`)
 - `context` — Optional context values substituted into plain strings at build time
 
 **Returns:** `Result<BuiltLocale<TSchema>>`
 
-### `renderMessage(template, params, locale?, resolver?, formatters?)`
+### `renderM
+essage(template, params, locale?, resolver?, formatters?)`
 
-Renders a template string by substituting placeholders with param values. Processing pipeline: escape literals → message references (`@:key` / `@.modifier:key`) → `select` → `selectordinal` → `plural` → `range` → `number` (+ `::skeleton`) → `date`/`time` (+ `::skeleton`) → simple `{name}` / `{name|formatter}` → restore literals. Branches from select/plural/selectordinal/range are recursively processed (max depth: 10).
+Renders a template string by substituting placeholders with param values. Processing pi
+peline: escape literals → message references (`@:key` / `@.modifier:key`) → `select` → `selectordinal` → `plural` →
+ `range` → `number` (+ `::skeleton`) → `date`/`time` (+ `::skeleton`) → simple `{name}` / `{name|formatter}` → restore literals. Branches from select/plural/selectordinal/range are recursively processed (max depth: 10).
 
 ```typescript
 renderMessage('Hello, {name}!', { name: 'Alice' });
@@ -254,14 +265,18 @@ registry.data.t();                  // ok(BuiltLocale for active locale)
 ```
 
 **Options:**
-- `schema` — Valibot schema defining the locale string structure
-- `defaultLocale` — Default locale code (must exist in `locales`)
+- `s
+chema` — Valibot schema defining the locale string structure
+- `defaultLocale` — Default locale code (must exist 
+in `locales`)
 - `locales` — Map of locale code → raw locale strings
 - `context` — Optional context values substituted at build time
-- `fallbackLocales` — Locale fallback chain. Missing keys are filled from this chain. Defaults to `[defaultLocale]`
+- `fallbackLocales` — Locale fallback chain. Missing keys are filled f
+rom this chain. Defaults to `[defaultLocale]`
 - `strict` — When `false`, non-default locales skip schema validation and missing keys are filled from fallback chain. Default: `true`
 
-**Registry methods** (all return `Result<T>`):
+**Registry 
+methods** (all return `Result<T>`):
 
 | Method | Signature | Description |
 |--------|-----------|-------------|

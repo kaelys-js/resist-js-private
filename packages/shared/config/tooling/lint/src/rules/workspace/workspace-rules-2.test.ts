@@ -155,6 +155,7 @@ function mockContext(
     readFile: (path: string): Promise<string> =>
       new Promise<string>((resolve: (v: string) => void, reject: (e: Error) => void): void => {
         const content: string | undefined = files.get(path);
+
         if (content === undefined) {
           reject(new Error(`File not found: ${path}`));
           return;
@@ -4214,8 +4215,10 @@ describe('workspace/validate-root-scripts-consistency', () => {
       'preinstall',
       'test',
     ];
+
     for (const name of expected) {
       let scriptValue: string;
+
       if (name === 'build') {
         scriptValue = 'wrong command';
       } else if (name === 'prepare' || name === 'preinstall') {
@@ -4226,6 +4229,7 @@ describe('workspace/validate-root-scripts-consistency', () => {
       scripts[name] = scriptValue;
       descs[name] = `Does ${name}`;
     }
+
     const rootPkg: Record<string, unknown> = {
       scripts,
       meta: { scripts: { description: descs } },
@@ -4262,10 +4266,12 @@ describe('workspace/validate-root-scripts-consistency', () => {
       'preinstall',
       'test',
     ];
+
     for (const name of expected) {
       scripts[name] = name === 'prepare' || name === 'preinstall' ? 'husky' : `pnpm -r run ${name}`;
       descs[name] = `Does ${name}`;
     }
+
     const rootPkg: Record<string, unknown> = {
       scripts,
       meta: { scripts: { description: descs } },
@@ -4297,10 +4303,12 @@ describe('workspace/validate-root-scripts-consistency', () => {
       'preinstall',
       'test',
     ];
+
     for (const name of expected) {
       scripts[name] = name === 'prepare' || name === 'preinstall' ? 'husky' : `pnpm -r run ${name}`;
       descs[name] = `Does ${name}`;
     }
+
     const rootPkg: Record<string, unknown> = {
       scripts,
       meta: { scripts: { description: descs } },
@@ -5161,6 +5169,7 @@ const STD_PACKAGES_FIXTURE_2: WorkspacePackage[] = [
 
 function ctxWithRejectingPackages2(): WorkspaceContext {
   const base: WorkspaceContext = mockContext({ rootDir: '/workspace' });
+
   return {
     ...base,
     getWorkspacePackages: (): Promise<WorkspacePackage[]> =>
@@ -5352,6 +5361,7 @@ describe('workspace-rules-2 — bulk inputs() smoke-coverage', () => {
       if (typeof rule.inputs !== 'function') {
         return;
       }
+
       const ctx: WorkspaceContext = mockContext({
         rootDir: '/workspace',
         files: new Map([

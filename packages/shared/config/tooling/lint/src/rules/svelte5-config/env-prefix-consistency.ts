@@ -39,11 +39,13 @@ const rule: TypeScriptRule = {
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const configObj: AstNode | undefined = getDefaultExportObject(context.ast);
+
       if (!configObj) {
         return [];
       }
 
       const envObj: AstNode | undefined = getNestedValue(configObj, 'kit.env');
+
       if (!envObj || envObj.type !== 'ObjectExpression') {
         return [];
       }
@@ -52,6 +54,7 @@ const rule: TypeScriptRule = {
 
       // Check for empty publicPrefix
       const publicPrefixValue: AstNode | undefined = getNestedValue(envObj, 'publicPrefix');
+
       if (publicPrefixValue && isStringLiteral(publicPrefixValue, '')) {
         results.push({
           file: context.file,
@@ -68,6 +71,7 @@ const rule: TypeScriptRule = {
       // Check for wrong-framework prefixes
       if (publicPrefixValue) {
         const prefixStr: string | undefined = getStringValue(publicPrefixValue);
+
         if (prefixStr && WRONG_FRAMEWORK_PREFIXES.has(prefixStr)) {
           results.push({
             file: context.file,
@@ -84,9 +88,11 @@ const rule: TypeScriptRule = {
 
       // Check for matching public/private prefix
       const privatePrefixValue: AstNode | undefined = getNestedValue(envObj, 'privatePrefix');
+
       if (publicPrefixValue && privatePrefixValue) {
         const publicStr: string | undefined = getStringValue(publicPrefixValue);
         const privateStr: string | undefined = getStringValue(privatePrefixValue);
+
         if (publicStr && privateStr && publicStr === privateStr && publicStr !== '') {
           results.push({
             file: context.file,

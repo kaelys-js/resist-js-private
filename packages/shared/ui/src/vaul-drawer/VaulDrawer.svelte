@@ -42,6 +42,7 @@
   const validated: VaulDrawerProps = $derived.by(() => {
     const rawProps: VaulDrawerProps = stripSvelteProps(allProps);
     const result = safeParse(VaulDrawerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -43,6 +43,7 @@
   const validated: DataViewProps = $derived.by(() => {
     const rawProps: DataViewProps = stripSvelteProps(allProps);
     const result = safeParse(DataViewPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

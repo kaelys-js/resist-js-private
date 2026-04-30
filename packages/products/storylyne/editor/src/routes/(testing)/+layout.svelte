@@ -187,10 +187,13 @@
   const metaByName: Map<Str, LensMeta> = new Map();
   const metaErrors: Map<Str, Str> = new Map();
   const examplesByName: Map<Str, LensExample[]> = new Map();
+
   for (const [key, mod] of Object.entries(lensMetaModules)) {
     const dir: Str = extractDir(key);
+
     if (mod.meta) {
       const result: Result<LensMeta> = parseLensMeta(mod.meta);
+
       if (result.ok) {
         // Spread to unfreeze — Result.data is deep-frozen but Map<Str, LensMeta> needs mutable shape
         metaByName.set(dir, {
@@ -204,7 +207,9 @@
         metaErrors.set(dir, result.error.message);
       }
     }
+
     const examples: unknown = mod.default ?? mod.examples;
+
     if (Array.isArray(examples) && examples.length > 0) {
       examplesByName.set(dir, examples as LensExample[]);
     }
@@ -220,6 +225,7 @@
       label: catLabel(cat),
       components: componentNames.filter((n: Str): boolean => {
         const m: LensMeta | undefined = metaByName.get(n);
+
         return (m?.category ?? 'display') === cat;
       }),
     }),
@@ -266,9 +272,11 @@
 
     // — Component group: "Go to Component" link —
     const sourceKey: Str | undefined = findPrimaryKey(n, rawSources);
+
     if (sourceKey) {
       const src: Str = rawSources[sourceKey] ?? '';
       const jsdocDesc: Str | undefined = extractComponentDescription(src);
+
       if (jsdocDesc) {
         componentKeywords.push(jsdocDesc);
       }
@@ -297,6 +305,7 @@
         .filter((k: Str): boolean => k.includes(`/${n}/examples/`))
         .map((k: Str): Str => {
           const parts: Str[] = k.split('/');
+
           return parts.at(-1) ?? '';
         });
       const compUsesTv: boolean = /\btv\s*\(\s*\{/.test(src);
@@ -319,9 +328,11 @@
 
       // — Props group —
       const propsGroup: Str = `${title} › Props`;
+
       if (componentProps.length > 0) {
         for (const prop of componentProps) {
           const propKeywords: Str[] = [n];
+
           if (prop.type) {
             propKeywords.push(prop.type);
           }
@@ -347,6 +358,7 @@
 
       // — Variants group —
       const variantsGroup: Str = `${title} › Variants`;
+
       if (variants && variants.variants.length > 0) {
         for (const vk of variants.variants) {
           globalSearchItems.push({
@@ -369,9 +381,11 @@
       // — Examples group —
       const examplesGroup: Str = `${title} › Examples`;
       const examples: LensExample[] | undefined = examplesByName.get(n);
+
       if (examples && examples.length > 0) {
         for (const ex of examples) {
           const exKeywords: Str[] = [n, ex.name];
+
           if (ex.description) {
             exKeywords.push(ex.description);
           }
@@ -395,6 +409,7 @@
       // — Dependencies groups (sub-categorized) —
       const hasDeps: boolean =
         deps.internal.length > 0 || deps.workspace.length > 0 || deps.external.length > 0;
+
       if (hasDeps) {
         globalSearchItems.push({
           value: `${n}/deps/header`,
@@ -404,7 +419,9 @@
           keywords: [n],
         });
       }
+
       const seenInternal: Set<Str> = new Set();
+
       if (deps.internal.length > 0) {
         for (const dep of deps.internal) {
           if (seenInternal.has(dep.component)) {
@@ -420,7 +437,9 @@
           });
         }
       }
+
       const seenWorkspace: Set<Str> = new Set();
+
       if (deps.workspace.length > 0) {
         for (const dep of deps.workspace) {
           if (seenWorkspace.has(dep.path)) {
@@ -436,7 +455,9 @@
           });
         }
       }
+
       const seenExternal: Set<Str> = new Set();
+
       if (deps.external.length > 0) {
         for (const dep of deps.external) {
           if (seenExternal.has(dep.path)) {
@@ -512,6 +533,7 @@
     const docsKey: Str | undefined = Object.keys(docsModules).find(
       (k: Str): boolean => extractDir(k) === n,
     );
+
     if (docsKey) {
       globalSearchItems.push({
         value: `${n}/docs`,
@@ -547,6 +569,7 @@
   const allUniqueTags: Str[] = [
     ...new Set([...metaByName.values()].flatMap((m: LensMeta): Str[] => m.tags)),
   ].toSorted();
+
   for (const tag of allUniqueTags) {
     const tagCount: Num = [...metaByName.values()].filter((m: LensMeta): boolean =>
       m.tags.includes(tag),
@@ -575,6 +598,7 @@
   function toWorkspacePath(globPath: Str): Str {
     const s: string = globPath as string;
     const sharedIdx: number = s.indexOf('/shared/');
+
     if (sharedIdx >= 0) {
       return s.slice(sharedIdx + 1) as Str;
     }
@@ -620,11 +644,13 @@
 
   // — Design Tokens search items —
   const cssRawSource: Str = Object.values(cssRawModules)[0] ?? '';
+
   if (cssRawSource) {
     const tokenSets: ThemeTokenSet[] = extractTokens(cssRawSource);
     const rootSet: ThemeTokenSet | undefined = tokenSets.find(
       (s: ThemeTokenSet): boolean => s.selector === ':root',
     );
+
     if (rootSet) {
       globalSearchItems.push({
         value: 'tokens/overview',
@@ -716,6 +742,7 @@
   /** Page title for breadcrumb display on new pages. */
   const currentPageTitle: Str = $derived.by((): Str => {
     const path: Str = page.url.pathname as Str;
+
     if (path === '/getting-started') {
       return 'Getting Started' as Str;
     }
@@ -789,6 +816,7 @@
   $effect(() => {
     try {
       const stored: Str | null = localStorage.getItem(storageKey('lens-hide-incompatible'));
+
       if (stored === 'true') {
         hideIncompatible = true;
       }
@@ -823,6 +851,7 @@
   $effect(() => {
     try {
       const stored: Str | null = localStorage.getItem(storageKey('lens-pinned'));
+
       if (stored) {
         const parsed: Str[] = JSON.parse(stored) as Str[];
         pinnedComponents = new Set(parsed.filter((n: Str): boolean => componentNames.includes(n)));
@@ -850,6 +879,7 @@
    */
   function togglePin(name: Str): void {
     const next: Set<Str> = new Set(pinnedComponents);
+
     if (next.has(name)) {
       next.delete(name);
     } else if (next.size < MAX_PINNED) {
@@ -895,6 +925,7 @@
   $effect(() => {
     try {
       const stored: Str | null = localStorage.getItem(storageKey('lens-recent'));
+
       if (stored) {
         const parsed: Str[] = JSON.parse(stored) as Str[];
         recentComponents = parsed.filter((n: Str): boolean => componentNames.includes(n));
@@ -911,6 +942,7 @@
     if (!currentName || currentName.length === 0 || !componentNames.includes(currentName)) {
       return;
     }
+
     const current: Str[] = untrack(() => recentComponents);
     const filtered: Str[] = current.filter((n: Str): boolean => n !== currentName);
     recentComponents = [currentName, ...filtered].slice(0, MAX_RECENT);
@@ -1011,6 +1043,7 @@
               ...g,
               components: g.components.filter((n: Str): boolean => {
                 const q: Str = sidebarFilter.toLowerCase() as Str;
+
                 return n.toLowerCase().includes(q) || toTitle(n).toLowerCase().includes(q);
               }),
             }),
@@ -1036,10 +1069,12 @@
     if (!cssRawSource) {
       return 0;
     }
+
     const sets: ThemeTokenSet[] = extractTokens(cssRawSource);
     const rootSet: ThemeTokenSet | undefined = sets.find(
       (s: ThemeTokenSet): boolean => s.selector === ':root',
     );
+
     return rootSet?.tokens.length ?? 0;
   });
 
@@ -1051,6 +1086,7 @@
     if (!currentName) {
       return;
     }
+
     const meta: LensMeta | undefined = metaByName.get(currentName);
     const cat: Str = (meta?.category ?? 'display') as Str;
     // Ensure the parent "Components" group is open
@@ -1082,6 +1118,7 @@
       const activeEl: HTMLElement | null =
         categorizedSection?.querySelector('[data-sidebar="menu-button"][data-active="true"]') ??
         null;
+
       if (activeEl && scrollContainer) {
         const containerRect: DOMRect = scrollContainer.getBoundingClientRect();
         const elRect: DOMRect = activeEl.getBoundingClientRect();
@@ -1113,6 +1150,7 @@
         }
         // Wait for the smooth scroll to finish before starting the shine.
         // 'scrollend' fires once the scroll animation settles.
+
         const startShine: () => void = (): void => {
           // Determine shine color based on background luminance so it works
           // in any theme (light, dark, forest green, etc.). Uses a 1x1 canvas
@@ -1124,6 +1162,7 @@
           cvs.height = 1;
           const ctx: CanvasRenderingContext2D | null = cvs.getContext('2d');
           let shineBase: Str = 'rgba(255,255,255,' as Str;
+
           if (ctx) {
             ctx.fillStyle = bgStr;
             ctx.fillRect(0, 0, 1, 1);
@@ -1182,6 +1221,7 @@
      */
     function onSlashKey(e: KeyboardEvent): void {
       const tag: Str = (document.activeElement?.tagName ?? '') as Str;
+
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
         return;
       }
@@ -1217,6 +1257,7 @@
      */
     function onArrowNav(e: KeyboardEvent): void {
       const tag: Str = (document.activeElement?.tagName ?? '') as Str;
+
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
         return;
       }
@@ -1228,6 +1269,7 @@
       const buttons: HTMLElement[] = [
         ...document.querySelectorAll('[data-sidebar="menu-button"] a'),
       ] as HTMLElement[];
+
       if (buttons.length === 0) {
         return;
       }
@@ -1458,6 +1500,7 @@
       ? SIDEBAR_EXPORT_ITEMS
       : SIDEBAR_EXPORT_ITEMS.filter((p) => {
           const q: Str = sidebarExportSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q) ||
             p.description.toLowerCase().includes(q) ||
@@ -1479,6 +1522,7 @@
   function buildComponentIndex(): Record<Str, unknown> {
     const components: Array<Record<Str, unknown>> = componentNames.map((name: Str) => {
       const m: LensMeta | undefined = metaByName.get(name);
+
       return {
         name,
         title: toTitle(name),
@@ -1487,6 +1531,7 @@
         description: m?.description ?? '',
       };
     });
+
     return {
       totalComponents: componentNames.length,
       categories: CATEGORY_ORDER.filter((cat: Str) =>
@@ -1503,6 +1548,7 @@
    */
   function indexToMarkdown(): Str {
     const lines: Str[] = ['# Lens Component Index', ''];
+
     for (const group of groupedComponents) {
       lines.push(`## ${group.label} (${group.components.length})`, '');
       for (const name of group.components) {
@@ -1628,8 +1674,10 @@
     if (!isTypeEnabled(opts.type)) {
       return;
     }
+
     const notif: LensNotification = pushNotification(opts);
     const prefs: NotificationPreferences = getPreferences();
+
     if (prefs.showToasts && !opts.silent) {
       /** Toast function lookup by notification type. */
       const TOAST_FNS: Record<NotificationType, typeof toast.info> = {
@@ -1667,17 +1715,22 @@
   function relativeTime(iso: Str): Str {
     const diff: number = Date.now() - new Date(iso).getTime();
     const mins: number = Math.floor(diff / 60_000);
+
     if (mins < 1) {
       return 'Just now' as Str;
     }
     if (mins < 60) {
       return `${mins}m ago` as Str;
     }
+
     const hours: number = Math.floor(mins / 60);
+
     if (hours < 24) {
       return `${hours}h ago` as Str;
     }
+
     const days: number = Math.floor(hours / 24);
+
     if (days === 1) {
       return 'Yesterday' as Str;
     }
@@ -1701,6 +1754,7 @@
   $effect(() => {
     try {
       const stored: Str | null = localStorage.getItem(storageKey('lens-watched'));
+
       if (stored) {
         const parsed: Str[] = JSON.parse(stored) as Str[];
         watchedComponents = new Set(parsed.filter((n: Str): boolean => componentNames.includes(n)));
@@ -1729,6 +1783,7 @@
    */
   function toggleWatch(name: Str): void {
     const next: Set<Str> = new Set(watchedComponents);
+
     if (next.has(name)) {
       next.delete(name);
     } else if (next.size < (MAX_WATCHED as number)) {
@@ -1794,6 +1849,7 @@
     if (!currentName || currentName.length === 0 || !componentNames.includes(currentName)) {
       return;
     }
+
     const meta: LensMeta | undefined = metaByName.get(currentName);
 
     // Status notification for watched components
@@ -1835,6 +1891,7 @@
 
     const incompatible: Str[] = componentNames.filter((n: Str): boolean => {
       const c: LensCompatibility | undefined = compatByName.get(n);
+
       return c !== undefined && !c.compatible;
     });
 
@@ -1890,6 +1947,7 @@
       const ruleIds: Str = [...failedRules]
         .map((idx: number): Str => `R${idx}` as Str)
         .join(', ') as Str;
+
       return {
         type: 'warning' as NotificationType,
         title:
@@ -3379,6 +3437,7 @@
                   {#each displayedNotifs as notif (notif.id)}
                     {@const NIcon =
                       notif.type === 'error'
+
                         ? CircleX
                         : notif.type === 'warning'
                           ? TriangleAlert
@@ -3487,3 +3546,4 @@
       '!border !border-border shadow-lg !bg-card !text-foreground [&_[data-close-button]]:!bg-card [&_[data-close-button]]:!text-muted-foreground [&_[data-close-button]]:!border-border [&_[data-close-button]:hover]:!bg-accent [&_[data-close-button]:hover]:!text-accent-foreground',
   }}
 />
+

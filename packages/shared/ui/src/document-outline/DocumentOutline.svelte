@@ -42,6 +42,7 @@
   const validated: DocumentOutlineProps = $derived.by(() => {
     const rawProps: DocumentOutlineProps = stripSvelteProps(allProps);
     const result = safeParse(DocumentOutlinePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

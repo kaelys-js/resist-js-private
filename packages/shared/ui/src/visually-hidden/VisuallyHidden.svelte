@@ -123,6 +123,7 @@
       ...dataProps,
       children,
     });
+
     if (!result.ok) {
       throw result.error;
     }

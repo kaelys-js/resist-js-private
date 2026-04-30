@@ -269,9 +269,11 @@ describe('arity()', () => {
 
     it('check accepts fn with matching length', () => {
       const r = arity(2);
+
       if (!r.ok) {
         return;
       }
+
       const schema = v.pipe(
         functionSchema(),
         r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
@@ -281,9 +283,11 @@ describe('arity()', () => {
 
     it('check rejects fn with non-matching length', () => {
       const r = arity(2);
+
       if (!r.ok) {
         return;
       }
+
       const schema = v.pipe(
         functionSchema(),
         r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
@@ -293,9 +297,11 @@ describe('arity()', () => {
 
     it('arity(0) accepts zero-arg fn', () => {
       const r = arity(0);
+
       if (!r.ok) {
         return;
       }
+
       const schema = v.pipe(
         functionSchema(),
         r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
@@ -325,6 +331,7 @@ describe('arity()', () => {
   describe('range arity', () => {
     it('{ min: 1, max: 3 } accepts length 1', () => {
       const r = arity({ min: 1, max: 3 });
+
       if (!r.ok) {
         return;
       }
@@ -341,6 +348,7 @@ describe('arity()', () => {
 
     it('{ min: 1, max: 3 } accepts length 3', () => {
       const r = arity({ min: 1, max: 3 });
+
       if (!r.ok) {
         return;
       }
@@ -357,6 +365,7 @@ describe('arity()', () => {
 
     it('{ min: 1, max: 3 } rejects length 0', () => {
       const r = arity({ min: 1, max: 3 });
+
       if (!r.ok) {
         return;
       }
@@ -373,6 +382,7 @@ describe('arity()', () => {
 
     it('{ min: 1, max: 3 } rejects length 4', () => {
       const r = arity({ min: 1, max: 3 });
+
       if (!r.ok) {
         return;
       }
@@ -389,9 +399,11 @@ describe('arity()', () => {
 
     it('{ min: 2 } accepts length 2+', () => {
       const r = arity({ min: 2 });
+
       if (!r.ok) {
         return;
       }
+
       const schema = v.pipe(
         functionSchema(),
         r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
@@ -402,6 +414,7 @@ describe('arity()', () => {
 
     it('{ min: 2 } rejects length 1', () => {
       const r = arity({ min: 2 });
+
       if (!r.ok) {
         return;
       }
@@ -418,9 +431,11 @@ describe('arity()', () => {
 
     it('{ max: 2 } accepts length 0-2', () => {
       const r = arity({ max: 2 });
+
       if (!r.ok) {
         return;
       }
+
       const schema = v.pipe(
         functionSchema(),
         r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
@@ -431,6 +446,7 @@ describe('arity()', () => {
 
     it('{ max: 2 } rejects length 3', () => {
       const r = arity({ max: 2 });
+
       if (!r.ok) {
         return;
       }
@@ -447,9 +463,11 @@ describe('arity()', () => {
 
     it('{} accepts any length', () => {
       const r = arity({});
+
       if (!r.ok) {
         return;
       }
+
       const schema = v.pipe(
         functionSchema(),
         r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
@@ -502,9 +520,11 @@ describe('arity()', () => {
   describe('description messages', () => {
     it('exact: message says "exactly N"', () => {
       const r = arity(2);
+
       if (!r.ok) {
         return;
       }
+
       const schema = v.pipe(
         functionSchema(),
         r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
@@ -519,9 +539,11 @@ describe('arity()', () => {
 
     it('range: message says ">= min and <= max"', () => {
       const r = arity({ min: 1, max: 3 });
+
       if (!r.ok) {
         return;
       }
+
       const schema = v.pipe(
         functionSchema(),
         r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
@@ -531,6 +553,7 @@ describe('arity()', () => {
       if (pr.success) {
         return;
       }
+
       const msg = pr.issues[0]?.message ?? '';
       expect(msg).toContain('>= 1');
       expect(msg).toContain('<= 3');
@@ -538,9 +561,11 @@ describe('arity()', () => {
 
     it('min-only: message says ">= min"', () => {
       const r = arity({ min: 2 });
+
       if (!r.ok) {
         return;
       }
+
       const schema = v.pipe(
         functionSchema(),
         r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
@@ -555,9 +580,11 @@ describe('arity()', () => {
 
     it('max-only: message says "<= max"', () => {
       const r = arity({ max: 1 });
+
       if (!r.ok) {
         return;
       }
+
       const schema = v.pipe(
         functionSchema(),
         r.data as v.GenericPipeAction<v.InferOutput<ReturnType<typeof functionSchema>>>,
@@ -866,6 +893,7 @@ describe('args()', () => {
     if (!r.success) {
       return;
     }
+
     const callR = r.output(42 as unknown as string) as unknown as {
       ok: boolean;
       error: { code: string };
@@ -903,6 +931,7 @@ describe('returns()', () => {
     if (!r.success) {
       return;
     }
+
     const callR = r.output() as unknown as { ok: boolean; error: { code: string } };
     expect(callR.ok).toBe(false);
     expect(callR.error.code).toBe(ERRORS.FUNCTION.RETURN_VALIDATION_FAILED);

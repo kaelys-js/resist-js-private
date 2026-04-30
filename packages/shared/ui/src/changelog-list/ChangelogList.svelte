@@ -42,6 +42,7 @@
   const validated: ChangelogListProps = $derived.by(() => {
     const rawProps: ChangelogListProps = stripSvelteProps(allProps);
     const result = safeParse(ChangelogListPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -25,6 +25,7 @@ const WRANGLER_FILES: ReadonlySet<string> = new Set(['wrangler.json', 'wrangler.
  */
 function getArray(obj: Record<string, unknown>, key: string): unknown[] {
   const val: unknown = obj[key];
+
   return Array.isArray(val) ? (val as unknown[]) : [];
 }
 
@@ -38,6 +39,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -70,6 +72,7 @@ const rule: WorkspaceRule = {
 
       const relativePath: string = relative(ctx.rootDir, filePath);
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -77,6 +80,7 @@ const rule: WorkspaceRule = {
       }
 
       let config: Record<string, unknown>;
+
       try {
         config = JSON.parse(content) as Record<string, unknown>;
       } catch {
@@ -98,6 +102,7 @@ const rule: WorkspaceRule = {
       /* KV namespaces */
       for (const item of getArray(config, 'kv_namespaces')) {
         const entry: Record<string, unknown> = item as Record<string, unknown>;
+
         if (typeof entry.binding === 'string') {
           allBindingNames.push(entry.binding);
         }
@@ -106,6 +111,7 @@ const rule: WorkspaceRule = {
       /* R2 buckets */
       for (const item of getArray(config, 'r2_buckets')) {
         const entry: Record<string, unknown> = item as Record<string, unknown>;
+
         if (typeof entry.binding === 'string') {
           allBindingNames.push(entry.binding);
         }
@@ -114,6 +120,7 @@ const rule: WorkspaceRule = {
       /* D1 databases */
       for (const item of getArray(config, 'd1_databases')) {
         const entry: Record<string, unknown> = item as Record<string, unknown>;
+
         if (typeof entry.binding === 'string') {
           allBindingNames.push(entry.binding);
         }
@@ -121,8 +128,10 @@ const rule: WorkspaceRule = {
 
       /* Durable Objects */
       const durableObjects: unknown = config.durable_objects;
+
       if (typeof durableObjects === 'object' && durableObjects !== null) {
         const doConfig: Record<string, unknown> = durableObjects as Record<string, unknown>;
+
         for (const item of getArray(doConfig, 'bindings')) {
           const entry: Record<string, unknown> = item as Record<string, unknown>;
 
@@ -162,6 +171,7 @@ const rule: WorkspaceRule = {
 
       /* Check for duplicate binding names across all types */
       const seen: Set<string> = new Set();
+
       for (const bindingName of allBindingNames) {
         if (seen.has(bindingName)) {
           results.push(

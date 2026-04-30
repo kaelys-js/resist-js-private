@@ -42,6 +42,7 @@
   const validated: ScreenRecorderProps = $derived.by(() => {
     const rawProps: ScreenRecorderProps = stripSvelteProps(allProps);
     const result = safeParse(ScreenRecorderPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

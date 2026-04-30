@@ -42,6 +42,7 @@
   const validated: KeyFilterProps = $derived.by(() => {
     const rawProps: KeyFilterProps = stripSvelteProps(allProps);
     const result = safeParse(KeyFilterPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

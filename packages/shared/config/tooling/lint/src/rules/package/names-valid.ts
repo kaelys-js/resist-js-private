@@ -30,10 +30,13 @@ const RULE_ID: string = 'package/names-valid';
  */
 function findLineNumber(content: string, key: string): number {
   const idx: number = content.indexOf(key);
+
   if (idx < 0) {
     return 1;
   }
+
   let line: number = 1;
+
   for (let i: number = 0; i < idx; i++) {
     if (content[i] === '\n') {
       line++;
@@ -72,8 +75,10 @@ const rule: WorkspaceRule = {
   categories: ['package', 'naming'],
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx: WorkspaceContext = context as WorkspaceContext;
+
     try {
       const packages: WorkspacePackage[] = await ctx.getWorkspacePackages();
+
       return packages.map((p: WorkspacePackage): string => p.path);
     } catch {
       return [];
@@ -85,6 +90,7 @@ const rule: WorkspaceRule = {
     const seenNames: Map<string, string> = new Map();
 
     let packages: WorkspacePackage[];
+
     try {
       packages = await ctx.getWorkspacePackages();
     } catch {
@@ -168,6 +174,7 @@ const rule: WorkspaceRule = {
 
       /* Check: no duplicate names */
       const existingPath: string | undefined = seenNames.get(name);
+
       if (existingPath === undefined) {
         seenNames.set(name, pkg.path);
       } else {

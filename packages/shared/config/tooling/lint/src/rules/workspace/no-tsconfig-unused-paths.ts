@@ -24,6 +24,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -49,6 +50,7 @@ const rule: WorkspaceRule = {
 
     /** Collect all files first since allFiles is an async iterable that can only be iterated once. */
     const allFiles: string[] = [];
+
     for (const filePath of await ctx.allFiles()) {
       allFiles.push(filePath);
     }
@@ -58,6 +60,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of allFiles) {
       const name: string = basename(filePath);
+
       if (!name.startsWith('tsconfig') || !name.endsWith('.json')) {
         continue;
       }
@@ -84,6 +87,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of allFiles) {
       const ext: string = filePath.slice(filePath.lastIndexOf('.'));
+
       if (!SOURCE_EXTENSIONS.has(ext)) {
         continue;
       }

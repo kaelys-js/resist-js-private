@@ -43,6 +43,7 @@
   const validated: AnchorNavigationProps = $derived.by(() => {
     const rawProps: AnchorNavigationProps = stripSvelteProps(allProps);
     const result = safeParse(AnchorNavigationPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

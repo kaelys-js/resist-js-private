@@ -35,6 +35,7 @@ const CSV_LINE: RegExp = /^(.+?):(\d+):\s*(.+)$/;
  */
 export function transformCsvOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -43,11 +44,13 @@ export function transformCsvOutput(output: string): LintResult[] {
 
   for (const line of trimmed.split('\n')) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = CSV_LINE.exec(stripped);
+
     if (!match) {
       continue;
     }

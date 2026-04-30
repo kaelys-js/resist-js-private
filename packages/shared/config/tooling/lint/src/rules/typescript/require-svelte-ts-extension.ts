@@ -27,8 +27,10 @@ const SVELTE_RUNES: ReadonlySet<string> = new Set([
 function findRuneCall(node: AstNode): AstNode | null {
   if (node.type === 'CallExpression') {
     const callee = node.callee as AstNode | undefined;
+
     if (callee?.type === 'Identifier') {
       const name = (callee.name as string) ?? '';
+
       if (SVELTE_RUNES.has(name)) {
         return node;
       }
@@ -38,11 +40,14 @@ function findRuneCall(node: AstNode): AstNode | null {
     if (key === 'type' || key === 'start' || key === 'end' || key === 'loc') {
       continue;
     }
+
     const val = node[key];
+
     if (Array.isArray(val)) {
       for (const item of val) {
         if (item && typeof item === 'object' && 'type' in item) {
           const found = findRuneCall(item as AstNode);
+
           if (found) {
             return found;
           }
@@ -50,6 +55,7 @@ function findRuneCall(node: AstNode): AstNode | null {
       }
     } else if (val && typeof val === 'object' && 'type' in val) {
       const found = findRuneCall(val as AstNode);
+
       if (found) {
         return found;
       }
@@ -71,12 +77,16 @@ const rule: TypeScriptRule = {
       if (context.file.endsWith('.svelte.ts')) {
         return [];
       }
+
       const runeCall = findRuneCall(node);
+
       if (!runeCall) {
         return [];
       }
+
       const callee = runeCall.callee as AstNode;
       const name = (callee.name as string) ?? '$state';
+
       return [
         {
           file: context.file,

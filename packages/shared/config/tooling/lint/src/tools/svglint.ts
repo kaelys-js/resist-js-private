@@ -40,6 +40,7 @@ const SVGLINT_LINE: RegExp = /^(.+?):\s*(.+)$/;
  */
 export function transformSvglintOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -49,11 +50,13 @@ export function transformSvglintOutput(output: string): LintResult[] {
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = SVGLINT_LINE.exec(stripped);
+
     if (!match) {
       continue;
     }

@@ -42,6 +42,7 @@
   const validated: TimePickerProps = $derived.by(() => {
     const rawProps: TimePickerProps = stripSvelteProps(allProps);
     const result = safeParse(TimePickerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

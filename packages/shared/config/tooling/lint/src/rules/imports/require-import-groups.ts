@@ -63,12 +63,14 @@ const rule: TypeScriptRule = {
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const body = node.body as AstNode[] | undefined;
+
       if (!body) {
         return [];
       }
 
       // Collect consecutive import declarations
       const imports: AstNode[] = [];
+
       for (const stmt of body) {
         if (stmt.type === 'ImportDeclaration') {
           imports.push(stmt);
@@ -86,6 +88,7 @@ const rule: TypeScriptRule = {
       for (let i: number = 0; i < imports.length - 1; i++) {
         const current = imports[i] as AstNode | undefined;
         const next = imports[i + 1] as AstNode | undefined;
+
         if (!current || !next) {
           continue;
         }

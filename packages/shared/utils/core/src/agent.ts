@@ -83,6 +83,7 @@ const AGENTS: readonly AgentDefinition[] = Object.freeze([
 export function detectAgent(env: EnvRecordWithUndefined): Result<AgentInfo | undefined> {
   // 1. Check explicit AI_AGENT env var override
   const explicit: Str | undefined = env.AI_AGENT;
+
   if (explicit !== undefined && explicit !== '') {
     // Try to match to known agent ID
     for (const agent of AGENTS) {
@@ -91,7 +92,9 @@ export function detectAgent(env: EnvRecordWithUndefined): Result<AgentInfo | und
       }
     }
     // Unknown agent — still report it if it parses as AgentKind
+
     const parseResult: Result<AgentKind> = safeParse(AgentKindSchema, explicit);
+
     if (parseResult.ok) {
       return ok(AgentInfoSchema, { name: explicit, id: parseResult.data });
     }
@@ -102,6 +105,7 @@ export function detectAgent(env: EnvRecordWithUndefined): Result<AgentInfo | und
   for (const agent of AGENTS) {
     const anyMatch: Bool = agent.checks.some((check: ProviderEnvCheck): Bool => {
       const val: Str | undefined = env[check.key];
+
       if (val === undefined) {
         return false;
       }
@@ -113,6 +117,7 @@ export function detectAgent(env: EnvRecordWithUndefined): Result<AgentInfo | und
       }
       return true;
     });
+
     if (anyMatch) {
       return ok(AgentInfoSchema, { name: agent.name, id: agent.id });
     }

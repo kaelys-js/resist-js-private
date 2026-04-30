@@ -42,6 +42,7 @@
   const validated: AdminLayoutProps = $derived.by(() => {
     const rawProps: AdminLayoutProps = stripSvelteProps(allProps);
     const result = safeParse(AdminLayoutPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

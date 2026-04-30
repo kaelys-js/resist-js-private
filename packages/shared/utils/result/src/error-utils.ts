@@ -58,6 +58,7 @@ import { safeParse } from '@/utils/result/safe';
  */
 export function isAppError(value: unknown): value is AppError {
   const result: v.SafeParseResult<typeof AppErrorSchema> = v.safeParse(AppErrorSchema, value);
+
   return result.success;
 }
 
@@ -86,7 +87,9 @@ export function isResult(value: unknown): value is Result<unknown> {
   if (typeof value !== 'object' || value === null) {
     return false;
   }
+
   const obj: Record<string, unknown> = value as Record<string, unknown>;
+
   if (typeof obj.ok !== 'boolean') {
     return false;
   }
@@ -173,6 +176,7 @@ export function hasAnyCode(error: AppError, codes: readonly KnownErrorCode[]): R
  */
 export function isInDomain(error: AppError, domain: ErrorDomain): Result<Bool> {
   const parsed: Result<ErrorDomain> = safeParse(ErrorDomainSchema, domain);
+
   if (!parsed.ok) {
     return parsed;
   }
@@ -319,12 +323,15 @@ export function getRootCause(error: AppError): Result<AppError> {
  */
 export function getDomain(error: AppError): Result<ErrorDomain> {
   const dotIndex: number = error.code.indexOf('.');
+
   if (dotIndex === -1) {
     return err(ERRORS.INTERNAL.INVARIANT_VIOLATED, {
       meta: { reason: 'Error code has no domain separator', code: error.code },
     });
   }
+
   const domain: string = error.code.slice(0, dotIndex);
+
   return safeParse(ErrorDomainSchema, domain);
 }
 

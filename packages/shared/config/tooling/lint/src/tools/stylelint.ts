@@ -21,11 +21,13 @@ import { createResult, type LintResult } from '@/lint/framework/types.ts';
  */
 export function transformStylelintOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
 
   let items: unknown[];
+
   try {
     items = JSON.parse(trimmed) as unknown[];
   } catch {
@@ -33,6 +35,7 @@ export function transformStylelintOutput(output: string): LintResult[] {
   }
 
   const results: LintResult[] = [];
+
   for (const item of items) {
     const obj: Record<string, unknown> = item as Record<string, unknown>;
     const source: string = (obj.source as string) ?? '';

@@ -13,6 +13,7 @@ describe('console', () => {
   describe('createConsoleSpy', () => {
     it('captures console.log output with default methods', () => {
       const spy = createConsoleSpy(vi);
+
       try {
         console.log('hello', 'world');
         expect(spy.logs).toEqual(['hello world']);
@@ -24,6 +25,7 @@ describe('console', () => {
 
     it('captures console.error output with default methods', () => {
       const spy = createConsoleSpy(vi);
+
       try {
         console.error('oops');
         expect(spy.errors).toEqual(['oops']);
@@ -35,6 +37,7 @@ describe('console', () => {
 
     it('does not capture console.warn when not in methods', () => {
       const spy = createConsoleSpy(vi);
+
       try {
         console.warn('ignored');
         expect(spy.warns).toEqual([]);
@@ -45,6 +48,7 @@ describe('console', () => {
 
     it('captures warn when explicitly enabled', () => {
       const spy = createConsoleSpy(vi, { methods: ['warn'] });
+
       try {
         console.warn('danger');
         expect(spy.warns).toEqual(['danger']);
@@ -55,6 +59,7 @@ describe('console', () => {
 
     it('joins args with space and coerces non-strings to string', () => {
       const spy = createConsoleSpy(vi);
+
       try {
         console.log('count', 42, true);
         expect(spy.logs).toEqual(['count 42 true']);
@@ -65,6 +70,7 @@ describe('console', () => {
 
     it('output property joins all captured methods with newlines', () => {
       const spy = createConsoleSpy(vi);
+
       try {
         console.log('A');
         console.error('B');
@@ -76,6 +82,7 @@ describe('console', () => {
 
     it('clear empties all buckets while keeping spies active', () => {
       const spy = createConsoleSpy(vi);
+
       try {
         console.log('before');
         spy.clear();
@@ -89,6 +96,7 @@ describe('console', () => {
 
     it('clear also empties warns even when not captured', () => {
       const spy = createConsoleSpy(vi, { methods: ['log', 'error', 'warn'] });
+
       try {
         console.log('x');
         console.error('y');
@@ -128,6 +136,7 @@ describe('console', () => {
       }) as typeof console.log;
       try {
         const spy = createConsoleSpy(vi, { passthrough: true });
+
         try {
           console.log('pt');
           /* With passthrough, original is called from inside mockImplementation,
@@ -144,6 +153,7 @@ describe('console', () => {
 
     it('logSpy getter returns a MockInstance for captured log', () => {
       const spy = createConsoleSpy(vi);
+
       try {
         expect(spy.logSpy).toBeDefined();
         expect(typeof spy.logSpy.mockRestore).toBe('function');
@@ -154,6 +164,7 @@ describe('console', () => {
 
     it('errorSpy getter returns a MockInstance for captured error', () => {
       const spy = createConsoleSpy(vi);
+
       try {
         expect(spy.errorSpy).toBeDefined();
         expect(typeof spy.errorSpy.mockRestore).toBe('function');
@@ -164,6 +175,7 @@ describe('console', () => {
 
     it('warnSpy getter returns a no-op spy when warn is not captured', () => {
       const spy = createConsoleSpy(vi);
+
       try {
         /* Not captured by default — returns noopSpy with safe mockRestore. */
         expect(spy.warnSpy).toBeDefined();
@@ -177,6 +189,7 @@ describe('console', () => {
 
     it('warnSpy getter returns the real spy when warn is captured', () => {
       const spy = createConsoleSpy(vi, { methods: ['warn'] });
+
       try {
         console.warn('w');
         expect(spy.warnSpy.mock.calls.length).toBeGreaterThan(0);
@@ -187,6 +200,7 @@ describe('console', () => {
 
     it('logSpy returns noop when log is not in methods', () => {
       const spy = createConsoleSpy(vi, { methods: ['error'] });
+
       try {
         expect((): void => {
           spy.logSpy.mockRestore();
@@ -198,6 +212,7 @@ describe('console', () => {
 
     it('errorSpy returns noop when error is not in methods', () => {
       const spy = createConsoleSpy(vi, { methods: ['log'] });
+
       try {
         expect((): void => {
           spy.errorSpy.mockRestore();

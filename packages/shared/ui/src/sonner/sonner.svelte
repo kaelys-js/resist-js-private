@@ -42,6 +42,7 @@
   const validated: SonnerProps = $derived.by(() => {
     const rawProps: SonnerProps = stripSvelteProps(allProps);
     const result = safeParse(SonnerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

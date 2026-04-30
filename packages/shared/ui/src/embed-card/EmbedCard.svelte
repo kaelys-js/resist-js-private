@@ -42,6 +42,7 @@
   const validated: EmbedCardProps = $derived.by(() => {
     const rawProps: EmbedCardProps = stripSvelteProps(allProps);
     const result = safeParse(EmbedCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

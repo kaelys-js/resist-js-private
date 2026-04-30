@@ -38,8 +38,10 @@ function getParamName(param: AstNode): string | undefined {
   }
   if (param.type === 'AssignmentPattern') {
     const { left } = param;
+
     if (left !== null && typeof left === 'object') {
       const leftNode: AstNode = left as AstNode;
+
       if (leftNode.type === 'Identifier') {
         return leftNode.name as string;
       }
@@ -69,12 +71,14 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const { id } = node;
+
       if (id === null || typeof id !== 'object') {
         return results;
       }
 
       const idNode: AstNode = id as AstNode;
       const funcName: string | undefined = idNode.name as string | undefined;
+
       if (!funcName) {
         return results;
       }
@@ -83,8 +87,10 @@ const rule: TypeScriptRule = {
       walkBody(node, (child: AstNode): boolean | void => {
         if (child.type === 'CallExpression') {
           const { callee } = child;
+
           if (callee !== null && typeof callee === 'object') {
             const calleeNode: AstNode = callee as AstNode;
+
             if (calleeNode.type === 'Identifier' && (calleeNode.name as string) === funcName) {
               isRecursive = true;
               return true;
@@ -100,6 +106,7 @@ const rule: TypeScriptRule = {
       const params: AstNode[] = (node.params as AstNode[]) ?? [];
       const hasDepthParam: boolean = params.some((param: AstNode): boolean => {
         const name: string | undefined = getParamName(param);
+
         return name !== undefined && DEPTH_PARAM_NAMES.has(name);
       });
 

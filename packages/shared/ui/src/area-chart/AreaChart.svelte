@@ -42,6 +42,7 @@
   const validated: AreaChartProps = $derived.by(() => {
     const rawProps: AreaChartProps = stripSvelteProps(allProps);
     const result = safeParse(AreaChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

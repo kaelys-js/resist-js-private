@@ -44,6 +44,7 @@
   const validated: HelpTooltipProps = $derived.by(() => {
     const rawProps: HelpTooltipProps = stripSvelteProps(restProps);
     const result = safeParse(HelpTooltipPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -43,6 +43,7 @@
   const validated: FloatButtonProps = $derived.by(() => {
     const rawProps: FloatButtonProps = stripSvelteProps(allProps);
     const result = safeParse(FloatButtonPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -43,6 +43,7 @@
   const validated: TableOfContentsProps = $derived.by(() => {
     const rawProps: TableOfContentsProps = stripSvelteProps(allProps);
     const result = safeParse(TableOfContentsPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

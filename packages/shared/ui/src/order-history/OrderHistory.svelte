@@ -42,6 +42,7 @@
   const validated: OrderHistoryProps = $derived.by(() => {
     const rawProps: OrderHistoryProps = stripSvelteProps(allProps);
     const result = safeParse(OrderHistoryPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

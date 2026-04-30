@@ -42,6 +42,7 @@
   const validated: UserManagementTableProps = $derived.by(() => {
     const rawProps: UserManagementTableProps = stripSvelteProps(allProps);
     const result = safeParse(UserManagementTablePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

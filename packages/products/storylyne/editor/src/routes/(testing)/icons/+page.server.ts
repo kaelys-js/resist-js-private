@@ -33,6 +33,7 @@ export const load: PageServerLoad = () => {
 
     /* Extract unique icon names from .svelte files */
     const nameSet: Set<Str> = new Set();
+
     for (const file of files) {
       if (file.endsWith('.svelte') && !file.endsWith('.d.ts')) {
         nameSet.add(file.replace('.svelte', '') as Str);

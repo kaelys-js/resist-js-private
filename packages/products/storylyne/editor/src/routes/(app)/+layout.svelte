@@ -89,6 +89,7 @@
 
   // ── Debug store + URL overrides (client-only) ───────────────────────
   const debugStore: DebugStore | undefined = browser ? initDebugStore(page.url) : undefined;
+
   if (browser && debugStore) {
     applyUrlOverrides(store, debugStore, debugStore.urlOverrides);
   }
@@ -96,6 +97,7 @@
   // ── Window build info global + startup log (client-only) ─────────────
   if (browser) {
     const buildResult = getBuildInfo();
+
     if (buildResult.ok) {
       // Window interface uses literal key; computed access requires cast
       (window as unknown as Record<Str, unknown>)[getBuildKey(store.app.appName)] =
@@ -146,6 +148,7 @@
       (async () => {
         try {
           const p: ServerProject | null = await project;
+
           if (!cancelled) {
             resolvedProject = p;
             projectLoading = false;
@@ -169,6 +172,7 @@
       (async () => {
         try {
           const s: readonly ServerScene[] = await scenes;
+
           if (!cancelled) {
             resolvedScenes = s;
             scenesLoading = false;
@@ -205,6 +209,7 @@
     localStorage.removeItem(`paneforge:${STORAGE_PREFIX}:sidebar-width`);
     const saved: Str | null = localStorage.getItem(SIDEBAR_PX_KEY);
     const px: Num = saved ? Number(saved) : SIDEBAR_DEFAULT_PX;
+
     return (px / window.innerWidth) * 100;
   }
   const initialSidebarPercent: Num = getInitialSidebarPercent();
@@ -230,11 +235,13 @@
       if (typeof window === 'undefined') {
         return null;
       }
+
       const savedPx: Str | null = localStorage.getItem(SIDEBAR_PX_KEY);
       const sidebarPx: Num = savedPx ? Number(savedPx) : SIDEBAR_DEFAULT_PX;
       currentSidebarPx = sidebarPx;
       const viewportWidth: Num = window.innerWidth;
       const sidebarPercent: Num = (sidebarPx / viewportWidth) * 100;
+
       return JSON.stringify([sidebarPercent, 100 - sidebarPercent]);
     },
     setItem(_name: Str, value: Str): Void {
@@ -258,10 +265,13 @@
     if (!providerEl) {
       return;
     }
+
     const groupEl: Element | null = providerEl.querySelector('[data-pane-group]');
+
     if (!groupEl) {
       return;
     }
+
     const widthPx: Num = Math.round(groupEl.clientWidth * (size / 100));
     currentSidebarPx = widthPx;
     providerEl.style.setProperty('--sidebar-width', `${widthPx}px`);
@@ -305,9 +315,11 @@
 
   function handleDoubleClickResize(): Void {
     const groupEl: Element | null | undefined = providerEl?.querySelector('[data-pane-group]');
+
     if (!groupEl) {
       return;
     }
+
     const defaultPercent: Num = (SIDEBAR_DEFAULT_PX / groupEl.clientWidth) * 100;
     sidebarPane?.resize(defaultPercent);
   }
@@ -320,7 +332,9 @@
     if (!useResizable || !providerEl) {
       return;
     }
+
     const groupEl: Element | null = providerEl.querySelector('[data-pane-group]');
+
     if (!groupEl) {
       return;
     }
@@ -329,12 +343,15 @@
       cancelAnimationFrame(resizeRafId);
       resizeRafId = requestAnimationFrame(() => {
         const groupWidth: Num = groupEl instanceof HTMLElement ? groupEl.clientWidth : 0;
+
         if (groupWidth === 0) {
           return;
         }
         // Resize PaneForge pane to maintain the saved pixel width.
+
         const targetPercent: Num = (currentSidebarPx / groupWidth) * 100;
         const currentSize: Num | undefined = sidebarPane?.getSize();
+
         if (currentSize !== undefined && Math.abs(currentSize - targetPercent) > 0.5) {
           sidebarPane?.resize(targetPercent);
         }
@@ -366,6 +383,7 @@
   // Persist mock data delay to a cookie so the server can read it on next request.
   $effect(() => {
     const delay: Num = store.app.mockDataDelay;
+
     if (!browser) {
       return;
     }
@@ -377,6 +395,7 @@
   // the correct state during SSR — prevents expanded→collapsed flash.
   $effect(() => {
     const open: Bool = store.app.sidebarOpen;
+
     if (!browser) {
       return;
     }
@@ -388,6 +407,7 @@
   // sync the PaneForge pane to match.
   $effect(() => {
     const wantOpen: Bool = store.app.sidebarOpen;
+
     if (!useResizable) {
       return;
     }
@@ -407,6 +427,7 @@
       const result: Result<Str> = (
         localeStore.t.meta.description as (p: { appName: Str }) => Result<Str>
       )({ appName: store.app.appName });
+
       if (!result.ok) {
         log.warn(`Locale meta.description error: ${result.error.code}`);
       }
@@ -417,6 +438,7 @@
   const ogLocale: Str = $derived.by(() => {
     const r = toOgLocale(store.app.locale);
     // UI boundary — $derived must produce a value; error logged below
+
     if (!r.ok) {
       log.warn(`OG locale resolution failed (${r.error.code})`);
     }
@@ -449,6 +471,7 @@
     if (page.error) {
       const titleFn =
         errorTitleMap[page.status] ?? (() => t(localeStore.t.errors.genericTitle, 'Error'));
+
       return titleFn();
     }
     if (activeSceneName) {

@@ -25,6 +25,7 @@ describe('AppPreferencesSchema', () => {
     if (!result.ok) {
       return;
     }
+
     const prefs: AppPreferences = result.data;
     expect(prefs.appName).toBe(APP_NAME);
     expect(prefs.theme).toBe('');
@@ -90,6 +91,7 @@ describe('AppPreferencesSchema', () => {
       'aurora',
       'amethyst',
     ] as const;
+
     for (const theme of themes) {
       const result = safeParse(AppPreferencesSchema, { theme });
       expect(result.ok, `theme '${theme}' should be valid`).toBe(true);
@@ -98,6 +100,7 @@ describe('AppPreferencesSchema', () => {
 
   it('accepts all supported locales', () => {
     const locales = ['en', 'ja', 'zh', 'ko', 'fr', 'de', 'es'] as const;
+
     for (const locale of locales) {
       const result = safeParse(AppPreferencesSchema, { locale });
       expect(result.ok, `locale '${locale}' should be valid`).toBe(true);
@@ -112,6 +115,7 @@ describe('FeatureFlagsSchema', () => {
     if (!result.ok) {
       return;
     }
+
     const flags: FeatureFlags = result.data;
     expect(flags.settings).toBe(true);
     expect(flags.themeSelection).toBe(true);
@@ -187,6 +191,7 @@ describe('FeatureFlagsSchema', () => {
       'appNameInSidebar',
     ];
     const schemaKeys = Object.keys(FeatureFlagsSchema.entries);
+
     for (const flag of newFlags) {
       expect(schemaKeys, `schema should contain '${flag}'`).toContain(flag);
     }

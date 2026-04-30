@@ -42,6 +42,7 @@
   const validated: ThemeControllerProps = $derived.by(() => {
     const rawProps: ThemeControllerProps = stripSvelteProps(allProps);
     const result = safeParse(ThemeControllerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

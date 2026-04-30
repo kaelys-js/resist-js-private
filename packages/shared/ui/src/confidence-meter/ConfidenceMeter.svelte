@@ -42,6 +42,7 @@
   const validated: ConfidenceMeterProps = $derived.by(() => {
     const rawProps: ConfidenceMeterProps = stripSvelteProps(allProps);
     const result = safeParse(ConfidenceMeterPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

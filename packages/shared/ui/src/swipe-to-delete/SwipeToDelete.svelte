@@ -42,6 +42,7 @@
   const validated: SwipeToDeleteProps = $derived.by(() => {
     const rawProps: SwipeToDeleteProps = stripSvelteProps(allProps);
     const result = safeParse(SwipeToDeletePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

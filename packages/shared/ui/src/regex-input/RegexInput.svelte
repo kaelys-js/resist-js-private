@@ -43,6 +43,7 @@
   const validated: RegexInputProps = $derived.by(() => {
     const rawProps: RegexInputProps = stripSvelteProps(allProps);
     const result = safeParse(RegexInputPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

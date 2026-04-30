@@ -63,5 +63,6 @@ export async function captureEmulatorScreenshot(adbPath: Str, serial: Str): Prom
 
   /* stdout is a Buffer when encoding is 'buffer' */
   const pngBuffer: Buffer = stdout as unknown as Buffer;
+
   return pngBuffer.toString('base64') as Str;
 }

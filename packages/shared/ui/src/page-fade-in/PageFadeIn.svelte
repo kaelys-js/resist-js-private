@@ -49,6 +49,7 @@ this component, so the fade always plays from a clean state.
         animate = true;
       });
     });
+
     return () => cancelAnimationFrame(rafId);
   });
 </script>

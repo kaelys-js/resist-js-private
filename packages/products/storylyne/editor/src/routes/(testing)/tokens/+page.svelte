@@ -69,8 +69,10 @@
     if (typeof cssRaw === 'string') {
       return cssRaw;
     }
+
     const entries: Array<[Str, unknown]> = Object.entries(cssRaw as Record<Str, unknown>);
     const [first]: Array<[Str, unknown]> = entries;
+
     return (first ? String(first[1]) : '') as Str;
   }
 
@@ -91,6 +93,7 @@
       { value: ':root', label: 'Light', dot: 'oklch(0.97 0 0)', group: 'Defaults' },
       { value: '.dark', label: 'Dark', dot: 'oklch(0.15 0 0)', group: 'Defaults' },
     ];
+
     for (const name of themeNames) {
       const displayName: Str = `${name.charAt(0).toUpperCase()}${name.slice(1)}` as Str;
       // Find the primary color from the theme's token set to use as the dot
@@ -188,6 +191,7 @@
       ? PAGE_EXPORT_ITEMS
       : PAGE_EXPORT_ITEMS.filter((p: ExportItem): boolean => {
           const q: Str = exportSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q as string) ||
             p.description.toLowerCase().includes(q as string) ||
@@ -330,6 +334,7 @@
     /* Sort */
     if (sortField) {
       const mul: Num = (sortDir === 'desc' ? -1 : 1) as Num;
+
       if (sortField === 'category') {
         result = [...result].toSorted(
           (a, b) => ((mul as number) * a.category.localeCompare(b.category)) as Num,
@@ -390,8 +395,10 @@
     if (!sortField) {
       return '' as Str;
     }
+
     const names: Record<string, string> = { name: 'Name', value: 'Value', category: 'Category' };
     const arrow: Str = (sortDir === 'asc' ? '↑' : '↓') as Str;
+
     return `${names[sortField] ?? sortField} ${arrow}` as Str;
   });
 
@@ -457,6 +464,7 @@
    */
   function toggleCategory(cat: Str): void {
     const idx: Num = activeCategories.indexOf(cat) as Num;
+
     if ((idx as number) >= 0) {
       activeCategories = activeCategories.filter((c) => c !== cat);
     } else {
@@ -557,6 +565,7 @@
     const raf: Num = requestAnimationFrame((): void => {
       node.style.minHeight = `${node.offsetHeight}px`;
     }) as Num;
+
     return {
       destroy(): void {
         cancelAnimationFrame(raf as number);

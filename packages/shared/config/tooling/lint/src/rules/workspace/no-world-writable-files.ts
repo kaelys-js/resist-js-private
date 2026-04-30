@@ -61,11 +61,13 @@ const rule: WorkspaceRule = {
       const hasScanExt: boolean = [...SCANNABLE_EXTENSIONS].some((ext: string): boolean =>
         filePath.endsWith(ext),
       );
+
       if (!hasScanExt) {
         continue;
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {

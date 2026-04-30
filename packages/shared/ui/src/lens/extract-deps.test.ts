@@ -223,6 +223,7 @@ describe('extractReverseDeps', () => {
   function extractDir(key: Str): Str {
     const parts: Str[] = key.split('/');
     // Key format: @/ui/<dir>/<file>.svelte — dir is second-to-last segment
+
     return parts.length >= 2 ? (parts.at(-2) ?? '') : '';
   }
 

@@ -30,6 +30,7 @@ const rule: TypeScriptRule = {
   visitor: {
     Program(_node: AstNode, context: VisitorContext): LintResult[] {
       const stateVars: Set<string> = collectStateVariables(context.ast);
+
       if (stateVars.size === 0) {
         return [];
       }
@@ -42,32 +43,38 @@ const rule: TypeScriptRule = {
         }
 
         const body: AstNode | undefined = getCallbackBody(node);
+
         if (!body || body.type !== 'BlockStatement') {
           return;
         }
 
         // Check if body has exactly one statement
         const bodyStatements: AstNode[] | undefined = body.body as AstNode[] | undefined;
+
         if (!bodyStatements || bodyStatements.length !== 1) {
           return;
         }
 
         const [stmt] = bodyStatements;
+
         if (!stmt || stmt.type !== 'ExpressionStatement') {
           return;
         }
 
         const expr: AstNode | undefined = stmt.expression as AstNode | undefined;
+
         if (!expr || expr.type !== 'AssignmentExpression') {
           return;
         }
 
         const left: AstNode | undefined = expr.left as AstNode | undefined;
+
         if (!left || left.type !== 'Identifier') {
           return;
         }
 
         const { name } = left as unknown as { name: string };
+
         if (!stateVars.has(name)) {
           return;
         }

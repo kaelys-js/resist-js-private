@@ -37,6 +37,7 @@ function getExtension(filePath: string): string {
   const lastSlash: number = filePath.lastIndexOf('/');
   const name: string = filePath.slice(lastSlash + 1);
   const dotIdx: number = name.indexOf('.');
+
   if (dotIdx < 0) {
     return '';
   }
@@ -52,6 +53,7 @@ const rule: WorkspaceRule = {
   stages: ['lint', 'pre-commit', 'ci'],
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -77,11 +79,13 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const ext: string = getExtension(filePath);
+
       if (!TEXT_EXTENSIONS.has(ext)) {
         continue;
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {

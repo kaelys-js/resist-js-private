@@ -116,6 +116,7 @@ describe('AdaptiveQualityController', (): void => {
 
     // With a non-zero skip rate, some frames should be skipped
     let skipped: Num = 0 as Num;
+
     for (let i: Num = 0 as Num; (i as number) < 20; i = ((i as number) + 1) as Num) {
       if (controller.shouldSkipFrame()) {
         skipped = ((skipped as number) + 1) as Num;

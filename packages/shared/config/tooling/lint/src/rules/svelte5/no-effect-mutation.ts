@@ -36,6 +36,7 @@ const rule: TypeScriptRule = {
   visitor: {
     Program(_node: AstNode, context: VisitorContext): LintResult[] {
       const stateVars: Set<string> = collectStateVariables(context.ast);
+
       if (stateVars.size === 0) {
         return [];
       }
@@ -48,6 +49,7 @@ const rule: TypeScriptRule = {
         }
 
         const body: AstNode | undefined = getCallbackBody(node);
+
         if (!body) {
           return;
         }

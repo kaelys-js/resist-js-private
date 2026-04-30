@@ -209,6 +209,7 @@ describe('context', () => {
     setContext({ runtime: 'node-tty' });
     mergeContext({ operation: 'sync' });
     const ctx = getContext();
+
     if (ctx.ok) {
       expect(ctx.data.runtime).toBe('node-tty');
       expect(ctx.data.operation).toBe('sync');
@@ -693,6 +694,7 @@ describe('startTimer', () => {
   it('timer with explicit "info" level prints to stdout in pretty mode', () => {
     setLogLevel('info');
     const timer = startTimer('op', { level: 'info' });
+
     if (timer.ok) {
       timer.data.done();
     }
@@ -702,6 +704,7 @@ describe('startTimer', () => {
   it('timer with "debug" level prints to stderr with [DEBUG] prefix', () => {
     setLogLevel('debug');
     const timer = startTimer('op', { level: 'debug' });
+
     if (timer.ok) {
       timer.data.done();
     }
@@ -715,6 +718,7 @@ describe('startTimer', () => {
   it('timer suppressed when level is below threshold', () => {
     setLogLevel('error'); /* Only 'error' and 'silent' visible. */
     const timer = startTimer('op', { level: 'debug' });
+
     if (timer.ok) {
       timer.data.done();
     }
@@ -726,9 +730,11 @@ describe('startTimer', () => {
     setOutputFormat('json' as OutputFormat);
     setLogLevel('debug');
     const timer = startTimer('op');
+
     if (timer.ok) {
       timer.data.done();
     }
+
     const call = (console.log as ReturnType<typeof vi.fn>).mock.calls[0]?.[0];
     const parsed = JSON.parse(String(call));
     expect(parsed.level).toBe('debug');
@@ -812,12 +818,14 @@ describe('withLogLevel', () => {
     setLogLevel('info');
     const result = withLogLevel('trace', () => {
       const inner = getLogLevel();
+
       return inner.ok ? inner.data : 'unknown';
     });
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data).toBe('trace');
     }
+
     const after = getLogLevel();
     expect(after.ok).toBe(true);
     if (after.ok) {
@@ -832,6 +840,7 @@ describe('withLogLevel', () => {
     });
     expect(result.ok).toBe(false);
     const after = getLogLevel();
+
     if (after.ok) {
       expect(after.data).toBe('info'); /* restored */
     }
@@ -850,6 +859,7 @@ describe('withContext', () => {
     setContext({ service: 'base' });
     const result = withContext({ operation: 'temp' }, () => {
       const ctx = getContext();
+
       return ctx.ok ? ctx.data : {};
     });
     expect(result.ok).toBe(true);
@@ -873,6 +883,7 @@ describe('withContext', () => {
     });
     expect(result.ok).toBe(false);
     const after = getContext();
+
     if (after.ok) {
       expect(after.data.service).toBe('base');
       expect(after.data.operation).toBeUndefined();
@@ -899,8 +910,10 @@ describe('initAsyncContext', () => {
     setContext({ service: 'base' });
     const result = withContext({ requestId: 'r1' }, () => {
       const ctx = getContext();
+
       return ctx.ok ? ctx.data : {};
     });
+
     if (result.ok) {
       const ctx = result.data as LogContext;
       expect(ctx.requestId).toBe('r1');
@@ -921,11 +934,13 @@ describe('setupLogging', () => {
     if (result.ok) {
       teardown = result.data;
     }
+
     const level = getLogLevel();
     expect(level.ok).toBe(true);
     if (level.ok) {
       expect(level.data).toBe('debug');
     }
+
     const ctx = getContext();
     expect(ctx.ok).toBe(true);
     if (ctx.ok) {
@@ -1020,7 +1035,9 @@ describe('setupLogging', () => {
     if (result.ok) {
       teardown = result.data;
     }
+
     const fmt = getOutputFormat();
+
     if (fmt.ok) {
       expect(fmt.data).toBe('json');
     }
@@ -1036,7 +1053,9 @@ describe('setupLogging', () => {
       teardown = result.data;
     }
     /* Since level was not explicitly set and initFromEnv=false, level stays at 'info'. */
+
     const level = getLogLevel();
+
     if (level.ok) {
       expect(level.data).toBe('info');
     }
@@ -1193,9 +1212,11 @@ describe('createChildLogger', () => {
   it('child getContext returns merged parent + child context', () => {
     setContext({ service: 'parent' });
     const child = createChildLogger({ context: { operation: 'op-1' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
+
     const ctx = child.data.getContext();
     expect(ctx.ok).toBe(true);
     if (ctx.ok) {
@@ -1207,15 +1228,18 @@ describe('createChildLogger', () => {
   it('grandchild merges parent + child + grandchild context', () => {
     setContext({ service: 'root' });
     const child = createChildLogger({ context: { operation: 'child' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
+
     const grand = child.data.child({
       context: { operation: 'grand', requestId: 'r-1' },
     });
     expect(grand.ok).toBe(true);
     if (grand.ok) {
       const ctx = grand.data.getContext();
+
       if (ctx.ok) {
         expect(ctx.data.service).toBe('root');
         /* grandchild override wins. */
@@ -1228,6 +1252,7 @@ describe('createChildLogger', () => {
   it('child.debug logs [DEBUG] prefix at debug level', () => {
     setLogLevel('debug');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1238,6 +1263,7 @@ describe('createChildLogger', () => {
   it('child.error logs at error level', () => {
     setLogLevel('error');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1248,6 +1274,7 @@ describe('createChildLogger', () => {
   it('child.warn logs at warn level', () => {
     setLogLevel('warn');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1258,6 +1285,7 @@ describe('createChildLogger', () => {
   it('child.trace logs [TRACE] prefix at trace level', () => {
     setLogLevel('trace');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1268,6 +1296,7 @@ describe('createChildLogger', () => {
   it('child.success logs at info level', () => {
     setLogLevel('info');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1277,6 +1306,7 @@ describe('createChildLogger', () => {
 
   it('child.json emits JSON in pretty mode', () => {
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1287,9 +1317,11 @@ describe('createChildLogger', () => {
   it('child.errorObject logs error code + message', () => {
     setLogLevel('error');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
+
     const appErr: AppError = {
       id: 'e',
       code: 'TEST.BOOM',
@@ -1313,6 +1345,7 @@ describe('createChildLogger', () => {
     setLogLevel('info');
     setContext({ service: 'parent' });
     const child = createChildLogger({ context: { operation: 'op' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1330,6 +1363,7 @@ describe('child logger data variants', () => {
   it('child.info with data arg passes both to console.log', () => {
     setLogLevel('info');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1340,6 +1374,7 @@ describe('child logger data variants', () => {
   it('child.debug with data arg passes both to console.error', () => {
     setLogLevel('debug');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1350,6 +1385,7 @@ describe('child logger data variants', () => {
   it('child.error with data arg passes both to console.error', () => {
     setLogLevel('error');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1360,6 +1396,7 @@ describe('child logger data variants', () => {
   it('child.warn with data arg passes both', () => {
     setLogLevel('warn');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1370,6 +1407,7 @@ describe('child logger data variants', () => {
   it('child.success with data arg passes both', () => {
     setLogLevel('info');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1380,6 +1418,7 @@ describe('child logger data variants', () => {
   it('child.trace with data arg passes both', () => {
     setLogLevel('trace');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1390,6 +1429,7 @@ describe('child logger data variants', () => {
   it('child.json emits structured entry in json output mode', () => {
     setOutputFormat('json' as OutputFormat);
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1402,6 +1442,7 @@ describe('child logger data variants', () => {
 
   it('child.json accepts custom indent in pretty mode', () => {
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1418,6 +1459,7 @@ describe('child logger in JSON mode', () => {
     setOutputFormat('json' as OutputFormat);
     setLogLevel('debug');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1433,6 +1475,7 @@ describe('child logger in JSON mode', () => {
     setOutputFormat('json' as OutputFormat);
     setLogLevel('warn');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1446,6 +1489,7 @@ describe('child logger in JSON mode', () => {
     setOutputFormat('json' as OutputFormat);
     setLogLevel('error');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1459,6 +1503,7 @@ describe('child logger in JSON mode', () => {
     setOutputFormat('json' as OutputFormat);
     setLogLevel('info');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1473,6 +1518,7 @@ describe('child logger in JSON mode', () => {
     setOutputFormat('json' as OutputFormat);
     setLogLevel('trace');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1486,9 +1532,11 @@ describe('child logger in JSON mode', () => {
     setOutputFormat('json' as OutputFormat);
     setLogLevel('error');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
+
     const appErr: AppError = {
       id: 'e',
       code: 'TEST.BOOM',
@@ -1513,60 +1561,73 @@ describe('child logger in JSON mode', () => {
 describe('child logger suppression & validation', () => {
   it('child.info rejects non-string message', () => {
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
+
     const r = child.data.info(42 as unknown as Str);
     expect(r.ok).toBe(false);
   });
 
   it('child.debug rejects non-string message', () => {
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
+
     const r = child.data.debug(42 as unknown as Str);
     expect(r.ok).toBe(false);
   });
 
   it('child.error rejects non-string message', () => {
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
+
     const r = child.data.error(null as unknown as Str);
     expect(r.ok).toBe(false);
   });
 
   it('child.warn rejects non-string message', () => {
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
+
     const r = child.data.warn({} as unknown as Str);
     expect(r.ok).toBe(false);
   });
 
   it('child.success rejects non-string message', () => {
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
+
     const r = child.data.success([] as unknown as Str);
     expect(r.ok).toBe(false);
   });
 
   it('child.trace rejects non-string message', () => {
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
+
     const r = child.data.trace(true as unknown as Str);
     expect(r.ok).toBe(false);
   });
 
   it('child.info suppressed when its level is set above info', () => {
     const child = createChildLogger({ context: { service: 'x' }, level: 'error' });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1577,6 +1638,7 @@ describe('child logger suppression & validation', () => {
   it('child.debug suppressed when level is info', () => {
     setLogLevel('info');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1587,6 +1649,7 @@ describe('child logger suppression & validation', () => {
   it('child.warn suppressed when level is error', () => {
     setLogLevel('error');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1597,6 +1660,7 @@ describe('child logger suppression & validation', () => {
   it('child.trace suppressed when level is debug', () => {
     setLogLevel('debug');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1607,6 +1671,7 @@ describe('child logger suppression & validation', () => {
   it('child.success suppressed when level is error', () => {
     setLogLevel('error');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
@@ -1617,9 +1682,11 @@ describe('child logger suppression & validation', () => {
   it('child.errorObject suppressed when level is silent', () => {
     setLogLevel('silent');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
+
     const appErr: AppError = {
       id: 'e',
       code: 'X',
@@ -1634,9 +1701,11 @@ describe('child logger suppression & validation', () => {
   it('child.errorObject pretty mode without stack skips stack dump', () => {
     setLogLevel('error');
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
+
     const appErr: AppError = {
       id: 'e',
       code: 'TEST.X',
@@ -1652,9 +1721,11 @@ describe('child logger suppression & validation', () => {
 
   it('child.child rejects invalid options', () => {
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }
+
     const r = child.data.child({
       context: { service: 123 as unknown as Str },
     });
@@ -1671,6 +1742,7 @@ describe('child logger suppression & validation', () => {
       },
     });
     const child = createChildLogger({ context: { service: 'x' } });
+
     if (!child.ok) {
       throw new Error('expected ok');
     }

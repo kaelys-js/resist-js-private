@@ -33,6 +33,7 @@ function createResult(
   context: VisitorContext,
 ): LintResult {
   const name: string = (id.name as string) ?? '';
+
   return {
     file: context.file,
     line: node.loc.start.line,
@@ -59,11 +60,13 @@ const rule: TypeScriptRule = {
     TSTypeAliasDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const id = node.id as AstNode | undefined;
+
       if (!id || id.type !== 'Identifier') {
         return results;
       }
 
       const name: string = (id.name as string) ?? '';
+
       if (!name || PASCAL_CASE_RE.test(name)) {
         return results;
       }
@@ -75,11 +78,13 @@ const rule: TypeScriptRule = {
     TSInterfaceDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const id = node.id as AstNode | undefined;
+
       if (!id || id.type !== 'Identifier') {
         return results;
       }
 
       const name: string = (id.name as string) ?? '';
+
       if (!name || PASCAL_CASE_RE.test(name)) {
         return results;
       }
@@ -91,11 +96,13 @@ const rule: TypeScriptRule = {
     TSEnumDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const id = node.id as AstNode | undefined;
+
       if (!id || id.type !== 'Identifier') {
         return results;
       }
 
       const name: string = (id.name as string) ?? '';
+
       if (!name || PASCAL_CASE_RE.test(name)) {
         return results;
       }

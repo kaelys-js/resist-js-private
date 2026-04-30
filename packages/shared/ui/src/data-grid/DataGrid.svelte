@@ -43,6 +43,7 @@
   const validated: DataGridProps = $derived.by(() => {
     const rawProps: DataGridProps = stripSvelteProps(allProps);
     const result = safeParse(DataGridPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -38,6 +38,7 @@ import { safeParse } from '@/utils/result/safe';
  */
 export function escapeXml(str: Str): Result<Str> {
   const input: Result<Str> = safeParse(StrSchema, str);
+
   if (!input.ok) {
     return input;
   }
@@ -74,11 +75,13 @@ export function escapeXml(str: Str): Result<Str> {
  */
 export function formatDuration(ms: NonNegativeNumber): Result<Str> {
   const input: Result<NonNegativeNumber> = safeParse(NonNegativeNumberSchema, ms);
+
   if (!input.ok) {
     return input;
   }
 
   const msValue: number = input.data as unknown as number;
+
   if (msValue < 1) {
     return ok(StrSchema, '<1ms');
   }
@@ -91,5 +94,6 @@ export function formatDuration(ms: NonNegativeNumber): Result<Str> {
 
   const minutes: number = Math.floor(msValue / 60_000);
   const seconds: Str = ((msValue % 60_000) / 1000).toFixed(1);
+
   return ok(StrSchema, `${minutes}m ${seconds}s`);
 }

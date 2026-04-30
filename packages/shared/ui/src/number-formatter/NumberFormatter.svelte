@@ -42,6 +42,7 @@
   const validated: NumberFormatterProps = $derived.by(() => {
     const rawProps: NumberFormatterProps = stripSvelteProps(allProps);
     const result = safeParse(NumberFormatterPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

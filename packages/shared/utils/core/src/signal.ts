@@ -280,16 +280,20 @@ function safeInvoke(fn: (captured: CapturedError) => void, captured: CapturedErr
 function removeAllListeners(): Void {
   for (let i: number = registeredListeners.length - 1; i >= 0; i--) {
     const entry = registeredListeners[i];
+
     if (!entry) {
       continue;
     }
+
     const { target, event, listener, capture, denoSignal } = entry;
+
     if (denoSignal) {
       // Deno signal listeners must use Deno.removeSignalListener
       const denoGlobal: Record<Str, unknown> = globalThis as Record<Str, unknown>;
       const Deno: Record<Str, unknown> | undefined = denoGlobal.Deno as
         | Record<Str, unknown>
         | undefined;
+
       if (Deno && typeof Deno.removeSignalListener === 'function') {
         (Deno.removeSignalListener as (signal: Str, handler: () => void) => void)(
           event,
@@ -340,6 +344,7 @@ function teardown(): Void {
  */
 function registerNodeHandlers(options: GlobalErrorHandlerOptions, runtime: RuntimeKind): Void {
   const proc: OptionalNodeProcess = getProcess();
+
   if (!proc || typeof proc.on !== 'function') {
     return;
   }
@@ -363,6 +368,7 @@ function registerNodeHandlers(options: GlobalErrorHandlerOptions, runtime: Runti
 
     // Schedule force exit
     const timeoutMs: number = options.exitTimeoutMs ?? 5000;
+
     if (timeoutMs > 0 && proc.exit) {
       exitTimeoutHandle = setTimeout(() => {
         proc.exit(1);
@@ -394,6 +400,7 @@ function registerNodeHandlers(options: GlobalErrorHandlerOptions, runtime: Runti
     if (globalAbortController) {
       globalAbortController.abort();
     }
+
     const captured: CapturedError = createCapturedError(
       'signal',
       new Error('SIGINT'),
@@ -412,6 +419,7 @@ function registerNodeHandlers(options: GlobalErrorHandlerOptions, runtime: Runti
     if (globalAbortController) {
       globalAbortController.abort();
     }
+
     const captured: CapturedError = createCapturedError(
       'signal',
       new Error('SIGTERM'),
@@ -453,6 +461,7 @@ function registerBrowserHandlers(options: GlobalErrorHandlerOptions, runtime: Ru
     }
 
     const errorMeta: Record<Str, unknown> = {};
+
     if (event.filename) {
       errorMeta.filename = event.filename;
     }
@@ -549,20 +558,25 @@ function registerBrowserHandlers(options: GlobalErrorHandlerOptions, runtime: Ru
         if (event instanceof ErrorEvent) {
           return;
         }
+
         const target: unknown = (event as Event)?.target;
+
         if (!target || !(target instanceof HTMLElement)) {
           return;
         }
         // Use getAttribute to get the raw attribute value, not the resolved URL.
         // .src/.href properties resolve relative/empty values to the page URL,
         // producing misleading "Resource load error: <IMG> http://current-page" messages.
+
         const rawSrc: Str =
           (target as HTMLElement).getAttribute('src') ??
           (target as HTMLElement).getAttribute('href') ??
           '';
+
         if (!rawSrc) {
           return; // Skip elements with no actual src/href attribute
         }
+
         const { tagName } = target;
         const captured: CapturedError = createCapturedError(
           'resourceError',
@@ -633,6 +647,7 @@ function registerDenoHandlers(options: GlobalErrorHandlerOptions, runtime: Runti
   const Deno: Record<Str, unknown> | undefined = denoGlobal.Deno as
     | Record<Str, unknown>
     | undefined;
+
   if (!Deno) {
     return;
   }
@@ -666,6 +681,7 @@ function registerDenoHandlers(options: GlobalErrorHandlerOptions, runtime: Runti
 
   // Deno signal listeners
   const { addSignalListener } = Deno;
+
   if (typeof addSignalListener === 'function') {
     const sigintHandler = (): Void => {
       const captured: CapturedError = createCapturedError(
@@ -758,7 +774,9 @@ export function getAbortSignal(): Result<AbortSignal> {
    * (skipping the `_okResult → _deepFreeze` path used by `ok()`/`safeParse()`)
    * and construct the Result manually so the stateful signal is not frozen.
    */
+
   const parsed = v.safeParse(AbortSignalSchema, globalAbortController.signal);
+
   if (!parsed.success) {
     return safeParse(AbortSignalSchema, globalAbortController.signal) as Result<AbortSignal>;
   }
@@ -817,6 +835,7 @@ export function setupGlobalErrorHandling(options: GlobalErrorHandlerOptions): Re
     GlobalErrorHandlerOptionsSchema,
     options,
   );
+
   if (!optionsResult.ok) {
     return optionsResult;
   }
@@ -827,15 +846,19 @@ export function setupGlobalErrorHandling(options: GlobalErrorHandlerOptions): Re
   _ambientOptions = validatedOptions;
 
   const runtimeResult: Result<RuntimeKind> = detectRuntime();
+
   if (!runtimeResult.ok) {
     return runtimeResult;
   }
+
   const runtime: RuntimeKind = runtimeResult.data;
 
   const envResult: Result<EnvironmentConfig> = detectEnvironment();
+
   if (!envResult.ok) {
     return envResult;
   }
+
   const env: EnvironmentConfig = envResult.data;
 
   if (!globalAbortController) {
@@ -1002,6 +1025,7 @@ export function setupSignalHandlers(onInterrupt: InterruptHandler): Result<Void>
     onError: (captured: CapturedError): Void => {
       // Translate CapturedError into the legacy string-based callback
       let label: Str;
+
       if (captured.type === 'signal') {
         label = (captured.meta?.signal as Str) ?? 'UNKNOWN';
       } else if (captured.type === 'uncaughtException') {
@@ -1049,10 +1073,13 @@ export function setupSignalHandlers(onInterrupt: InterruptHandler): Result<Void>
  */
 export function registerCleanupHandler(callback: CleanupCallback): Result<Void> {
   const callbackResult: Result<CleanupCallback> = safeParse(CleanupCallbackSchema, callback);
+
   if (!callbackResult.ok) {
     return callbackResult;
   }
+
   const proc: OptionalNodeProcess = getProcess();
+
   if (!proc || typeof proc.on !== 'function') {
     return ok(VoidSchema, undefined);
   }
@@ -1121,6 +1148,7 @@ export function wrapAsync<TArgs extends Array<unknown>, TReturn>(
   onError: (captured: CapturedError) => void,
 ): Result<(...args: TArgs) => Promise<TReturn>> {
   const runtimeResult: Result<RuntimeKind> = detectRuntime();
+
   if (!runtimeResult.ok) {
     return runtimeResult;
   }
@@ -1166,6 +1194,7 @@ export function wrapFetchHandler(
   onError: (captured: CapturedError) => void,
 ): Result<(request: Request, env: unknown, ctx: unknown) => Promise<Response>> {
   const runtimeResult: Result<RuntimeKind> = detectRuntime();
+
   if (!runtimeResult.ok) {
     return runtimeResult;
   }
@@ -1211,6 +1240,7 @@ export function captureWebSocketErrors(
   onError: (captured: CapturedError) => void,
 ): Result<TeardownFn> {
   const runtimeResult: Result<RuntimeKind> = detectRuntime();
+
   if (!runtimeResult.ok) {
     return runtimeResult;
   }

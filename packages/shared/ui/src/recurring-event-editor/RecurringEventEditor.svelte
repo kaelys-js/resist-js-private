@@ -43,6 +43,7 @@
   const validated: RecurringEventEditorProps = $derived.by(() => {
     const rawProps: RecurringEventEditorProps = stripSvelteProps(allProps);
     const result = safeParse(RecurringEventEditorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

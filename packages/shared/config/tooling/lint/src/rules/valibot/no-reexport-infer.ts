@@ -44,6 +44,7 @@ const rule: TypeScriptRule = {
       }
 
       const specifiers = node.specifiers as AstNode[] | undefined;
+
       if (!specifiers) {
         return results;
       }

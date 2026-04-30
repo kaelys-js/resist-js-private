@@ -29,6 +29,7 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const operator = node.operator as string;
+
       if (operator === '%') {
         results.push({
           file: context.file,

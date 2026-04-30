@@ -56,6 +56,7 @@ function makeCliArgs(overrides: Partial<CliArgs> = {}): CliArgs {
 function captureOutput(): { stdoutLines: string[]; stderrLines: string[]; output: CliOutput } {
   const stdoutLines: string[] = [];
   const stderrLines: string[] = [];
+
   return {
     stdoutLines,
     stderrLines,
@@ -127,6 +128,7 @@ describe.concurrent('runLinter — disabled rules filtering', () => {
     );
 
     const combined: string = stdoutLines.join('');
+
     if (combined.trim().length > 2) {
       const results: LintResult[] = JSON.parse(combined) as LintResult[];
       const offRuleResults: LintResult[] = results.filter(
@@ -175,6 +177,7 @@ describe.concurrent('runLinter — output format resolution', () => {
     );
 
     const combined: string = stdoutLines.join('');
+
     if (combined.trim().length > 0) {
       expect(() => JSON.parse(combined)).not.toThrow();
     }
@@ -319,6 +322,7 @@ describe('getGitChangedFiles — error handling', () => {
 
   it('filters out empty lines from git output', () => {
     const files: Set<string> = getGitChangedFiles('head');
+
     for (const f of files) {
       expect(f.trim().length).toBeGreaterThan(0);
     }

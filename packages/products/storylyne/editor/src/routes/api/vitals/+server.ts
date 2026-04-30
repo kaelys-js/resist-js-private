@@ -38,6 +38,7 @@ function formatMetric(metric: VitalsMetric): Str {
   const TIMING_METRICS: Set<Str> = new Set(['TTFB', 'FCP', 'LCP', 'FID', 'INP', 'TBT', 'NTBT']);
   const isTiming: boolean = TIMING_METRICS.has(metric.name);
   const unit: Str = isTiming ? 'ms' : '';
+
   return `${metric.name}=${String(Math.round(metric.value))}${unit}` as Str;
 }
 
@@ -51,6 +52,7 @@ function formatMetric(metric: VitalsMetric): Str {
 export const POST: RequestHandler = async ({ request }) => {
   // Read body as text — sendBeacon sends text/plain
   let body: Str;
+
   try {
     body = (await request.text()) as Str;
   } catch {
@@ -70,6 +72,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
   // Parse JSON
   let parsed: unknown;
+
   try {
     parsed = JSON.parse(body);
   } catch {
@@ -79,6 +82,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
   // Validate against VitalsBeaconPayloadSchema (strict — rejects PII fields)
   const result: Result<VitalsBeaconPayload> = safeParse(VitalsBeaconPayloadSchema, parsed);
+
   if (!result.ok) {
     return new Response(null, { status: 400 });
   }

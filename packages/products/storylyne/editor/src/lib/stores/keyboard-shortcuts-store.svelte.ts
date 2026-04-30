@@ -61,6 +61,7 @@ let _registry: ShortcutRegistry = $state(resetAllShortcuts());
  */
 function stripStateProxies(registry: ShortcutRegistry): ShortcutRegistry {
   const serialized: string = JSON.stringify(registry);
+
   return JSON.parse(serialized) as ShortcutRegistry;
 }
 
@@ -97,6 +98,7 @@ function load(): Result<Void> {
   }
   try {
     const raw: Str | null = localStorage.getItem(SHORTCUTS_STORAGE_KEY);
+
     if (!raw) {
       return okUnchecked<Void>(undefined);
     }
@@ -104,6 +106,7 @@ function load(): Result<Void> {
     const parsed: unknown = JSON.parse(raw);
     // v.record(picklist, schema) infers partial — keys are optional in Valibot record output
     const result: Result<Partial<ShortcutRegistry>> = safeParse(ShortcutRegistrySchema, parsed);
+
     if (!result.ok) {
       // Saved data is invalid or stale — reset to defaults
       _registry = resetAllShortcuts();
@@ -117,6 +120,7 @@ function load(): Result<Void> {
     // as ShortcutId[] — Object.keys returns string[], but defaults keys are ShortcutId by construction
     for (const id of Object.keys(defaults) as ShortcutId[]) {
       const savedEntry: KeyboardShortcut | undefined = saved[id];
+
       if (savedEntry) {
         // Only merge key, modifiers, and enabled — everything else comes from defaults
         defaults[id] = {
@@ -220,6 +224,7 @@ export const shortcutStore: KeyboardShortcutsStore = {
     // JSON round-trip strips $state proxies — structuredClone throws on Svelte 5 proxies.
     const plain: ShortcutRegistry = stripStateProxies(_registry);
     const result: Result<ShortcutRegistry> = updateShortcut(plain, id, key, modifiers);
+
     if (!result.ok) {
       return result;
     }
@@ -232,6 +237,7 @@ export const shortcutStore: KeyboardShortcutsStore = {
     // JSON round-trip strips $state proxies — structuredClone throws on Svelte 5 proxies.
     const plain: ShortcutRegistry = stripStateProxies(_registry);
     const result: Result<ShortcutRegistry> = resetShortcut(plain, id);
+
     if (!result.ok) {
       return result;
     }

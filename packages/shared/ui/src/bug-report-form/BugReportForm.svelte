@@ -42,6 +42,7 @@
   const validated: BugReportFormProps = $derived.by(() => {
     const rawProps: BugReportFormProps = stripSvelteProps(allProps);
     const result = safeParse(BugReportFormPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

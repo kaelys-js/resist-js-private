@@ -53,17 +53,21 @@ function isValibotSchemaCall(node: AstNode, context: VisitorContext): boolean {
   if (node.type !== 'CallExpression') {
     return false;
   }
+
   const callee = node.callee as AstNode | undefined;
+
   if (!callee) {
     return false;
   }
   if (callee.type !== 'StaticMemberExpression' && callee.type !== 'MemberExpression') {
     return false;
   }
+
   const obj = callee.object as AstNode | undefined;
   const prop = callee.property as AstNode | undefined;
   const objName: string = (obj?.name as string) ?? '';
   const methodName: string = (prop?.name as string) ?? '';
+
   return context.isImportedFrom(objName, 'valibot') && SCHEMA_FACTORIES.has(methodName);
 }
 
@@ -79,6 +83,7 @@ const rule: TypeScriptRule = {
     VariableDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const declarations = node.declarations as AstNode[] | undefined;
+
       if (!declarations) {
         return results;
       }
@@ -86,11 +91,13 @@ const rule: TypeScriptRule = {
       for (const decl of declarations) {
         const id = decl.id as AstNode | undefined;
         const init = decl.init as AstNode | undefined;
+
         if (!id || !init) {
           continue;
         }
 
         const name: string = (id.name as string) ?? '';
+
         if (!name.endsWith('Schema')) {
           continue;
         }
@@ -104,6 +111,7 @@ const rule: TypeScriptRule = {
 
         // Check if the schema references itself by name (word boundary match)
         const selfRefPattern: RegExp = new RegExp(`\\b${name}\\b`);
+
         if (!selfRefPattern.test(schemaText)) {
           continue;
         }

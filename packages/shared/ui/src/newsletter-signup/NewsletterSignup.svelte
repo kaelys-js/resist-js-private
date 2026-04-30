@@ -42,6 +42,7 @@
   const validated: NewsletterSignupProps = $derived.by(() => {
     const rawProps: NewsletterSignupProps = stripSvelteProps(allProps);
     const result = safeParse(NewsletterSignupPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

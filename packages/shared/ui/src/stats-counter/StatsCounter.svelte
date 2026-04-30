@@ -42,6 +42,7 @@
   const validated: StatsCounterProps = $derived.by(() => {
     const rawProps: StatsCounterProps = stripSvelteProps(allProps);
     const result = safeParse(StatsCounterPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

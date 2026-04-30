@@ -186,6 +186,7 @@
       ...dataProps,
       children,
     });
+
     if (!result.ok) {
       throw result.error;
     }
@@ -200,6 +201,7 @@
    */
   function mapKey(key: Str): Str {
     const lower: string = (key as string).toLowerCase();
+
     return (KEY_SYMBOLS[lower] ?? (key as string).toUpperCase()) as Str;
   }
 

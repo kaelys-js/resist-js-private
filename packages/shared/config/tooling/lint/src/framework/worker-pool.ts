@@ -212,6 +212,7 @@ export class WorkerPool {
     const promises: Array<Promise<WorkerResult>> = tasks.map(
       (task: WorkerTask): Promise<WorkerResult> => this.execute(task),
     );
+
     return Promise.all(promises);
   }
 
@@ -245,6 +246,7 @@ export class WorkerPool {
     reject: (e: Error) => void,
   ): void {
     const worker: Worker | undefined = this.workers[workerIdx];
+
     if (!worker) {
       reject(new Error(format(this.strings.errors.workerNotFound, { index: workerIdx })));
       return;
@@ -287,11 +289,13 @@ export class WorkerPool {
   private processQueue(): void {
     while (this.taskQueue.length > 0 && this.idleWorkers.size > 0) {
       const next = this.taskQueue.shift();
+
       if (!next) {
         break;
       }
 
       const idleIdx: number | undefined = this.idleWorkers.values().next().value;
+
       if (idleIdx === undefined) {
         /* Put it back — no idle workers */
         this.taskQueue.unshift(next);

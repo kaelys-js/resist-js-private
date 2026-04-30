@@ -22,6 +22,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -48,6 +49,7 @@ const rule: WorkspaceRule = {
     const ciFile: string = `${ctx.rootDir}/.gitlab-ci.yml`;
 
     let content: string;
+
     try {
       content = await ctx.readFile(ciFile);
     } catch {
@@ -58,11 +60,14 @@ const rule: WorkspaceRule = {
     const fileSet: Set<string> = new Set(allFiles);
 
     const lines: string[] = content.split('\n');
+
     for (let i: number = 0; i < lines.length; i++) {
       const match: RegExpMatchArray | null = (lines[i] ?? '').match(LOCAL_INCLUDE_PATTERN);
+
       if (match?.[1]) {
         const [, includePath] = match;
         const fullPath: string = `${ctx.rootDir}/${includePath}`;
+
         if (!fileSet.has(fullPath)) {
           results.push(
             createResult(

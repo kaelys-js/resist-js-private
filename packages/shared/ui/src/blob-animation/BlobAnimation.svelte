@@ -42,6 +42,7 @@
   const validated: BlobAnimationProps = $derived.by(() => {
     const rawProps: BlobAnimationProps = stripSvelteProps(allProps);
     const result = safeParse(BlobAnimationPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: SubscribeButtonProps = $derived.by(() => {
     const rawProps: SubscribeButtonProps = stripSvelteProps(allProps);
     const result = safeParse(SubscribeButtonPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

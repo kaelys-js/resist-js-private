@@ -29,11 +29,13 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  */
 export function transformHtmlhintOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
 
   let items: unknown[];
+
   try {
     items = JSON.parse(trimmed) as unknown[];
   } catch {
@@ -57,6 +59,7 @@ export function transformHtmlhintOutput(output: string, strings: LintStrings): L
       const ruleId: string = (ruleObj.id as string) ?? 'unknown';
 
       let severity: 'error' | 'warning' | 'info' = 'warning';
+
       if (msgType === 'error') {
         severity = 'error';
       } else if (msgType === 'info') {

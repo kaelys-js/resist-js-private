@@ -42,6 +42,7 @@
   const validated: FlashcardProps = $derived.by(() => {
     const rawProps: FlashcardProps = stripSvelteProps(allProps);
     const result = safeParse(FlashcardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

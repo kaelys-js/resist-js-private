@@ -42,6 +42,7 @@
   const validated: ImageAnnotationProps = $derived.by(() => {
     const rawProps: ImageAnnotationProps = stripSvelteProps(allProps);
     const result = safeParse(ImageAnnotationPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

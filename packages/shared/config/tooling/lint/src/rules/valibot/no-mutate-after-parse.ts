@@ -28,6 +28,7 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const expression = node.expression as AstNode | undefined;
+
       if (!expression) {
         return results;
       }
@@ -37,6 +38,7 @@ const rule: TypeScriptRule = {
       }
 
       const left = expression.left as AstNode | undefined;
+
       if (!left) {
         return results;
       }
@@ -47,6 +49,7 @@ const rule: TypeScriptRule = {
 
       // Check if the left-hand side references parsed data (e.g., result.data.foo or parsed.foo)
       const leftText: string = context.content.slice(left.start, left.end);
+
       if (
         leftText.includes('.data.') ||
         leftText.includes('.output.') ||

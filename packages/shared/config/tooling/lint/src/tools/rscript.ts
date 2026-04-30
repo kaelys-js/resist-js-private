@@ -45,6 +45,7 @@ const LINTR_LINE: RegExp = /^(.+?):(\d+):(\d+):\s*(style|warning|error):\s*(.+)$
  */
 export function transformRscriptOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -54,11 +55,13 @@ export function transformRscriptOutput(output: string): LintResult[] {
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = LINTR_LINE.exec(stripped);
+
     if (!match) {
       continue;
     }
@@ -70,6 +73,7 @@ export function transformRscriptOutput(output: string): LintResult[] {
     const message: string = match[5] ?? '';
 
     let severity: 'error' | 'warning' | 'info' = 'warning';
+
     if (level === 'error') {
       severity = 'error';
     } else if (level === 'style') {

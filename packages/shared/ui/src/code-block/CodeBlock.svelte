@@ -68,6 +68,7 @@
   const validated: CodeBlockPropsValidated = $derived.by(() => {
     const rawProps: CodeBlockProps = stripSvelteProps(restProps);
     const result = safeParse(CodeBlockPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }
@@ -119,6 +120,7 @@
   const lines: Str[] = $derived.by((): Str[] => {
     const raw: Str[] = (validated.code ?? '').split('\n') as Str[];
     /* Trailing newline produces a ghost empty entry — trim it */
+
     if (raw.length > 1 && raw.at(-1) === '') {
       return raw.slice(0, -1) as Str[];
     }
@@ -131,6 +133,7 @@
   /** Display language label (capitalize first letter). */
   const langLabel: Str = $derived.by((): Str => {
     const lang: Str = validated.lang ?? 'text';
+
     if (lang === 'typescript') {
       return 'TypeScript' as Str;
     }
@@ -145,8 +148,10 @@
     if (!searchQuery || searchQuery.length === 0) {
       return [];
     }
+
     const q: Str = searchQuery.toLowerCase() as Str;
     const matches: Num[] = [];
+
     for (let i: Num = 0 as Num; i < lines.length; i++) {
       if ((lines[i] ?? '').toLowerCase().includes(q)) {
         matches.push(i as Num);
@@ -203,10 +208,12 @@
     if (!codeContainerRef || matchCount === 0) {
       return;
     }
+
     const lineIndex: Num = searchMatches[currentMatchIndex as number] as Num;
     const lineEl: Element | null = codeContainerRef.querySelector(
       `[data-line="${(lineIndex as number) + 1}"]`,
     );
+
     if (lineEl) {
       lineEl.scrollIntoView({ block: 'center', behavior: 'smooth' });
     }
@@ -222,9 +229,11 @@
     if (!searchQuery || searchQuery.length === 0) {
       return escapeHtml(line);
     }
+
     const escaped: Str = escapeHtml(line);
     const q: Str = escapeHtml(searchQuery);
     const regex: RegExp = new RegExp(escapeRegex(q), 'gi');
+
     return escaped.replace(
       regex,
       (match: Str): Str => `<mark class="bg-yellow-300/50 dark:bg-yellow-500/30">${match}</mark>`,
@@ -272,6 +281,7 @@
     (async (): Promise<void> => {
       try {
         const { codeToHtml } = await import('shiki');
+
         if (cancelled) {
           return;
         }
@@ -280,6 +290,7 @@
           lang: currentLang,
           theme: currentDark ? 'github-dark' : 'github-light',
         });
+
         if (cancelled) {
           return;
         }

@@ -43,6 +43,7 @@
   const validated: AuroraTextProps = $derived.by(() => {
     const rawProps: AuroraTextProps = stripSvelteProps(allProps);
     const result = safeParse(AuroraTextPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

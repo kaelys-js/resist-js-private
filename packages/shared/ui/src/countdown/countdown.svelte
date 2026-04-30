@@ -43,6 +43,7 @@
   const validated: CountdownProps = $derived.by(() => {
     const rawProps: CountdownProps = stripSvelteProps(allProps);
     const result = safeParse(CountdownPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

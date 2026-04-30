@@ -42,6 +42,7 @@
   const validated: BmiCalculatorProps = $derived.by(() => {
     const rawProps: BmiCalculatorProps = stripSvelteProps(allProps);
     const result = safeParse(BmiCalculatorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

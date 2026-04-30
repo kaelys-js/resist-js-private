@@ -42,6 +42,7 @@
   const validated: SegmentedControlProps = $derived.by(() => {
     const rawProps: SegmentedControlProps = stripSvelteProps(allProps);
     const result = safeParse(SegmentedControlPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

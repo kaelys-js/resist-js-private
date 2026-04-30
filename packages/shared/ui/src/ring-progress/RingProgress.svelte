@@ -42,6 +42,7 @@
   const validated: RingProgressProps = $derived.by(() => {
     const rawProps: RingProgressProps = stripSvelteProps(allProps);
     const result = safeParse(RingProgressPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: AppBarProps = $derived.by(() => {
     const rawProps: AppBarProps = stripSvelteProps(allProps);
     const result = safeParse(AppBarPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

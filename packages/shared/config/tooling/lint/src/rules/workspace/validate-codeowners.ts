@@ -30,6 +30,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -54,9 +55,11 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     let foundPath: string | undefined;
+
     for (const candidate of CODEOWNERS_PATHS) {
       const fullPath: string = join(ctx.rootDir, candidate);
       const exists: boolean = await ctx.fileExists(fullPath);
+
       if (exists) {
         foundPath = fullPath;
         break;
@@ -88,6 +91,7 @@ const rule: WorkspaceRule = {
     }
 
     const lines: string[] = content.split('\n');
+
     for (let i: number = 0; i < lines.length; i++) {
       const line: string = (lines[i] ?? '').trim();
 
@@ -96,6 +100,7 @@ const rule: WorkspaceRule = {
       }
 
       const tokens: string[] = line.split(/\s+/);
+
       if (tokens.length < 2) {
         results.push(
           createResult(

@@ -38,6 +38,7 @@ const CMAKE_LINE_SIMPLE: RegExp = /^(.+?):(\d+):\s+(.+)$/;
  */
 export function transformCmakeLintOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -47,12 +48,14 @@ export function transformCmakeLintOutput(output: string): LintResult[] {
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     /* Try format with code first: `filename:line,col: [C0103] message` */
     const matchWithCode: RegExpMatchArray | null = CMAKE_LINE_WITH_CODE.exec(stripped);
+
     if (matchWithCode) {
       const file: string = matchWithCode[1] ?? '';
       const lineNum: number = Number.parseInt(matchWithCode[2] ?? '1', 10);
@@ -65,6 +68,7 @@ export function transformCmakeLintOutput(output: string): LintResult[] {
 
     /* Fallback: simple format `filename:line: message` */
     const matchSimple: RegExpMatchArray | null = CMAKE_LINE_SIMPLE.exec(stripped);
+
     if (matchSimple) {
       const file: string = matchSimple[1] ?? '';
       const lineNum: number = Number.parseInt(matchSimple[2] ?? '1', 10);

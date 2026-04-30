@@ -42,6 +42,7 @@ const SKIP_DIRS: ReadonlySet<string> = new Set([
  */
 async function findEmptyDirs(dir: string, rootDir: string, results: string[]): Promise<void> {
   let entries: Dirent[];
+
   try {
     entries = (await readdir(dir, { withFileTypes: true })) as Dirent[];
   } catch {
@@ -67,6 +68,7 @@ async function findEmptyDirs(dir: string, rootDir: string, results: string[]): P
   if (fileCount === 0 && !hasGitkeep) {
     const relativePath: string = relative(rootDir, dir);
     /* Don't flag the root directory itself */
+
     if (relativePath.length > 0) {
       results.push(relativePath);
     }
@@ -75,6 +77,7 @@ async function findEmptyDirs(dir: string, rootDir: string, results: string[]): P
   /** Recurse into subdirectories, skipping ignored dirs. */
   for (const entry of entries) {
     const name: string = entry.name as string;
+
     if (entry.isDirectory() && !SKIP_DIRS.has(name)) {
       await findEmptyDirs(join(dir, name), rootDir, results);
     }
@@ -113,6 +116,7 @@ const rule: WorkspaceRule = {
     await findEmptyDirs(ctx.rootDir, ctx.rootDir, emptyDirs);
 
     const results: Array<ReturnType<typeof createResult>> = [];
+
     for (const relativePath of emptyDirs) {
       results.push(
         createResult(

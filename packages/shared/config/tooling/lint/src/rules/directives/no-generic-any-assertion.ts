@@ -28,11 +28,13 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const { typeAnnotation } = node;
+
       if (typeAnnotation === null || typeof typeAnnotation !== 'object') {
         return results;
       }
 
       const typeNode: AstNode = typeAnnotation as AstNode;
+
       if (typeNode.type === 'TSAnyKeyword') {
         results.push({
           file: context.file,

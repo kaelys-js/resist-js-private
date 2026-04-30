@@ -43,6 +43,7 @@
   const validated: ZStackProps = $derived.by(() => {
     const rawProps: ZStackProps = stripSvelteProps(allProps);
     const result = safeParse(ZStackPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

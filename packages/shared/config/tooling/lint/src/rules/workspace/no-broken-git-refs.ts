@@ -69,6 +69,7 @@ const rule: WorkspaceRule = {
         });
 
         const fsckLines: string[] = fsckOutput.split('\n');
+
         for (const line of fsckLines) {
           if (line.includes('broken') || line.includes('dangling') || line.includes('missing')) {
             results.push(

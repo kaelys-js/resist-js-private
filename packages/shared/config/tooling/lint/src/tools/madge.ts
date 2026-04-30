@@ -33,11 +33,13 @@ import { format, type LintStrings } from '@/lint/locale/schema.ts';
  */
 export function transformMadgeOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
 
   let parsed: unknown;
+
   try {
     parsed = JSON.parse(trimmed) as unknown;
   } catch {

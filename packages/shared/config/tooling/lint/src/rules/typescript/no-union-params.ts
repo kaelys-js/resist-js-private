@@ -51,12 +51,14 @@ function getParamName(param: AstNode): string {
   }
   if (param.type === 'AssignmentPattern') {
     const left = param.left as AstNode | undefined;
+
     if (left?.type === 'Identifier') {
       return (left.name as string) ?? '<unknown>';
     }
   }
   if (param.type === 'RestElement') {
     const arg = param.argument as AstNode | undefined;
+
     if (arg?.type === 'Identifier') {
       return (arg.name as string) ?? '<unknown>';
     }
@@ -76,6 +78,7 @@ function getTypeAnnotation(param: AstNode): AstNode | undefined {
   }
   if (param.type === 'AssignmentPattern') {
     const left = param.left as AstNode | undefined;
+
     return (left?.typeAnnotation as AstNode | undefined)?.typeAnnotation as AstNode | undefined;
   }
   return undefined;
@@ -97,6 +100,7 @@ const rule: TypeScriptRule = {
       }
 
       const declaration = node.declaration as AstNode | undefined;
+
       if (!declaration) {
         return [];
       }
@@ -105,6 +109,7 @@ const rule: TypeScriptRule = {
       }
 
       const params = declaration.params as AstNode[] | undefined;
+
       if (!params) {
         return [];
       }
@@ -113,6 +118,7 @@ const rule: TypeScriptRule = {
 
       for (const param of params) {
         const typeNode: AstNode | undefined = getTypeAnnotation(param);
+
         if (!typeNode || typeNode.type !== 'TSUnionType') {
           continue;
         }
@@ -122,6 +128,7 @@ const rule: TypeScriptRule = {
         const isExemptUnion: boolean = EXEMPT_UNION_PATTERNS.some((p: RegExp): boolean =>
           p.test(unionText),
         );
+
         if (isExemptUnion) {
           continue;
         }

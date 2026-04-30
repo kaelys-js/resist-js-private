@@ -43,6 +43,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     let branch: string;
+
     try {
       branch = execSync('git rev-parse --abbrev-ref HEAD', {
         cwd: ctx.rootDir,
@@ -57,6 +58,7 @@ const rule: WorkspaceRule = {
     }
 
     let mergeOutput: string;
+
     try {
       mergeOutput = execSync("git log --merges --pretty=format:'%h %s' origin/main..HEAD", {
         cwd: ctx.rootDir,

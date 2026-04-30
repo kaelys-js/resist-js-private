@@ -41,6 +41,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -69,6 +70,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const relativePath: string = relative(ctx.rootDir, filePath);
+
       if (relativePath === 'package.json') {
         rootPkgPath = filePath;
         break;
@@ -162,6 +164,7 @@ const rule: WorkspaceRule = {
 
     if (typeof packageManager === 'string') {
       const pmMatch: RegExpMatchArray | null = packageManager.match(PACKAGE_MANAGER_RE);
+
       if (pmMatch) {
         const major: number = Number(pmMatch[1]);
         const minor: number = Number(pmMatch[2]);

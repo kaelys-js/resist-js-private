@@ -42,6 +42,7 @@
   const validated: MagicLinkProps = $derived.by(() => {
     const rawProps: MagicLinkProps = stripSvelteProps(allProps);
     const result = safeParse(MagicLinkPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

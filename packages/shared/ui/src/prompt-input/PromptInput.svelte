@@ -42,6 +42,7 @@
   const validated: PromptInputProps = $derived.by(() => {
     const rawProps: PromptInputProps = stripSvelteProps(allProps);
     const result = safeParse(PromptInputPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

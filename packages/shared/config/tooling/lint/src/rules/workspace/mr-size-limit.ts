@@ -53,6 +53,7 @@ const rule: WorkspaceRule = {
     }
 
     const totalLines: number = Number(added ?? '0') + Number(removed ?? '0');
+
     if (totalLines > MAX_LINES) {
       results.push(
         createResult(
@@ -70,6 +71,7 @@ const rule: WorkspaceRule = {
     }
 
     const files: number = Number(filesChanged ?? '0');
+
     if (files > MAX_FILES) {
       results.push(
         createResult(

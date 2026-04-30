@@ -43,6 +43,7 @@
   const validated: BlockUiProps = $derived.by(() => {
     const rawProps: BlockUiProps = stripSvelteProps(allProps);
     const result = safeParse(BlockUiPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

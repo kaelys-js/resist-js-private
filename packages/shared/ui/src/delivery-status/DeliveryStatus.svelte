@@ -42,6 +42,7 @@
   const validated: DeliveryStatusProps = $derived.by(() => {
     const rawProps: DeliveryStatusProps = stripSvelteProps(allProps);
     const result = safeParse(DeliveryStatusPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

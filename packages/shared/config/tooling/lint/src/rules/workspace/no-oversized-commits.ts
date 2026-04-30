@@ -23,6 +23,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -47,6 +48,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     let fileCount: number = 0;
+
     for (const _filePath of await ctx.allFiles()) {
       fileCount++;
     }

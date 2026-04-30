@@ -42,6 +42,7 @@
   const validated: FeatureGridProps = $derived.by(() => {
     const rawProps: FeatureGridProps = stripSvelteProps(allProps);
     const result = safeParse(FeatureGridPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

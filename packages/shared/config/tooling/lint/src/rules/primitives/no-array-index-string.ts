@@ -40,8 +40,10 @@ const rule: TypeScriptRule = {
         (left.computed as unknown) === true
       ) {
         const propRaw: unknown = left.property;
+
         if (propRaw !== null && typeof propRaw === 'object') {
           const propNode = propRaw as AstNode;
+
           if (propNode.type === 'Literal' && typeof (propNode.value as unknown) === 'string') {
             const value = propNode.value as string;
             const isValidInteger = /^\d+$/.test(value);

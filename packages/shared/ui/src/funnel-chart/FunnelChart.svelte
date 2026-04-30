@@ -42,6 +42,7 @@
   const validated: FunnelChartProps = $derived.by(() => {
     const rawProps: FunnelChartProps = stripSvelteProps(allProps);
     const result = safeParse(FunnelChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -95,6 +95,7 @@ export function deepFreeze<T extends object>(obj: T): Readonly<T> {
 
   for (const name of propNames) {
     const value: unknown = Object.getOwnPropertyDescriptor(obj, name)?.value;
+
     if (value && typeof value === 'object' && !Object.isFrozen(value)) {
       deepFreeze(value);
     }
@@ -176,14 +177,17 @@ export function safeStringify(
   indent: NonNegativeInteger | Str = DEFAULT_JSON_INDENT,
 ): Result<Str> {
   let validatedIndent: NonNegativeInteger | Str;
+
   if (typeof indent === 'string') {
     const strResult: Result<Str> = safeParse(StrSchema, indent);
+
     if (!strResult.ok) {
       return strResult;
     }
     validatedIndent = strResult.data;
   } else {
     const numResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, indent);
+
     if (!numResult.ok) {
       return numResult;
     }
@@ -206,6 +210,7 @@ export function safeStringify(
 
   try {
     const result: Str = JSON.stringify(data, replacer, validatedIndent);
+
     return ok(StrSchema, result);
   } catch (error: unknown) {
     return err(ERRORS.VALIDATION.INVALID_FORMAT, {

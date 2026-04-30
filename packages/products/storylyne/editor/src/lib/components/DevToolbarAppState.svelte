@@ -86,6 +86,7 @@
     const setterName: Str = `set${key.charAt(0).toUpperCase()}${key.slice(1)}`;
     // Dynamic setter access — store type doesn't expose string-indexed setters
     const setter = (editorStore as unknown as Record<Str, (v: unknown) => unknown>)[setterName];
+
     if (typeof setter === 'function') {
       setter(value);
     }
@@ -115,6 +116,7 @@
   /** Toggle `?${URL_PARAM_PREFIX}scenes=empty` to simulate an empty scene list. */
   function toggleEmptyScenes(): Void {
     const url: URL = new URL(page.url);
+
     if (isEmptyScenes) {
       url.searchParams.delete(`${URL_PARAM_PREFIX}scenes`);
     } else {
@@ -142,6 +144,7 @@
     const entry = (localeStore.t.devToolbar.labels as unknown as Record<Str, () => Result<Str>>)[
       key
     ];
+
     return entry === undefined ? humanizeKey(key) : t(entry, humanizeKey(key));
   }
 
@@ -151,6 +154,7 @@
         value === '' ? 'themeDefault' : `theme${value.charAt(0).toUpperCase()}${value.slice(1)}`;
       // Locale DeepReadonly workaround — dynamic key access needs cast
       const entry = (localeStore.t.settings as unknown as Record<Str, () => Result<Str>>)[themeKey];
+
       return entry === undefined
         ? humanizeOption(key, value)
         : t(entry, humanizeOption(key, value));
@@ -158,6 +162,7 @@
     if (key === 'mode') {
       // Locale DeepReadonly workaround — dynamic key access needs cast
       const entry = (localeStore.t.settings as unknown as Record<Str, () => Result<Str>>)[value];
+
       return entry === undefined
         ? humanizeOption(key, value)
         : t(entry, humanizeOption(key, value));
@@ -165,6 +170,7 @@
     if (key === 'locale') {
       const display: Intl.DisplayNames = new Intl.DisplayNames([value], { type: 'language' });
       const endonym: Str | undefined = display.of(value);
+
       return endonym ?? humanizeOption(key, value);
     }
     if (key === 'subscriptionPlan') {
@@ -173,6 +179,7 @@
       const entry = (localeStore.t.devToolbar as unknown as Record<Str, () => Result<Str>>)[
         planKey
       ];
+
       return entry === undefined
         ? humanizeOption(key, value)
         : t(entry, humanizeOption(key, value));

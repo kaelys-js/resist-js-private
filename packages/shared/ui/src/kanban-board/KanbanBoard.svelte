@@ -42,6 +42,7 @@
   const validated: KanbanBoardProps = $derived.by(() => {
     const rawProps: KanbanBoardProps = stripSvelteProps(allProps);
     const result = safeParse(KanbanBoardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

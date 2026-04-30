@@ -92,10 +92,13 @@
 
   /** Metadata lookup by component name. */
   const metaByName: Map<Str, LensMeta> = new Map();
+
   for (const [key, mod] of Object.entries(lensMetaModules)) {
     const dir: Str = extractDir(key);
+
     if (mod.meta) {
       const result: Result<LensMeta> = parseLensMeta(mod.meta);
+
       if (result.ok) {
         metaByName.set(dir, {
           ...result.data,
@@ -115,6 +118,7 @@
       label: catLabel(cat),
       components: componentNames.filter((n: Str): boolean => {
         const m: LensMeta | undefined = metaByName.get(n);
+
         return (m?.category ?? 'display') === cat;
       }),
     }),
@@ -123,11 +127,14 @@
   /** Total design token count (sum across all theme sets). */
   const tokenCount: Num = (() => {
     const entries: Array<[Str, Str]> = Object.entries(cssRawModules);
+
     if (entries.length === 0) {
       return 0 as Num;
     }
+
     const [, css]: [Str, Str] = entries[0] as [Str, Str];
     const sets: ThemeTokenSet[] = extractTokens(css);
+
     return sets.reduce(
       (sum: Num, s: ThemeTokenSet): Num => (sum + s.tokens.length) as Num,
       0 as Num,
@@ -153,6 +160,7 @@
   function toWorkspacePath(globPath: Str): Str {
     const s: string = globPath as string;
     const sharedIdx: number = s.indexOf('/shared/');
+
     if (sharedIdx >= 0) {
       return s.slice(sharedIdx + 1) as Str;
     }
@@ -220,11 +228,13 @@
     (name: Str, idx: Num): { rule: Num; name: Str; count: Num } => {
       const count: Num = componentNames.filter((n: Str): boolean => {
         const compat: LensCompatibility | undefined = compatByName.get(n);
+
         if (!compat) {
           return false;
         }
         return compat.violations.some((v) => v.rule === idx);
       }).length as Num;
+
       return { rule: idx, name, count };
     },
   )
@@ -242,6 +252,7 @@
 
   /** Tag usage counts for popular tags display. */
   const tagCounts: Map<Str, Num> = new Map();
+
   for (const meta of metaByName.values()) {
     for (const tag of meta.tags) {
       tagCounts.set(tag, ((tagCounts.get(tag) ?? 0) + 1) as Num);
@@ -250,6 +261,7 @@
 
   /** Tag → component names mapping for tooltip display. */
   const tagComponents: Map<Str, Str[]> = new Map();
+
   for (const [name, meta] of metaByName.entries()) {
     for (const tag of meta.tags) {
       const existing: Str[] = tagComponents.get(tag) ?? [];
@@ -275,6 +287,7 @@
   const activityEntries: Array<{ name: Str; meta: LensMeta }> = componentNames
     .filter((n: Str): boolean => {
       const m: LensMeta | undefined = metaByName.get(n);
+
       return m?.status !== undefined;
     })
     .map((n: Str): { name: Str; meta: LensMeta } => ({
@@ -290,6 +303,7 @@
   // UI boundary — $derived must produce a value; fallback if data not loaded
   const iconCount: Num = $derived.by((): Num => {
     const count: unknown = $page.data?.iconCount;
+
     if (typeof count === 'number') {
       return count as Num;
     }

@@ -23,6 +23,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -81,6 +82,7 @@ const rule: WorkspaceRule = {
 
     /* Both exist — check example is non-empty */
     let exampleContent: string;
+
     try {
       exampleContent = await ctx.readFile(examplePath);
     } catch {

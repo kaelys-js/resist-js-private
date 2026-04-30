@@ -32,11 +32,13 @@ import { createResult, type LintResult } from '@/lint/framework/types.ts';
  */
 export function transformCredoOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
 
   let parsed: unknown;
+
   try {
     parsed = JSON.parse(trimmed) as unknown;
   } catch {

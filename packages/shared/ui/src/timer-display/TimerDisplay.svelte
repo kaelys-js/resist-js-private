@@ -42,6 +42,7 @@
   const validated: TimerDisplayProps = $derived.by(() => {
     const rawProps: TimerDisplayProps = stripSvelteProps(allProps);
     const result = safeParse(TimerDisplayPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

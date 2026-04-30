@@ -31,6 +31,7 @@ const rule: TypeScriptRule = {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const callee = node.callee as AstNode | undefined;
+
       if (!callee) {
         return results;
       }
@@ -46,6 +47,7 @@ const rule: TypeScriptRule = {
         ) {
           // Extract the regex argument text
           const args = node.arguments as AstNode[] | undefined;
+
           if (!args || args.length === 0) {
             return results;
           }

@@ -42,6 +42,7 @@
   const validated: WaterfallChartProps = $derived.by(() => {
     const rawProps: WaterfallChartProps = stripSvelteProps(allProps);
     const result = safeParse(WaterfallChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

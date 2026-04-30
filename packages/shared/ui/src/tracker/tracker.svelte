@@ -42,6 +42,7 @@
   const validated: TrackerProps = $derived.by(() => {
     const rawProps: TrackerProps = stripSvelteProps(allProps);
     const result = safeParse(TrackerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

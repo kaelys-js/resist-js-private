@@ -253,6 +253,7 @@ function mockContext(
     readFile: (path: string): Promise<string> =>
       new Promise<string>((resolve: (v: string) => void, reject: (e: Error) => void): void => {
         const content: string | undefined = files.get(path);
+
         if (content === undefined) {
           reject(new Error(`File not found: ${path}`));
           return;
@@ -443,6 +444,7 @@ describe('testing — inputs() lifecycle smoke-coverage', () => {
       if (typeof (rule as { inputs?: unknown }).inputs !== 'function') {
         return;
       }
+
       const ctx: WorkspaceContext = mockContext({
         files: new Map([
           ['/workspace/src/foo.test.ts', 'export const x = 1;'],

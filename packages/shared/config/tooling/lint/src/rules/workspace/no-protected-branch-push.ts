@@ -41,6 +41,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     let branch: string;
+
     try {
       branch = execSync('git rev-parse --abbrev-ref HEAD', {
         cwd: ctx.rootDir,

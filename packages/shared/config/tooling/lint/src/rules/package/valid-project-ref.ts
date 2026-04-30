@@ -37,6 +37,7 @@ function getValidProjects(): ReadonlySet<string> {
     const names: string[] = [];
     const pattern: RegExp = /name:\s*'([^']+)'/g;
     let match: RegExpExecArray | null = pattern.exec(content);
+
     while (match) {
       names.push(match[1] ?? '');
       match = pattern.exec(content);
@@ -73,12 +74,14 @@ const rule: PackageJsonRule = {
    */
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
+
     if (context.isRoot) {
       return results;
     }
 
     const scripts: Record<string, string> = context.pkg.scripts ?? {};
     const projects: ReadonlySet<string> = getValidProjects();
+
     if (projects.size === 0) {
       return results;
     }
@@ -87,16 +90,19 @@ const rule: PackageJsonRule = {
 
     for (const key of PROJECT_SCRIPTS) {
       const script: string | undefined = scripts[key];
+
       if (!script) {
         continue;
       }
 
       const projectMatch: RegExpMatchArray | null = script.match(/--project\s+(\S+)/);
+
       if (!projectMatch) {
         continue;
       }
 
       const projectName: string = projectMatch[1] ?? '';
+
       if (!projects.has(projectName)) {
         results.push({
           file: context.file,

@@ -42,6 +42,7 @@
   const validated: WaffleChartProps = $derived.by(() => {
     const rawProps: WaffleChartProps = stripSvelteProps(allProps);
     const result = safeParse(WaffleChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

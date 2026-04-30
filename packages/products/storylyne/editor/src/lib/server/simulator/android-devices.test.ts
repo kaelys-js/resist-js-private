@@ -262,6 +262,7 @@ describe('android-devices', () => {
 
     vi.mock('node:fs/promises', async (importOriginal) => {
       const actual = await importOriginal<typeof NodeFsPromisesModule>();
+
       return {
         ...actual,
         default: {

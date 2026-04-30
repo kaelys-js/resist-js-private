@@ -47,6 +47,7 @@
 
   function formatYear(date: DateValue) {
     const dateObj = date.toDate(getLocalTimeZone());
+
     if (typeof yearFormat === 'function') {
       return yearFormat(dateObj.getFullYear());
     }
@@ -55,6 +56,7 @@
 
   function formatMonth(date: DateValue) {
     const dateObj = date.toDate(getLocalTimeZone());
+
     if (typeof monthFormat === 'function') {
       return monthFormat(dateObj.getMonth() + 1);
     }

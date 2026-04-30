@@ -42,6 +42,7 @@
   const validated: PrintAreaProps = $derived.by(() => {
     const rawProps: PrintAreaProps = stripSvelteProps(allProps);
     const result = safeParse(PrintAreaPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

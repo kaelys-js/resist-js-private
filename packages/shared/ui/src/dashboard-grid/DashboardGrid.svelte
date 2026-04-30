@@ -42,6 +42,7 @@
   const validated: DashboardGridProps = $derived.by(() => {
     const rawProps: DashboardGridProps = stripSvelteProps(allProps);
     const result = safeParse(DashboardGridPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

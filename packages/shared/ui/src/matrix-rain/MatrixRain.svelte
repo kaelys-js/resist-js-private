@@ -42,6 +42,7 @@
   const validated: MatrixRainProps = $derived.by(() => {
     const rawProps: MatrixRainProps = stripSvelteProps(allProps);
     const result = safeParse(MatrixRainPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

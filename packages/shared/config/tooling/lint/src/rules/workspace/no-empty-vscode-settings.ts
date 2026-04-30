@@ -22,6 +22,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -46,11 +47,13 @@ const rule: WorkspaceRule = {
     const settingsPath: string = join(ctx.rootDir, '.vscode', 'settings.json');
 
     const exists: boolean = await ctx.fileExists(settingsPath);
+
     if (!exists) {
       return [];
     }
 
     const content: string = await ctx.readFile(settingsPath);
+
     if (content.trim().length === 0) {
       return [
         createResult(

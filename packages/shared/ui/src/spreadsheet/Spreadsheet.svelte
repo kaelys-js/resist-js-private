@@ -42,6 +42,7 @@
   const validated: SpreadsheetProps = $derived.by(() => {
     const rawProps: SpreadsheetProps = stripSvelteProps(allProps);
     const result = safeParse(SpreadsheetPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

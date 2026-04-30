@@ -42,6 +42,7 @@
   const validated: VideoBackgroundProps = $derived.by(() => {
     const rawProps: VideoBackgroundProps = stripSvelteProps(allProps);
     const result = safeParse(VideoBackgroundPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

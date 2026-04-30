@@ -27,6 +27,7 @@ vi.mock('@/utils/core/node-imports', () => ({
 // ── Mock environment.getProcess to return undefined ─────────────────────
 vi.mock('@/utils/core/environment', async () => {
   const actual = await vi.importActual<typeof Environment>('@/utils/core/environment');
+
   return {
     ...actual,
     getProcess: () => {

@@ -41,6 +41,7 @@
   const validated: PermissionMatrixProps = $derived.by(() => {
     const rawProps: PermissionMatrixProps = stripSvelteProps(allProps);
     const result = safeParse(PermissionMatrixPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

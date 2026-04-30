@@ -73,6 +73,7 @@ const MAX_POOL_SIZE: Num = 3 as Num;
 export async function acquireSimulator(udid: Str, name: Str): Promise<PooledSimulator> {
   /* Check if already in pool */
   const existing: PoolEntry | undefined = poolEntries.get(udid);
+
   if (existing) {
     if (existing.inUse) {
       throw new Error(`Simulator ${name} (${udid}) is already in use`);
@@ -81,6 +82,7 @@ export async function acquireSimulator(udid: Str, name: Str): Promise<PooledSimu
 
     /* Verify it's still booted */
     const state: Str = await getDeviceState(udid);
+
     if (state !== 'Booted') {
       await bootSimulator(udid);
       await waitForBoot(udid);
@@ -95,6 +97,7 @@ export async function acquireSimulator(udid: Str, name: Str): Promise<PooledSimu
 
   /* Check pool capacity */
   const inUseCount: Num = countInUse();
+
   if (inUseCount >= MAX_POOL_SIZE) {
     throw new Error(
       `Simulator pool is at maximum capacity (${MAX_POOL_SIZE}). Release a simulator first.`,
@@ -136,6 +139,7 @@ export async function acquireSimulator(udid: Str, name: Str): Promise<PooledSimu
  */
 export function releaseSimulator(udid: Str): void {
   const entry: PoolEntry | undefined = poolEntries.get(udid);
+
   if (entry) {
     entry.inUse = false as Bool;
   }
@@ -151,6 +155,7 @@ export function releaseSimulator(udid: Str): void {
  */
 export async function removeFromPool(udid: Str): Promise<void> {
   const entry: PoolEntry | undefined = poolEntries.get(udid);
+
   if (!entry) {
     return;
   }
@@ -177,6 +182,7 @@ export function getPoolStatus(): {
   devices: Array<{ udid: Str; name: Str; inUse: Bool }>;
 } {
   const devices: Array<{ udid: Str; name: Str; inUse: Bool }> = [];
+
   for (const entry of poolEntries.values()) {
     devices.push({
       udid: entry.udid,
@@ -226,6 +232,7 @@ export async function drainPool(): Promise<void> {
  */
 function countInUse(): Num {
   let count: Num = 0 as Num;
+
   for (const entry of poolEntries.values()) {
     if (entry.inUse) {
       count = (count + 1) as Num;

@@ -66,8 +66,10 @@
     }
     try {
       const raw: Str | null = localStorage.getItem(POS_KEY);
+
       if (raw) {
         const p = JSON.parse(raw);
+
         if (typeof p.x === 'number' && typeof p.b === 'number') {
           return { x: p.x, b: p.b };
         }
@@ -113,8 +115,10 @@
     if (!dragging) {
       return;
     }
+
     const dx: Num = e.clientX - dragStartClientX;
     const dy: Num = e.clientY - dragStartClientY;
+
     if (!didDrag && Math.abs(dx) < 4 && Math.abs(dy) < 4) {
       return;
     }
@@ -139,6 +143,7 @@
       const maxX: Num = window.innerWidth - 24;
       const maxB: Num = window.innerHeight - 48;
       let changed: Bool = false;
+
       if (posX > maxX) {
         posX = Math.max(24, maxX);
         changed = true;
@@ -171,6 +176,7 @@
         system: localeStore.t.settings.system as LocaleFn,
       };
       const fn: LocaleFn | undefined = lookup[mode];
+
       if (!fn) {
         return mode;
       }
@@ -183,6 +189,7 @@
       const result: Result<Str> = (
         localeStore.t.devToolbar.cycleTheme as (p: { mode: Str }) => Result<Str>
       )({ mode: modeDisplayName });
+
       if (!result.ok) {
         log.warn(`Locale devToolbar.cycleTheme error: ${result.error.code}`);
       }
@@ -227,10 +234,12 @@
    */
   function resetAll(): Void {
     const prefs: ReturnType<typeof discoverAppPreferences> = discoverAppPreferences(prefEntries);
+
     for (const pref of prefs) {
       const setterName: Str = `set${pref.key.charAt(0).toUpperCase()}${pref.key.slice(1)}`;
       // Dynamic setter access — store type doesn't expose string-indexed setters
       const setter = (editorStore as unknown as Record<Str, (v: unknown) => unknown>)[setterName];
+
       if (typeof setter === 'function') {
         setter(pref.default);
       }
@@ -340,9 +349,11 @@
       const panelEl: HTMLElement | null = document.querySelector(
         '[data-testid="dev-toolbar"] [data-testid^="dev-toolbar-panel"]',
       );
+
       if (!panelEl) {
         return;
       }
+
       const focusable: HTMLElement | null = panelEl.querySelector(
         'button, [tabindex="0"], input, select, textarea, a[href]',
       );

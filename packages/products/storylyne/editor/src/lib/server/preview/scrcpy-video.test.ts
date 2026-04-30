@@ -66,6 +66,7 @@ function buildFrameHeader(
 
   // Pack flags into top 2 bits of the 64-bit PTS field
   let ptsWithFlags: bigint = pts & 0x3f_ff_ff_ff_ff_ff_ff_ffn;
+
   if (isConfig) {
     ptsWithFlags |= 1n << 63n;
   }

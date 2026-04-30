@@ -513,12 +513,14 @@ describe('fatalExit', () => {
     const exitSpy = vi.fn();
     (process as unknown as { exit: typeof exitSpy }).exit = exitSpy;
     const stderrSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+
     try {
       fatalExit({ message: 'boom' as Str, exitCode: 2 as ExitCode } as FatalExitOptions);
     } catch {
       /* ignore throw-after-exit */
     }
     /* At least the message line was written. */
+
     const writes = stderrSpy.mock.calls.map((c) => String(c[0])).join('');
     expect(writes).toContain('Error:');
     expect(writes).toContain('boom');
@@ -530,6 +532,7 @@ describe('fatalExit', () => {
     const exitSpy = vi.fn();
     (process as unknown as { exit: typeof exitSpy }).exit = exitSpy;
     const stderrSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+
     try {
       fatalExit({
         message: 'failed' as Str,
@@ -539,6 +542,7 @@ describe('fatalExit', () => {
     } catch {
       /* ignore */
     }
+
     const writes = stderrSpy.mock.calls.map((c) => String(c[0])).join('');
     expect(writes).toContain('extra context');
     stderrSpy.mockRestore();
@@ -548,6 +552,7 @@ describe('fatalExit', () => {
     const exitSpy = vi.fn();
     (process as unknown as { exit: typeof exitSpy }).exit = exitSpy;
     const stderrSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+
     try {
       const e = new Error('original');
       fatalExit({
@@ -558,6 +563,7 @@ describe('fatalExit', () => {
     } catch {
       /* ignore */
     }
+
     const writes = stderrSpy.mock.calls.map((c) => String(c[0])).join('');
     expect(writes).toContain('Stack trace:');
     expect(writes).toContain('original');
@@ -568,6 +574,7 @@ describe('fatalExit', () => {
     const exitSpy = vi.fn();
     (process as unknown as { exit: typeof exitSpy }).exit = exitSpy;
     const stderrSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+
     try {
       /* Missing required `message` field triggers safeParse failure → exit(1). */
       fatalExit({} as FatalExitOptions);

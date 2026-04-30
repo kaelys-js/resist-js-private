@@ -85,6 +85,7 @@
   const validated: ErrorPageProps = $derived.by(() => {
     const rawProps: ErrorPageProps = stripSvelteProps(restProps);
     const result = safeParse(ErrorPagePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }
@@ -137,6 +138,7 @@
     if (!validated.errorId) {
       return;
     }
+
     const success: Bool = validated.copyOverride
       ? await validated.copyOverride(validated.errorId)
       : await copyToClipboard(validated.errorId);
@@ -163,6 +165,7 @@
 
   const tooltipText: Str = $derived.by(() => {
     const state: typeof copyState = copyState;
+
     if (state === 'success') {
       return validated.labels.copied;
     }

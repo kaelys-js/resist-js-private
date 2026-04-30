@@ -43,6 +43,7 @@
   const validated: ColorPaletteGeneratorProps = $derived.by(() => {
     const rawProps: ColorPaletteGeneratorProps = stripSvelteProps(allProps);
     const result = safeParse(ColorPaletteGeneratorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

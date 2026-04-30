@@ -42,6 +42,7 @@
   const validated: CsatWidgetProps = $derived.by(() => {
     const rawProps: CsatWidgetProps = stripSvelteProps(allProps);
     const result = safeParse(CsatWidgetPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

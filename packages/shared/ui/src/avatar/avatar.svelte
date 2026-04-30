@@ -200,6 +200,7 @@
       badge,
       children,
     });
+
     if (!result.ok) {
       throw result.error;
     }
@@ -214,6 +215,7 @@
    */
   function getInitials(fullName: Str): Str {
     const parts: Str[] = (fullName as string).trim().split(/\s+/) as Str[];
+
     if (parts.length === 0) {
       return '' as Str;
     }
@@ -253,6 +255,7 @@
   /** Explicit border-radius override class — takes precedence over `shape` when set. */
   const radiusClass: Str = $derived.by((): Str => {
     const r: typeof validated.radius = validated.radius;
+
     if (r === 'none') {
       return 'rounded-none' as Str;
     }

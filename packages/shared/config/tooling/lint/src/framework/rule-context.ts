@@ -113,7 +113,9 @@ function shouldExcludeByPath(
   if (excludePaths.length === 0) {
     return false;
   }
+
   const relPath: string = relative(rootDir, dirFullPath);
+
   return excludePaths.some((p: string): boolean => relPath === p || relPath.startsWith(`${p}/`));
 }
 
@@ -136,6 +138,7 @@ export async function* getAllFiles(
 ): AsyncIterable<string> {
   const root: string = rootDir ?? dir;
   let entries: Dirent[];
+
   try {
     entries = (await readdir(dir, { withFileTypes: true })) as Dirent[];
   } catch {
@@ -190,6 +193,7 @@ export function readFileContent(path: string): Promise<string> {
 export async function fileExists(path: string): Promise<boolean> {
   try {
     const s: Awaited<ReturnType<typeof stat>> = await stat(path);
+
     return s.isFile();
   } catch {
     return false;
@@ -205,6 +209,7 @@ export async function fileExists(path: string): Promise<boolean> {
 export async function dirExists(path: string): Promise<boolean> {
   try {
     const s: Awaited<ReturnType<typeof stat>> = await stat(path);
+
     return s.isDirectory();
   } catch {
     return false;
@@ -229,6 +234,7 @@ export async function getWorkspacePackages(rootDir: string): Promise<WorkspacePa
   const packages: WorkspacePackage[] = [];
 
   let yamlContent: string;
+
   try {
     yamlContent = await fsReadFile(workspaceYamlPath, 'utf8');
   } catch {
@@ -244,6 +250,7 @@ export async function getWorkspacePackages(rootDir: string): Promise<WorkspacePa
       const isRecursive: boolean = pattern.includes('**');
       const baseDir: string = pattern.replace(/\/\*\*?$/, '');
       const searchDir: string = resolve(rootDir, baseDir);
+
       return findPackagesInDir(searchDir, packages, isRecursive);
     }),
   );
@@ -264,6 +271,7 @@ async function findPackagesInDir(
   recursive: boolean,
 ): Promise<void> {
   let entries: Dirent[];
+
   try {
     entries = (await readdir(dir, { withFileTypes: true })) as Dirent[];
   } catch {
@@ -275,7 +283,9 @@ async function findPackagesInDir(
       if (!entry.isDirectory()) {
         return false;
       }
+
       const name: string = entry.name as string;
+
       return name !== 'node_modules' && name !== '.git' && name !== 'dist';
     })
     .map((entry: Dirent): string => join(dir, entry.name as string));
@@ -339,6 +349,7 @@ function parseWorkspaceYaml(content: string): string[] {
 
       if (trimmed.startsWith('- ')) {
         const pattern: string = trimmed.slice(2).trim().replace(/^['"]/, '').replace(/['"]$/, '');
+
         if (pattern.length > 0) {
           patterns.push(pattern);
         }
@@ -369,6 +380,7 @@ export async function* search(
 ): AsyncGenerator<SearchMatch> {
   for await (const filePath of files) {
     let content: string;
+
     try {
       content = await reader(filePath);
     } catch {
@@ -376,11 +388,13 @@ export async function* search(
     }
 
     const lines: string[] = content.split('\n');
+
     for (let i: number = 0; i < lines.length; i++) {
       const lineText: string = lines[i] ?? '';
       /* Reset lastIndex for global patterns */
       const re: RegExp = new RegExp(pattern.source, pattern.flags.replace('g', ''));
       const m: RegExpMatchArray | null = lineText.match(re);
+
       if (m) {
         yield {
           file: filePath,
@@ -431,6 +445,7 @@ async function collectAllFiles(
   excludes?: ExcludeConfig,
 ): Promise<readonly string[]> {
   const files: string[] = [];
+
   for await (const file of getAllFiles(rootDir, excludes)) {
     files.push(file);
   }
@@ -469,6 +484,7 @@ export function createWorkspaceContext(
 
   function cachedReadFile(path: string): Promise<string> {
     let cached: Promise<string> | undefined = readCache.get(path);
+
     if (cached === undefined) {
       cached = readFileContent(path);
       readCache.set(path, cached);
@@ -481,6 +497,7 @@ export function createWorkspaceContext(
 
   function cachedFileExists(path: string): Promise<boolean> {
     let cached: Promise<boolean> | undefined = existsCache.get(path);
+
     if (cached === undefined) {
       cached = fileExists(path);
       existsCache.set(path, cached);
@@ -493,6 +510,7 @@ export function createWorkspaceContext(
 
   function cachedDirExists(path: string): Promise<boolean> {
     let cached: Promise<boolean> | undefined = dirExistsCache.get(path);
+
     if (cached === undefined) {
       cached = dirExists(path);
       dirExistsCache.set(path, cached);
@@ -506,9 +524,11 @@ export function createWorkspaceContext(
   function cachedFilesByExtension(...exts: string[]): Promise<readonly string[]> {
     const key: string = [...exts].toSorted().join(',');
     let cached: Promise<readonly string[]> | undefined = extCache.get(key);
+
     if (cached === undefined) {
       cached = (async (): Promise<readonly string[]> => {
         const files: readonly string[] = await getFileCache();
+
         return files.filter((f: string): boolean =>
           exts.some((ext: string): boolean => f.endsWith(ext)),
         );

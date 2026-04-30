@@ -216,6 +216,7 @@ function extractRuleCandidates(mod: Record<string, unknown>): unknown[] {
 
   /* Shape 1 & 2: default export (single object or array) */
   const defaultExport: unknown = mod.default;
+
   if (Array.isArray(defaultExport)) {
     /* Shape 2: export default [rule1, rule2, ...] */
     for (const item of defaultExport) {
@@ -228,6 +229,7 @@ function extractRuleCandidates(mod: Record<string, unknown>): unknown[] {
 
   /* Shape 3: export { rules } (named array export) */
   const namedRules: unknown = mod.rules;
+
   if (Array.isArray(namedRules)) {
     for (const item of namedRules) {
       candidates.push(item);
@@ -317,6 +319,7 @@ async function collectRuleFiles(dir: string): Promise<string[]> {
   const files: string[] = [];
 
   let entries: Dirent[];
+
   try {
     entries = (await readdir(dir, { withFileTypes: true })) as Dirent[];
   } catch {
@@ -358,6 +361,7 @@ async function collectRuleFiles(dir: string): Promise<string[]> {
 
   if (subdirPromises.length > 0) {
     const subdirResults: string[][] = await Promise.all(subdirPromises);
+
     for (const subFiles of subdirResults) {
       files.push(...subFiles);
     }

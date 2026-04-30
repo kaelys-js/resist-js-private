@@ -42,6 +42,7 @@
   const validated: ScrollTriggerProps = $derived.by(() => {
     const rawProps: ScrollTriggerProps = stripSvelteProps(allProps);
     const result = safeParse(ScrollTriggerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

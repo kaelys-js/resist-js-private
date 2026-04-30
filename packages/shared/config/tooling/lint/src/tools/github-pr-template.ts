@@ -39,6 +39,7 @@ export function transformGithubPrTemplateOutput(
   strings: LintStrings,
 ): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -54,11 +55,13 @@ export function transformGithubPrTemplateOutput(
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = stripped.match(pattern);
+
     if (match) {
       const file: string = match[1] ?? '';
       const lineNum: number = Number.parseInt(match[2] ?? '1', 10);
@@ -117,6 +120,7 @@ export function validatePrTemplate(
    * Looks for markdown headings containing "description" (case-insensitive).
    */
   const hasDescription: boolean = /^#{1,6}\s+.*description/im.test(trimmed);
+
   if (!hasDescription) {
     results.push(
       createResult(
@@ -139,6 +143,7 @@ export function validatePrTemplate(
    * Looks for at least one markdown checkbox (`- [ ]` or `- [x]`).
    */
   const hasChecklist: boolean = /^[-*]\s+\[[ x]\]/m.test(trimmed);
+
   if (!hasChecklist) {
     results.push(
       createResult(

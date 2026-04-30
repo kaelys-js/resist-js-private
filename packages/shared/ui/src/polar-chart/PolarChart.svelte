@@ -41,6 +41,7 @@
   const validated: PolarChartProps = $derived.by(() => {
     const rawProps: PolarChartProps = stripSvelteProps(allProps);
     const result = safeParse(PolarChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

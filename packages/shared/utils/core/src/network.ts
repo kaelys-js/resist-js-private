@@ -76,10 +76,13 @@ const DEFAULT_MAX_ATTEMPTS: PositiveInteger = _maxAttemptsResult.ok
 export async function isPortAvailable(port: Port): Promise<Result<Bool>> {
   await Promise.resolve();
   const net: OptionalNodeNet = nodeNet;
+
   if (!net) {
     return requireRuntime('isPortAvailable', 'node');
   }
+
   const portResult: Result<Port> = safeParse(PortSchema, port);
+
   if (!portResult.ok) {
     return portResult;
   }
@@ -124,15 +127,19 @@ export async function findAvailablePort(
   maxAttempts: PositiveInteger = DEFAULT_MAX_ATTEMPTS,
 ): Promise<Result<Port>> {
   const net: OptionalNodeNet = nodeNet;
+
   if (!net) {
     return requireRuntime('findAvailablePort', 'node');
   }
+
   const portResult: Result<Port> = safeParse(PortSchema, preferredPort);
+
   if (!portResult.ok) {
     return portResult;
   }
 
   const attemptsResult: Result<PositiveInteger> = safeParse(PositiveIntegerSchema, maxAttempts);
+
   if (!attemptsResult.ok) {
     return attemptsResult;
   }
@@ -145,11 +152,13 @@ export async function findAvailablePort(
     }
 
     const candidateResult: Result<Port> = safeParse(PortSchema, candidate);
+
     if (!candidateResult.ok) {
       continue;
     }
 
     const check: Result<Bool> = await isPortAvailable(candidateResult.data);
+
     if (!check.ok) {
       return check;
     }
@@ -184,10 +193,13 @@ export async function findAvailablePort(
  */
 export function isPortAvailableSync(port: Port): Result<Bool> {
   const net: OptionalNodeNet = nodeNet;
+
   if (!net) {
     return requireRuntime('isPortAvailableSync', 'node');
   }
+
   const portResult: Result<Port> = safeParse(PortSchema, port);
+
   if (!portResult.ok) {
     return portResult;
   }
@@ -225,10 +237,13 @@ export function isPortAvailableSync(port: Port): Result<Bool> {
  */
 export function getLocalIpAddresses(): Result<Ipv4AddressArray> {
   const os: OptionalNodeOs = nodeOs;
+
   if (!os) {
     return requireRuntime('getLocalIpAddresses', 'node');
   }
+
   let nets: NetworkInterfacesMap;
+
   try {
     nets = os.networkInterfaces();
   } catch (error: unknown) {
@@ -271,10 +286,13 @@ export function getLocalIpAddresses(): Result<Ipv4AddressArray> {
  */
 export function getLocalHostname(): Result<Hostname> {
   const os: OptionalNodeOs = nodeOs;
+
   if (!os) {
     return requireRuntime('getLocalHostname', 'node');
   }
+
   let rawHostname: string;
+
   try {
     rawHostname = os.hostname();
   } catch (error: unknown) {

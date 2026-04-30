@@ -42,6 +42,7 @@
   const validated: RouteMapProps = $derived.by(() => {
     const rawProps: RouteMapProps = stripSvelteProps(allProps);
     const result = safeParse(RouteMapPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

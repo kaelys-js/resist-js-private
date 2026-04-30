@@ -43,6 +43,7 @@
   const validated: RoiCalculatorProps = $derived.by(() => {
     const rawProps: RoiCalculatorProps = stripSvelteProps(allProps);
     const result = safeParse(RoiCalculatorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

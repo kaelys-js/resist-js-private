@@ -32,9 +32,11 @@ const rule: TypeScriptRule = {
       const bodyNode =
         bodyRaw !== null && typeof bodyRaw === 'object' ? (bodyRaw as AstNode) : undefined;
       const membersRaw: unknown = bodyNode?.body;
+
       if (!Array.isArray(membersRaw)) {
         return results;
       }
+
       const members = membersRaw as AstNode[];
 
       for (const member of members) {
@@ -52,6 +54,7 @@ const rule: TypeScriptRule = {
         }
 
         const isIdField = keyName === 'id' || /[Ii]d$/.test(keyName);
+
         if (!isIdField) {
           continue;
         }
@@ -66,6 +69,7 @@ const rule: TypeScriptRule = {
           innerTypeRaw !== null && typeof innerTypeRaw === 'object'
             ? (innerTypeRaw as AstNode)
             : undefined;
+
         if (innerTypeNode?.type === 'TSNumberKeyword') {
           results.push({
             file: context.file,

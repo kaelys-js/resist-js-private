@@ -22,6 +22,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -47,6 +48,7 @@ const rule: WorkspaceRule = {
     const biomePath: string = join(ctx.rootDir, 'biome.base.json');
 
     const exists: boolean = await ctx.fileExists(biomePath);
+
     if (!exists) {
       results.push(
         createResult(
@@ -62,6 +64,7 @@ const rule: WorkspaceRule = {
     }
 
     let content: string;
+
     try {
       content = await ctx.readFile(biomePath);
     } catch {
@@ -69,6 +72,7 @@ const rule: WorkspaceRule = {
     }
 
     let parsed: Record<string, unknown>;
+
     try {
       parsed = JSON.parse(content) as Record<string, unknown>;
     } catch {
@@ -76,6 +80,7 @@ const rule: WorkspaceRule = {
     }
 
     const { rules } = parsed as Record<string, unknown>;
+
     if (rules === undefined || rules === null || typeof rules !== 'object') {
       return results;
     }

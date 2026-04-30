@@ -42,6 +42,7 @@
   const validated: IcicleChartProps = $derived.by(() => {
     const rawProps: IcicleChartProps = stripSvelteProps(allProps);
     const result = safeParse(IcicleChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

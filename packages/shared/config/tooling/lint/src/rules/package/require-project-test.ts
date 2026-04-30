@@ -32,16 +32,22 @@ const rule: PackageJsonRule = {
   fixable: false,
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
+
     if (context.isRoot) {
       return results;
     }
+
     const dir: string = dirname(context.file);
+
     if (existsSync(join(dir, 'vitest.config.ts'))) {
       return results;
     }
+
     const scripts: Record<string, string> = context.pkg.scripts ?? {};
+
     for (const key of TEST_SCRIPTS) {
       const script: string | undefined = scripts[key];
+
       if (!script) {
         continue;
       }

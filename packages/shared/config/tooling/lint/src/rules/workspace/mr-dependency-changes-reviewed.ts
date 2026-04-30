@@ -40,6 +40,7 @@ const rule: WorkspaceRule = {
 
     const modifiedPaths: string | undefined = process.env['MODIFIED_PATHS'];
     const labels: string | undefined = process.env['MR_LABELS'];
+
     if (modifiedPaths === undefined) {
       return Promise.resolve(results);
     }

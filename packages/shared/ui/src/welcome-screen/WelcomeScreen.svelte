@@ -42,6 +42,7 @@
   const validated: WelcomeScreenProps = $derived.by(() => {
     const rawProps: WelcomeScreenProps = stripSvelteProps(allProps);
     const result = safeParse(WelcomeScreenPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

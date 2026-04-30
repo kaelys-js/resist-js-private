@@ -211,6 +211,7 @@ describe('no duplicate rule IDs', () => {
   it('no id appears in both TypeScript and packageJson arrays', () => {
     const tsIds = new Set(loaded.typescript.map((r) => r.id));
     const pkgIds = loaded.packageJson.map((r) => r.id);
+
     for (const id of pkgIds) {
       expect(tsIds.has(id)).toBe(false);
     }
@@ -621,6 +622,7 @@ describe('categories with existing values', () => {
     const rulesWithMultiCats = allRules.filter((r) => r.categories && r.categories.length > 1);
     // Rules like typescript/no-throw have categories: ['typescript', 'safety']
     // They should keep their pre-defined categories intact
+
     for (const rule of rulesWithMultiCats) {
       expect(rule.categories!.length).toBeGreaterThan(1);
     }
@@ -649,6 +651,7 @@ describe('byStage multi-stage indexing', () => {
   it('rules in multiple stages appear in each stage index', () => {
     const allRules = [...loaded.typescript, ...loaded.packageJson];
     const multiStageRules = allRules.filter((r) => r.stages && r.stages.length > 1);
+
     for (const rule of multiStageRules) {
       for (const stage of rule.stages!) {
         const stageRules = loaded.byStage.get(stage) ?? [];
@@ -667,6 +670,7 @@ describe('byCategory multi-category indexing', () => {
   it('rules with multiple categories appear in each category', () => {
     const allRules = [...loaded.typescript, ...loaded.packageJson];
     const multiCatRules = allRules.filter((r) => r.categories && r.categories.length > 1);
+
     for (const rule of multiCatRules) {
       for (const cat of rule.categories!) {
         const catRules = loaded.byCategory.get(cat) ?? [];

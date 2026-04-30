@@ -146,6 +146,7 @@
   const validated: LensHeaderProps = $derived.by(() => {
     const rawProps: LensHeaderProps = stripSvelteProps(restProps);
     const result = safeParse(LensHeaderPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }
@@ -209,6 +210,7 @@
         .replaceAll('&', '&amp;')
         .replaceAll('<', '&lt;')
         .replaceAll('>', '&gt;') as Str;
+
       return `<code class="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">${escaped}</code>`;
     }) as Str;
   }
@@ -237,6 +239,7 @@
      */
     function onKeydown(e: KeyboardEvent): Void {
       const tag: Str = (document.activeElement?.tagName ?? '') as Str;
+
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
         return;
       }
@@ -341,6 +344,7 @@
       ? PAGE_EXPORT_ITEMS
       : PAGE_EXPORT_ITEMS.filter((p) => {
           const q: Str = pageExportSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q) ||
             p.description.toLowerCase().includes(q) ||
@@ -474,6 +478,7 @@
       ? COMPONENT_EXPORT_ITEMS
       : COMPONENT_EXPORT_ITEMS.filter((p) => {
           const q: Str = componentExportSearchQuery.toLowerCase() as Str;
+
           return (
             p.label.toLowerCase().includes(q) ||
             p.description.toLowerCase().includes(q) ||

@@ -42,6 +42,7 @@
   const validated: KpiCardProps = $derived.by(() => {
     const rawProps: KpiCardProps = stripSvelteProps(allProps);
     const result = safeParse(KpiCardPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

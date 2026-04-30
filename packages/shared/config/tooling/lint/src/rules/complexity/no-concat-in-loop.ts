@@ -28,6 +28,7 @@ const checkLoop = (node: AstNode, context: VisitorContext): LintResult[] => {
   const results: LintResult[] = [];
 
   const plusAssign: AstNode | undefined = findPlusAssignInBody(node);
+
   if (plusAssign) {
     results.push({
       file: context.file,
@@ -43,6 +44,7 @@ const checkLoop = (node: AstNode, context: VisitorContext): LintResult[] => {
   }
 
   const concatCall: AstNode | undefined = findCallInBody(node, 'concat');
+
   if (concatCall) {
     results.push({
       file: context.file,

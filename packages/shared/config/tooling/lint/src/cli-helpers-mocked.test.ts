@@ -22,6 +22,7 @@ vi.mock('node:child_process', () => ({
 
 vi.mock('node:fs', async (importOriginal) => {
   const actual = await importOriginal<typeof NodeFsModule>();
+
   return {
     ...actual,
     writeFileSync: vi.fn(),

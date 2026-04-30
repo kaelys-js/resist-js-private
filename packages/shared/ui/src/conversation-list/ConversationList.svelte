@@ -43,6 +43,7 @@
   const validated: ConversationListProps = $derived.by(() => {
     const rawProps: ConversationListProps = stripSvelteProps(allProps);
     const result = safeParse(ConversationListPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

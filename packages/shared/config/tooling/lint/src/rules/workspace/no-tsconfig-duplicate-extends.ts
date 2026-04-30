@@ -21,6 +21,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -49,6 +50,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
+
       if (name.startsWith('tsconfig') && name.endsWith('.json')) {
         try {
           const content: string = await ctx.readFile(filePath);
@@ -64,6 +66,7 @@ const rule: WorkspaceRule = {
 
     for (const [filePath, content] of tsconfigFiles) {
       let parsed: Record<string, unknown>;
+
       try {
         parsed = JSON.parse(content) as Record<string, unknown>;
       } catch {
@@ -71,6 +74,7 @@ const rule: WorkspaceRule = {
       }
 
       const extendsField: unknown = parsed.extends;
+
       if (typeof extendsField !== 'string' || extendsField.length === 0) {
         continue;
       }
@@ -80,6 +84,7 @@ const rule: WorkspaceRule = {
       const resolvedBase: string = resolve(dir, extendsField);
 
       const extenders: string[] | undefined = baseToExtenders.get(resolvedBase);
+
       if (extenders === undefined) {
         baseToExtenders.set(resolvedBase, [filePath]);
       } else {
@@ -134,6 +139,7 @@ const rule: WorkspaceRule = {
         visited.add(current);
 
         let parsed: Record<string, unknown>;
+
         try {
           parsed = JSON.parse(currentContent) as Record<string, unknown>;
         } catch {
@@ -141,6 +147,7 @@ const rule: WorkspaceRule = {
         }
 
         const extendsField: unknown = parsed.extends;
+
         if (typeof extendsField !== 'string' || extendsField.length === 0) {
           break;
         }

@@ -28,11 +28,13 @@ const rule: TypeScriptRule = {
   visitor: {
     ImportDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const source: { value?: string } | undefined = node.source as { value?: string } | undefined;
+
       if (!source || source.value !== 'svelte') {
         return [];
       }
 
       const specifiers: AstNode[] | undefined = node.specifiers as AstNode[] | undefined;
+
       if (!specifiers) {
         return [];
       }
@@ -47,6 +49,7 @@ const rule: TypeScriptRule = {
         const imported: { name?: string } | undefined = spec.imported as
           | { name?: string }
           | undefined;
+
         if (imported?.name === 'createEventDispatcher') {
           results.push({
             file: context.file,

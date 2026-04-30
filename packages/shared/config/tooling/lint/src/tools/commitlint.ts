@@ -31,6 +31,7 @@ import { createResult, type LintResult } from '@/lint/framework/types.ts';
  */
 export function transformCommitlintOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -47,6 +48,7 @@ export function transformCommitlintOutput(output: string): LintResult[] {
 
   for (const line of lines) {
     const match: RegExpMatchArray | null = line.match(pattern);
+
     if (!match) {
       continue;
     }

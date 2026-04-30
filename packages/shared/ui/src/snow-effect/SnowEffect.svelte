@@ -42,6 +42,7 @@
   const validated: SnowEffectProps = $derived.by(() => {
     const rawProps: SnowEffectProps = stripSvelteProps(allProps);
     const result = safeParse(SnowEffectPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

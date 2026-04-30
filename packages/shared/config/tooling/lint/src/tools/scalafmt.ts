@@ -48,6 +48,7 @@ const SCALAFMT_ERROR_LINE: RegExp = /^error:\s+(.+?):(\d+):(\d+):\s*(.+)$/;
  */
 export function transformScalafmtOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -57,6 +58,7 @@ export function transformScalafmtOutput(output: string, strings: LintStrings): L
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
@@ -67,6 +69,7 @@ export function transformScalafmtOutput(output: string, strings: LintStrings): L
     }
 
     const match: RegExpMatchArray | null = SCALAFMT_ERROR_LINE.exec(stripped);
+
     if (match) {
       const file: string = match[1] ?? '';
       const lineNum: number = Number.parseInt(match[2] ?? '1', 10);

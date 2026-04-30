@@ -76,6 +76,7 @@ export function isFfmpegAvailable(): Promise<boolean> {
 function mapQuality(quality: Num): Num {
   const clamped: number = Math.max(0, Math.min(100, quality as number));
   // Linear map: 100 → 1, 0 → 31
+
   return Math.round(31 - (clamped / 100) * 30) as Num;
 }
 

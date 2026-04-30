@@ -28,6 +28,7 @@ const rule: TypeScriptRule = {
   visitor: {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const declaration: AstNode | undefined = node.declaration as AstNode | undefined;
+
       if (!declaration || declaration.type !== 'VariableDeclaration') {
         return [];
       }

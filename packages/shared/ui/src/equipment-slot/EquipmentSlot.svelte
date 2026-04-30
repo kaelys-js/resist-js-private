@@ -42,6 +42,7 @@
   const validated: EquipmentSlotProps = $derived.by(() => {
     const rawProps: EquipmentSlotProps = stripSvelteProps(allProps);
     const result = safeParse(EquipmentSlotPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

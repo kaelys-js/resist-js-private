@@ -31,6 +31,7 @@ const rule: TypeScriptRule = {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const callee = node.callee as AstNode | undefined;
+
       if (!callee) {
         return results;
       }
@@ -45,13 +46,16 @@ const rule: TypeScriptRule = {
           context.isImportedFrom((object?.name as string) ?? '', 'valibot')
         ) {
           const args = node.arguments as AstNode[] | undefined;
+
           if (!args || args.length === 0) {
             return results;
           }
 
           const firstArg = args[0] as AstNode;
+
           if (firstArg.type === 'ArrayExpression') {
             const elements = firstArg.elements as AstNode[] | undefined;
+
             if (elements && elements.length > MAX_UNION_SIZE) {
               results.push({
                 column: node.loc.start.column + 1,

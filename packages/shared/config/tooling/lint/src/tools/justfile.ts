@@ -37,6 +37,7 @@ const JUST_ERROR_LINE: RegExp = /^error:\s*(.+?)\s+at\s+line\s+(\d+)/i;
  */
 export function transformJustOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -47,11 +48,13 @@ export function transformJustOutput(output: string, strings: LintStrings): LintR
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = JUST_ERROR_LINE.exec(stripped);
+
     if (match) {
       const message: string = match[1] ?? strings.tools.justfileFormattingIssue;
       const lineNum: number = Number.parseInt(match[2] ?? '1', 10);

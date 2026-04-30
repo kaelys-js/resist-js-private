@@ -90,6 +90,7 @@ describe('SessionConfigSchema', (): void => {
       'ios-simulator',
       'android-emulator',
     ] as Str[];
+
     for (const engine of engines) {
       const input: Record<Str, unknown> = {
         engine,

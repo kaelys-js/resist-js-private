@@ -42,6 +42,7 @@
   const validated: LottiePlayerProps = $derived.by(() => {
     const rawProps: LottiePlayerProps = stripSvelteProps(allProps);
     const result = safeParse(LottiePlayerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

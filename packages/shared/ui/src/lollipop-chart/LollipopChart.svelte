@@ -42,6 +42,7 @@
   const validated: LollipopChartProps = $derived.by(() => {
     const rawProps: LollipopChartProps = stripSvelteProps(allProps);
     const result = safeParse(LollipopChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

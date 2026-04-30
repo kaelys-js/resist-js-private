@@ -42,6 +42,7 @@
   const validated: SymptomCheckerProps = $derived.by(() => {
     const rawProps: SymptomCheckerProps = stripSvelteProps(allProps);
     const result = safeParse(SymptomCheckerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

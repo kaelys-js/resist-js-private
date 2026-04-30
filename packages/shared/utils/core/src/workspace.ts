@@ -57,10 +57,13 @@ const LOCKFILE_MARKERS: Record<PackageManagerType, StrArray> = {
  */
 function getWorkspaceMarkers(): Result<StrArray> {
   const configResult: Result<DeepReadonly<CoreConfig>> = getConfig();
+
   if (!configResult.ok) {
     return configResult;
   }
+
   const pmName: PackageManagerType = configResult.data.tooling.packageManager.manager;
+
   return ok(StrArraySchema, LOCKFILE_MARKERS[pmName]);
 }
 
@@ -90,11 +93,14 @@ function getWorkspaceMarkers(): Result<StrArray> {
  */
 export function findWorkspaceRoot(startDir?: Path, marker?: Filename): Result<Path> {
   const path: OptionalNodePath = nodePath;
+
   if (!path) {
     return requireRuntime('findWorkspaceRoot', 'node');
   }
+
   const startResult: Result<Path> =
     startDir === undefined ? cwd() : safeParse(PathSchema, startDir);
+
   if (!startResult.ok) {
     return startResult;
   }
@@ -102,22 +108,28 @@ export function findWorkspaceRoot(startDir?: Path, marker?: Filename): Result<Pa
   // If marker explicitly provided, validate and use simple matching
   if (marker !== undefined) {
     const markerResult: Result<Filename> = safeParse(FilenameSchema, marker);
+
     if (!markerResult.ok) {
       return markerResult;
     }
 
     const currentDirResult: Result<Path> = safeParse(PathSchema, path.resolve(startResult.data));
+
     if (!currentDirResult.ok) {
       return currentDirResult;
     }
+
     let currentDir: Path = currentDirResult.data;
+
     while (true) {
       const markerPathResult: Result<Path> = joinPath([currentDir, markerResult.data]);
+
       if (!markerPathResult.ok) {
         return markerPathResult;
       }
 
       const existsResult: Result<Bool> = pathExists(markerPathResult.data);
+
       if (!existsResult.ok) {
         return existsResult;
       }
@@ -126,6 +138,7 @@ export function findWorkspaceRoot(startDir?: Path, marker?: Filename): Result<Pa
       }
 
       const parentDirResult: Result<Path> = safeParse(PathSchema, path.dirname(currentDir));
+
       if (!parentDirResult.ok) {
         return parentDirResult;
       }
@@ -139,25 +152,31 @@ export function findWorkspaceRoot(startDir?: Path, marker?: Filename): Result<Pa
 
   // Auto-detect: use lockfile markers for the configured PM
   const markersResult: Result<StrArray> = getWorkspaceMarkers();
+
   if (!markersResult.ok) {
     return markersResult;
   }
+
   const markers: readonly string[] = markersResult.data;
   const currentDirResult2: Result<Path> = safeParse(PathSchema, path.resolve(startResult.data));
+
   if (!currentDirResult2.ok) {
     return currentDirResult2;
   }
+
   let currentDir: Path = currentDirResult2.data;
 
   while (true) {
     // Check PM-specific lockfile markers
     for (const m of markers) {
       const markerPathResult: Result<Path> = joinPath([currentDir, m]);
+
       if (!markerPathResult.ok) {
         return markerPathResult;
       }
 
       const existsResult: Result<Bool> = pathExists(markerPathResult.data);
+
       if (!existsResult.ok) {
         return existsResult;
       }
@@ -168,10 +187,13 @@ export function findWorkspaceRoot(startDir?: Path, marker?: Filename): Result<Pa
 
     // Fallback: check for package.json with a workspaces field
     const pkgPathResult: Result<Path> = joinPath([currentDir, 'package.json']);
+
     if (pkgPathResult.ok) {
       const pkgContentResult: Result<Str> = readFile(pkgPathResult.data);
+
       if (pkgContentResult.ok) {
         const pkgJsonResult: Result<DynamicModule> = parseJsonWithComments(pkgContentResult.data);
+
         if (pkgJsonResult.ok && pkgJsonResult.data.workspaces) {
           return ok(PathSchema, currentDir);
         }
@@ -180,6 +202,7 @@ export function findWorkspaceRoot(startDir?: Path, marker?: Filename): Result<Pa
     }
 
     const parentDirResult: Result<Path> = safeParse(PathSchema, path.dirname(currentDir));
+
     if (!parentDirResult.ok) {
       return parentDirResult;
     }
@@ -215,15 +238,19 @@ export function findWorkspaceRoot(startDir?: Path, marker?: Filename): Result<Pa
  */
 export function ensureWorkspaceRoot(cwdPath?: Path): Result<EnsureWorkspaceRootResult> {
   const pathMod: OptionalNodePath = nodePath;
+
   if (!pathMod) {
     return requireRuntime('ensureWorkspaceRoot', 'node');
   }
+
   const cwdResult: Result<Path> = cwdPath === undefined ? cwd() : safeParse(PathSchema, cwdPath);
+
   if (!cwdResult.ok) {
     return cwdResult;
   }
 
   const rootResult: Result<Path> = findWorkspaceRoot(cwdResult.data);
+
   if (!rootResult.ok) {
     if (
       rootResult.error.code === ERRORS.CONFIG.NOT_FOUND ||
@@ -236,10 +263,13 @@ export function ensureWorkspaceRoot(cwdPath?: Path): Result<EnsureWorkspaceRootR
 
   // Resolve both paths to handle symlinks (e.g., /var -> /private/var on macOS)
   const resolvedCwdResult: Result<Path> = safeParse(PathSchema, pathMod.resolve(cwdResult.data));
+
   if (!resolvedCwdResult.ok) {
     return resolvedCwdResult;
   }
+
   const resolvedRootResult: Result<Path> = safeParse(PathSchema, pathMod.resolve(rootResult.data));
+
   if (!resolvedRootResult.ok) {
     return resolvedRootResult;
   }

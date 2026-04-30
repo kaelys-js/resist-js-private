@@ -30,10 +30,13 @@ const rule: PackageJsonRule = {
   fixable: false,
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
+
     if (context.isRoot) {
       return results;
     }
+
     const name: string = context.pkg.name ?? '<unnamed>';
+
     if (name.startsWith('@{')) {
       return results;
     } // Template packages
@@ -46,7 +49,9 @@ const rule: PackageJsonRule = {
     if (name.includes('vscode')) {
       return results;
     } // VS Code extensions
+
     const scripts: Record<string, string> = context.pkg.scripts ?? {};
+
     for (const required of REQUIRED_SCRIPTS) {
       if (!scripts[required]) {
         results.push({

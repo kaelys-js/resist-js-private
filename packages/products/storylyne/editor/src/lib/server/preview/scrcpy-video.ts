@@ -207,6 +207,7 @@ export function extractNalUnits(data: Buffer): NalUnit[] {
   }
 
   const startCodes = findStartCodes(data);
+
   if (startCodes.length === 0) {
     return [];
   }
@@ -215,9 +216,11 @@ export function extractNalUnits(data: Buffer): NalUnit[] {
 
   for (let i: number = 0; i < startCodes.length; i++) {
     const sc = startCodes[i];
+
     if (sc === undefined) {
       continue;
     }
+
     const nalStart: number = (sc.offset as number) + (sc.length as number);
 
     // NAL data extends to the next start code or end of buffer
@@ -227,10 +230,12 @@ export function extractNalUnits(data: Buffer): NalUnit[] {
     if (nalStart < nalEnd) {
       const nalData: Buffer = data.subarray(nalStart, nalEnd);
       const [firstByte] = nalData;
+
       if (firstByte === undefined) {
         continue;
       }
       // NAL type is the lower 5 bits of the first byte
+
       const nalType: Num = (firstByte & 0x1f) as Num;
       units.push({ type: nalType, data: Buffer.from(nalData) });
     }

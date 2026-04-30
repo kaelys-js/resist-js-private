@@ -42,6 +42,7 @@
   const validated: PrivacyNoticeProps = $derived.by(() => {
     const rawProps: PrivacyNoticeProps = stripSvelteProps(allProps);
     const result = safeParse(PrivacyNoticePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

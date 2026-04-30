@@ -29,22 +29,26 @@ const rule: TypeScriptRule = {
 
       // Check if the inner expression is also a TSAsExpression (chained assertion)
       const { expression } = node;
+
       if (expression === null || typeof expression !== 'object') {
         return results;
       }
 
       const innerNode: AstNode = expression as AstNode;
+
       if (innerNode.type !== 'TSAsExpression') {
         return results;
       }
 
       // It's a chain — now check if the inner assertion's type is `unknown` or `any`
       const innerTypeAnnotation: unknown = innerNode.typeAnnotation;
+
       if (innerTypeAnnotation === null || typeof innerTypeAnnotation !== 'object') {
         return results;
       }
 
       const innerTypeNode: AstNode = innerTypeAnnotation as AstNode;
+
       if (innerTypeNode.type === 'TSUnknownKeyword' || innerTypeNode.type === 'TSAnyKeyword') {
         results.push({
           file: context.file,

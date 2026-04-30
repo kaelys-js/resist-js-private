@@ -24,6 +24,7 @@ function parseEditorconfig(content: string): { indentStyle?: string; indentSize?
 
   for (const line of lines) {
     const trimmed: string = line.trim();
+
     if (trimmed.startsWith('indent_style')) {
       const value: string = trimmed.split('=')[1]?.trim() ?? '';
       result.indentStyle = value;
@@ -31,6 +32,7 @@ function parseEditorconfig(content: string): { indentStyle?: string; indentSize?
     if (trimmed.startsWith('indent_size')) {
       const value: string = trimmed.split('=')[1]?.trim() ?? '';
       const num: number = Number(value);
+
       if (!Number.isNaN(num)) {
         result.indentSize = num;
       }
@@ -50,6 +52,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -80,6 +83,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const rel: string = relative(ctx.rootDir, filePath);
+
       if (rel === '.editorconfig') {
         editorconfigPath = filePath;
       } else if (rel === 'biome.base.json' || rel === 'biome.json') {
@@ -125,8 +129,10 @@ const rule: WorkspaceRule = {
         const content: string = await ctx.readFile(biomePath);
         const parsed: Record<string, unknown> = JSON.parse(content) as Record<string, unknown>;
         const { formatter } = parsed;
+
         if (typeof formatter === 'object' && formatter !== null) {
           const fmt: Record<string, unknown> = formatter as Record<string, unknown>;
+
           if (typeof fmt.indentStyle === 'string') {
             biomeIndentStyle = fmt.indentStyle;
           }
@@ -146,6 +152,7 @@ const rule: WorkspaceRule = {
       try {
         const content: string = await ctx.readFile(vscodePath);
         const parsed: Record<string, unknown> = JSON.parse(content) as Record<string, unknown>;
+
         if (typeof parsed['editor.tabSize'] === 'number') {
           vscodeTabSize = parsed['editor.tabSize'] as number;
         }
@@ -159,6 +166,7 @@ const rule: WorkspaceRule = {
 
     /* Compare indent sizes. */
     const indentSizes: Array<{ source: string; value: number }> = [];
+
     if (editorIndentSize !== undefined) {
       indentSizes.push({ source: '.editorconfig', value: editorIndentSize });
     }
@@ -170,8 +178,10 @@ const rule: WorkspaceRule = {
     }
 
     const [firstSizeEntry, ...restSizes] = indentSizes;
+
     if (firstSizeEntry !== undefined && restSizes.length > 0) {
       const firstSize: number = firstSizeEntry.value;
+
       for (const entry of restSizes) {
         if (entry.value !== firstSize) {
           results.push(
@@ -194,6 +204,7 @@ const rule: WorkspaceRule = {
 
     /* Compare indent styles. */
     const indentStyles: Array<{ source: string; value: string }> = [];
+
     if (editorIndentStyle !== undefined) {
       indentStyles.push({ source: '.editorconfig', value: editorIndentStyle });
     }
@@ -206,8 +217,10 @@ const rule: WorkspaceRule = {
     }
 
     const [firstStyleEntry, ...restStyles] = indentStyles;
+
     if (firstStyleEntry !== undefined && restStyles.length > 0) {
       const firstStyle: string = firstStyleEntry.value;
+
       for (const entry of restStyles) {
         if (entry.value !== firstStyle) {
           results.push(

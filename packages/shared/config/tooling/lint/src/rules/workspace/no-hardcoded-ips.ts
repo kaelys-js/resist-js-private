@@ -56,6 +56,7 @@ const rule: WorkspaceRule = {
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -69,6 +70,7 @@ const rule: WorkspaceRule = {
 
       while (match !== null) {
         const ip: string = match[0] ?? '';
+
         if (!ALLOWED_IPS.has(ip)) {
           found = true;
           break;

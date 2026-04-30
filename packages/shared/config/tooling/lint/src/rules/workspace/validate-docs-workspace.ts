@@ -22,6 +22,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -49,6 +50,7 @@ const rule: WorkspaceRule = {
     /* Check if docs/en-US/ exists as a prefix in any file. */
     const hasDocsFolder: boolean = allFiles.some((filePath: string): boolean => {
       const relativePath: string = relative(ctx.rootDir, filePath);
+
       return relativePath.startsWith('docs/en-US/');
     });
 
@@ -68,8 +70,10 @@ const rule: WorkspaceRule = {
 
     /* Collect all workspace package directories. */
     const packageDirs: Set<string> = new Set<string>();
+
     for (const filePath of allFiles) {
       const relativePath: string = relative(ctx.rootDir, filePath);
+
       if (relativePath.startsWith('packages/') && relativePath.endsWith('package.json')) {
         const packageDir: string = dirname(relativePath);
         packageDirs.add(packageDir);
@@ -78,8 +82,10 @@ const rule: WorkspaceRule = {
 
     /* Collect all docs/en-US/ file paths. */
     const docsPaths: Set<string> = new Set<string>();
+
     for (const filePath of allFiles) {
       const relativePath: string = relative(ctx.rootDir, filePath);
+
       if (relativePath.startsWith('docs/en-US/')) {
         docsPaths.add(relativePath);
       }

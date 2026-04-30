@@ -82,11 +82,13 @@ export function parseViewportUnitsResult(json: Str): ViewportUnits | null {
 
   try {
     const parsed: unknown = JSON.parse(json as string);
+
     if (typeof parsed !== 'object' || parsed === null) {
       return null;
     }
 
     const obj: Record<string, unknown> = parsed as Record<string, unknown>;
+
     if (typeof obj.svh !== 'number' || typeof obj.lvh !== 'number' || typeof obj.dvh !== 'number') {
       return null;
     }

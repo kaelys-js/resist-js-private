@@ -42,6 +42,7 @@
   const validated: ProductGalleryProps = $derived.by(() => {
     const rawProps: ProductGalleryProps = stripSvelteProps(allProps);
     const result = safeParse(ProductGalleryPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -46,6 +46,7 @@ function makeCliArgs(overrides: Partial<CliArgs> = {}): CliArgs {
 function captureOutput(): { stdoutLines: string[]; stderrLines: string[]; output: CliOutput } {
   const stdoutLines: string[] = [];
   const stderrLines: string[] = [];
+
   return {
     stdoutLines,
     stderrLines,
@@ -330,8 +331,10 @@ describe.concurrent('runLinter — per-file severity warn to warning conversion'
     );
 
     const combined: string = stdoutLines.join('');
+
     if (combined.trim().length > 2) {
       const results: LintResult[] = JSON.parse(combined) as LintResult[];
+
       for (const r of results) {
         expect(r.severity).toBe('warning');
       }

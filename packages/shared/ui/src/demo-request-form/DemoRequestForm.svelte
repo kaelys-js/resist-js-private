@@ -42,6 +42,7 @@
   const validated: DemoRequestFormProps = $derived.by(() => {
     const rawProps: DemoRequestFormProps = stripSvelteProps(allProps);
     const result = safeParse(DemoRequestFormPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

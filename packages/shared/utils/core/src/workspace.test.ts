@@ -97,9 +97,11 @@ describe('findWorkspaceRoot', () => {
 describe('ensureWorkspaceRoot', () => {
   it('returns ok when cwd is workspace root', () => {
     const rootResult: Result<Path> = findWorkspaceRoot();
+
     if (!rootResult.ok) {
       throw new Error('Could not find workspace root');
     }
+
     const result = ensureWorkspaceRoot(rootResult.data);
     expect(result.ok).toBe(true);
     if (result.ok) {
@@ -109,9 +111,11 @@ describe('ensureWorkspaceRoot', () => {
 
   it('returns not_at_root when cwd is a subdirectory', () => {
     const rootResult: Result<Path> = findWorkspaceRoot();
+
     if (!rootResult.ok) {
       throw new Error('Could not find workspace root');
     }
+
     const subdir = `${rootResult.data}/packages/shared/utils/core` as Path;
     const result = ensureWorkspaceRoot(subdir);
     expect(result.ok).toBe(true);

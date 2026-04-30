@@ -168,9 +168,11 @@ describe('clearClient', () => {
 describe('createClient', () => {
   it('creates an InfisicalClient with resolved options', () => {
     const resolvedResult = resolveOptions({});
+
     if (!resolvedResult.ok) {
       throw new Error('resolveOptions failed');
     }
+
     const result = createClient(resolvedResult.data);
 
     expect(result.ok).toBe(true);

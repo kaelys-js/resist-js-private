@@ -42,6 +42,7 @@
   const validated: HeroParallaxProps = $derived.by(() => {
     const rawProps: HeroParallaxProps = stripSvelteProps(allProps);
     const result = safeParse(HeroParallaxPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

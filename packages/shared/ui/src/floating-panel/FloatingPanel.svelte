@@ -42,6 +42,7 @@
   const validated: FloatingPanelProps = $derived.by(() => {
     const rawProps: FloatingPanelProps = stripSvelteProps(allProps);
     const result = safeParse(FloatingPanelPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

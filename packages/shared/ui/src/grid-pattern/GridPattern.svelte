@@ -41,6 +41,7 @@
   const validated: GridPatternProps = $derived.by(() => {
     const rawProps: GridPatternProps = stripSvelteProps(allProps);
     const result = safeParse(GridPatternPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -58,8 +58,10 @@ function extractOnboardingSteps(content: string): Array<{ step: string; line: nu
       /* Extract string literals from this line */
       const stringPattern: RegExp = /['"]([^'"]+)['"]/g;
       let match: RegExpExecArray | null = stringPattern.exec(line);
+
       while (match) {
         const step: string = match[1] ?? '';
+
         if (step.length > 0) {
           results.push({ step, line: i + 1 });
         }
@@ -91,6 +93,7 @@ async function findFirstExisting(
     fullPaths.map((p: string): Promise<boolean> => ctx.fileExists(p)),
   );
   const idx: number = checks.indexOf(true);
+
   return idx >= 0 ? (fullPaths[idx] ?? null) : null;
 }
 
@@ -132,11 +135,13 @@ const rule: WorkspaceRule = {
 
     /* Read package.json scripts */
     const pkgPath: string = join(ctx.rootDir, 'package.json');
+
     if (!(await ctx.fileExists(pkgPath))) {
       return results;
     }
 
     let pkg: Record<string, unknown>;
+
     try {
       pkg = JSON.parse(await ctx.readFile(pkgPath)) as Record<string, unknown>;
     } catch {
@@ -148,6 +153,7 @@ const rule: WorkspaceRule = {
 
     /* Parse resist config */
     let content: string;
+
     try {
       content = await ctx.readFile(configPath);
     } catch {

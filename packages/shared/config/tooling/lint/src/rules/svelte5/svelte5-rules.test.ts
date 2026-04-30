@@ -64,6 +64,7 @@ function lint(rule: TypeScriptRule, code: string, filename?: string): Promise<Li
  */
 function svelte(script: string, template?: string): string {
   const parts: string[] = ['<script lang="ts">', script, '</script>'];
+
   if (template) {
     parts.push('', template);
   }
@@ -922,6 +923,7 @@ describe('Phase 50 — template AST walker coverage', () => {
     ];
 
     const visitedArray: string[] = [...visitedTypes];
+
     for (const type of expectedTypes) {
       expect(visitedArray).toContain(type);
     }

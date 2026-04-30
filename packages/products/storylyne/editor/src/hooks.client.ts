@@ -96,10 +96,12 @@ function analyticsTracker(options: AnalyticsTrackerOptions): Void {
       hardwareConcurrency: navigatorInformation.hardwareConcurrency ?? 0,
       effectiveType: ((): Str => {
         const r = getEffectiveType();
+
         return r.ok ? r.data : ('' as Str);
       })(),
       saveData: ((): Bool => {
         const r = getSaveData();
+
         return r.ok ? r.data : (false as Bool);
       })(),
     });
@@ -172,8 +174,10 @@ type SourceLocation = v.InferOutput<typeof SourceLocationSchema>;
  */
 function extractSource(stack: Str): SourceLocation {
   const lines: Str[] = stack.split('\n');
+
   for (const line of lines) {
     const trimmed: Str = line.trim();
+
     if (!trimmed.startsWith('at ')) {
       continue;
     }
@@ -189,6 +193,7 @@ function extractSource(stack: Str): SourceLocation {
     const urlMatch: RegExpMatchArray | null = trimmed.match(
       /(https?:\/\/[^/\s]+\/)(.+):(\d+):(\d+)/,
     );
+
     if (urlMatch) {
       const [, origin, rawUrlPath, lineNo, colNo] = urlMatch;
       // Strip query string (e.g., ?t=1772535466719)
@@ -205,6 +210,7 @@ function extractSource(stack: Str): SourceLocation {
       const fsPath: Str = urlPath.startsWith('@fs/') ? urlPath.slice(4) : urlPath;
       // Extract project-relative path from packages/ onward
       const pkgIdx: Num = fsPath.indexOf('packages/');
+
       if (pkgIdx >= 0) {
         return {
           display: `${fsPath.slice(pkgIdx)}:${lineNo}:${colNo}`,
@@ -234,11 +240,13 @@ function extractSource(stack: Str): SourceLocation {
 
     // Filesystem path (Node.js/SSR): /Users/.../packages/...:line:col
     const fsMatch: RegExpMatchArray | null = trimmed.match(/\(?(\/[^)]+):(\d+):(\d+)\)?$/);
+
     if (fsMatch) {
       const [, fullPath, lineNo, colNo] = fsMatch;
       const safeFullPath: Str = fullPath ?? '';
       const pkgIdx: Num = safeFullPath.indexOf('packages/');
       const relativePath: Str = pkgIdx >= 0 ? safeFullPath.slice(pkgIdx) : safeFullPath;
+
       return {
         display: `${relativePath}:${lineNo}:${colNo}`,
         url: undefined,
@@ -307,11 +315,14 @@ function decodeVLQ(encoded: Str): Num[] {
   const values: Num[] = [];
   let shift: Num = 0;
   let value: Num = 0;
+
   for (const char of encoded) {
     const digit: Num = VLQ_CHARS.indexOf(char);
+
     if (digit === -1) {
       continue;
     }
+
     const hasContinuation: Bool = (digit & 32) !== 0;
     value += (digit & 31) << shift;
     if (hasContinuation) {
@@ -347,20 +358,25 @@ async function fetchSourceMap(fileUrl: Str): Promise<SourceMapV3 | null> {
 
   try {
     const response: Response = await fetch(fileUrl);
+
     if (!response.ok) {
       _sourceMapCache.set(fileUrl, null);
       return null;
     }
+
     const code: Str = await response.text();
 
     const match: RegExpMatchArray | null = code.match(SOURCE_MAP_URL_RE);
+
     if (!match) {
       _sourceMapCache.set(fileUrl, null);
       return null;
     }
+
     const mapUrl: Str = (match[1] ?? '').trim();
 
     let mapJson: Str;
+
     if (mapUrl.startsWith('data:')) {
       // Inline source map: data:application/json;base64,...
       const base64: Str = mapUrl.split(',')[1] ?? '';
@@ -369,6 +385,7 @@ async function fetchSourceMap(fileUrl: Str): Promise<SourceMapV3 | null> {
       // External source map file
       const resolved: Str = new URL(mapUrl, fileUrl).href;
       const mapResponse: Response = await fetch(resolved);
+
       if (!mapResponse.ok) {
         _sourceMapCache.set(fileUrl, null);
         return null;
@@ -377,15 +394,18 @@ async function fetchSourceMap(fileUrl: Str): Promise<SourceMapV3 | null> {
     }
 
     const parseResult = safeParse(SourceMapV3Schema, JSON.parse(mapJson));
+
     if (!parseResult.ok) {
       _sourceMapCache.set(fileUrl, null);
       return null;
     }
+
     const map: SourceMapV3 = {
       version: parseResult.data.version,
       sources: [...parseResult.data.sources],
       mappings: parseResult.data.mappings,
     };
+
     if (map.version !== 3) {
       _sourceMapCache.set(fileUrl, null);
       return null;
@@ -417,11 +437,13 @@ async function resolveSourcePosition(
   genCol: Num,
 ): Promise<ResolvedPosition | null> {
   const map: SourceMapV3 | null = await fetchSourceMap(fileUrl);
+
   if (!map) {
     return null;
   }
 
   const mappingLines: Str[] = map.mappings.split(';');
+
   if (genLine < 1 || genLine > mappingLines.length) {
     return null;
   }
@@ -434,16 +456,21 @@ async function resolveSourcePosition(
   // Process all lines before the target to maintain delta state
   for (let i: Num = 0; i < genLine - 1; i++) {
     const lineMapping: Str = mappingLines[i] ?? '';
+
     if (!lineMapping) {
       continue;
     }
+
     const segments: Str[] = lineMapping.split(',');
+
     for (const segment of segments) {
       if (!segment) {
         continue;
       }
+
       const decoded: Num[] = decodeVLQ(segment);
       // decoded[0] = generated column delta (resets per line, but we don't need it here)
+
       if (decoded.length >= 4) {
         sourceIndex += decoded[1] ?? 0;
         originalLine += decoded[2] ?? 0;
@@ -454,6 +481,7 @@ async function resolveSourcePosition(
 
   // Process the target line to find the best matching segment
   const targetLineMapping: Str = mappingLines[genLine - 1] ?? '';
+
   if (!targetLineMapping) {
     return null;
   }
@@ -466,6 +494,7 @@ async function resolveSourcePosition(
     if (!segment) {
       continue;
     }
+
     const decoded: Num[] = decodeVLQ(segment);
     genColAccum += decoded[0] ?? 0;
     if (decoded.length >= 4) {
@@ -514,6 +543,7 @@ async function logErrorToConsole(captured: CapturedError): Promise<Void> {
       source.genLine,
       source.genCol,
     );
+
     if (resolved) {
       // Extract short display path from resolved source
       const pkgIdx: Num = resolved.source.indexOf('packages/');
@@ -551,6 +581,7 @@ async function logErrorToConsole(captured: CapturedError): Promise<Void> {
     ['Timestamp', appError.timestamp],
     ['Captured At', captured.timestamp],
   ];
+
   if (appError.httpStatus !== undefined) {
     entries.push(['HTTP', String(appError.httpStatus)]);
   }
@@ -563,6 +594,7 @@ async function logErrorToConsole(captured: CapturedError): Promise<Void> {
   if (captured.serverName) {
     entries.push(['Server', captured.serverName]);
   }
+
   const fmt: Str = entries.map(([k]) => `%c  ${k.padEnd(pad)}%c%s`).join('\n');
   const kvArgs: Str[] = entries.flatMap(([, val]) => [dim, bright, val]);
   console.log(fmt, ...kvArgs);
@@ -627,6 +659,7 @@ async function logErrorToConsole(captured: CapturedError): Promise<Void> {
     console.groupCollapsed('%cCause chain', 'color: #888; font-style: italic');
     let current: AppError | undefined = appError.cause;
     let depth: Num = 0;
+
     while (current) {
       const indent: Str = '  '.repeat(depth);
       console.log(
@@ -649,10 +682,12 @@ async function logErrorToConsole(captured: CapturedError): Promise<Void> {
       'color: #aaa',
     );
     const issues = appError.validation.issues ?? [];
+
     if (issues.length > 0) {
       const issueEntries: Array<[Str, Str]> = issues.map((issue) => {
         const path: Str =
           issue.path?.map((p: { key?: unknown }) => String(p.key ?? '?')).join('.') ?? '(root)';
+
         return [path, issue.message ?? 'Invalid'];
       });
       const issuePad: Num = Math.max(pad, ...issueEntries.map(([k]) => k.length + 2));
@@ -696,6 +731,7 @@ export const handleError: HandleClientError = ({ error, status, message }) => {
   // If the extracted error is a generic INTERNAL.UNEXPECTED, wrap it with request context.
   // Otherwise it's already a domain-specific AppError — use it directly.
   let appError: AppError;
+
   if (extracted.code === ERRORS.INTERNAL.UNEXPECTED) {
     const result = err(
       ERRORS.INTERNAL.UNEXPECTED,
@@ -706,6 +742,7 @@ export const handleError: HandleClientError = ({ error, status, message }) => {
       },
     );
     // err() always returns ok:false — narrow for type safety.
+
     if (result.ok) {
       return { message, errorId: '' };
     }

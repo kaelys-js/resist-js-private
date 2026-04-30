@@ -36,6 +36,7 @@ const rule: WorkspaceRule = {
    */
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -45,6 +46,7 @@ const rule: WorkspaceRule = {
 
     for (const file of await ctx.allFiles()) {
       const name: string = basename(file);
+
       if (BAD_SUFFIX_PATTERNS.some((p: RegExp): boolean => p.test(name))) {
         results.push(
           createResult(

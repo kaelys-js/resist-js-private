@@ -42,6 +42,7 @@
   const validated: ImageCropperProps = $derived.by(() => {
     const rawProps: ImageCropperProps = stripSvelteProps(allProps);
     const result = safeParse(ImageCropperPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

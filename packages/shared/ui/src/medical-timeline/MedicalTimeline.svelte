@@ -41,6 +41,7 @@
   const validated: MedicalTimelineProps = $derived.by(() => {
     const rawProps: MedicalTimelineProps = stripSvelteProps(allProps);
     const result = safeParse(MedicalTimelinePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

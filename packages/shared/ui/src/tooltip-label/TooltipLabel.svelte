@@ -44,6 +44,7 @@
   const validated: TooltipLabelPropsValidated = $derived.by(() => {
     const rawProps: TooltipLabelProps = stripSvelteProps(restProps);
     const result = safeParse(TooltipLabelPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -43,6 +43,7 @@
   const validated: CalloutProps = $derived.by(() => {
     const rawProps: CalloutProps = stripSvelteProps(allProps);
     const result = safeParse(CalloutPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

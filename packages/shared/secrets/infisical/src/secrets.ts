@@ -103,12 +103,14 @@ export async function getSecrets<T extends v.GenericSchema>(
   if (!optionsResult.ok) {
     return optionsResult;
   }
+
   const validated: GetSecretsOptions = optionsResult.data as GetSecretsOptions; // cast safe: DeepReadonly preserves value
   const clientResult: Result<InfisicalClient> = getClient({});
 
   if (!clientResult.ok) {
     return clientResult;
   }
+
   const environment: Str = validated.environment ?? process.env[ENV_VARS.ENV] ?? 'development';
   const projectId: Str = validated.projectId ?? process.env[ENV_VARS.PROJECT_ID] ?? '';
 
@@ -193,17 +195,20 @@ export async function getSecret(key: Str, options: GetSecretOptions): Promise<Re
   if (!keyResult.ok) {
     return keyResult;
   }
+
   const optionsResult: Result<GetSecretOptions> = safeParse(GetSecretOptionsSchema, options);
 
   if (!optionsResult.ok) {
     return optionsResult;
   }
+
   const validated: GetSecretOptions = optionsResult.data as GetSecretOptions; // cast safe: DeepReadonly preserves value
   const clientResult: Result<InfisicalClient> = getClient({});
 
   if (!clientResult.ok) {
     return clientResult;
   }
+
   const environment: Str = validated.environment ?? process.env[ENV_VARS.ENV] ?? 'development';
   const projectId: Str = validated.projectId ?? process.env[ENV_VARS.PROJECT_ID] ?? '';
 
@@ -269,6 +274,7 @@ export async function getGlobalSecrets(
   if (!optionsResult.ok) {
     return optionsResult;
   }
+
   const validated: GetGlobalSecretsOptions = optionsResult.data as GetGlobalSecretsOptions; // cast safe: DeepReadonly preserves value
 
   return await getSecrets(GlobalSecretsSchema, { ...validated, path: '/' });
@@ -342,11 +348,13 @@ export async function hasSecret(key: Str, options: GetSecretOptions): Promise<Re
   if (!keyResult.ok) {
     return keyResult;
   }
+
   const optionsResult: Result<GetSecretOptions> = safeParse(GetSecretOptionsSchema, options);
 
   if (!optionsResult.ok) {
     return optionsResult;
   }
+
   const result: Result<Str> = await getSecret(
     keyResult.data,
     optionsResult.data as GetSecretOptions,
@@ -378,12 +386,14 @@ export async function getSecretsByKeys(
   if (!keysResult.ok) {
     return keysResult;
   }
+
   const optionsResult: Result<GetSecretOptions> = safeParse(GetSecretOptionsSchema, options);
 
   if (!optionsResult.ok) {
     return optionsResult;
   }
   // Fetch all secrets and filter (more efficient than individual calls)
+
   const allResult: Result<Record<Str, Str>> = await getSecrets(
     v.record(v.string(), v.string()),
     { ...(optionsResult.data as GetSecretOptions), skipValidation: true }, // cast safe: DeepReadonly preserves value
@@ -392,6 +402,7 @@ export async function getSecretsByKeys(
   if (!allResult.ok) {
     return allResult;
   }
+
   const results: Record<Str, OptionalStr> = {};
 
   for (const key of keysResult.data) {
@@ -421,6 +432,7 @@ export async function loadSecretsToEnv(options: GetSecretsOptions): Promise<Resu
   if (!optionsResult.ok) {
     return optionsResult;
   }
+
   const result: Result<AllSecrets> = await getSecrets(AllSecretsSchema, {
     ...(optionsResult.data as GetSecretsOptions), // cast safe: DeepReadonly preserves value
     attachToProcessEnv: true,

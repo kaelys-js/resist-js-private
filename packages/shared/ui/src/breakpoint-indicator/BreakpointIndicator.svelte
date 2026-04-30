@@ -43,6 +43,7 @@
   const validated: BreakpointIndicatorProps = $derived.by(() => {
     const rawProps: BreakpointIndicatorProps = stripSvelteProps(allProps);
     const result = safeParse(BreakpointIndicatorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

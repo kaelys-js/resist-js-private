@@ -42,6 +42,7 @@
   const validated: AudioVisualizerProps = $derived.by(() => {
     const rawProps: AudioVisualizerProps = stripSvelteProps(allProps);
     const result = safeParse(AudioVisualizerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

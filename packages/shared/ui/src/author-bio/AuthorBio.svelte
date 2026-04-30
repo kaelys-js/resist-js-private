@@ -42,6 +42,7 @@
   const validated: AuthorBioProps = $derived.by(() => {
     const rawProps: AuthorBioProps = stripSvelteProps(allProps);
     const result = safeParse(AuthorBioPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

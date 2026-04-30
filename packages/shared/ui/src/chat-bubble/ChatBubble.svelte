@@ -42,6 +42,7 @@
   const validated: ChatBubbleProps = $derived.by(() => {
     const rawProps: ChatBubbleProps = stripSvelteProps(allProps);
     const result = safeParse(ChatBubblePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

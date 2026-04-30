@@ -4,7 +4,11 @@ General-purpose Valibot schemas reusable across any package. Every schema export
 
 ## Files
 
-| File | Description |
+| F
+
+
+
+ile | Description |
 |------|-------------|
 | `src/index.ts` | All schemas, types, and constants |
 

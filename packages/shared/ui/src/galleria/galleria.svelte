@@ -42,6 +42,7 @@
   const validated: GalleriaProps = $derived.by(() => {
     const rawProps: GalleriaProps = stripSvelteProps(allProps);
     const result = safeParse(GalleriaPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

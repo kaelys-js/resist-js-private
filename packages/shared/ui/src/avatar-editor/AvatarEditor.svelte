@@ -42,6 +42,7 @@
   const validated: AvatarEditorProps = $derived.by(() => {
     const rawProps: AvatarEditorProps = stripSvelteProps(allProps);
     const result = safeParse(AvatarEditorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -42,6 +42,7 @@
   const validated: TypingIndicatorProps = $derived.by(() => {
     const rawProps: TypingIndicatorProps = stripSvelteProps(allProps);
     const result = safeParse(TypingIndicatorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

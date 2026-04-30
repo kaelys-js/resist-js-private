@@ -42,6 +42,7 @@
   const validated: PulsatingButtonProps = $derived.by(() => {
     const rawProps: PulsatingButtonProps = stripSvelteProps(allProps);
     const result = safeParse(PulsatingButtonPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

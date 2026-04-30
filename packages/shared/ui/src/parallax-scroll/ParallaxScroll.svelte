@@ -42,6 +42,7 @@
   const validated: ParallaxScrollProps = $derived.by(() => {
     const rawProps: ParallaxScrollProps = stripSvelteProps(allProps);
     const result = safeParse(ParallaxScrollPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

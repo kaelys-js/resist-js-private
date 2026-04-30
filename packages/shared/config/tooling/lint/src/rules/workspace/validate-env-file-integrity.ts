@@ -26,6 +26,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -58,6 +59,7 @@ const rule: WorkspaceRule = {
 
       const relativePath: string = relative(ctx.rootDir, filePath);
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -79,6 +81,7 @@ const rule: WorkspaceRule = {
         const hasMergeConflict: boolean = MERGE_CONFLICT_MARKERS.some((marker: string): boolean =>
           line.startsWith(marker),
         );
+
         if (hasMergeConflict) {
           results.push(
             createResult(
@@ -109,6 +112,7 @@ const rule: WorkspaceRule = {
 
         /* Extract key from KEY=value */
         const eqIndex: number = line.indexOf('=');
+
         if (eqIndex === -1) {
           continue;
         }
@@ -136,6 +140,7 @@ const rule: WorkspaceRule = {
           (trimmedValue.startsWith('"') && !trimmedValue.endsWith('"')) ||
           (trimmedValue.startsWith("'") && !trimmedValue.endsWith("'"));
         /* Single-char values like `"` or `'` alone are also unclosed */
+
         if (
           startsWithQuote &&
           (trimmedValue.length === 1 || trimmedValue[0] !== trimmedValue.at(-1))

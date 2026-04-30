@@ -42,6 +42,7 @@
   const validated: OrderStatusProps = $derived.by(() => {
     const rawProps: OrderStatusProps = stripSvelteProps(allProps);
     const result = safeParse(OrderStatusPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

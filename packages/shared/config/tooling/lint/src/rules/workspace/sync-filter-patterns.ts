@@ -32,6 +32,7 @@ function extractFilterPatterns(script: string): string[] {
     const raw: string = match[1] ?? '';
     /* Strip quotes */
     const unquoted: string = raw.replace(/^['"]/, '').replace(/['"]$/, '');
+
     if (unquoted.length > 0) {
       patterns.push(unquoted);
     }
@@ -100,11 +101,13 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     const pkgPath: string = join(ctx.rootDir, 'package.json');
+
     if (!(await ctx.fileExists(pkgPath))) {
       return results;
     }
 
     let pkg: Record<string, unknown>;
+
     try {
       pkg = JSON.parse(await ctx.readFile(pkgPath)) as Record<string, unknown>;
     } catch {
@@ -119,6 +122,7 @@ const rule: WorkspaceRule = {
 
     /* Build flat list of script+pattern pairs to check */
     const checks: Array<{ scriptName: string; scriptValue: string; pattern: string }> = [];
+
     for (const [scriptName, scriptValue] of Object.entries(scripts)) {
       if (typeof scriptValue !== 'string') {
         continue;
@@ -157,6 +161,7 @@ const rule: WorkspaceRule = {
           if (!fileOk && !dirOk) {
             /* Find line number */
             let lineNum: number = 1;
+
             for (let i: number = 0; i < pkgLines.length; i++) {
               if (
                 pkgLines[i]?.includes(`"${check.scriptName}"`) &&

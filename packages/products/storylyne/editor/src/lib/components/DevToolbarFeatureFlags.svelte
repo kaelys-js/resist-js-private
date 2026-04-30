@@ -71,6 +71,7 @@
     const entry: (() => Result<Str>) | undefined = (
       localeStore.t.devToolbar.labels as unknown as Record<string, () => Result<Str>>
     )[key];
+
     return entry === undefined ? humanizeKey(key) : t(entry, humanizeKey(key));
   }
 </script>

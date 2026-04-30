@@ -42,6 +42,7 @@
   const validated: InplaceProps = $derived.by(() => {
     const rawProps: InplaceProps = stripSvelteProps(allProps);
     const result = safeParse(InplacePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

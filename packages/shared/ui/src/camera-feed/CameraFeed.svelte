@@ -42,6 +42,7 @@
   const validated: CameraFeedProps = $derived.by(() => {
     const rawProps: CameraFeedProps = stripSvelteProps(allProps);
     const result = safeParse(CameraFeedPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

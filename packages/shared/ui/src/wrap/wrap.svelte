@@ -43,6 +43,7 @@
   const validated: WrapProps = $derived.by(() => {
     const rawProps: WrapProps = stripSvelteProps(allProps);
     const result = safeParse(WrapPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

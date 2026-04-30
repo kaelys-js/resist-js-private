@@ -42,6 +42,7 @@
   const validated: TaxFormProps = $derived.by(() => {
     const rawProps: TaxFormProps = stripSvelteProps(allProps);
     const result = safeParse(TaxFormPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

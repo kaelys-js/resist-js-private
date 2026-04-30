@@ -138,12 +138,14 @@ export function createWatcher(
       }
 
       const diffs = diffSnapshot(prev, current);
+
       for (const diff of diffs) {
         logChange(storeName, name, diff.key, diff.old, diff.new);
       }
       prev = current;
     });
   });
+
   return (): Void => {
     dispose();
   };

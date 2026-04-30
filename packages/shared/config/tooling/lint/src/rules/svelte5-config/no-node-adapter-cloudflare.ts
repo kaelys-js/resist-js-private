@@ -30,6 +30,7 @@ const rule: TypeScriptRule = {
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const adapterPkg: string | undefined = getAdapterImport(context.imports);
+
       if (adapterPkg !== '@sveltejs/adapter-node') {
         return [];
       }

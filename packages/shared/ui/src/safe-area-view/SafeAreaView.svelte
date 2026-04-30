@@ -43,6 +43,7 @@
   const validated: SafeAreaViewProps = $derived.by(() => {
     const rawProps: SafeAreaViewProps = stripSvelteProps(allProps);
     const result = safeParse(SafeAreaViewPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

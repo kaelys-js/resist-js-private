@@ -36,6 +36,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
   /* Parse request body */
   let body: { deviceId?: string };
+
   try {
     body = (await request.json()) as { deviceId?: string };
   } catch {
@@ -47,6 +48,7 @@ export const POST: RequestHandler = async ({ request }) => {
   }
 
   const deviceId: Str = (body.deviceId ?? '') as Str;
+
   if (!(deviceId as string)) {
     return new Response(JSON.stringify({ error: 'deviceId is required' }), {
       status: 400,
@@ -56,6 +58,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
   /* Check Android SDK availability */
   const sdkStatus = await checkAndroidSdk();
+
   if (!sdkStatus.installed) {
     return new Response(JSON.stringify({ error: sdkStatus.instructions }), {
       status: 500,
@@ -65,6 +68,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
   /* Find available system image */
   const systemImages: Str[] = await listSystemImages(sdkStatus.paths.avdmanager);
+
   if (systemImages.length === 0) {
     return new Response(
       JSON.stringify({
@@ -81,11 +85,13 @@ export const POST: RequestHandler = async ({ request }) => {
   /* Create the AVD */
   try {
     const avdName: Str = await createAvd(sdkStatus.paths.avdmanager, deviceId, systemImage);
+
     return new Response(JSON.stringify({ name: avdName, deviceId }), {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error: unknown) {
     const message: Str = (error instanceof Error ? error.message : 'Failed to create AVD') as Str;
+
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },

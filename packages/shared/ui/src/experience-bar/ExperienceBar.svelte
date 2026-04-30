@@ -41,6 +41,7 @@
   const validated: ExperienceBarProps = $derived.by(() => {
     const rawProps: ExperienceBarProps = stripSvelteProps(allProps);
     const result = safeParse(ExperienceBarPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

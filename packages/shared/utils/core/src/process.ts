@@ -61,15 +61,19 @@ import { fromUnknownError, safeParse } from '@/utils/result/safe';
  */
 // Module-init: cannot propagate Result; validated fallback via safeParse
 const _fallbackConcurrency: Result<PositiveInteger> = safeParse(PositiveIntegerSchema, 1);
+
 if (!_fallbackConcurrency.ok) {
   throw new Error('Static literal 1 failed PositiveInteger validation');
 }
 export const DEFAULT_CONCURRENCY: PositiveInteger = (() => {
   const os: OptionalNodeOs = nodeOs;
+
   if (!os) {
     return _fallbackConcurrency.data as PositiveInteger;
   }
+
   const result: Result<PositiveInteger> = safeParse(PositiveIntegerSchema, os.cpus().length);
+
   return (result.ok ? result.data : _fallbackConcurrency.data) as PositiveInteger;
 })();
 
@@ -80,10 +84,13 @@ export const DEFAULT_CONCURRENCY: PositiveInteger = (() => {
 // Module-init: 'linux' is safe default for cross-platform guards
 const platform: Platform = (() => {
   const proc: OptionalNodeProcess = getProcess();
+
   if (!proc) {
     return DEFAULT_PLATFORM;
   }
+
   const result: Result<Platform> = safeParse(PlatformSchema, proc.platform);
+
   return result.ok ? result.data : DEFAULT_PLATFORM;
 })();
 
@@ -116,6 +123,7 @@ export const isLinux: Bool = platform === 'linux';
  */
 export function isTTY(): Result<Bool> {
   const proc: OptionalNodeProcess = getProcess();
+
   if (!proc) {
     return ok(BoolSchema, false);
   }
@@ -138,6 +146,7 @@ export function isTTY(): Result<Bool> {
  */
 export function getColumns(): Result<NonNegativeInteger> {
   const proc: OptionalNodeProcess = getProcess();
+
   if (!proc) {
     return ok(NonNegativeIntegerSchema, DEFAULT_TERMINAL_WIDTH);
   }
@@ -164,6 +173,7 @@ export function getColumns(): Result<NonNegativeInteger> {
  */
 export function getArgv(): Result<StrArray> {
   const proc: OptionalNodeProcess = getProcess();
+
   if (!proc) {
     return ok(StrArraySchema, []);
   }
@@ -189,6 +199,7 @@ export function getArgv(): Result<StrArray> {
  */
 export function getScriptPath(): Result<OptionalStr> {
   const proc: OptionalNodeProcess = getProcess();
+
   if (!proc) {
     return safeParse(OptionalStrSchema, undefined);
   }
@@ -213,10 +224,13 @@ export function getScriptPath(): Result<OptionalStr> {
  */
 export function getEnvVar(name: Str): Result<OptionalStr> {
   const nameResult: Result<Str> = safeParse(StrSchema, name);
+
   if (!nameResult.ok) {
     return nameResult;
   }
+
   const proc: OptionalNodeProcess = getProcess();
+
   if (!proc) {
     return safeParse(OptionalStrSchema, undefined);
   }
@@ -239,6 +253,7 @@ export function getEnvVar(name: Str): Result<OptionalStr> {
  */
 export function getEnvRecord(): Result<EnvRecordWithUndefined> {
   const proc: OptionalNodeProcess = getProcess();
+
   if (!proc) {
     return safeParse(EnvRecordWithUndefinedSchema, {});
   }
@@ -265,10 +280,13 @@ export function getEnvRecord(): Result<EnvRecordWithUndefined> {
  */
 export function writeStdout(text: Str): Result<Void> {
   const input: Result<Str> = safeParse(StrSchema, text);
+
   if (!input.ok) {
     return input;
   }
+
   const proc: OptionalNodeProcess = getProcess();
+
   if (!proc || !proc.stdout) {
     return err(ERRORS.IO.WRITE_FAILED, {
       meta: { stream: 'stdout' },
@@ -294,10 +312,13 @@ export function writeStdout(text: Str): Result<Void> {
  */
 export function writeStderr(text: Str): Result<Void> {
   const input: Result<Str> = safeParse(StrSchema, text);
+
   if (!input.ok) {
     return input;
   }
+
   const proc: OptionalNodeProcess = getProcess();
+
   if (!proc || !proc.stderr) {
     return err(ERRORS.IO.WRITE_FAILED, {
       meta: { stream: 'stderr' },
@@ -321,6 +342,7 @@ export function writeStderr(text: Str): Result<Void> {
  */
 export function clearLine(): Result<Void> {
   const proc: OptionalNodeProcess = getProcess();
+
   if (!proc || !proc.stdout?.clearLine) {
     return ok(VoidSchema, undefined);
   }
@@ -343,10 +365,13 @@ export function clearLine(): Result<Void> {
  */
 export function cursorTo(column: NonNegativeInteger): Result<Void> {
   const col: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, column);
+
   if (!col.ok) {
     return col;
   }
+
   const proc: OptionalNodeProcess = getProcess();
+
   if (!proc || !proc.stdout?.cursorTo) {
     return ok(VoidSchema, undefined);
   }
@@ -369,10 +394,13 @@ export function cursorTo(column: NonNegativeInteger): Result<Void> {
  */
 export function setExitCode(code: ExitCode): Result<Void> {
   const codeResult: Result<ExitCode> = safeParse(ExitCodeSchema, code);
+
   if (!codeResult.ok) {
     return codeResult;
   }
+
   const proc: OptionalNodeProcess = getProcess();
+
   if (!proc) {
     return ok(VoidSchema, undefined);
   }
@@ -403,11 +431,13 @@ export function setExitCode(code: ExitCode): Result<Void> {
  */
 export async function readStdin(timeoutMs: NonNegativeInteger): Promise<Result<Str>> {
   const timeoutResult: Result<NonNegativeInteger> = safeParse(NonNegativeIntegerSchema, timeoutMs);
+
   if (!timeoutResult.ok) {
     return timeoutResult;
   }
 
   const proc: OptionalNodeProcess = getProcess();
+
   if (!proc || !proc.stdin) {
     return err(ERRORS.IO.READ_FAILED, {
       meta: { stream: 'stdin' },
@@ -467,6 +497,7 @@ export async function readStdin(timeoutMs: NonNegativeInteger): Promise<Result<S
 
       stdin.resume();
     })) as Str;
+
     return ok(StrSchema, content);
   } catch (error: unknown) {
     return err(ERRORS.IO.READ_FAILED, {
@@ -497,9 +528,11 @@ export async function readStdin(timeoutMs: NonNegativeInteger): Promise<Result<S
  */
 export function exit(code: OptionalExitCode = DEFAULT_EXIT_CODE): never {
   const proc: OptionalNodeProcess = getProcess();
+
   if (!proc) {
     throw new Error('exit() requires Node.js');
   }
+
   const codeResult: Result<OptionalExitCode> = safeParse(OptionalExitCodeSchema, code);
   // This is the wrapper itself — direct process.exit is intentional
   const exitCode: number = codeResult.ok
@@ -532,7 +565,9 @@ export function fatalExit(options: FatalExitOptions): never {
   if (!getProcess()) {
     throw new Error('fatalExit() requires Node.js');
   }
+
   const optionsResult: Result<FatalExitOptions> = safeParse(FatalExitOptionsSchema, options);
+
   if (!optionsResult.ok) {
     exit(FAILURE_EXIT_CODE);
   }

@@ -74,6 +74,7 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
+
       if (name === 'wrangler.json' || name === 'wrangler.jsonc') {
         workerDirs.add(dirname(filePath));
       }
@@ -98,11 +99,13 @@ const rule: WorkspaceRule = {
       const hasSourceExt: boolean = [...SOURCE_EXTENSIONS].some((ext: string): boolean =>
         filePath.endsWith(ext),
       );
+
       if (!hasSourceExt) {
         continue;
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {

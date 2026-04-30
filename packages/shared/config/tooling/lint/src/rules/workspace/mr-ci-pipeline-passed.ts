@@ -39,6 +39,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     const status: string | undefined = process.env['CI_PIPELINE_STATUS'];
+
     if (status === undefined) {
       return Promise.resolve(results);
     }

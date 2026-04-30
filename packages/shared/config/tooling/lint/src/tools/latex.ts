@@ -42,6 +42,7 @@ const CHKTEX_WARNING: RegExp = /^Warning\s+(\d+)\s+in\s+(.+?)\s+line\s+(\d+):\s+
  */
 export function transformChktexOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -51,12 +52,14 @@ export function transformChktexOutput(output: string): LintResult[] {
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     /* Try colon-delimited format: `filename:line:column:severity:code:message` */
     const matchColon: RegExpMatchArray | null = CHKTEX_COLON.exec(stripped);
+
     if (matchColon) {
       const file: string = matchColon[1] ?? '';
       const lineNum: number = Number.parseInt(matchColon[2] ?? '1', 10);
@@ -79,6 +82,7 @@ export function transformChktexOutput(output: string): LintResult[] {
 
     /* Try verbose format: `Warning N in filename line L: message` */
     const matchWarning: RegExpMatchArray | null = CHKTEX_WARNING.exec(stripped);
+
     if (matchWarning) {
       const file: string = matchWarning[2] ?? '';
       const lineNum: number = Number.parseInt(matchWarning[3] ?? '1', 10);

@@ -42,6 +42,7 @@
   const validated: ComparisonTableProps = $derived.by(() => {
     const rawProps: ComparisonTableProps = stripSvelteProps(allProps);
     const result = safeParse(ComparisonTablePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

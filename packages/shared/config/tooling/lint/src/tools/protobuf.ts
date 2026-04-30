@@ -34,6 +34,7 @@ const BUF_LINE: RegExp = /^(.+?):(\d+):(\d+):(.+)$/;
  */
 export function transformProtobufOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -43,11 +44,13 @@ export function transformProtobufOutput(output: string): LintResult[] {
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     const match: RegExpMatchArray | null = BUF_LINE.exec(stripped);
+
     if (!match) {
       continue;
     }

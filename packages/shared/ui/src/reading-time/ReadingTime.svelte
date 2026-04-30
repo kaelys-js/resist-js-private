@@ -42,6 +42,7 @@
   const validated: ReadingTimeProps = $derived.by(() => {
     const rawProps: ReadingTimeProps = stripSvelteProps(allProps);
     const result = safeParse(ReadingTimePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

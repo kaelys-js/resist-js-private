@@ -42,6 +42,7 @@
   const validated: CronEditorProps = $derived.by(() => {
     const rawProps: CronEditorProps = stripSvelteProps(allProps);
     const result = safeParse(CronEditorPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

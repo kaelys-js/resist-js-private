@@ -42,6 +42,7 @@
   const validated: PageTransitionProps = $derived.by(() => {
     const rawProps: PageTransitionProps = stripSvelteProps(allProps);
     const result = safeParse(PageTransitionPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

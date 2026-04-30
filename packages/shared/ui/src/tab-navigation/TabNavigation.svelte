@@ -42,6 +42,7 @@
   const validated: TabNavigationProps = $derived.by(() => {
     const rawProps: TabNavigationProps = stripSvelteProps(allProps);
     const result = safeParse(TabNavigationPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

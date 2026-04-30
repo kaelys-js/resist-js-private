@@ -42,6 +42,7 @@
   const validated: MasterDetailProps = $derived.by(() => {
     const rawProps: MasterDetailProps = stripSvelteProps(allProps);
     const result = safeParse(MasterDetailPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

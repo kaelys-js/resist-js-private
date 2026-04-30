@@ -42,6 +42,7 @@
   const validated: TruncateProps = $derived.by(() => {
     const rawProps: TruncateProps = stripSvelteProps(allProps);
     const result = safeParse(TruncatePropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

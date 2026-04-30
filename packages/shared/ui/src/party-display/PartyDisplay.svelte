@@ -42,6 +42,7 @@
   const validated: PartyDisplayProps = $derived.by(() => {
     const rawProps: PartyDisplayProps = stripSvelteProps(allProps);
     const result = safeParse(PartyDisplayPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

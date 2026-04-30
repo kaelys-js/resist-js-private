@@ -38,6 +38,7 @@ const rule: TypeScriptRule = {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const declaration = node.declaration as AstNode | undefined;
+
       if (!declaration) {
         return results;
       }
@@ -52,12 +53,14 @@ const rule: TypeScriptRule = {
 
       // Skip functions with no parameters (nothing to validate)
       const params = declaration.params as AstNode[] | undefined;
+
       if (!params || params.length === 0) {
         return results;
       }
 
       // Get the function body text
       const body = declaration.body as AstNode | undefined;
+
       if (!body) {
         return results;
       }
@@ -66,6 +69,7 @@ const rule: TypeScriptRule = {
 
       // Check if body contains any validation pattern
       let hasValidation: boolean = false;
+
       for (const pattern of VALIDATION_PATTERNS) {
         if (pattern.test(bodyText)) {
           hasValidation = true;

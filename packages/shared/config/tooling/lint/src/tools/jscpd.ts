@@ -76,11 +76,13 @@ type JscpdDuplicate = {
  */
 export function transformJscpdOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
 
   let parsed: Record<string, unknown>;
+
   try {
     parsed = JSON.parse(trimmed) as Record<string, unknown>;
   } catch {

@@ -43,6 +43,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     let subject: string;
+
     try {
       subject = execSync('git log -1 --pretty=%s', {
         cwd: ctx.rootDir,
@@ -57,6 +58,7 @@ const rule: WorkspaceRule = {
     }
 
     let tags: string;
+
     try {
       tags = execSync('git tag --points-at HEAD', {
         cwd: ctx.rootDir,

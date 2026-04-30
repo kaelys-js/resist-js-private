@@ -39,6 +39,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -64,9 +65,11 @@ const rule: WorkspaceRule = {
 
     /* Find CODEOWNERS file from possible locations. */
     let foundPath: string | undefined;
+
     for (const candidate of CODEOWNERS_PATHS) {
       const fullPath: string = join(ctx.rootDir, candidate);
       const exists: boolean = await ctx.fileExists(fullPath);
+
       if (exists) {
         foundPath = fullPath;
         break;
@@ -79,6 +82,7 @@ const rule: WorkspaceRule = {
     }
 
     let content: string;
+
     try {
       content = await ctx.readFile(foundPath);
     } catch {
@@ -90,8 +94,10 @@ const rule: WorkspaceRule = {
 
     /* Collect non-comment, non-empty lines for pattern matching. */
     const ruleLines: string[] = [];
+
     for (const line of lines) {
       const trimmed: string = line.trim();
+
       if (trimmed.length > 0 && !trimmed.startsWith('#')) {
         ruleLines.push(trimmed);
       }

@@ -43,6 +43,7 @@
   const validated: DefinitionListProps = $derived.by(() => {
     const rawProps: DefinitionListProps = stripSvelteProps(allProps);
     const result = safeParse(DefinitionListPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

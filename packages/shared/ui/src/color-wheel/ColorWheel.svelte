@@ -42,6 +42,7 @@
   const validated: ColorWheelProps = $derived.by(() => {
     const rawProps: ColorWheelProps = stripSvelteProps(allProps);
     const result = safeParse(ColorWheelPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

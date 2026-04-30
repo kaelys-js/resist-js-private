@@ -52,6 +52,7 @@ function mockEvent(
     [storageKey('locale')]: cookie || undefined,
     ...extraCookies,
   };
+
   return {
     cookies: {
       get: (name: Str): Str | undefined => allCookies[name],
@@ -66,7 +67,9 @@ function mockEvent(
           if (name === 'accept-language') {
             return acceptLanguage;
           }
+
           const lower: Str = name.toLowerCase();
+
           return extraHeaders[lower] ?? null;
         },
       },
@@ -92,6 +95,7 @@ function mockResolve(): {
     }
     return Promise.resolve(new Response('ok'));
   });
+
   return {
     resolve,
     getTransformed: (html: Str): Str => {
@@ -266,15 +270,18 @@ function createMockErrorEvent(
 } {
   const setHeaders = vi.fn();
   const url = new URL(`http://localhost${pathname}`);
+
   if (overrides?.searchParams) {
     for (const [k, v] of Object.entries(overrides.searchParams)) {
       url.searchParams.set(k, v);
     }
   }
+
   const headerMap: Record<Str, NullableStr> = {
     'user-agent': overrides?.userAgent ?? null,
     referer: overrides?.referer ?? null,
   };
+
   return {
     event: {
       setHeaders,
@@ -339,6 +346,7 @@ describe('security headers', () => {
     const event = mockEvent(cookie, acceptLanguage, pathname);
     const { resolve } = mockResolve();
     const response = await handle({ event, resolve });
+
     return response as Response;
   }
 
@@ -420,12 +428,15 @@ describe('cache-control', () => {
       if (opts?.transformPageChunk) {
         // Capture transformer but don't need it for cache-control tests
       }
+
       const resp = new Response('ok', {
         headers: { 'content-type': contentType },
       });
+
       return Promise.resolve(resp);
     });
     const response = await handle({ event, resolve });
+
     return response as Response;
   }
 
@@ -551,9 +562,11 @@ describe('handleError', () => {
     const validationErr = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Bad input', {
       meta: { field: 'email' },
     });
+
     if (validationErr.ok) {
       throw new Error('err() should return error');
     }
+
     const { result } = callServerHandleError({
       error: validationErr.error,
       status: 500,
@@ -631,6 +644,7 @@ describe('enhanced logCapturedError fields', () => {
     const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Bad input', {
       help: 'Check field format',
     });
+
     if (result.ok) {
       throw new Error('err() should return error');
     }
@@ -649,6 +663,7 @@ describe('enhanced logCapturedError fields', () => {
     const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Bad input', {
       source: { pointer: '/data/email', parameter: 'email' },
     });
+
     if (result.ok) {
       throw new Error('err() should return error');
     }
@@ -668,12 +683,15 @@ describe('enhanced logCapturedError fields', () => {
   it('logs related errors when present on AppError', () => {
     const related1 = err(ERRORS.VALIDATION.MISSING_FIELD, 'Field too long');
     const related2 = err(ERRORS.VALIDATION.INVALID_FORMAT, 'Bad format');
+
     if (related1.ok || related2.ok) {
       throw new Error('err() should return error');
     }
+
     const result = err(ERRORS.VALIDATION.SCHEMA_FAILED, 'Multiple issues', {
       related: [related1.error, related2.error],
     });
+
     if (result.ok) {
       throw new Error('err() should return error');
     }
@@ -702,6 +720,7 @@ describe('response headers', () => {
     const event = mockEvent(cookie, acceptLanguage, pathname);
     const { resolve } = mockResolve();
     const response = await handle({ event, resolve });
+
     return response as Response;
   }
 

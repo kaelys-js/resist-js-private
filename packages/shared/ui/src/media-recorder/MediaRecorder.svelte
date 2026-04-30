@@ -42,6 +42,7 @@
   const validated: MediaRecorderProps = $derived.by(() => {
     const rawProps: MediaRecorderProps = stripSvelteProps(allProps);
     const result = safeParse(MediaRecorderPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

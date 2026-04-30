@@ -51,6 +51,7 @@ const rule: TypeScriptRule = {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       const callee = node.callee as AstNode | undefined;
+
       if (!callee) {
         return results;
       }
@@ -66,13 +67,16 @@ const rule: TypeScriptRule = {
         ) {
           // Check if the first argument is a schema call (deprecated pattern)
           const args = node.arguments as AstNode[] | undefined;
+
           if (!args || args.length === 0) {
             return results;
           }
 
           const firstArg = args[0] as AstNode;
+
           if (firstArg.type === 'CallExpression') {
             const firstArgCallee = firstArg.callee as AstNode | undefined;
+
             if (
               firstArgCallee &&
               (firstArgCallee.type === 'StaticMemberExpression' ||

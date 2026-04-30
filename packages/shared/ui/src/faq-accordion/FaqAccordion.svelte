@@ -42,6 +42,7 @@
   const validated: FaqAccordionProps = $derived.by(() => {
     const rawProps: FaqAccordionProps = stripSvelteProps(allProps);
     const result = safeParse(FaqAccordionPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

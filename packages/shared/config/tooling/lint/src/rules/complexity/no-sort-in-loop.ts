@@ -27,6 +27,7 @@ const checkLoop = (node: AstNode, context: VisitorContext): LintResult[] => {
   const results: LintResult[] = [];
 
   const found: AstNode | undefined = findCallInBody(node, 'sort');
+
   if (found) {
     results.push({
       file: context.file,

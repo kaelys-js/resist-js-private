@@ -42,6 +42,7 @@
   const validated: RoadmapProps = $derived.by(() => {
     const rawProps: RoadmapProps = stripSvelteProps(allProps);
     const result = safeParse(RoadmapPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

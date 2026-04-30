@@ -62,6 +62,7 @@ const rule: PackageJsonRule = {
    */
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
+
     if (context.isRoot) {
       return results;
     }
@@ -71,11 +72,13 @@ const rule: PackageJsonRule = {
 
     for (const configCheck of CONFIG_CHECKS) {
       const configPath: string = join(dir, configCheck.file);
+
       if (!existsSync(configPath)) {
         continue;
       }
 
       let content: string;
+
       try {
         content = readFileSync(configPath, 'utf8');
       } catch {

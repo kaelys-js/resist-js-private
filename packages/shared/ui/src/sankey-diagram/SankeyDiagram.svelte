@@ -42,6 +42,7 @@
   const validated: SankeyDiagramProps = $derived.by(() => {
     const rawProps: SankeyDiagramProps = stripSvelteProps(allProps);
     const result = safeParse(SankeyDiagramPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

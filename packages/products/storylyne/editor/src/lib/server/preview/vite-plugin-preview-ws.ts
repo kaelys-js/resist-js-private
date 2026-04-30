@@ -56,9 +56,11 @@ export function parseSessionQuery(url: Str): Result<SessionConfig> {
   const numericFields: Str[] = ['width', 'height', 'scale', 'quality'] as Str[];
 
   const raw: Record<string, unknown> = {};
+
   for (const [key, value] of params.entries()) {
     if ((numericFields as string[]).includes(key) && value !== '') {
       const num: Num = Number(value) as Num;
+
       if (Number.isNaN(num as number)) {
         raw[key] = value;
       } else {
@@ -129,6 +131,7 @@ export function setupPreviewWs(server: ViteDevServer): void {
       }
 
       const result: Result<SessionConfig> = parseSessionQuery(url);
+
       if (!result.ok) {
         log.warn('Preview WS: invalid session config', { url, error: result.error.message });
         socket.write('HTTP/1.1 400 Bad Request\r\n\r\n');

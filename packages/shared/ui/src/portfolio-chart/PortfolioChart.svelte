@@ -41,6 +41,7 @@
   const validated: PortfolioChartProps = $derived.by(() => {
     const rawProps: PortfolioChartProps = stripSvelteProps(allProps);
     const result = safeParse(PortfolioChartPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

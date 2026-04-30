@@ -65,6 +65,7 @@ const rule: WorkspaceRule = {
   categories: ['hygiene'],
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.filesByExtension('.ts');
   },
 
@@ -85,6 +86,7 @@ const rule: WorkspaceRule = {
 
     /* Build list of non-test consumer files and their content for import searching. */
     const consumerFiles: Array<{ path: string; content: string }> = [];
+
     for (const filePath of tsFiles) {
       if (!isTestFile(filePath)) {
         const content: string = fileContents.get(filePath) ?? '';
@@ -114,12 +116,14 @@ const rule: WorkspaceRule = {
         let symbolName: string | undefined;
 
         const mainMatch: RegExpMatchArray | null = trimmed.match(EXPORT_RE);
+
         if (mainMatch) {
           [, symbolName] = mainMatch;
         }
 
         if (symbolName === undefined) {
           const typeMatch: RegExpMatchArray | null = trimmed.match(EXPORT_TYPE_RE);
+
           if (typeMatch) {
             [, symbolName] = typeMatch;
           }
@@ -132,6 +136,7 @@ const rule: WorkspaceRule = {
         /* Check for resist-lint-allow comment on the line above. */
         if (i > 0) {
           const prevLine: string = (lines[i - 1] ?? '').trim();
+
           if (prevLine.includes('resist-lint-allow: hygiene/no-orphaned-exports')) {
             continue;
           }
@@ -139,6 +144,7 @@ const rule: WorkspaceRule = {
 
         /* Search all non-test consumer files for an import referencing this symbol. */
         let found: boolean = false;
+
         for (const consumer of consumerFiles) {
           /* Don't count the file itself as a consumer. */
           if (consumer.path === filePath) {
@@ -147,8 +153,10 @@ const rule: WorkspaceRule = {
 
           /* Simple text search: look for the symbol name in import lines. */
           const consumerLines: string[] = consumer.content.split('\n');
+
           for (const cLine of consumerLines) {
             const cTrimmed: string = cLine.trim();
+
             if (cTrimmed.startsWith('import') && cTrimmed.includes(symbolName)) {
               found = true;
               break;

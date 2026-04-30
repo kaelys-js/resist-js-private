@@ -60,6 +60,7 @@ export type AndroidSdkStatus = {
  */
 export function buildSdkPaths(sdkRoot: Str): AndroidSdkPaths {
   const root: Str = (sdkRoot as string).replace(/\/+$/, '') as Str;
+
   return {
     adb: `${root}/platform-tools/adb` as Str,
     emulator: `${root}/emulator/emulator` as Str,
@@ -85,6 +86,7 @@ export function buildSdkPaths(sdkRoot: Str): AndroidSdkPaths {
  */
 export function parseAdbVersion(output: Str): Str | null {
   const match: RegExpMatchArray | null = (output as string).match(/Version\s+(\d+\.\d+\.\d+)/);
+
   if (!match?.[1]) {
     return null;
   }
@@ -107,11 +109,13 @@ export function parseAdbVersion(output: Str): Str | null {
 function detectSdkRoot(): Str {
   /* Explicit env vars take priority — trust the user */
   const envHome: Str = (process.env.ANDROID_HOME ?? '') as Str;
+
   if (envHome) {
     return envHome;
   }
 
   const envRoot: Str = (process.env.ANDROID_SDK_ROOT ?? '') as Str;
+
   if (envRoot) {
     return envRoot;
   }

@@ -50,6 +50,7 @@ const FANTOMAS_ERROR: RegExp = /^Error:\s*(.+)$/;
  */
 export function transformFantomasOutput(output: string, strings: LintStrings): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -59,6 +60,7 @@ export function transformFantomasOutput(output: string, strings: LintStrings): L
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
@@ -70,6 +72,7 @@ export function transformFantomasOutput(output: string, strings: LintStrings): L
 
     /* Match "filename was not formatted" */
     const notFormattedMatch: RegExpMatchArray | null = FANTOMAS_NOT_FORMATTED.exec(stripped);
+
     if (notFormattedMatch) {
       const file: string = notFormattedMatch[1] ?? '';
 
@@ -91,6 +94,7 @@ export function transformFantomasOutput(output: string, strings: LintStrings): L
 
     /* Match "Error: message" */
     const errorMatch: RegExpMatchArray | null = FANTOMAS_ERROR.exec(stripped);
+
     if (errorMatch) {
       const message: string = errorMatch[1] ?? '';
 

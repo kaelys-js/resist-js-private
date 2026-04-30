@@ -39,20 +39,24 @@ function validateCronField(
   /* Step notation: */
   if (value.includes('/')) {
     const parts: string[] = value.split('/');
+
     if (parts.length !== 2) {
       return `Invalid step notation '${value}' for ${range.name}`;
     }
+
     const base: string = parts[0] ?? '';
     const step: string = parts[1] ?? '';
 
     if (base !== '*') {
       const baseNum: number = Number(base);
+
       if (Number.isNaN(baseNum) || baseNum < range.min || baseNum > range.max) {
         return `${range.name} base '${base}' out of range (${String(range.min)}-${String(range.max)})`;
       }
     }
 
     const stepNum: number = Number(step);
+
     if (Number.isNaN(stepNum) || stepNum < 1) {
       return `Invalid step value '${step}' for ${range.name}`;
     }
@@ -63,9 +67,11 @@ function validateCronField(
   /* Range notation: */
   if (value.includes('-')) {
     const parts: string[] = value.split('-');
+
     if (parts.length !== 2) {
       return `Invalid range '${value}' for ${range.name}`;
     }
+
     const start: number = Number(parts[0]);
     const end: number = Number(parts[1]);
 
@@ -82,8 +88,10 @@ function validateCronField(
   /* List notation: */
   if (value.includes(',')) {
     const items: string[] = value.split(',');
+
     for (const item of items) {
       const result: string | null = validateCronField(item.trim(), range);
+
       if (result !== null) {
         return result;
       }
@@ -93,6 +101,7 @@ function validateCronField(
 
   /* Simple numeric value. */
   const num: number = Number(value);
+
   if (Number.isNaN(num) || num < range.min || num > range.max) {
     return `${range.name} value '${value}' out of range (${String(range.min)}-${String(range.max)})`;
   }
@@ -111,8 +120,10 @@ function extractCronExpressions(config: Record<string, unknown>): string[] {
 
   /* Top-level triggers.cron. */
   const { triggers } = config;
+
   if (typeof triggers === 'object' && triggers !== null) {
     const triggersObj: Record<string, unknown> = triggers as Record<string, unknown>;
+
     if (Array.isArray(triggersObj.cron)) {
       for (const cron of triggersObj.cron) {
         if (typeof cron === 'string') {
@@ -124,14 +135,18 @@ function extractCronExpressions(config: Record<string, unknown>): string[] {
 
   /* Environment-level triggers.cron. */
   const { env } = config;
+
   if (typeof env === 'object' && env !== null) {
     const envObj: Record<string, unknown> = env as Record<string, unknown>;
+
     for (const envConfig of Object.values(envObj)) {
       if (typeof envConfig === 'object' && envConfig !== null) {
         const envCfg: Record<string, unknown> = envConfig as Record<string, unknown>;
         const envTriggers: unknown = envCfg.triggers;
+
         if (typeof envTriggers === 'object' && envTriggers !== null) {
           const envTriggersObj: Record<string, unknown> = envTriggers as Record<string, unknown>;
+
           if (Array.isArray(envTriggersObj.cron)) {
             for (const cron of envTriggersObj.cron) {
               if (typeof cron === 'string') {
@@ -157,6 +172,7 @@ const rule: WorkspaceRule = {
   fixable: false,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
+
     return ctx.allFiles();
   },
 
@@ -182,11 +198,13 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
+
       if (name !== 'wrangler.json' && name !== 'wrangler.jsonc') {
         continue;
       }
 
       let content: string;
+
       try {
         content = await ctx.readFile(filePath);
       } catch {
@@ -194,6 +212,7 @@ const rule: WorkspaceRule = {
       }
 
       let parsed: Record<string, unknown>;
+
       try {
         parsed = JSON.parse(content) as Record<string, unknown>;
       } catch {
@@ -226,11 +245,13 @@ const rule: WorkspaceRule = {
         for (let i: number = 0; i < 5; i++) {
           const field: string = fields[i] ?? '';
           const range: (typeof CRON_FIELD_RANGES)[number] | undefined = CRON_FIELD_RANGES[i];
+
           if (range === undefined) {
             continue;
           }
 
           const error: string | null = validateCronField(field, range);
+
           if (error !== null) {
             results.push(
               createResult(

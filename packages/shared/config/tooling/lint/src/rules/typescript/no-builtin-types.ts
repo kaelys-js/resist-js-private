@@ -36,6 +36,7 @@ function isInsidePromiseVoid(node: AstNode, content: string): boolean {
   // Look at surrounding text for Promise<void> pattern
   const start: number = Math.max(0, node.start - 20);
   const surrounding: string = content.slice(start, node.end + 1);
+
   return /Promise\s*<\s*void\s*>/.test(surrounding);
 }
 /** The no-builtin-types lint rule. */
@@ -101,12 +102,14 @@ function checkTypeNode(node: AstNode, context: VisitorContext, results: LintResu
 
   // Recurse into child nodes that are type-related
   const typeAnnotation = node.typeAnnotation as AstNode | undefined;
+
   if (typeAnnotation) {
     checkTypeNode(typeAnnotation, context, results);
   }
 
   // Union/intersection members
   const types = node.types as AstNode[] | undefined;
+
   if (types) {
     for (const t of types) {
       checkTypeNode(t, context, results);
@@ -116,8 +119,10 @@ function checkTypeNode(node: AstNode, context: VisitorContext, results: LintResu
   // Generic type arguments (OXC uses typeArguments, not typeParameters)
   for (const key of ['typeParameters', 'typeArguments'] as const) {
     const container = node[key] as AstNode | undefined; // cast safe: AST property access
+
     if (container) {
       const args = container.params as AstNode[] | undefined; // cast safe: AST params property
+
       if (args) {
         for (const a of args) {
           checkTypeNode(a, context, results);
@@ -128,21 +133,25 @@ function checkTypeNode(node: AstNode, context: VisitorContext, results: LintResu
 
   // Array element type
   const elementType = node.elementType as AstNode | undefined; // cast safe: AST property
+
   if (elementType) {
     checkTypeNode(elementType, context, results);
   }
 
   // Function type return type
   const returnType = node.returnType as AstNode | undefined; // cast safe: AST property
+
   if (returnType) {
     checkTypeNode(returnType, context, results);
   }
 
   // Function type parameters
   const fnParams = node.params as AstNode[] | undefined; // cast safe: AST property
+
   if (fnParams && (node.type === 'TSFunctionType' || node.type === 'TSMethodSignature')) {
     for (const p of fnParams) {
       const paramAnnotation = p.typeAnnotation as AstNode | undefined; // cast safe: AST property
+
       if (paramAnnotation) {
         checkTypeNode(paramAnnotation, context, results);
       }

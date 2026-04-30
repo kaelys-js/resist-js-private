@@ -25,6 +25,7 @@ vi.mock('@/lint/framework/exec.ts', () => ({
 
 vi.mock('node:fs', async (importOriginal) => {
   const actual = await importOriginal<typeof NodeFsModule>();
+
   return {
     ...actual,
     existsSync: vi.fn(),
@@ -38,6 +39,7 @@ vi.mock('node:fs', async (importOriginal) => {
  * environments where tsgo is not on PATH. */
 vi.mock('@/lint/framework/tool-orchestrator.ts', async (importOriginal) => {
   const actual = await importOriginal<typeof ToolOrchestratorModule>();
+
   return {
     ...actual,
     isCommandAvailable: vi.fn((): boolean => true),
@@ -167,6 +169,7 @@ describe('runTsgoAllPackages', () => {
     /* Two packages discovered */
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
+
       if (s === '/ws/packages') {
         return true;
       }
@@ -180,6 +183,7 @@ describe('runTsgoAllPackages', () => {
     });
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike): unknown[] => {
       const d = String(dir);
+
       if (d === '/ws/packages') {
         return [makeDirent('a', { isDirectory: true }), makeDirent('b', { isDirectory: true })];
       }
@@ -197,6 +201,7 @@ describe('runTsgoAllPackages', () => {
   it('scopes execFileSync to a single package when one file is passed', async () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
+
       if (s === '/ws/packages') {
         return true;
       }
@@ -210,6 +215,7 @@ describe('runTsgoAllPackages', () => {
     });
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike): unknown[] => {
       const d = String(dir);
+
       if (d === '/ws/packages') {
         return [makeDirent('a', { isDirectory: true }), makeDirent('b', { isDirectory: true })];
       }
@@ -228,6 +234,7 @@ describe('runTsgoAllPackages', () => {
   it('runs tsgo once per owning package for files in multiple packages', async () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
+
       if (s === '/ws/packages') {
         return true;
       }
@@ -244,6 +251,7 @@ describe('runTsgoAllPackages', () => {
     });
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike): unknown[] => {
       const d = String(dir);
+
       if (d === '/ws/packages') {
         return [
           makeDirent('a', { isDirectory: true }),
@@ -266,6 +274,7 @@ describe('runTsgoAllPackages', () => {
   it('runs no tsgo calls when files list does not overlap any package', async () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
+
       if (s === '/ws/packages') {
         return true;
       }
@@ -276,6 +285,7 @@ describe('runTsgoAllPackages', () => {
     });
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike): unknown[] => {
       const d = String(dir);
+
       if (d === '/ws/packages') {
         return [makeDirent('a', { isDirectory: true })];
       }
@@ -291,6 +301,7 @@ describe('runTsgoAllPackages', () => {
   it('captures stdout when tsgo exits non-zero', async () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
+
       if (s === '/ws/packages') {
         return true;
       }
@@ -301,6 +312,7 @@ describe('runTsgoAllPackages', () => {
     });
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike): unknown[] => {
       const d = String(dir);
+
       if (d === '/ws/packages') {
         return [makeDirent('a', { isDirectory: true })];
       }
@@ -321,6 +333,7 @@ describe('runTsgoAllPackages', () => {
   it('emits internal/tool-crash when tsgo throws without stdout', async () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
+
       if (s === '/ws/packages') {
         return true;
       }
@@ -331,6 +344,7 @@ describe('runTsgoAllPackages', () => {
     });
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike): unknown[] => {
       const d = String(dir);
+
       if (d === '/ws/packages') {
         return [makeDirent('a', { isDirectory: true })];
       }
@@ -369,6 +383,7 @@ describe('runTsgoAllPackages', () => {
   it('skips execFileAsync on cache hit for a package', async () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
+
       if (s === '/ws/packages') {
         return true;
       }
@@ -379,6 +394,7 @@ describe('runTsgoAllPackages', () => {
     });
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike): unknown[] => {
       const d = String(dir);
+
       if (d === '/ws/packages') {
         return [makeDirent('a', { isDirectory: true })];
       }
@@ -413,6 +429,7 @@ describe('runTsgoAllPackages', () => {
   it('runs execFileAsync on cache miss and stores result via setTool', async () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
+
       if (s === '/ws/packages') {
         return true;
       }
@@ -423,6 +440,7 @@ describe('runTsgoAllPackages', () => {
     });
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike): unknown[] => {
       const d = String(dir);
+
       if (d === '/ws/packages') {
         return [makeDirent('a', { isDirectory: true })];
       }
@@ -445,6 +463,7 @@ describe('runTsgoAllPackages', () => {
   it('does not cache crash results (transient errors should re-run on next invocation)', async () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
+
       if (s === '/ws/packages') {
         return true;
       }
@@ -455,6 +474,7 @@ describe('runTsgoAllPackages', () => {
     });
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike): unknown[] => {
       const d = String(dir);
+
       if (d === '/ws/packages') {
         return [makeDirent('a', { isDirectory: true })];
       }
@@ -477,6 +497,7 @@ describe('runTsgoAllPackages', () => {
   it('passes --incremental and --tsBuildInfoFile to tsgo', async () => {
     vi.mocked(existsSync).mockImplementation((p: PathLike): boolean => {
       const s = String(p);
+
       if (s === '/ws/packages') {
         return true;
       }
@@ -487,6 +508,7 @@ describe('runTsgoAllPackages', () => {
     });
     vi.mocked(readdirSync).mockImplementation(((dir: PathLike): unknown[] => {
       const d = String(dir);
+
       if (d === '/ws/packages') {
         return [makeDirent('a', { isDirectory: true })];
       }

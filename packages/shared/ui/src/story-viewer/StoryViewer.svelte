@@ -42,6 +42,7 @@
   const validated: StoryViewerProps = $derived.by(() => {
     const rawProps: StoryViewerProps = stripSvelteProps(allProps);
     const result = safeParse(StoryViewerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

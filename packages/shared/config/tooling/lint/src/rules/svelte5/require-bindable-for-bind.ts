@@ -34,16 +34,19 @@ function collectBindableProps(ast: AstNode): Set<string> {
     }
 
     const init: AstNode | undefined = node.init as AstNode | undefined;
+
     if (!init || !isRuneCall(init, '$props')) {
       return;
     }
 
     const id: AstNode | undefined = node.id as AstNode | undefined;
+
     if (!id || id.type !== 'ObjectPattern') {
       return;
     }
 
     const properties: AstNode[] | undefined = id.properties as AstNode[] | undefined;
+
     if (!properties) {
       return;
     }
@@ -56,8 +59,10 @@ function collectBindableProps(ast: AstNode): Set<string> {
       // For AssignmentPattern: { value = $bindable() } = $props()
       if (prop.type === 'AssignmentPattern') {
         const right: AstNode | undefined = prop.right as AstNode | undefined;
+
         if (right && isRuneCall(right, '$bindable')) {
           const left: AstNode | undefined = prop.left as AstNode | undefined;
+
           if (left?.type === 'Identifier') {
             bindableProps.add((left as unknown as { name: string }).name);
           }
@@ -68,10 +73,13 @@ function collectBindableProps(ast: AstNode): Set<string> {
       // For Property with default: { value = $bindable() }
       if (prop.type === 'Property') {
         const value: AstNode | undefined = prop.value as AstNode | undefined;
+
         if (value?.type === 'AssignmentPattern') {
           const right: AstNode | undefined = value.right as AstNode | undefined;
+
           if (right && isRuneCall(right, '$bindable')) {
             const key: AstNode | undefined = prop.key as AstNode | undefined;
+
             if (key?.type === 'Identifier') {
               bindableProps.add((key as unknown as { name: string }).name);
             }
@@ -95,6 +103,7 @@ const rule: TypeScriptRule = {
   visitor: {
     BindDirective(node: AstNode, context: VisitorContext): LintResult[] {
       const bindName: string | undefined = (node as { name?: string }).name;
+
       if (!bindName) {
         return [];
       }

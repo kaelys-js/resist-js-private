@@ -69,6 +69,7 @@ export function parseDebugParams(url: URL, urlParamPrefix: Str): Result<UrlOverr
  */
 function buildSetterMap(schemaEntries: Record<Str, unknown>): Record<Str, Str> {
   const map: Record<Str, Str> = {};
+
   for (const key of Object.keys(schemaEntries)) {
     const capitalized: Str = key.charAt(0).toUpperCase() + key.slice(1);
     map[key] = `set${capitalized}`;
@@ -112,6 +113,7 @@ export function applyUrlOverrides(
     // Feature flag params: ff.* → setFeature
     if (key.startsWith(FF_PREFIX)) {
       const flagKey: Str = key.slice(FF_PREFIX.length);
+
       if (config.isValidFeatureFlag(flagKey)) {
         appStore.setFeature(flagKey, value === 'true');
       }
@@ -121,8 +123,10 @@ export function applyUrlOverrides(
     // App preference params
     if (config.isValidAppKey(key)) {
       const setterName: Str | undefined = setterMap[key];
+
       if (setterName) {
         const setter = (appStore as Record<Str, unknown>)[setterName];
+
         if (typeof setter === 'function') {
           // Boolean fields need conversion from string
           if (key === 'sidebarOpen') {

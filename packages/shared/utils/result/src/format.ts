@@ -45,6 +45,7 @@ import { type AppError, type Result, ok, okUnchecked } from '@/schemas/result/re
  */
 export function formatErrorDisplay(error: AppError): Result<Str> {
   let output = `${error.code}: ${error.message}`;
+
   if (error.help) {
     output = `${output}. Tip: ${error.help}`;
   }
@@ -93,6 +94,7 @@ export function formatErrorDebug(error: AppError): Result<Str> {
   }
   if (error.retry) {
     const retryParts: string[] = [`retryable=${String(error.retry.retryable)}`];
+
     if (error.retry.retryAfterMs !== undefined) {
       retryParts.push(`after=${String(error.retry.retryAfterMs)}ms`);
     }
@@ -117,6 +119,7 @@ export function formatErrorDebug(error: AppError): Result<Str> {
   }
   if (error.source) {
     const sourceParts: string[] = [];
+
     if (error.source.pointer) {
       sourceParts.push(`pointer=${error.source.pointer}`);
     }
@@ -146,6 +149,7 @@ export function formatErrorDebug(error: AppError): Result<Str> {
     lines.push(`  caused by:`);
     let current: AppError | undefined = error.cause;
     let depth = 1;
+
     while (current && depth <= 10) {
       lines.push(`    ${'  '.repeat(depth - 1)}[${current.code}] ${current.message}`);
       current = current.cause;
@@ -309,6 +313,7 @@ export function toRfc9457(error: AppError, baseUrl: Str): Result<ProblemDetails>
  */
 export function toHttpResponse(error: AppError, baseUrl: Str): Result<Response> {
   const problem: Result<ProblemDetails> = toRfc9457(error, baseUrl);
+
   if (!problem.ok) {
     return problem;
   }
@@ -355,6 +360,7 @@ export function formatErrorSafe(error: AppError): Result<AppError> {
   const safeCause: AppError | undefined = errorCause
     ? (() => {
         const result: Result<AppError> = formatErrorSafe(errorCause);
+
         return result.ok ? (result.data as AppError) : undefined;
       })()
     : undefined;
@@ -362,6 +368,7 @@ export function formatErrorSafe(error: AppError): Result<AppError> {
   const safeRelated: AppError[] | undefined = error.related
     ? error.related.map((r) => {
         const result: Result<AppError> = formatErrorSafe(r);
+
         return result.ok
           ? (result.data as AppError)
           : ({

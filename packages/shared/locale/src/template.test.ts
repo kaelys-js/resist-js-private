@@ -1390,6 +1390,7 @@ describe('renderMessage — depth exceeded', () => {
   it('returns error for deeply nested ICU blocks exceeding MAX_ICU_DEPTH', () => {
     // Build a template with 12 levels of nested select blocks to exceed MAX_ICU_DEPTH=10
     let template = '{g, select, a {';
+
     for (let i = 0; i < 11; i++) {
       template += `{g, select, a {`;
     }
@@ -1821,6 +1822,7 @@ describe('buildLocale — custom formatters', () => {
     const customFormatters = {
       reverse: (value: string) => {
         const reversed = [...value].toReversed().join('');
+
         return ok(StrSchema, reversed as Str);
       },
     } as unknown as FormatterMap;
@@ -2363,6 +2365,7 @@ describe('buildLocale — getSchemaEntries pipe with nested object entries', () 
     if (msgResult.ok) {
       expect(msgResult.data).toBe('Hello');
     }
+
     const countResult = built.count({ n: 1234.5 });
     expect(countResult.ok).toBe(true);
     if (countResult.ok) {

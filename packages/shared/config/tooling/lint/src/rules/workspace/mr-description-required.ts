@@ -39,6 +39,7 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     const desc: string | undefined = process.env['CI_MERGE_REQUEST_DESCRIPTION'];
+
     if (desc === undefined) {
       return results;
     }

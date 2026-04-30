@@ -29,6 +29,7 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const elements = node.elements as (AstNode | null)[] | undefined;
+
       if (!elements || !Array.isArray(elements)) {
         return results;
       }
@@ -57,17 +58,22 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const calleeRaw: unknown = node.callee;
+
       if (calleeRaw === null || typeof calleeRaw !== 'object') {
         return results;
       }
+
       const calleeNode = calleeRaw as AstNode;
+
       if (calleeNode.type !== 'Identifier' || (calleeNode.name as string) !== 'Array') {
         return results;
       }
 
       const args = node.arguments as AstNode[] | undefined;
+
       if (args && args.length === 1) {
         const firstArg = args[0] as AstNode;
+
         if (firstArg.type === 'Literal' && typeof (firstArg.value as unknown) === 'number') {
           results.push({
             file: context.file,
@@ -89,13 +95,16 @@ const rule: TypeScriptRule = {
       const results: LintResult[] = [];
 
       const operator = node.operator as string;
+
       if (operator !== 'delete') {
         return results;
       }
 
       const argRaw: unknown = node.argument;
+
       if (argRaw !== null && typeof argRaw === 'object') {
         const argNode = argRaw as AstNode;
+
         if (
           (argNode.type === 'MemberExpression' || argNode.type === 'StaticMemberExpression') &&
           (argNode.computed as unknown) === true

@@ -148,12 +148,14 @@ export async function captureConsoleLogs(
 
   /** Fetch the WebSocket debugger URL from Chrome's /json endpoint. */
   let wsUrl: Str;
+
   try {
     const response: Response = await fetch(`http://localhost:${localPort}/json`);
     const targets: unknown[] = (await response.json()) as unknown[];
     const page: Record<string, unknown> | undefined = (
       targets as Array<Record<string, unknown>>
     ).find((t: Record<string, unknown>): boolean => t.type === 'page');
+
     if (!page?.webSocketDebuggerUrl) {
       return entries;
     }
@@ -171,6 +173,7 @@ export async function captureConsoleLogs(
 
   ws.on('message', (data: Buffer | string) => {
     const msg: CdpMessage | null = parseCdpResponse(data.toString() as Str);
+
     if (!msg) {
       return;
     }

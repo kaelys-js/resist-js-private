@@ -24,6 +24,7 @@
     )({
       appName: store.app.appName,
     });
+
     if (!result.ok) {
       log.warn(`Locale home.welcome error: ${result.error.code}`);
     }

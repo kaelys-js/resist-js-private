@@ -63,6 +63,7 @@ const rule: TypeScriptRule = {
           if (allowedTargets.some((target: string): boolean => comment.value.includes(target))) {
             continue;
           }
+
           const lineNumber: number = offsetToLineNumber(comment.start, lineStarts);
           results.push({
             file: context.file,

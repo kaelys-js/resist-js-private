@@ -42,6 +42,7 @@
   const validated: HistogramProps = $derived.by(() => {
     const rawProps: HistogramProps = stripSvelteProps(allProps);
     const result = safeParse(HistogramPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

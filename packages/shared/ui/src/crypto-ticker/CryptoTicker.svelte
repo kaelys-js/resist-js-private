@@ -42,6 +42,7 @@
   const validated: CryptoTickerProps = $derived.by(() => {
     const rawProps: CryptoTickerProps = stripSvelteProps(allProps);
     const result = safeParse(CryptoTickerPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

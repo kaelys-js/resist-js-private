@@ -42,6 +42,7 @@
   const validated: KnobProps = $derived.by(() => {
     const rawProps: KnobProps = stripSvelteProps(allProps);
     const result = safeParse(KnobPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

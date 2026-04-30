@@ -80,6 +80,7 @@ export const GET: RequestHandler = async ({ url }) => {
   /* ---- Check xcrun availability ---- */
 
   const xcrunOk: boolean = await isXcrunAvailable();
+
   if (!xcrunOk) {
     return new Response(
       JSON.stringify({
@@ -92,6 +93,7 @@ export const GET: RequestHandler = async ({ url }) => {
   /* ---- Parse & validate params ---- */
 
   const component: Str = (url.searchParams.get('component') ?? '') as Str;
+
   if (!component) {
     return new Response(JSON.stringify({ error: 'Missing required "component" parameter' }), {
       status: 400,
@@ -112,6 +114,7 @@ export const GET: RequestHandler = async ({ url }) => {
   /* ---- Find the target device ---- */
 
   const allDevices = await listSimulatorDevices();
+
   if (allDevices.length === 0) {
     return new Response(
       JSON.stringify({ error: 'No iOS Simulator devices available. Create one in Xcode.' }),
@@ -156,6 +159,7 @@ export const GET: RequestHandler = async ({ url }) => {
 
       /* Start debug proxy if available (optional — falls back to fixed delay) */
       const debugProxyAvailable: boolean = await isDebugProxyInstalled();
+
       if (debugProxyAvailable) {
         await startDebugProxy(sim.udid);
       }
@@ -165,11 +169,13 @@ export const GET: RequestHandler = async ({ url }) => {
 
       /* Find the inspectable page for our URL (if debug proxy is running) */
       let pageWsUrl: Str = '' as Str;
+
       if (debugProxyAvailable) {
         const pages: InspectablePage[] = await getInspectablePages();
         const isolatePage: InspectablePage | undefined = pages.find((p: InspectablePage): boolean =>
           (p.url as string).includes('/isolate/'),
         );
+
         if (isolatePage) {
           pageWsUrl = isolatePage.webSocketDebuggerUrl;
         }
@@ -180,6 +186,7 @@ export const GET: RequestHandler = async ({ url }) => {
 
       /* Capture console logs (if debug proxy is available and we have a WS URL) */
       let consoleLogs: CapturedConsoleMessage[] = [];
+
       if (pageWsUrl) {
         consoleLogs = await captureConsoleLogs(pageWsUrl);
       }
@@ -230,6 +237,7 @@ export const GET: RequestHandler = async ({ url }) => {
     const message: Str = (
       error instanceof Error ? error.message : 'iOS Simulator screenshot failed'
     ) as Str;
+
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },

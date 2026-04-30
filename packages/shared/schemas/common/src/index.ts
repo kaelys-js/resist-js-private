@@ -578,6 +578,7 @@ export const TimezoneSchema = v.pipe(
   v.check((s: Str): Bool => {
     try {
       const _fmt: Intl.DateTimeFormat = new Intl.DateTimeFormat(undefined, { timeZone: s });
+
       return _fmt !== undefined;
     } catch {
       return false;
@@ -954,6 +955,7 @@ export const RegexPatternSchema = v.pipe(
   v.check((s: Str): Bool => {
     try {
       const _re: RegExp = new RegExp(s);
+
       return _re !== undefined;
     } catch {
       return false;

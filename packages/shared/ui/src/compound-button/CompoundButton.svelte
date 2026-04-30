@@ -43,6 +43,7 @@
   const validated: CompoundButtonProps = $derived.by(() => {
     const rawProps: CompoundButtonProps = stripSvelteProps(allProps);
     const result = safeParse(CompoundButtonPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

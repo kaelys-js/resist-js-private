@@ -66,9 +66,11 @@
       return '';
     }
     // Locale DeepReadonly workaround — parametric locale function needs cast
+
     const result: Result<Str> = (localeStore.t.errors.errorId as (p: { id: Str }) => Result<Str>)({
       id: errorId,
     });
+
     if (!result.ok) {
       log.warn(`Locale errors.errorId error: ${result.error.code}`);
     }

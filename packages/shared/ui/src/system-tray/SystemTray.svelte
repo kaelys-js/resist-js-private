@@ -42,6 +42,7 @@
   const validated: SystemTrayProps = $derived.by(() => {
     const rawProps: SystemTrayProps = stripSvelteProps(allProps);
     const result = safeParse(SystemTrayPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

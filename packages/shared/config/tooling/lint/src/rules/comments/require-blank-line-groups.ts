@@ -66,6 +66,7 @@ function classifyStatement(node: AstNode): 'declaration' | 'control' | 'expressi
  */
 function hasBlankLineBetween(content: string, endOfFirst: number, startOfSecond: number): boolean {
   const between: string = content.slice(endOfFirst, startOfSecond);
+
   return /\n\s*\n/.test(between);
 }
 
@@ -87,9 +88,11 @@ function areBothGuardClauses(first: AstNode, second: AstNode): boolean {
     return false;
   }
   // Both must be if statements or declarations (guard + next guard, or guard + next const)
+
   const firstIsGuard: boolean = first.type === 'IfStatement';
   const secondIsGuardOrDecl: boolean =
     second.type === 'IfStatement' || second.type === 'VariableDeclaration';
+
   return firstIsGuard && secondIsGuardOrDecl;
 }
 
@@ -105,6 +108,7 @@ const rule: TypeScriptRule = {
   visitor: {
     BlockStatement(node: AstNode, context: VisitorContext): LintResult[] {
       const body = node.body as AstNode[] | undefined;
+
       if (!body || body.length < 2) {
         return [];
       }
@@ -114,6 +118,7 @@ const rule: TypeScriptRule = {
       for (let i: number = 0; i < body.length - 1; i++) {
         const current = body[i] as AstNode | undefined;
         const next = body[i + 1] as AstNode | undefined;
+
         if (!current || !next) {
           continue;
         }
@@ -156,6 +161,7 @@ const rule: TypeScriptRule = {
 
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       const body = node.body as AstNode[] | undefined;
+
       if (!body || body.length < 2) {
         return [];
       }
@@ -165,6 +171,7 @@ const rule: TypeScriptRule = {
       for (let i: number = 0; i < body.length - 1; i++) {
         const current = body[i] as AstNode | undefined;
         const next = body[i + 1] as AstNode | undefined;
+
         if (!current || !next) {
           continue;
         }

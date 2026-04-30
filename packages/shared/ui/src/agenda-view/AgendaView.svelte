@@ -42,6 +42,7 @@
   const validated: AgendaViewProps = $derived.by(() => {
     const rawProps: AgendaViewProps = stripSvelteProps(allProps);
     const result = safeParse(AgendaViewPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

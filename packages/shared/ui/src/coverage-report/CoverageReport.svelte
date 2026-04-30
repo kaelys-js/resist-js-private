@@ -43,6 +43,7 @@
   const validated: CoverageReportProps = $derived.by(() => {
     const rawProps: CoverageReportProps = stripSvelteProps(allProps);
     const result = safeParse(CoverageReportPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

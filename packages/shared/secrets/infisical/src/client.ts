@@ -129,12 +129,14 @@ export function resolveOptions(options: ClientOptions): Result<ResolvedOptions> 
   if (!optionsResult.ok) {
     return optionsResult;
   }
+
   const validatedOptions: ClientOptions = optionsResult.data;
   const configResult: Result<DeepReadonly<CoreConfig>> = getConfig();
 
   if (!configResult.ok) {
     return configResult;
   }
+
   const config: DeepReadonly<CoreConfig> = configResult.data;
   const infisicalConfig: DeepReadonly<CoreConfig['tooling']['infisical']> =
     config.tooling.infisical;
@@ -152,6 +154,7 @@ export function resolveOptions(options: ClientOptions): Result<ResolvedOptions> 
   if (!cacheTtlResult.ok) {
     return cacheTtlResult;
   }
+
   const parsedCacheTtl: NonNegativeInteger = cacheTtlResult.data;
 
   const resolved: ResolvedOptions = {
@@ -189,17 +192,20 @@ export function getClient(options: ClientOptions): Result<InfisicalClient> {
   if (!optionsResult.ok) {
     return optionsResult;
   }
+
   const resolvedResult: Result<ResolvedOptions> = resolveOptions(optionsResult.data);
 
   if (!resolvedResult.ok) {
     return resolvedResult;
   }
+
   const resolved: ResolvedOptions = resolvedResult.data;
   const optionsJsonResult: Result<Str> = safeStringify(resolved);
 
   if (!optionsJsonResult.ok) {
     return optionsJsonResult;
   }
+
   const optionsJson: Str = optionsJsonResult.data;
 
   // Return existing client if options match
@@ -213,6 +219,7 @@ export function getClient(options: ClientOptions): Result<InfisicalClient> {
   if (!createResult.ok) {
     return createResult;
   }
+
   const newClient: InfisicalClient = createResult.data as InfisicalClient; // cast safe: DeepReadonly doesn't affect InfisicalClient behavior
   clientInstance = newClient;
   cachedOptionsJson = optionsJson;
@@ -239,6 +246,7 @@ export function createClient(resolved: ResolvedOptions): Result<InfisicalClient>
   if (!resolvedResult.ok) {
     return resolvedResult;
   }
+
   const validatedResolved: ResolvedOptions = resolvedResult.data;
 
   const client: InfisicalClient = new InfisicalClient({
@@ -328,11 +336,13 @@ export async function isAuthenticated(options: ClientOptions): Promise<Result<Bo
   if (!optionsResult.ok) {
     return optionsResult;
   }
+
   const clientResult: Result<InfisicalClient> = getClient(optionsResult.data);
 
   if (!clientResult.ok) {
     return clientResult;
   }
+
   const projectId: Str = process.env[ENV_VARS.PROJECT_ID] ?? '';
 
   if (!projectId) {

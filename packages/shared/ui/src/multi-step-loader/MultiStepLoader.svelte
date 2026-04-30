@@ -42,6 +42,7 @@
   const validated: MultiStepLoaderProps = $derived.by(() => {
     const rawProps: MultiStepLoaderProps = stripSvelteProps(allProps);
     const result = safeParse(MultiStepLoaderPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }

@@ -39,6 +39,7 @@ const EC_LINE_SIMPLE: RegExp = /^(.+?):\s+(.+)$/;
  */
 export function transformEditorconfigOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
+
   if (trimmed.length === 0) {
     return [];
   }
@@ -48,12 +49,14 @@ export function transformEditorconfigOutput(output: string): LintResult[] {
 
   for (const line of lines) {
     const stripped: string = line.trim();
+
     if (stripped.length === 0) {
       continue;
     }
 
     /* Try format with line and column: `filename:line:column: message` */
     const matchWithCol: RegExpMatchArray | null = EC_LINE_WITH_COL.exec(stripped);
+
     if (matchWithCol) {
       const file: string = matchWithCol[1] ?? '';
       const lineNum: number = Number.parseInt(matchWithCol[2] ?? '1', 10);
@@ -66,6 +69,7 @@ export function transformEditorconfigOutput(output: string): LintResult[] {
 
     /* Fallback: simple format `filename: message` */
     const matchSimple: RegExpMatchArray | null = EC_LINE_SIMPLE.exec(stripped);
+
     if (matchSimple) {
       const file: string = matchSimple[1] ?? '';
       const message: string = matchSimple[2] ?? '';

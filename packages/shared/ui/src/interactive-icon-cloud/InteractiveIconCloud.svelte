@@ -42,6 +42,7 @@
   const validated: InteractiveIconCloudProps = $derived.by(() => {
     const rawProps: InteractiveIconCloudProps = stripSvelteProps(allProps);
     const result = safeParse(InteractiveIconCloudPropsSchema, rawProps);
+
     if (!result.ok) {
       throw result.error;
     }
