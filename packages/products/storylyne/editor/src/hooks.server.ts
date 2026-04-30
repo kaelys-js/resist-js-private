@@ -219,7 +219,16 @@ export function getWaitUntil(): ((promise: Promise<unknown>) => void) | null {
   return _waitUntil;
 }
 
-/** Description. */
+/**
+ * SvelteKit `handle` middleware — runs on every server-rendered
+ * response. Resolves locale from cookie / Accept-Language /
+ * default, captures Cloudflare's `waitUntil`, seeds `event.locals`
+ * with user, data service, sidebar/theme preferences, and applies
+ * security headers + cache-control.
+ *
+ * @param input - SvelteKit handle event with `event` and `resolve`
+ * @returns Response with security headers, locale, and cache rules
+ */
 export const handle: Handle = async ({ event, resolve }) => {
   // Capture Cloudflare ExecutionContext.waitUntil for downstream use.
   // Not available during prerendering or in dev mode without wrangler.

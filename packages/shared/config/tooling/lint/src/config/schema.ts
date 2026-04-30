@@ -92,6 +92,17 @@ export function _resetConfigCache(): void {
   CONFIG_CACHE.clear();
 }
 
+/**
+ * Loads and validates `.resist-lint.jsonc` (or a custom path),
+ * caching the parsed result per absolute path. Returned configs
+ * are shallow-cloned so callers can mutate `exclude`/`rules`
+ * without poisoning the cache.
+ *
+ * @param cwd - Working directory used to resolve the config path
+ * @param customConfigPath - Optional config path (overrides default)
+ * @param strings - Locale strings for parse / validation errors
+ * @returns The parsed and validated `LintConfig`
+ */
 export function loadConfig(
   cwd: string,
   customConfigPath: string | undefined,

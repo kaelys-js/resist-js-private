@@ -84,6 +84,15 @@ export type LoadedRules = v.InferOutput<typeof LoadedRulesSchema>;
 /** Module-level cache — rules never change within a process lifetime. */
 let cachedRules: Promise<LoadedRules> | undefined;
 
+/**
+ * Loads every registered lint rule (TypeScript / package-json /
+ * workspace) once per process and returns a memoised promise so
+ * subsequent calls reuse the same `LoadedRules` aggregate.
+ *
+ * @param strings - Locale strings used for any user-facing
+ *   discovery / load errors
+ * @returns Promise resolving to all categorised rules
+ */
 export function loadAllRules(strings: LintStrings): Promise<LoadedRules> {
   if (cachedRules === undefined) {
     cachedRules = _loadAllRulesUncached(strings);

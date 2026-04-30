@@ -107,7 +107,15 @@ function resolveThunk<T extends object>(src: MaybeThunk<T>): T | undefined {
   return typeof src === 'function' ? (src() ?? undefined) : src;
 }
 
-/** Description. */
+/**
+ * Reactive object merge: returns a single typed object whose
+ * property reads pick the value from the right-most source that
+ * defines the key (function sources are resolved lazily).
+ *
+ * @param sources - One or more plain objects or thunks returning
+ *   objects; later entries override earlier ones
+ * @returns A live object whose keys reflect the merged sources
+ */
 export function mergeObjects<Sources extends readonly MaybeThunk<object>[]>(
   ...sources: Sources
 ): Intersection<{ [K in keyof Sources]: Sources[K] }> {
