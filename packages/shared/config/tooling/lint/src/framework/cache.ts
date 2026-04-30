@@ -394,6 +394,6 @@ export function computeRuleHash(
   for (const key of sortedKeys) {
     sortedRules[key] = rulesConfig[key];
   }
-  const payload: string = sortedIds.join('\n') + '\n----\n' + JSON.stringify(sortedRules);
+  const payload: string = `${sortedIds.join('\n')}\n----\n${JSON.stringify(sortedRules)}`;
   return computeHash(payload);
 }
