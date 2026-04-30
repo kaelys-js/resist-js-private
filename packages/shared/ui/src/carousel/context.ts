@@ -59,13 +59,26 @@ export type EmblaContext = {
   selectedIndex: number;
 };
 
-/** Description. */
+/**
+ * Stores the Carousel's EmblaContext under the shared key so
+ * descendant Carousel parts can read it via `getEmblaContext`.
+ *
+ * @param config - The EmblaContext to publish for descendants
+ * @returns The same `config` (passthrough for chaining)
+ */
 export function setEmblaContext(config: EmblaContext): EmblaContext {
   setContext(EMBLA_CAROUSEL_CONTEXT, config);
   return config;
 }
 
-/** Description. */
+/**
+ * Retrieves the Carousel's EmblaContext from a descendant
+ * component, throwing a descriptive error if no `<Carousel.Root>`
+ * ancestor has set it.
+ *
+ * @param name - Component name used in the error message
+ * @returns The EmblaContext set by the nearest `<Carousel.Root>`
+ */
 export function getEmblaContext(name = 'This component') {
   if (!hasContext(EMBLA_CAROUSEL_CONTEXT)) {
     throw new Error(`${name} must be used within a <Carousel.Root> component`);

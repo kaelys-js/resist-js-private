@@ -834,7 +834,18 @@ export function applyFixes(content: string, fixes: LintFix[]): string {
 /** Track whether the JSON schema has already been written this process. */
 let schemaWritten: boolean = false;
 
-/** Description. */
+/**
+ * Writes a JSON Schema for `.resist-lint.jsonc` describing every
+ * registered rule (TypeScript, package.json, workspace) — drives
+ * editor autocomplete and validation. Idempotent within a process
+ * via `schemaWritten`.
+ *
+ * @param tsRules - All registered TypeScript rules
+ * @param pkgRules - All registered package.json rules
+ * @param strings - Locale strings used for schema descriptions
+ * @param wsRules - Optional workspace-level rules
+ * @param cwd - Project root used to resolve the schema output path
+ */
 export function writeJsonSchema(
   tsRules: TypeScriptRule[],
   pkgRules: PackageJsonRule[],

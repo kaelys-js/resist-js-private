@@ -1,5 +1,12 @@
 <!-- @convert-to-lens -->
 <script lang="ts" module>
+  /**
+   * ToggleGroup root Svelte component — Bits UI `ToggleGroup`
+   * wrapper that publishes shared variant + spacing context to
+   * descendant `ToggleGroupItem` components.
+   *
+   * @module
+   */
   import { getContext, setContext } from 'svelte';
   import type { VariantProps } from 'tailwind-variants';
   import { toggleVariants } from '../toggle/index.js';
@@ -11,10 +18,23 @@
     spacing?: number;
   } & ToggleVariants;
 
+  /**
+   * Publishes the ToggleGroup's variant + spacing context so
+   * descendant ToggleGroupItem components inherit consistent
+   * styling.
+   *
+   * @param props - The variant + spacing context to publish
+   */
   export function setToggleGroupCtx(props: ToggleGroupContext) {
     setContext('toggleGroup', props);
   }
 
+  /**
+   * Reads the parent ToggleGroup's variant + spacing context for
+   * use inside a descendant ToggleGroupItem.
+   *
+   * @returns The parent ToggleGroup's resolved context
+   */
   export function getToggleGroupCtx() {
     return getContext<Required<ToggleGroupContext>>('toggleGroup');
   }
