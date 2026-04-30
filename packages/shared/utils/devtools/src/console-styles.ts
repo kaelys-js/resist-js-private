@@ -53,7 +53,7 @@ export const styles = {
 /**
  * Formats the current time as `HH:MM:SS.mmm` for console output.
  *
- * @returns Formatted timestamp string
+ * @returns {Str} Formatted timestamp string
  *
  * @example
  * ```typescript
@@ -85,9 +85,9 @@ export type SnapshotDiff = v.InferOutput<typeof SnapshotDiffSchema>;
  * For primitive values, uses strict equality. For objects/arrays, compares via
  * JSON serialization to detect deep changes without requiring a full deep-diff library.
  *
- * @param prev - Previous snapshot
- * @param next - Current snapshot
- * @returns Array of diff entries for keys that changed
+ * @param {Record<string, unknown>} prev - Previous snapshot
+ * @param {Record<string, unknown>} next - Current snapshot
+ * @returns {SnapshotDiff[]} Array of diff entries for keys that changed
  *
  * @example
  * ```typescript

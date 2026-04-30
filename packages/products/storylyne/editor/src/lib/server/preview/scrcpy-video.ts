@@ -99,8 +99,8 @@ export type SpsPps = {
  * - bytes 4-7: video width
  * - bytes 8-11: video height
  *
- * @param buf - Buffer containing at least 12 bytes
- * @returns Parsed codec metadata
+ * @param {Buffer} buf - Buffer containing at least 12 bytes
+ * @returns {CodecMetadata} Parsed codec metadata
  * @throws Error if buffer is too small
  */
 export function parseCodecMetadata(buf: Buffer): CodecMetadata {
@@ -129,8 +129,8 @@ export function parseCodecMetadata(buf: Buffer): CodecMetadata {
  *   - bits 61-0: PTS in microseconds
  * - bytes 8-11: packet size (u32)
  *
- * @param buf - Buffer containing at least 12 bytes
- * @returns Parsed frame header
+ * @param {Buffer} buf - Buffer containing at least 12 bytes
+ * @returns {FrameHeader} Parsed frame header
  * @throws Error if buffer is too small
  */
 export function parseFrameHeader(buf: Buffer): FrameHeader {
@@ -198,8 +198,8 @@ function findStartCodes(data: Buffer): Array<{ offset: Num; length: Num }> {
  * Splits the data at Annex B start codes (0x00000001 or 0x000001)
  * and returns each NAL unit with its type (lower 5 bits of first byte).
  *
- * @param data - Buffer containing H.264 Annex B data
- * @returns Array of extracted NAL units
+ * @param {Buffer} data - Buffer containing H.264 Annex B data
+ * @returns {NalUnit[]} Array of extracted NAL units
  */
 export function extractNalUnits(data: Buffer): NalUnit[] {
   if (data.length === 0) {
@@ -249,8 +249,8 @@ export function extractNalUnits(data: Buffer): NalUnit[] {
  * Extracts all NAL units and looks for NAL type 7 (SPS) and
  * NAL type 8 (PPS). Both must be present for a valid result.
  *
- * @param data - Buffer containing H.264 Annex B data (typically a config frame)
- * @returns SPS and PPS buffers, or undefined if either is missing
+ * @param {Buffer} data - Buffer containing H.264 Annex B data (typically a config frame)
+ * @returns {SpsPps | undefined} SPS and PPS buffers, or undefined if either is missing
  */
 export function findSpsPps(data: Buffer): SpsPps | undefined {
   if (data.length === 0) {

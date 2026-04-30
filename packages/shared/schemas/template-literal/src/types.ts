@@ -185,9 +185,9 @@ declare const templateLiteralReference: (
  * @typeParam TParts - The parts tuple type.
  * @typeParam TOutput - The inferred output type.
  * @typeParam TMessage - The error message type.
- * @param value - The schema object to cast. Caller is responsible for
+ * @param {v.BaseSchema<string, TOutput, TemplateLiteralIssue>} value - The schema object to cast. Caller is responsible for
  *   ensuring all `BaseSchema` properties are correctly set.
- * @returns The value typed as `TemplateLiteralSchema`.
+ * @returns {TemplateLiteralSchema<TParts, TOutput, TMessage>} The value typed as `TemplateLiteralSchema`.
  */
 export function _toTemplateLiteralSchema<
   TParts extends readonly TemplateLiteralPart[],

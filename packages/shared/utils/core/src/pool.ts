@@ -187,9 +187,9 @@ export type PoolResult<T> = {
  * @remarks Returns `PoolResult<T>` (not `Result<T>`) because the pool has its own
  *   error tracking via `errors[]` and `success` — partial results are still useful.
  *
- * @param tasks - Array of task functions to execute.
- * @param options - Pool configuration (defaults: concurrency from CPU count, failFast off).
- * @returns Pool result with ordered results, errors, and timing metadata.
+ * @param {Array<PoolTask<T>>} tasks - Array of task functions to execute.
+ * @param {Partial<PoolOptions<T>>} options - Pool configuration (defaults: concurrency from CPU count, failFast off).
+ * @returns {Promise<PoolResult<T>>} Pool result with ordered results, errors, and timing metadata.
  *
  * @example
  * ```typescript

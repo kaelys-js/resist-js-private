@@ -349,8 +349,22 @@ export function parsePlan(content: string): ParsedPlan {
  * to define both the file set they check AND the cache-input fingerprint
  * declared via `WorkspaceRule.inputs`.
  *
- * @param ctx - Workspace context (must expose `filesByExtension`)
- * @returns Absolute paths of plan files
+ * @param {{
+  filesByExtension(ext: string): Promise<readonly string[]>;
+}} ctx - Workspace context (must expose `filesByExtension`)
+ * @returns {Promise<readonly string[]>} Absolute paths of plan files
+  * @param {{
+  filesByExtension(ext: string): Promise<readonly string[]>;
+}} ctx - Description
+  * @param {{
+  filesByExtension(ext: string): Promise<readonly string[]>;
+}} ctx - Description
+  * @param {{
+  filesByExtension(ext: string): Promise<readonly string[]>;
+}} ctx - Description
+  * @param {{
+  filesByExtension(ext: string): Promise<readonly string[]>;
+}} ctx - Description
  */
 export async function discoverPlanFiles(ctx: {
   filesByExtension(ext: string): Promise<readonly string[]>;

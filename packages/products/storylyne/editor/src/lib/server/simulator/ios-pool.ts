@@ -60,9 +60,9 @@ const MAX_POOL_SIZE: Num = 3 as Num;
  * If the simulator is already booted, returns immediately.
  * If not, boots the simulator and waits for it to be ready.
  *
- * @param udid - Device UDID to acquire
- * @param name - Human-readable device name for tracking
- * @returns Pooled simulator handle
+ * @param {Str} udid - Device UDID to acquire
+ * @param {Str} name - Human-readable device name for tracking
+ * @returns {Promise<PooledSimulator>} Pooled simulator handle
  * @throws If pool is at capacity or boot fails
  *
  * @example
@@ -132,7 +132,7 @@ export async function acquireSimulator(udid: Str, name: Str): Promise<PooledSimu
  * The simulator remains booted for fast re-acquisition.
  * Does NOT shut down the simulator.
  *
- * @param udid - Device UDID to release
+ * @param {Str} udid - Device UDID to release
  */
 export function releaseSimulator(udid: Str): void {
   const entry: PoolEntry | undefined = poolEntries.get(udid);
@@ -147,7 +147,7 @@ export function releaseSimulator(udid: Str): void {
  * Only shuts down simulators that were booted by the pool,
  * not simulators that were found already running.
  *
- * @param udid - Device UDID to remove
+ * @param {Str} udid - Device UDID to remove
  */
 export async function removeFromPool(udid: Str): Promise<void> {
   const entry: PoolEntry | undefined = poolEntries.get(udid);
@@ -165,7 +165,23 @@ export async function removeFromPool(udid: Str): Promise<void> {
 /**
  * Get the current pool status.
  *
- * @returns Pool status with total entries, in-use count, and device list
+ *{{
+  total: Num;
+  inUse: Num;
+  devices: Array<{ udid: Str; name: Str; inUse: Bool }>;
+}}Use: Bool }>;
+}} Pool status with total entries, in-use count, and device list
+  *{{
+  total: Num;
+  inUse: Num;
+  devices: Array<{ udid: Str; name: Str; inUse: Bool }>;
+}}Use: Bool }>;
+}} Description
+  * @returns {{
+  total: Num;
+  inUse: Num;
+  devices: Array<{ udid: Str; name: Str; inUse: Bool }>;
+}} Description
  */
 export function getPoolStatus(): {
   total: Num;

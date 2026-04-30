@@ -40,8 +40,8 @@ export class RenderSnippetConfig<TProps> {
  *
  * This is only to be used with Snippets - use `renderComponent` for Svelte Components.
  *
- * @param snippet The snippet to render
- * @param params The params to pass to the snippet
+ * @param {Snippet<[TProps]>} snippet The snippet to render
+ * @param {TProps} params The params to pass to the snippet
  * @returns - A `RenderSnippetConfig` object that helps svelte-table know how to render the header/cell snippet.
  * @example
  * ```ts

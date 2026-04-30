@@ -53,8 +53,8 @@ export type FormattedConsoleEntry = {
  * Looks for `Console.messageAdded` events and extracts the message
  * details. Returns `null` for non-console events or invalid JSON.
  *
- * @param rawMessage - Raw JSON string from the WebSocket
- * @returns Parsed console message, or null if not a console event
+ * @param {Str} rawMessage - Raw JSON string from the WebSocket
+ * @returns {CapturedConsoleMessage | null} Parsed console message, or null if not a console event
  *
  * @example
  * const msg = parseConsoleMessage('{"method":"Console.messageAdded","params":{...}}');
@@ -89,8 +89,8 @@ export function parseConsoleMessage(rawMessage: Str): CapturedConsoleMessage | n
 /**
  * Format captured console messages into the ScreenshotConsoleEntry shape.
  *
- * @param messages - Array of captured console messages
- * @returns Array of formatted entries matching the screenshot API response shape
+ * @param {CapturedConsoleMessage[]} messages - Array of captured console messages
+ * @returns {FormattedConsoleEntry[]} Array of formatted entries matching the screenshot API response shape
  *
  * @example
  * const entries = formatConsoleMessages(captured);
@@ -117,9 +117,9 @@ export function formatConsoleMessages(messages: CapturedConsoleMessage[]): Forma
  * collects all `Console.messageAdded` events until the connection is
  * closed or the timeout expires.
  *
- * @param wsUrl - WebSocket URL from the debug proxy's inspectable page
- * @param timeoutMs - Maximum time to capture (default: 5000ms)
- * @returns Array of captured console messages
+ * @param {Str} wsUrl - WebSocket URL from the debug proxy's inspectable page
+ * @param {Num} timeoutMs - Maximum time to capture (default: 5000ms)
+ * @returns {Promise<CapturedConsoleMessage[]>} Array of captured console messages
  *
  * @example
  * const messages = await captureConsoleLogs('ws://localhost:27753/devtools/page/1', 5000);

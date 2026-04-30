@@ -62,8 +62,8 @@ const DEFAULT_MAX_ATTEMPTS: PositiveInteger = _maxAttemptsResult.ok
  * Returns `ok(false)` when the port is in use — this is expected
  * behavior, not an error.
  *
- * @param port - TCP port number to check (1–65 535).
- * @returns `Promise<Result<Bool>>` — `true` if available, `false` if in use,
+ * @param {Port} port - TCP port number to check (1–65 535).
+ * @returns {Promise<Result<Bool>>} `Promise<Result<Bool>>` — `true` if available, `false` if in use,
  *          or `VALIDATION.SCHEMA_FAILED` on invalid input.
  *
  * @example
@@ -107,9 +107,9 @@ export async function isPortAvailable(port: Port): Promise<Result<Bool>> {
  * stopping at 65 535. Returns the first available port, or
  * `NETWORK.PORT_UNAVAILABLE` if none found.
  *
- * @param preferredPort - Port number to start scanning from (1–65 535).
- * @param maxAttempts - Maximum number of ports to try. Defaults to `100`.
- * @returns `Promise<Result<Port>>` — an available port, or
+ * @param {Port} preferredPort - Port number to start scanning from (1–65 535).
+ * @param {PositiveInteger} maxAttempts - Maximum number of ports to try. Defaults to `100`.
+ * @returns {Promise<Result<Port>>} `Promise<Result<Port>>` — an available port, or
  *          `VALIDATION.SCHEMA_FAILED` / `NETWORK.PORT_UNAVAILABLE` on error.
  *
  * @example
@@ -171,8 +171,8 @@ export async function findAvailablePort(
  * Less reliable than the async version but useful for quick checks.
  * Returns `ok(false)` when the port is in use — not an error.
  *
- * @param port - TCP port number to check (1–65 535).
- * @returns `Result<Bool>` — `true` if available, `false` if in use,
+ * @param {Port} port - TCP port number to check (1–65 535).
+ * @returns {Result<Bool>} `Result<Bool>` — `true` if available, `false` if in use,
  *          or `VALIDATION.SCHEMA_FAILED` on invalid input.
  *
  * @example
@@ -213,7 +213,7 @@ export function isPortAvailableSync(port: Port): Result<Bool> {
  * Enumerates network interfaces and returns addresses that are
  * external (non-loopback) and IPv4.
  *
- * @returns `Result<Ipv4AddressArray>` — array of LAN IP addresses
+ * @returns {Result<Ipv4AddressArray>} `Result<Ipv4AddressArray>` — array of LAN IP addresses
  *          (e.g., `['192.168.1.42', '10.0.0.5']`). Empty array if none found.
  *
  * @example
@@ -260,7 +260,7 @@ export function getLocalIpAddresses(): Result<Ipv4AddressArray> {
  * Appends `.local` if not already present. Resolves on
  * Bonjour/Avahi-capable devices without DNS setup.
  *
- * @returns `Result<Hostname>` — the local mDNS hostname.
+ * @returns {Result<Hostname>} `Result<Hostname>` — the local mDNS hostname.
  *
  * @example
  * ```typescript

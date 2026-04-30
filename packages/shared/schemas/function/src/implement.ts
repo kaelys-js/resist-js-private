@@ -31,9 +31,9 @@ import { createWrapper, getWrapperMeta } from '@/schemas/function/wrapper-utils'
  *
  * @typeParam TArgs - Tuple type of function parameters (inferred from pipe).
  * @typeParam TReturn - Return type (inferred from pipe).
- * @param fn - The function implementation. Parameter and return types
+ * @param {FnType<TArgs, TReturn>} fn - The function implementation. Parameter and return types
  *   are inferred from preceding `args()` and `returns()` actions in the pipe.
- * @returns A pipe action that replaces the input with the implemented function.
+ * @returns {v.TransformAction<FnType<TArgs, TReturn>, FnType<TArgs, TReturn>>} A pipe action that replaces the input with the implemented function.
  *
  * @example
  * ```typescript

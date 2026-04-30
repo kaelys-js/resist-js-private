@@ -89,9 +89,9 @@ let cachedRules: Promise<LoadedRules> | undefined;
  * workspace) once per process and returns a memoised promise so
  * subsequent calls reuse the same `LoadedRules` aggregate.
  *
- * @param strings - Locale strings used for any user-facing
+ * @param {LintStrings} strings - Locale strings used for any user-facing
  *   discovery / load errors
- * @returns Promise resolving to all categorised rules
+ * @returns {Promise<LoadedRules>} Promise resolving to all categorised rules
  */
 export function loadAllRules(strings: LintStrings): Promise<LoadedRules> {
   if (cachedRules === undefined) {

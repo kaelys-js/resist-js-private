@@ -33,8 +33,8 @@ function sleep(ms: Num): Promise<Void> {
 /**
  * Creates a mock data service that returns hardcoded development data.
  *
- * @param delayMs - Optional delay in milliseconds to simulate server latency (default: 0)
- * @returns A DataService implementation backed by mock data
+ * @param {Num} delayMs - Optional delay in milliseconds to simulate server latency (default: 0)
+ * @returns {DataService} A DataService implementation backed by mock data
  *
  * @example
  * const service = createMockService();

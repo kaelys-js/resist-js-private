@@ -52,9 +52,9 @@ import {
  * Validates the path and encoding via `safeParse`, then reads the file
  * with `fs.readFileSync`.
  *
- * @param path - Absolute or relative file path (must be non-empty).
- * @param encoding - File encoding. Defaults to `'utf8'`.
- * @returns `Result<FileContent>` — file contents on success, or `VALIDATION.SCHEMA_FAILED` / `IO.READ_FAILED` on error.
+ * @param {Path} path - Absolute or relative file path (must be non-empty).
+ * @param {FileEncoding} encoding - File encoding. Defaults to `'utf8'`.
+ * @returns {Result<FileContent>} `Result<FileContent>` — file contents on success, or `VALIDATION.SCHEMA_FAILED` / `IO.READ_FAILED` on error.
  *
  * @example
  * ```typescript
@@ -98,10 +98,10 @@ export function readFile(
  * Validates the path, content, and encoding via `safeParse`, then writes
  * with `fs.writeFileSync`.
  *
- * @param path - Absolute or relative file path (must be non-empty).
- * @param content - String content to write.
- * @param encoding - File encoding. Defaults to `'utf8'`.
- * @returns `Result<Void>` — success, or `VALIDATION.SCHEMA_FAILED` / `IO.WRITE_FAILED` on error.
+ * @param {Path} path - Absolute or relative file path (must be non-empty).
+ * @param {FileContent} content - String content to write.
+ * @param {FileEncoding} encoding - File encoding. Defaults to `'utf8'`.
+ * @returns {Result<Void>} `Result<Void>` — success, or `VALIDATION.SCHEMA_FAILED` / `IO.WRITE_FAILED` on error.
  *
  * @example
  * ```typescript
@@ -151,8 +151,8 @@ export function writeFile(
  * Returns `ok(undefined)` on success, even if the file didn't exist
  * (idempotent delete). Only returns an error for actual I/O failures.
  *
- * @param path - Absolute or relative file path (must be non-empty).
- * @returns `Result<Void>` — success, or `VALIDATION.SCHEMA_FAILED` / `IO.DELETE_FAILED` on error.
+ * @param {Path} path - Absolute or relative file path (must be non-empty).
+ * @returns {Result<Void>} `Result<Void>` — success, or `VALIDATION.SCHEMA_FAILED` / `IO.DELETE_FAILED` on error.
  *
  * @example
  * ```typescript
@@ -192,8 +192,8 @@ export function deleteFile(path: Path): Result<Void> {
 /**
  * Create a directory and all parent directories.
  *
- * @param path - Directory path to create (must be non-empty).
- * @returns `Result<Void>` — success, or `VALIDATION.SCHEMA_FAILED` / `IO.MKDIR_FAILED` on error.
+ * @param {Path} path - Directory path to create (must be non-empty).
+ * @returns {Result<Void>} `Result<Void>` — success, or `VALIDATION.SCHEMA_FAILED` / `IO.MKDIR_FAILED` on error.
  *
  * @example
  * ```typescript
@@ -226,8 +226,8 @@ export function mkdirRecursive(path: Path): Result<Void> {
  * Ensure a directory exists, creating it if necessary.
  * If the path looks like a file (has an extension), creates the parent directory.
  *
- * @param path - Directory or file path (must be non-empty).
- * @returns `Result<Void>` — success, or `VALIDATION.SCHEMA_FAILED` / `IO.MKDIR_FAILED` on error.
+ * @param {Path} path - Directory or file path (must be non-empty).
+ * @returns {Result<Void>} `Result<Void>` — success, or `VALIDATION.SCHEMA_FAILED` / `IO.MKDIR_FAILED` on error.
  *
  * @example
  * ```typescript
@@ -274,9 +274,9 @@ export function ensureDir(path: Path): Result<Void> {
 /**
  * Copy a directory recursively.
  *
- * @param src - Source directory path (must be non-empty).
- * @param dest - Destination directory path (must be non-empty).
- * @returns `Result<Void>` — success, or `VALIDATION.SCHEMA_FAILED` / `IO.COPY_FAILED` on error.
+ * @param {Path} src - Source directory path (must be non-empty).
+ * @param {Path} dest - Destination directory path (must be non-empty).
+ * @returns {Result<Void>} `Result<Void>` — success, or `VALIDATION.SCHEMA_FAILED` / `IO.COPY_FAILED` on error.
  *
  * @example
  * ```typescript
@@ -313,8 +313,8 @@ export function copyDir(src: Path, dest: Path): Result<Void> {
 /**
  * Read directory contents.
  *
- * @param path - Directory path to read (must be non-empty).
- * @returns `Result<StrArray>` — array of filenames, or `VALIDATION.SCHEMA_FAILED` / `IO.READDIR_FAILED` on error.
+ * @param {Path} path - Directory path to read (must be non-empty).
+ * @returns {Result<StrArray>} `Result<StrArray>` — array of filenames, or `VALIDATION.SCHEMA_FAILED` / `IO.READDIR_FAILED` on error.
  *
  * @example
  * ```typescript
@@ -355,8 +355,8 @@ export function readDir(path: Path): Result<StrArray> {
  * this is expected behavior, not an error. Only schema validation failure
  * returns an error Result.
  *
- * @param path - Path to check (must be non-empty).
- * @returns `Result<Bool>` — `true` if directory, `false` otherwise.
+ * @param {Path} path - Path to check (must be non-empty).
+ * @returns {Result<Bool>} `Result<Bool>` — `true` if directory, `false` otherwise.
  *
  * @example
  * ```typescript
@@ -390,8 +390,8 @@ export function isDirectory(path: Path): Result<Bool> {
  * Returns `Result<NonNegativeNumber>` with the `mtimeMs` value.
  * If the file doesn't exist or is inaccessible, returns an error Result.
  *
- * @param path - Absolute or relative file path (must be non-empty).
- * @returns `Result<NonNegativeNumber>` — modification timestamp in ms.
+ * @param {Path} path - Absolute or relative file path (must be non-empty).
+ * @returns {Result<NonNegativeNumber>} `Result<NonNegativeNumber>` — modification timestamp in ms.
  *
  * @example
  * ```typescript
@@ -433,8 +433,8 @@ export function getFileMtimeMs(path: Path): Result<NonNegativeNumber> {
  * Parse JSON content that may contain `//` comments.
  * Removes single-line comments before parsing.
  *
- * @param content - JSON string with optional single-line comments.
- * @returns `Result<T>` — parsed value, or `VALIDATION.SCHEMA_FAILED` / `VALIDATION.INVALID_FORMAT` on error.
+ * @param {FileContent} content - JSON string with optional single-line comments.
+ * @returns {Result<T>} `Result<T>` — parsed value, or `VALIDATION.SCHEMA_FAILED` / `VALIDATION.INVALID_FORMAT` on error.
  *
  * @example
  * ```typescript

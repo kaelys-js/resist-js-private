@@ -76,9 +76,9 @@ function getWorkspaceMarkers(): Result<StrArray> {
  * checking for a `package.json` with a `workspaces` field as a universal
  * secondary check for npm/yarn/bun compatibility.
  *
- * @param startDir - Directory to start searching from (defaults to cwd).
- * @param marker - Specific marker file to look for (auto-detected if not provided).
- * @returns `Result<Path>` — workspace root path, or `CONFIG.NOT_FOUND` if no
+ * @param {Path} startDir - Directory to start searching from (defaults to cwd).
+ * @param {Filename} marker - Specific marker file to look for (auto-detected if not provided).
+ * @returns {Result<Path>} `Result<Path>` — workspace root path, or `CONFIG.NOT_FOUND` if no
  *          workspace is found, or `VALIDATION.SCHEMA_FAILED` on invalid input.
  *
  * @example
@@ -198,8 +198,8 @@ export function findWorkspaceRoot(startDir?: Path, marker?: Filename): Result<Pa
  * Returns a discriminated union result — the caller handles logging
  * and error messages with localized strings.
  *
- * @param cwdPath - Current working directory (defaults to `cwd()`).
- * @returns `Result<EnsureWorkspaceRootResult>` — status indicating outcome,
+ * @param {Path} cwdPath - Current working directory (defaults to `cwd()`).
+ * @returns {Result<EnsureWorkspaceRootResult>} `Result<EnsureWorkspaceRootResult>` — status indicating outcome,
  *          or `VALIDATION.SCHEMA_FAILED` on invalid input.
  *
  * @example

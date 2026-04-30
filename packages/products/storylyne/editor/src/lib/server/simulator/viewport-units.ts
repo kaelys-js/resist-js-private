@@ -39,7 +39,7 @@ export type ViewportUnits = {
  * Uses CSS custom properties set via `100svh`, `100lvh`, `100dvh`
  * on a temporary element to extract the computed pixel values.
  *
- * @returns JavaScript expression that evaluates to a JSON string
+ * @returns {Str} JavaScript expression that evaluates to a JSON string
  *
  * @example
  * const script = buildViewportUnitsScript();
@@ -69,8 +69,8 @@ export function buildViewportUnitsScript(): Str {
 /**
  * Parse the JSON result of a viewport units measurement.
  *
- * @param json - JSON string from `Runtime.evaluate` result
- * @returns Parsed viewport units or null if invalid
+ * @param {Str} json - JSON string from `Runtime.evaluate` result
+ * @returns {ViewportUnits | null} Parsed viewport units or null if invalid
  *
  * @example
  * const units = parseViewportUnitsResult('{"svh":7.12,"lvh":8.44,"dvh":7.12}');

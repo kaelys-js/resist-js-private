@@ -239,8 +239,8 @@ export const DEFAULT_SHORTCUTS: ShortcutRegistry = {
 /**
  * Checks whether the event target is an editable element (input, textarea, contenteditable).
  *
- * @param e - The keyboard event to check
- * @returns True if the target is an editable element that should consume keystrokes
+ * @param {KeyboardEvent} e - The keyboard event to check
+ * @returns {Bool} True if the target is an editable element that should consume keystrokes
  *
  * @example
  * ```typescript
@@ -275,9 +275,9 @@ export function isEditableTarget(e: KeyboardEvent): Bool {
  * Automatically returns false if the target is an editable element (unless the
  * shortcut uses Escape which should always work).
  *
- * @param e - The keyboard event
- * @param shortcut - The shortcut definition to match against
- * @returns True if the event matches the shortcut
+ * @param {KeyboardEvent} e - The keyboard event
+ * @param {KeyboardShortcut} shortcut - The shortcut definition to match against
+ * @returns {Bool} True if the event matches the shortcut
  *
  * @example
  * ```typescript
@@ -364,8 +364,8 @@ const MODIFIER_ORDER: readonly ModifierKey[] = ['ctrl', 'cmdOrCtrl', 'meta', 'sh
  * - Mac: `⌃+1`, `⌘+B`, `⌃+Shift+D`
  * - Windows/Linux: `Ctrl+1`, `Ctrl+B`, `Ctrl+Shift+D`
  *
- * @param shortcut - The shortcut to format
- * @returns Platform-aware display string
+ * @param {KeyboardShortcut} shortcut - The shortcut to format
+ * @returns {Str} Platform-aware display string
  *
  * @example
  * ```typescript
@@ -414,8 +414,8 @@ export type ShortcutConflict = v.InferOutput<typeof ShortcutConflictSchema>;
  * Two shortcuts conflict if they share the same key + modifiers AND
  * are in the same context (or either is `'global'`).
  *
- * @param registry - The shortcut registry to scan
- * @returns Array of detected conflicts (empty if none)
+ * @param {ShortcutRegistry} registry - The shortcut registry to scan
+ * @returns {ShortcutConflict[]} Array of detected conflicts (empty if none)
  *
  * @example
  * ```typescript
@@ -474,8 +474,8 @@ export function detectConflicts(registry: ShortcutRegistry): ShortcutConflict[] 
  *
  * Useful for rendering a keyboard shortcuts help dialog.
  *
- * @param registry - The shortcut registry
- * @returns Sorted array of all shortcuts
+ * @param {ShortcutRegistry} registry - The shortcut registry
+ * @returns {KeyboardShortcut[]} Sorted array of all shortcuts
  *
  * @example
  * ```typescript
@@ -504,11 +504,11 @@ export function getAllShortcuts(registry: ShortcutRegistry): KeyboardShortcut[] 
  * - The shortcut ID is unknown
  * - The new binding would create a conflict
  *
- * @param registry - Current shortcut registry
- * @param id - ID of the shortcut to update
- * @param key - New key binding
- * @param modifiers - New modifier keys
- * @returns Result containing the updated registry or a validation error
+ * @param {ShortcutRegistry} registry - Current shortcut registry
+ * @param {Str} id - ID of the shortcut to update
+ * @param {Str} key - New key binding
+ * @param {readonly ModifierKey[]} modifiers - New modifier keys
+ * @returns {Result<ShortcutRegistry>} Result containing the updated registry or a validation error
  *
  * @example
  * ```typescript
@@ -560,9 +560,9 @@ export function updateShortcut(
 /**
  * Resets a single shortcut to its default key and modifiers.
  *
- * @param registry - Current shortcut registry
- * @param id - ID of the shortcut to reset
- * @returns Result containing the updated registry
+ * @param {ShortcutRegistry} registry - Current shortcut registry
+ * @param {Str} id - ID of the shortcut to reset
+ * @returns {Result<ShortcutRegistry>} Result containing the updated registry
  *
  * @example
  * ```typescript
@@ -593,7 +593,7 @@ export function resetShortcut(registry: ShortcutRegistry, id: Str): Result<Short
 /**
  * Resets all shortcuts to their default bindings.
  *
- * @returns A fresh copy of the default shortcut registry
+ * @returns {ShortcutRegistry} A fresh copy of the default shortcut registry
  *
  * @example
  * ```typescript

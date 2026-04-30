@@ -101,8 +101,8 @@ const DEVICE_DIMENSIONS: Map<Str, { width: Num; height: Num; density: Num }> = n
  *
  * Each non-empty line of the output is an AVD name.
  *
- * @param output - Raw stdout from `emulator -list-avds`
- * @returns Array of AVD names
+ * @param {Str} output - Raw stdout from `emulator -list-avds`
+ * @returns {Str[]} Array of AVD names
  *
  * @example
  * const avds = parseAvdList('Pixel_9_API_35\nMedium_Phone_API_35\n');
@@ -118,8 +118,8 @@ export function parseAvdList(output: Str): Str[] {
 /**
  * Parse an AVD config.ini file into a key-value map.
  *
- * @param content - Raw text content of config.ini
- * @returns Map of configuration keys to values
+ * @param {Str} content - Raw text content of config.ini
+ * @returns {Record<Str, Str>} Map of configuration keys to values
  *
  * @example
  * const config = parseConfigIni('hw.lcd.width=1080\nhw.lcd.height=2400');
@@ -201,8 +201,8 @@ function buildDeviceFromConfig(name: Str, config: Record<Str, Str>, deviceId?: S
  * ---------
  * ```
  *
- * @param output - Raw stdout from `avdmanager list device`
- * @returns Array of parsed device profiles
+ * @param {Str} output - Raw stdout from `avdmanager list device`
+ * @returns {DeviceProfile[]} Array of parsed device profiles
  *
  * @example
  * const profiles = parseDeviceProfiles('id: 46 or "pixel_9"\n    Name: Pixel 9\n...');
@@ -334,8 +334,8 @@ const EXCLUDED_SIZE_PREFIXES: Str[] = [
  * Excludes automotive, TV, wearOS, desktop, XR, glasses, legacy Nexus/Galaxy,
  * pre-Pixel 6 devices, and legacy screen size profiles.
  *
- * @param profiles - All device profiles from the SDK
- * @returns Filtered profiles for phones and tablets only
+ * @param {DeviceProfile[]} profiles - All device profiles from the SDK
+ * @returns {DeviceProfile[]} Filtered profiles for phones and tablets only
  */
 export function filterPhoneAndTabletProfiles(profiles: DeviceProfile[]): DeviceProfile[] {
   return profiles.filter((profile: DeviceProfile): boolean => {
@@ -389,8 +389,8 @@ export function filterPhoneAndTabletProfiles(profiles: DeviceProfile[]): DeviceP
 /**
  * List all available AVDs using the `emulator` binary.
  *
- * @param emulatorPath - Path to the `emulator` binary
- * @returns Array of AVD name strings
+ * @param {Str} emulatorPath - Path to the `emulator` binary
+ * @returns {Promise<Str[]>} Array of AVD name strings
  *
  * @example
  * const avds = await listAvds('/Users/me/Library/Android/sdk/emulator/emulator');
@@ -408,8 +408,8 @@ export async function listAvds(emulatorPath: Str): Promise<Str[]> {
 /**
  * List all hardware device profiles available in the SDK.
  *
- * @param avdmanagerPath - Path to the `avdmanager` binary
- * @returns Array of device profiles (filtered to phones/tablets)
+ * @param {Str} avdmanagerPath - Path to the `avdmanager` binary
+ * @returns {Promise<DeviceProfile[]>} Array of device profiles (filtered to phones/tablets)
  *
  * @example
  * const profiles = await listDeviceProfiles('/path/to/avdmanager');
@@ -428,8 +428,8 @@ export async function listDeviceProfiles(avdmanagerPath: Str): Promise<DevicePro
 /**
  * List installed system images for AVD creation.
  *
- * @param avdmanagerPath - Path to the `avdmanager` binary
- * @returns Array of system image identifiers (e.g. 'system-images;android-35;google_apis;arm64-v8a')
+ * @param {Str} avdmanagerPath - Path to the `avdmanager` binary
+ * @returns {Promise<Str[]>} Array of system image identifiers (e.g. 'system-images;android-35;google_apis;arm64-v8a')
  */
 export async function listSystemImages(avdmanagerPath: Str): Promise<Str[]> {
   try {
@@ -463,8 +463,8 @@ export async function listSystemImages(avdmanagerPath: Str): Promise<Str[]> {
  *
  * Reads each AVD's config.ini to extract dimensions, density, and API level.
  *
- * @param emulatorPath - Path to the `emulator` binary
- * @returns Array of AndroidDevice profiles
+ * @param {Str} emulatorPath - Path to the `emulator` binary
+ * @returns {Promise<AndroidDevice[]>} Array of AndroidDevice profiles
  *
  * @example
  * const devices = await getAndroidDevices('/path/to/emulator');
@@ -512,9 +512,9 @@ export async function getAndroidDevices(emulatorPath: Str): Promise<AndroidDevic
  * hardware profiles (with dimensions from static lookup). Created AVDs that
  * match a hardware profile are deduplicated.
  *
- * @param emulatorPath - Path to the `emulator` binary
- * @param avdmanagerPath - Path to the `avdmanager` binary
- * @returns Merged array of all device profiles
+ * @param {Str} emulatorPath - Path to the `emulator` binary
+ * @param {Str} avdmanagerPath - Path to the `avdmanager` binary
+ * @returns {Promise<AndroidDevice[]>} Merged array of all device profiles
  *
  * @example
  * const all = await getAndroidDeviceProfiles('/path/to/emulator', '/path/to/avdmanager');
@@ -566,10 +566,10 @@ export async function getAndroidDeviceProfiles(
  * Runs `avdmanager create avd` with the specified device ID and system image.
  * The AVD name is derived from the device ID with an API level suffix.
  *
- * @param avdmanagerPath - Path to the `avdmanager` binary
- * @param deviceId - Hardware profile device ID (e.g. 'pixel_9')
- * @param systemImage - System image identifier (e.g. 'system-images;android-35;google_apis;arm64-v8a')
- * @returns The name of the created AVD
+ * @param {Str} avdmanagerPath - Path to the `avdmanager` binary
+ * @param {Str} deviceId - Hardware profile device ID (e.g. 'pixel_9')
+ * @param {Str} systemImage - System image identifier (e.g. 'system-images;android-35;google_apis;arm64-v8a')
+ * @returns {Promise<Str>} The name of the created AVD
  *
  * @example
  * const name = await createAvd('/path/to/avdmanager', 'pixel_9', 'system-images;android-35;...');

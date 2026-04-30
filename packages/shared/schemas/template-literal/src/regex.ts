@@ -67,8 +67,8 @@ const SLUG_PATTERN: Str = '[a-z0-9]+(?:-[a-z0-9]+)*';
 /**
  * Escapes special regex characters in a string.
  *
- * @param str - The string to escape.
- * @returns Result containing the regex-safe string.
+ * @param {Str} str - The string to escape.
+ * @returns {Result<Str>} Result containing the regex-safe string.
  *
  * @example
  * ```typescript
@@ -262,8 +262,8 @@ function _introspectPipe(pipe: readonly unknown[], basePattern: Str): Result<Str
  * Handles all supported schema types including piped schemas
  * (with full pipe introspection for tighter patterns).
  *
- * @param schema - A Valibot schema that participates as a template literal part.
- * @returns Result containing the regex fragment string (without anchors).
+ * @param {v.GenericSchema} schema - A Valibot schema that participates as a template literal part.
+ * @returns {Result<Str>} Result containing the regex fragment string (without anchors).
  */
 export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
   const { type: schemaType }: v.GenericSchema = schema;
@@ -434,8 +434,8 @@ export function schemaToRegex(schema: v.GenericSchema): Result<Str> {
  *
  * Concatenates regex fragments from all parts, wraps in `^...$`.
  *
- * @param parts - Array of string literals and schema objects.
- * @returns Result containing the compiled RegExp.
+ * @param {readonly TemplateLiteralPart[]} parts - Array of string literals and schema objects.
+ * @returns {Result<RegExp>} Result containing the compiled RegExp.
  *
  * @example
  * ```typescript
@@ -475,8 +475,8 @@ export function buildRegex(parts: readonly TemplateLiteralPart[]): Result<RegExp
  *
  * Produces a string like `` `user_${number}` `` that describes the expected pattern.
  *
- * @param parts - The template literal parts.
- * @returns Result containing the expects string.
+ * @param {readonly TemplateLiteralPart[]} parts - The template literal parts.
+ * @returns {Result<Str>} Result containing the expects string.
  *
  * @example
  * ```typescript

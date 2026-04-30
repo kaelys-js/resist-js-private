@@ -16,8 +16,8 @@ import type { WorkspaceContext, WorkspacePackage } from '@/lint/framework/rule-c
  * Collect inputs for vscode workspace rules: every .ts file plus every
  * resolved package.json path.
  *
- * @param ctx - Workspace context
- * @returns Absolute paths whose contents affect vscode/* rule outputs
+ * @param {WorkspaceContext} ctx - Workspace context
+ * @returns {Promise<readonly string[]>} Absolute paths whose contents affect vscode/* rule outputs
  */
 export async function vscodeRuleInputs(ctx: WorkspaceContext): Promise<readonly string[]> {
   const tsFiles: readonly string[] = await ctx.filesByExtension('.ts');

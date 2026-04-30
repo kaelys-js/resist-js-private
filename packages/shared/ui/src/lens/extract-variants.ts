@@ -22,8 +22,8 @@ import type { VariantKeyMeta, VariantMeta } from './types.js';
  * Looks for a `tv(...)` call containing a `variants` object, then parses
  * each variant key and its options. Also extracts `defaultVariants` if present.
  *
- * @param source - Raw .svelte file content
- * @returns VariantMeta with all variant keys, or null if no tv() call found
+ * @param {string} source - Raw .svelte file content
+ * @returns {VariantMeta | null} VariantMeta with all variant keys, or null if no tv() call found
  */
 export function extractVariants(source: string): VariantMeta | null {
   if (!source) {

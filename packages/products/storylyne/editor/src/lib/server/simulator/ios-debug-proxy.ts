@@ -52,7 +52,7 @@ const DEFAULT_PROXY_PORT: Num = 27_753 as Num;
 /**
  * Check if ios-webkit-debug-proxy is installed.
  *
- * @returns `true` if the binary is found on PATH
+ * @returns {Promise<Bool>} `true` if the binary is found on PATH
  *
  * @example
  * const installed = await isDebugProxyInstalled();
@@ -75,9 +75,9 @@ export async function isDebugProxyInstalled(): Promise<Bool> {
 /**
  * Build command-line arguments for ios_webkit_debug_proxy.
  *
- * @param udid - Device UDID to proxy
- * @param port - Port to listen on (default: 27753)
- * @returns Array of CLI arguments
+ * @param {Str} udid - Device UDID to proxy
+ * @param {number} port - Port to listen on (default: 27753)
+ * @returns {Str[]} Array of CLI arguments
  *
  * @example
  * const args = buildProxyArgs('ABCD-1234');
@@ -92,9 +92,9 @@ export function buildProxyArgs(udid: Str, port: number = DEFAULT_PROXY_PORT as n
  *
  * If a proxy is already running, this stops it first.
  *
- * @param udid - Device UDID to proxy
- * @param port - Port to listen on (default: 27753)
- * @returns `true` if proxy started successfully
+ * @param {Str} udid - Device UDID to proxy
+ * @param {Num} port - Port to listen on (default: 27753)
+ * @returns {Promise<Bool>} `true` if proxy started successfully
  * @throws If ios_webkit_debug_proxy is not installed
  *
  * @example
@@ -132,7 +132,7 @@ export async function startDebugProxy(udid: Str, port: Num = DEFAULT_PROXY_PORT)
  *
  * Idempotent — does nothing if no proxy is running.
  *
- * @returns `true` when proxy is stopped
+ * @returns {Bool} `true` when proxy is stopped
  */
 export function stopDebugProxy(): Bool {
   if (proxyProcess) {
@@ -146,7 +146,7 @@ export function stopDebugProxy(): Bool {
 /**
  * Check if the debug proxy is currently running.
  *
- * @returns `true` if proxy process exists and hasn't exited
+ * @returns {Bool} `true` if proxy process exists and hasn't exited
  */
 export function isProxyRunning(): Bool {
   if (!proxyProcess) {
@@ -158,7 +158,7 @@ export function isProxyRunning(): Bool {
 /**
  * Get the port the debug proxy is listening on.
  *
- * @returns Port number, or 0 if not running
+ * @returns {Num} Port number, or 0 if not running
  */
 export function getProxyPort(): Num {
   return proxyPort;
@@ -175,8 +175,8 @@ export function getProxyPort(): Num {
  * that returns an array of inspectable targets. This function parses
  * that response.
  *
- * @param json - JSON string from the debug proxy's /json endpoint
- * @returns Array of inspectable page descriptors
+ * @param {Str} json - JSON string from the debug proxy's /json endpoint
+ * @returns {InspectablePage[]} Array of inspectable page descriptors
  *
  * @example
  * const response = await fetch('http://localhost:27753/json');
@@ -209,8 +209,8 @@ export function parseInspectablePages(json: Str): InspectablePage[] {
 /**
  * Fetch inspectable pages from the running debug proxy.
  *
- * @param port - Debug proxy port (default: uses current proxy port)
- * @returns Array of inspectable pages, or empty if proxy is not reachable
+ * @param {Num} port - Debug proxy port (default: uses current proxy port)
+ * @returns {Promise<InspectablePage[]>} Array of inspectable pages, or empty if proxy is not reachable
  *
  * @example
  * const pages = await getInspectablePages();

@@ -17,8 +17,8 @@ import { twMerge } from 'tailwind-merge';
  * Combines multiple class values (strings, arrays, conditionals) and
  * resolves Tailwind CSS conflicts so the last utility wins.
  *
- * @param inputs - Class values to merge.
- * @returns Merged class string with Tailwind conflicts resolved.
+ * @param {ClassValue[]} inputs - Class values to merge.
+ * @returns {Str} Merged class string with Tailwind conflicts resolved.
  *
  * @example
  * ```typescript

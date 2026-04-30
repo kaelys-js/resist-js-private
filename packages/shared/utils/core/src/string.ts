@@ -42,9 +42,9 @@ function stripAnsi(str: Str): Str {
 /**
  * Right-pads a string with spaces to a given visible length.
  *
- * @param str - String to pad.
- * @param length - Target visible length (non-negative integer).
- * @returns `Result<Str>` — padded string, or a validation error.
+ * @param {Str} str - String to pad.
+ * @param {NonNegativeInteger} length - Target visible length (non-negative integer).
+ * @returns {Result<Str>} `Result<Str>` — padded string, or a validation error.
  *
  * @example
  * ```typescript
@@ -81,9 +81,9 @@ export function padRight(str: Str, length: NonNegativeInteger): Result<Str> {
  * Accounts for ANSI escape codes (they don't take visual space).
  * Adds ellipsis if truncated.
  *
- * @param line - String to truncate (may contain ANSI codes).
- * @param maxWidth - Maximum visible character width (non-negative integer).
- * @returns `Result<Str>` — truncated string, or a validation error.
+ * @param {Str} line - String to truncate (may contain ANSI codes).
+ * @param {NonNegativeInteger} maxWidth - Maximum visible character width (non-negative integer).
+ * @returns {Result<Str>} `Result<Str>` — truncated string, or a validation error.
  *
  * @example
  * ```typescript
@@ -146,8 +146,8 @@ export function truncateLine(line: Str, maxWidth: NonNegativeInteger): Result<St
 /**
  * Converts a kebab-case string to camelCase.
  *
- * @param name - Kebab-case string (e.g., `'fail-fast'`).
- * @returns `Result<Str>` — camelCase equivalent (e.g., `'failFast'`), or a validation error.
+ * @param {Str} name - Kebab-case string (e.g., `'fail-fast'`).
+ * @returns {Result<CamelCaseString>} `Result<Str>` — camelCase equivalent (e.g., `'failFast'`), or a validation error.
  *
  * @example
  * ```typescript

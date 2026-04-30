@@ -54,7 +54,7 @@ export function walkBody(node: AstNode, callback: (child: AstNode) => boolean | 
  * Matches both `obj.method()` (StaticMemberExpression) patterns.
  * @param {string} methodName - Description
  * @param {AstNode} node - Description
- * @returns Description
+ * @returns {boolean} Description
  */
 export function isCallTo(node: AstNode, methodName: string): boolean {
   if (node.type !== 'CallExpression') {
@@ -78,7 +78,7 @@ export function isCallTo(node: AstNode, methodName: string): boolean {
 /**
  * Check if a node is any loop type.
  * @param {AstNode} node - Description
- * @returns Description
+ * @returns {boolean} Description
  */
 export function isLoopNode(node: AstNode): boolean {
   return LOOP_TYPES.has(node.type);
@@ -88,7 +88,7 @@ export function isLoopNode(node: AstNode): boolean {
  * Get the callee object name from a method call (e.g., `arr` from `arr.find()`).
  * Returns undefined if the callee is not a simple identifier.
  * @param {AstNode} node - Description
- * @returns Description
+ * @returns {string | undefined} Description
  */
 export function getCalleeObjectName(node: AstNode): string | undefined {
   const { callee } = node;
@@ -113,7 +113,7 @@ export function getCalleeObjectName(node: AstNode): string | undefined {
  * Returns the first matching CallExpression node, or undefined.
  * @param {string} methodName - Description
  * @param {AstNode} node - Description
- * @returns Description
+ * @returns {AstNode | undefined} Description
  */
 export function findCallInBody(node: AstNode, methodName: string): AstNode | undefined {
   let found: AstNode | undefined;
@@ -131,7 +131,7 @@ export function findCallInBody(node: AstNode, methodName: string): AstNode | und
  * Returns the first matching node, or undefined.
  * @param {string} nodeType - Description
  * @param {AstNode} node - Description
- * @returns Description
+ * @returns {AstNode | undefined} Description
  */
 export function findNodeInBody(node: AstNode, nodeType: string): AstNode | undefined {
   let found: AstNode | undefined;
@@ -148,7 +148,7 @@ export function findNodeInBody(node: AstNode, nodeType: string): AstNode | undef
  * Check if a loop body contains a `new X()` expression with the given constructor name.
  * @param {string} constructorName - Description
  * @param {AstNode} node - Description
- * @returns Description
+ * @returns {AstNode | undefined} Description
  */
 export function findNewExprInBody(node: AstNode, constructorName: string): AstNode | undefined {
   let found: AstNode | undefined;
@@ -170,7 +170,7 @@ export function findNewExprInBody(node: AstNode, constructorName: string): AstNo
 /**
  * Check if a loop body contains an assignment expression with += operator.
  * @param {AstNode} node - Description
- * @returns Description
+ * @returns {AstNode | undefined} Description
  */
 export function findPlusAssignInBody(node: AstNode): AstNode | undefined {
   let found: AstNode | undefined;
@@ -189,7 +189,7 @@ export function findPlusAssignInBody(node: AstNode): AstNode | undefined {
  * @param {string} propertyName - Description
  * @param {string} objectName - Description
  * @param {AstNode} node - Description
- * @returns Description
+ * @returns {AstNode | undefined} Description
  */
 export function findStaticMemberCallInBody(
   node: AstNode,
@@ -230,7 +230,7 @@ export function findStaticMemberCallInBody(
 /**
  * Check if a loop body contains an AwaitExpression.
  * @param {AstNode} node - Description
- * @returns Description
+ * @returns {AstNode | undefined} Description
  */
 export function findAwaitInBody(node: AstNode): AstNode | undefined {
   return findNodeInBody(node, 'AwaitExpression');
@@ -239,7 +239,7 @@ export function findAwaitInBody(node: AstNode): AstNode | undefined {
 /**
  * Check if a loop body contains a SpreadElement.
  * @param {AstNode} node - Description
- * @returns Description
+ * @returns {AstNode | undefined} Description
  */
 export function findSpreadInBody(node: AstNode): AstNode | undefined {
   return findNodeInBody(node, 'SpreadElement');

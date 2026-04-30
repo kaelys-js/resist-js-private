@@ -738,7 +738,7 @@ function registerBunHandlers(options: GlobalErrorHandlerOptions, runtime: Runtim
  * Gets the global AbortSignal for task cancellation.
  * Creates a new AbortController if one doesn't exist.
  *
- * @returns `Result<AbortSignal>` — global AbortSignal for cooperative cancellation, or a validation error.
+ * @returns {Result<AbortSignal>} `Result<AbortSignal>` — global AbortSignal for cooperative cancellation, or a validation error.
  *
  * @example
  * ```typescript
@@ -790,8 +790,8 @@ export function getAbortSignal(): Result<AbortSignal> {
  * All errors are normalized into {@link CapturedError} objects and routed
  * through the `onError` callback. Returns a teardown function.
  *
- * @param options - Handler configuration validated against {@link GlobalErrorHandlerOptionsSchema}.
- * @returns `Result<TeardownFn>` — teardown function that removes all listeners, or setup error.
+ * @param {GlobalErrorHandlerOptions} options - Handler configuration validated against {@link GlobalErrorHandlerOptionsSchema}.
+ * @returns {Result<TeardownFn>} `Result<TeardownFn>` — teardown function that removes all listeners, or setup error.
  *
  * @example
  * ```typescript
@@ -905,9 +905,9 @@ export function setupGlobalErrorHandling(options: GlobalErrorHandlerOptions): Re
  * If no global error handler is registered (e.g., `setupGlobalErrorHandling()`
  * was never called), the CapturedError is returned but no callback is invoked.
  *
- * @param appError - The structured AppError from a failed Result.
- * @param fatal - Whether this error will cause process termination. Default: `true`.
- * @returns `Result<CapturedError>` — the constructed CapturedError envelope.
+ * @param {AppError} appError - The structured AppError from a failed Result.
+ * @param {Bool} fatal - Whether this error will cause process termination. Default: `true`.
+ * @returns {Result<CapturedError>} `Result<CapturedError>` — the constructed CapturedError envelope.
  *
  * @example
  * ```typescript
@@ -980,9 +980,9 @@ export function reportError(appError: AppError, fatal: Bool = true as Bool): Res
  * each {@link CapturedError} into a call to the provided `onInterrupt`
  * callback with the signal/error name string.
  *
- * @param onInterrupt - Callback invoked with the signal/error name.
+ * @param {InterruptHandler} onInterrupt - Callback invoked with the signal/error name.
  *   Fire-and-forget (event handler context) — cannot return Result.
- * @returns `Result<Void>` — success, or a validation error.
+ * @returns {Result<Void>} `Result<Void>` — success, or a validation error.
  *
  * @example
  * ```typescript
@@ -1035,8 +1035,8 @@ export function setupSignalHandlers(onInterrupt: InterruptHandler): Result<Void>
  *
  * No-ops in non-Node environments.
  *
- * @param callback - Cleanup function to run on SIGINT/SIGTERM. Validated via `CleanupCallbackSchema`.
- * @returns `Result<Void>` — success, or a validation error.
+ * @param {CleanupCallback} callback - Cleanup function to run on SIGINT/SIGTERM. Validated via `CleanupCallbackSchema`.
+ * @returns {Result<Void>} `Result<Void>` — success, or a validation error.
  *
  * @example
  * ```typescript
@@ -1071,7 +1071,7 @@ export function registerCleanupHandler(callback: CleanupCallback): Result<Void> 
  * Clears the global AbortController, teardown listeners, re-entrancy
  * guard, and exit timeout. Allows re-registration after reset.
  *
- * @returns `Result<Void>` — success.
+ * @returns {Result<Void>} `Result<Void>` — success.
  *
  * @example
  * ```typescript
@@ -1105,9 +1105,9 @@ export function resetSignalHandlers(): Result<Void> {
  * The original error is re-thrown after handling so the caller's
  * error handling is not disrupted.
  *
- * @param fn - Async function to wrap.
- * @param onError - Error handler callback.
- * @returns `Result<(...args: TArgs) => Promise<TReturn>>` — wrapped function, or validation error.
+ * @param {(...args: TArgs) => Promise<TReturn>} fn - Async function to wrap.
+ * @param {(captured: CapturedError) => void} onError - Error handler callback.
+ * @returns {Result<(...args: TArgs) => Promise<TReturn>>} `Result<(...args: TArgs) => Promise<TReturn>>` — wrapped function, or validation error.
  *
  * @example
  * ```typescript
@@ -1149,9 +1149,9 @@ export function wrapAsync<TArgs extends Array<unknown>, TReturn>(
  * Catches errors inside the fetch handler and routes them through
  * the error handler. Returns a 500 Response on unhandled error.
  *
- * @param handler - The fetch handler function.
- * @param onError - Error handler callback.
- * @returns `Result<(request: Request, env: unknown, ctx: unknown) => Promise<Response>>` —
+ * @param {(request: Request, env: unknown, ctx: unknown) => Promise<Response>} handler - The fetch handler function.
+ * @param {(captured: CapturedError) => void} onError - Error handler callback.
+ * @returns {Result<(request: Request, env: unknown, ctx: unknown) => Promise<Response>>} `Result<(request: Request, env: unknown, ctx: unknown) => Promise<Response>>` —
  *   wrapped handler, or validation error.
  *
  * @example
@@ -1195,9 +1195,9 @@ export function wrapFetchHandler(
  * Routes WebSocket error events through the handler. Returns a
  * teardown function to remove the listener.
  *
- * @param ws - WebSocket instance.
- * @param onError - Error handler callback.
- * @returns `Result<TeardownFn>` — teardown function, or validation error.
+ * @param {WebSocket} ws - WebSocket instance.
+ * @param {(captured: CapturedError) => void} onError - Error handler callback.
+ * @returns {Result<TeardownFn>} `Result<TeardownFn>` — teardown function, or validation error.
  *
  * @example
  * ```typescript

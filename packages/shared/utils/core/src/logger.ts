@@ -91,8 +91,8 @@ let currentLogLevel: LogLevel = DEFAULT_LOG_LEVEL;
  * Validates input against `LogLevelSchema`. If invalid, the level is
  * unchanged (no-op).
  *
- * @param level - Log level to set.
- * @returns `Result<Void>` — success, or a validation error if `level` is invalid.
+ * @param {LogLevel} level - Log level to set.
+ * @returns {Result<Void>} `Result<Void>` — success, or a validation error if `level` is invalid.
  *
  * @example
  * ```typescript
@@ -112,7 +112,7 @@ export function setLogLevel(level: LogLevel): Result<Void> {
 /**
  * Get the current log level.
  *
- * @returns `Result<LogLevel>` — the current log level.
+ * @returns {Result<LogLevel>} `Result<LogLevel>` — the current log level.
  *
  * @example
  * ```typescript
@@ -131,8 +131,8 @@ export function getLogLevel(): Result<LogLevel> {
  * Messages are logged when their level index is less than or equal to
  * the current log level index. The `'silent'` level is never logged.
  *
- * @param level - Level of the message to check.
- * @returns `Result<Bool>` — `true` if the message should be logged,
+ * @param {LogLevel} level - Level of the message to check.
+ * @returns {Result<Bool>} `Result<Bool>` — `true` if the message should be logged,
  *          or a validation error if `level` is invalid.
  *
  * @example
@@ -168,8 +168,8 @@ let currentContext: LogContext = {};
  *
  * Works in all runtimes: CLI, API workers, browser, mobile.
  *
- * @param context - Operational context to set.
- * @returns `Result<Void>` — success, or a validation error.
+ * @param {LogContext} context - Operational context to set.
+ * @returns {Result<Void>} `Result<Void>` — success, or a validation error.
  *
  * @example
  * ```typescript
@@ -197,7 +197,7 @@ export function setContext(context: LogContext): Result<Void> {
 /**
  * Get the current global log context.
  *
- * @returns `Result<LogContext>` — the current context.
+ * @returns {Result<LogContext>} `Result<LogContext>` — the current context.
  *
  * @example
  * ```typescript
@@ -223,8 +223,8 @@ export function getContext(): Result<LogContext> {
  * Existing fields are preserved. New fields are added or overwrite
  * existing ones with the same key.
  *
- * @param partial - Context fields to merge.
- * @returns `Result<Void>` — success, or a validation error.
+ * @param {LogContext} partial - Context fields to merge.
+ * @returns {Result<Void>} `Result<Void>` — success, or a validation error.
  *
  * @example
  * ```typescript
@@ -288,8 +288,8 @@ let _transports: TransportConfig[] = [];
  * Multiple transports can be registered (fan-out). Each transport can have
  * its own minimum log level.
  *
- * @param config - Transport configuration.
- * @returns `Result<Void>` — success or validation error.
+ * @param {TransportConfig} config - Transport configuration.
+ * @returns {Result<Void>} `Result<Void>` — success or validation error.
  *
  * @example
  * ```typescript
@@ -314,8 +314,8 @@ export function addTransport(config: TransportConfig): Result<Void> {
 /**
  * Removes a transport by name.
  *
- * @param name - Name of the transport to remove.
- * @returns `Result<Bool>` — `true` if a transport was removed.
+ * @param {Str} name - Name of the transport to remove.
+ * @returns {Result<Bool>} `Result<Bool>` — `true` if a transport was removed.
  */
 export function removeTransport(name: Str): Result<Bool> {
   const input: Result<Str> = safeParse(StrSchema, name);
@@ -330,7 +330,7 @@ export function removeTransport(name: Str): Result<Bool> {
 /**
  * Removes all transports.
  *
- * @returns `Result<Void>`
+ * @returns {Result<Void>} `Result<Void>`
  */
 export function clearTransports(): Result<Void> {
   _transports = [];
@@ -408,8 +408,8 @@ let _redactionConfig: RedactionConfig = {
  * Fields matching the configured paths are replaced with the censor string
  * in all structured log output.
  *
- * @param config - Redaction configuration.
- * @returns `Result<Void>` — success or validation error.
+ * @param {RedactionConfig} config - Redaction configuration.
+ * @returns {Result<Void>} `Result<Void>` — success or validation error.
  *
  * @example
  * ```typescript
@@ -488,8 +488,8 @@ let _samplingConfig: SamplingConfig | undefined;
  * When enabled, only a fraction of log entries are emitted.
  * Error logs are always sampled (never dropped) unless overridden.
  *
- * @param config - Sampling configuration.
- * @returns `Result<Void>` — success or validation error.
+ * @param {SamplingConfig} config - Sampling configuration.
+ * @returns {Result<Void>} `Result<Void>` — success or validation error.
  *
  * @example
  * ```typescript
@@ -508,7 +508,7 @@ export function setSampling(config: SamplingConfig): Result<Void> {
 /**
  * Clears sampling configuration (all logs emitted).
  *
- * @returns `Result<Void>`
+ * @returns {Result<Void>} `Result<Void>`
  */
 export function clearSampling(): Result<Void> {
   _samplingConfig = undefined;
@@ -559,8 +559,8 @@ let _flushInterval: ReturnType<typeof setInterval> | null = null;
 /**
  * Enables log buffering/batching.
  *
- * @param config - Buffer configuration.
- * @returns `Result<Void>` — success or validation error.
+ * @param {BufferConfig} config - Buffer configuration.
+ * @returns {Result<Void>} `Result<Void>` — success or validation error.
  *
  * @example
  * ```typescript
@@ -591,7 +591,7 @@ export function enableBuffer(config: BufferConfig): Result<Void> {
 /**
  * Flushes all buffered log entries.
  *
- * @returns `Result<Void>`
+ * @returns {Result<Void>} `Result<Void>`
  */
 export function flushBuffer(): Result<Void> {
   if (!_bufferConfig || _buffer.length === 0) {
@@ -613,7 +613,7 @@ export function flushBuffer(): Result<Void> {
 /**
  * Disables log buffering and flushes remaining entries.
  *
- * @returns `Result<Void>`
+ * @returns {Result<Void>} `Result<Void>`
  */
 export function disableBuffer(): Result<Void> {
   flushBuffer();
@@ -1140,8 +1140,8 @@ export type ChildLogger = {
  * entry. Optional level override. Calling `.child()` on the result creates
  * a grandchild that merges all ancestor contexts.
  *
- * @param options - Child logger configuration with context and optional level.
- * @returns `Result<ChildLogger>` — the scoped child logger.
+ * @param {ChildLoggerOptions} options - Child logger configuration with context and optional level.
+ * @returns {Result<ChildLogger>} `Result<ChildLogger>` — the scoped child logger.
  *
  * @example
  * ```typescript
@@ -1435,9 +1435,9 @@ export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogg
  * Returns a `done()` function that, when called, logs the elapsed time
  * as a structured log entry with `durationMs`.
  *
- * @param label - Operation label for the log message.
- * @param options - Optional: level (default 'debug').
- * @returns `Result<{ done: (message?: Str) => Result<Void> }>` — timer with `done()` method.
+ * @param {Str} label - Operation label for the log message.
+ * @param {{ level?: LogLevel }} options - Optional: level (default 'debug').
+ *{Result<{ done: (message?: Str) => Result<Void> }>}ult<Void> }>} `Result<{ done: (message?: Str) => Result<Void> }>` — timer with `done()` method.
  *
  * @example
  * ```typescript
@@ -1446,6 +1446,12 @@ export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogg
  * await db.query('SELECT * FROM users');
  * timer.data.done(); // logs: "database query completed in 42ms"
  * ```
+  * @param {{ level?: LogLevel }} options - Description
+  *{Result<{ done: (message?: Str) => Result<Void> }>}ult<Void> }>} Description
+  * @param {{ level?: LogLevel }} options - Description
+  * @param {{ level?: LogLevel }} options - Description
+  * @returns {Result<{ done: (message?: Str) => Result<Void> }>} Description
+  * @param {{ level?: LogLevel }} options - Description
  */
 export function startTimer(
   label: Str,
@@ -1520,7 +1526,7 @@ export function startTimer(
  * If `LOG_LEVEL` is set to a valid level, uses it. If `DEBUG` is set
  * (any value), sets level to `'debug'`. Otherwise uses the default.
  *
- * @returns `Result<LogLevel>` — the resolved log level.
+ * @returns {Result<LogLevel>} `Result<LogLevel>` — the resolved log level.
  *
  * @example
  * ```typescript
@@ -1573,9 +1579,9 @@ export function initLogLevelFromEnv(): Result<LogLevel> {
  *
  * Restores the original level after the callback completes, even if it throws.
  *
- * @param level - Temporary log level.
- * @param fn - Callback to execute at the elevated level.
- * @returns `Result<T>` — the callback's return value.
+ * @param {LogLevel} level - Temporary log level.
+ * @param {() => T} fn - Callback to execute at the elevated level.
+ * @returns {Result<T>} `Result<T>` — the callback's return value.
  *
  * @example
  * ```typescript
@@ -1625,7 +1631,7 @@ export function withLogLevel<T>(level: LogLevel, fn: () => T): Result<T> {
  * Call once at startup. After initialization, `getContext()` automatically
  * returns the request-scoped context when inside a `withContext()` callback.
  *
- * @returns `Result<Void>` — success, or error if AsyncLocalStorage is unavailable.
+ * @returns {Result<Void>} `Result<Void>` — success, or error if AsyncLocalStorage is unavailable.
  *
  * @example
  * ```typescript
@@ -1649,9 +1655,9 @@ export function initAsyncContext(): Result<Void> {
  * All `log.*` calls within the callback will include the scoped context fields.
  * Requires `initAsyncContext()`. Falls back to global `mergeContext()` if not initialized.
  *
- * @param context - Request-scoped context fields.
- * @param fn - Callback to execute with scoped context.
- * @returns `Result<T>` — the callback's return value.
+ * @param {LogContext} context - Request-scoped context fields.
+ * @param {() => T} fn - Callback to execute with scoped context.
+ * @returns {Result<T>} `Result<T>` — the callback's return value.
  *
  * @example
  * ```typescript
@@ -1732,9 +1738,9 @@ export type JUnitTestCase = v.InferOutput<typeof JUnitTestCaseSchema>;
 /**
  * Formats test results as JUnit XML.
  *
- * @param testCases - Array of test case results.
- * @param suiteName - Top-level suite name.
- * @returns `Result<Str>` — JUnit XML string.
+ * @param {JUnitTestCase[]} testCases - Array of test case results.
+ * @param {Str} suiteName - Top-level suite name.
+ * @returns {Result<Str>} `Result<Str>` — JUnit XML string.
  *
  * @example
  * ```typescript
@@ -1852,8 +1858,8 @@ export type LoggingOptions = v.InferOutput<typeof LoggingOptionsSchema>;
  * sampling, buffering, and async context. Returns a teardown function
  * that reverses all setup.
  *
- * @param options - Logging configuration.
- * @returns `Result<TeardownFn>` — teardown function, or a validation error.
+ * @param {LoggingOptions} options - Logging configuration.
+ * @returns {Result<TeardownFn>} `Result<TeardownFn>` — teardown function, or a validation error.
  *
  * @example
  * ```typescript

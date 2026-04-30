@@ -31,7 +31,7 @@ const FALLBACK_DELAY_MS: Num = 3000 as Num;
 /**
  * Build JavaScript to check for `[data-lens-ready]` on the page.
  *
- * @returns JS expression string that evaluates to boolean
+ * @returns {Str} JS expression string that evaluates to boolean
  *
  * @example
  * const script = buildReadyCheckScript();
@@ -44,8 +44,8 @@ export function buildReadyCheckScript(): Str {
 /**
  * Parse a CDP `Runtime.evaluate` response to extract the boolean result.
  *
- * @param raw - Raw JSON string from CDP WebSocket
- * @returns true if the evaluation returned true, false otherwise
+ * @param {Str} raw - Raw JSON string from CDP WebSocket
+ * @returns {boolean} true if the evaluation returned true, false otherwise
  *
  * @example
  * const ready = parseEvalResponse('{"id":1,"result":{"result":{"type":"boolean","value":true}}}');
@@ -73,8 +73,8 @@ export function parseEvalResponse(raw: Str): boolean {
  * Connects to Chrome's CDP WebSocket and repeatedly evaluates a script
  * checking for `[data-lens-ready]` until it returns true or timeout.
  *
- * @param wsUrl - CDP WebSocket URL for the target page
- * @param timeoutMs - Maximum wait time (default: 10_000ms)
+ * @param {Str} wsUrl - CDP WebSocket URL for the target page
+ * @param {Num} timeoutMs - Maximum wait time (default: 10_000ms)
  * @returns Promise that resolves when the page is ready or timeout
  *
  * @example
@@ -157,7 +157,7 @@ export async function waitForPageReady(
  * Uses CDP polling when a WebSocket URL is available, otherwise falls
  * back to a fixed 3-second delay.
  *
- * @param wsUrl - CDP WebSocket URL (empty string to use fallback)
+ * @param {Str} wsUrl - CDP WebSocket URL (empty string to use fallback)
  *
  * @example
  * await waitForPageLoad('ws://localhost:9222/devtools/page/ABC');

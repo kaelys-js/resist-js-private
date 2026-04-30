@@ -61,10 +61,10 @@ function _toGenericSchema<TFactory extends GenericSchemaFactory>(
  *
  * @typeParam TFactory - The schema factory function type. Inferred from
  *   the provided factory — do not specify manually.
- * @param factory - A function that takes schema arguments (representing type
+ * @param {TFactory} factory - A function that takes schema arguments (representing type
  *   parameters) and returns a concrete Valibot schema. The function's generic
  *   type parameters become the schema's type parameters.
- * @returns The factory function with generic schema metadata attached.
+ * @returns {GenericSchema<TFactory>} The factory function with generic schema metadata attached.
  *   Callable exactly like the original factory, with full type inference.
  *
  * @example
@@ -136,8 +136,8 @@ export function generic<TFactory extends GenericSchemaFactory>(
 /**
  * Checks whether a value is a generic schema factory created by `generic()`.
  *
- * @param value - The value to check.
- * @returns `true` if the value was created by `generic()`.
+ * @param {unknown} value - The value to check.
+ * @returns {value is GenericSchema<GenericSchemaFactory>} `true` if the value was created by `generic()`.
  *
  * @example
  * ```typescript

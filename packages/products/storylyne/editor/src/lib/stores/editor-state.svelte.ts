@@ -392,7 +392,7 @@ function setFeature(flag: Str, enabled: Bool): Result<Void> {
  * Creates a new editor store, resetting module-level state to defaults
  * and loading any persisted state from localStorage.
  *
- * @returns `Result<EditorStore>` — always ok (load failures fall back to defaults)
+ * @returns {Result<EditorStore>} `Result<EditorStore>` — always ok (load failures fall back to defaults)
  *
  * @example
  * ```typescript
@@ -452,7 +452,7 @@ let _singleton: EditorStore | null = null;
  * Initializes the editor store singleton. Call once in `+layout.svelte`.
  * Throws if store creation fails (should never happen with valid defaults).
  *
- * @returns The singleton EditorStore instance
+ * @returns {EditorStore} The singleton EditorStore instance
  * @throws If `createEditorStore()` returns an error
  */
 export function initEditorStore(): EditorStore {
@@ -467,7 +467,7 @@ export function initEditorStore(): EditorStore {
 /**
  * Returns the editor store singleton. Must be called after `initEditorStore()`.
  *
- * @returns The singleton EditorStore instance
+ * @returns {EditorStore} The singleton EditorStore instance
  * @throws If `initEditorStore()` has not been called yet
  */
 export function useEditorStore(): EditorStore {

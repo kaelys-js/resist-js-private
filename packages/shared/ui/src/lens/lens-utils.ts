@@ -22,8 +22,8 @@ const STRIP_KEYS: ReadonlySet<Str> = new Set(['children', 'child']);
  * pattern) into props. These must be removed before `v.strictObject()` validation
  * since the component schemas don't include them.
  *
- * @param props - The raw $props() object
- * @returns A shallow copy with Svelte-internal keys removed
+ * @param {T} props - The raw $props() object
+ * @returns {T} A shallow copy with Svelte-internal keys removed
  *
  * @example
  * ```typescript
@@ -52,8 +52,8 @@ export function stripSvelteProps<T extends Record<Str, unknown>>(props: T): T {
 /**
  * Extract directory name from a glob key like `.../button/button.svelte`.
  *
- * @param key - Glob-resolved module path
- * @returns The directory name segment, or empty string if unmatched
+ * @param {Str} key - Glob-resolved module path
+ * @returns {Str} The directory name segment, or empty string if unmatched
  *
  * @example
  * ```typescript
@@ -69,8 +69,8 @@ export function extractDir(key: Str): Str {
 /**
  * Extract filename stem from a glob key (without extension).
  *
- * @param key - Glob-resolved module path
- * @returns The filename without `.svelte` extension
+ * @param {Str} key - Glob-resolved module path
+ * @returns {Str} The filename without `.svelte` extension
  *
  * @example
  * ```typescript
@@ -86,8 +86,8 @@ export function extractStem(key: Str): Str {
 /**
  * Convert kebab-case to Title Case for display.
  *
- * @param name - A kebab-case string like `help-tooltip`
- * @returns Title-cased string like `Help Tooltip`
+ * @param {Str} name - A kebab-case string like `help-tooltip`
+ * @returns {Str} Title-cased string like `Help Tooltip`
  *
  * @example
  * ```typescript
@@ -112,8 +112,8 @@ export function toTitle(name: Str): Str {
 /**
  * Check if a glob key is an internal file to skip (Demo, index).
  *
- * @param key - Glob-resolved module path
- * @returns True if the file should be skipped
+ * @param {Str} key - Glob-resolved module path
+ * @returns {boolean} True if the file should be skipped
  */
 export function isInternalFile(key: Str): boolean {
   const stem: Str = extractStem(key);
@@ -126,9 +126,9 @@ export function isInternalFile(key: Str): boolean {
  * Prefers the file matching the directory name (e.g., `button/button.svelte`),
  * then falls back to the first non-internal `.svelte` file in the directory.
  *
- * @param dir - Component directory name
- * @param rawSources - Record of glob-resolved paths to raw source strings
- * @returns The glob key, or undefined if no match
+ * @param {Str} dir - Component directory name
+ * @param {Record<Str, unknown>} rawSources - Record of glob-resolved paths to raw source strings
+ * @returns {Str | undefined} The glob key, or undefined if no match
  *
  * @example
  * ```typescript
@@ -147,8 +147,8 @@ export function findPrimaryKey(dir: Str, rawSources: Record<Str, unknown>): Str 
  *
  * Returns `Result<LensMeta>` — callers propagate errors via the Result pattern.
  *
- * @param raw - The raw meta export from a lens.ts module
- * @returns Validated LensMeta on success, or AppError on failure
+ * @param {unknown} raw - The raw meta export from a lens.ts module
+ * @returns {Result<LensMeta>} Validated LensMeta on success, or AppError on failure
  */
 export function parseLensMeta(raw: unknown): Result<LensMeta> {
   return safeParse(LensMetaSchema, raw);
@@ -163,8 +163,8 @@ const INSTANCE_JSDOC_RE: RegExp = /<script\s+lang="ts">\s*\/\*\*\s*([\s\S]*?)\*\
  * Looks for the first `/** ... *​/` block immediately after `<script lang="ts">`
  * and returns the first sentence (the summary line).
  *
- * @param src - Raw `.svelte` file content
- * @returns The JSDoc summary, or undefined if none found
+ * @param {Str} src - Raw `.svelte` file content
+ * @returns {Str | undefined} The JSDoc summary, or undefined if none found
  *
  * @example
  * ```typescript
@@ -471,8 +471,8 @@ export type LensCompatibilityInput = v.InferOutput<typeof LensCompatibilityInput
  * is fully compatible. This mirrors the logic in `lint-lens.test.ts` but runs
  * in the browser at layout load time using already-available data.
  *
- * @param input - Component data for rule checking
- * @returns Compatibility result with violations list
+ * @param {LensCompatibilityInput} input - Component data for rule checking
+ * @returns {LensCompatibility} Compatibility result with violations list
  *
  * @example
  * ```typescript

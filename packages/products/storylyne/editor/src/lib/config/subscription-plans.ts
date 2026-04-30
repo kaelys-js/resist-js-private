@@ -82,8 +82,8 @@ const ALL_ENABLED: FeatureFlags = Object.fromEntries(
  * Unknown plans return an empty object (no restrictions), which is safe
  * because `applyPlanPreset` will produce all-true flags.
  *
- * @param plan - Plan tier identifier (e.g. `'free'`, `'pro'`)
- * @returns Partial FeatureFlags with only the disabled flags set to `false`
+ * @param {Str} plan - Plan tier identifier (e.g. `'free'`, `'pro'`)
+ * @returns {Partial<FeatureFlags>} Partial FeatureFlags with only the disabled flags set to `false`
  *
  * @example
  * ```typescript
@@ -108,8 +108,8 @@ export function getPresetForPlan(plan: Str): Partial<FeatureFlags> {
  * All flags start as `true`, then the plan's `false` flags are spread on top.
  * This ensures every flag key exists in the result with the correct value.
  *
- * @param plan - Plan tier identifier (e.g. `'free'`, `'starter'`)
- * @returns Complete FeatureFlags object
+ * @param {Str} plan - Plan tier identifier (e.g. `'free'`, `'starter'`)
+ * @returns {FeatureFlags} Complete FeatureFlags object
  *
  * @example
  * ```typescript

@@ -53,9 +53,9 @@ export const WRAPPER_SYMBOL: unique symbol = Symbol('functionSchemaWrapper');
  * @internal
  * @typeParam TArgs - Tuple of parameter types.
  * @typeParam TReturn - Return type.
- * @param value - The value to cast. Caller is responsible for ensuring
+ * @param {unknown} value - The value to cast. Caller is responsible for ensuring
  *   the value is actually a function.
- * @returns The value typed as `FnType<TArgs, TReturn>`.
+ * @returns {FnType<TArgs, TReturn>} The value typed as `FnType<TArgs, TReturn>`.
  */
 export function _toFnType<TArgs extends unknown[] = unknown[], TReturn = unknown>(
   value: unknown,
@@ -71,8 +71,8 @@ export function _toFnType<TArgs extends unknown[] = unknown[], TReturn = unknown
  * that single cast.
  *
  * @internal
- * @param schema - The generic schema to cast.
- * @returns The schema typed as `v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>`.
+ * @param {v.GenericSchema} schema - The generic schema to cast.
+ * @returns {v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>} The schema typed as `v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>`.
  */
 export function _toBaseSchema(
   schema: v.GenericSchema,
@@ -87,8 +87,8 @@ export function _toBaseSchema(
 /**
  * Retrieves wrapper metadata from a function, if it has been wrapped.
  *
- * @param fn - The function to inspect.
- * @returns Wrapper metadata if the function is a validated wrapper, or `undefined`.
+ * @param {FnType<TArgs, TReturn>} fn - The function to inspect.
+ * @returns {WrapperMeta | undefined} Wrapper metadata if the function is a validated wrapper, or `undefined`.
  */
 export function getWrapperMeta<TArgs extends unknown[], TReturn>(
   fn: FnType<TArgs, TReturn>,
@@ -241,11 +241,11 @@ function validateReturn(
  *
  * @typeParam TArgs - Tuple type of function parameters.
  * @typeParam TReturn - Function return type.
- * @param original - The original function to wrap.
- * @param argsSchema - Optional schema for argument validation.
- * @param returnsSchema - Optional schema for return value validation.
- * @param onError - Error mode for validation failures.
- * @returns The validated wrapper function with metadata attached.
+ * @param {FnType<TArgs, TReturn>} original - The original function to wrap.
+ * @param {v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> | undefined} argsSchema - Optional schema for argument validation.
+ * @param {v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> | undefined} returnsSchema - Optional schema for return value validation.
+ * @param {ErrorMode} onError - Error mode for validation failures.
+ * @returns {FnType<TArgs, TReturn>} The validated wrapper function with metadata attached.
  */
 export function createWrapper<TArgs extends unknown[], TReturn>(
   original: FnType<TArgs, TReturn>,

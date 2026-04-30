@@ -189,8 +189,8 @@ export const CATEGORY_BG: Record<Str, Str> = {
  *
  * Handles hyphenated categories like "data-display" → "Data Display".
  *
- * @param cat - Category slug
- * @returns Human-readable label
+ * @param {Str} cat - Category slug
+ * @returns {Str} Human-readable label
  */
 export function categoryLabel(cat: Str): Str {
   return cat

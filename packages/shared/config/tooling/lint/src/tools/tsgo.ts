@@ -108,8 +108,8 @@ const SVELTE_AMBIENT_PARSE_SUPPRESSION: RegExp = /svelte\.d\.ts$/;
  * Each diagnostic line matching the pattern is converted to a LintResult.
  * Continuation lines (indented context) are ignored.
  *
- * @param output - Raw stdout from tsgo --noEmit
- * @returns Parsed lint results
+ * @param {string} output - Raw stdout from tsgo --noEmit
+ * @returns {LintResult[]} Parsed lint results
  */
 export function transformTsgoOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
@@ -181,8 +181,8 @@ function isSvelteKitTsconfig(dir: string): boolean {
  * whose tsconfig extends `.svelte-kit/tsconfig.json` — those are
  * type-checked by svelte-check instead.
  *
- * @param cwd - Workspace root directory
- * @returns Absolute paths of directories with a tsconfig.json
+ * @param {string} cwd - Workspace root directory
+ * @returns {string[]} Absolute paths of directories with a tsconfig.json
  */
 export function discoverTsconfigDirs(cwd: string): string[] {
   const packagesDir: string = join(cwd, 'packages');
@@ -224,9 +224,9 @@ export function discoverTsconfigDirs(cwd: string): string[] {
  * When `files` is empty, returns `tsconfigDirs` unchanged (no scoping —
  * workspace-wide run).
  *
- * @param tsconfigDirs - All discovered package dirs with a tsconfig.json
- * @param files - Absolute file paths to scope to
- * @returns Subset of `tsconfigDirs` that own at least one input file
+ * @param {string[]} tsconfigDirs - All discovered package dirs with a tsconfig.json
+ * @param {string[]} files - Absolute file paths to scope to
+ * @returns {string[]} Subset of `tsconfigDirs` that own at least one input file
  */
 export function scopeTsconfigDirsToFiles(tsconfigDirs: string[], files: string[]): string[] {
   if (files.length === 0) {
@@ -258,10 +258,11 @@ export function scopeTsconfigDirsToFiles(tsconfigDirs: string[], files: string[]
  * When `files` is non-empty, only packages that own at least one file are
  * type-checked. When omitted or empty, every discovered package is checked.
  *
- * @param cwd - Workspace root directory
- * @param files - Optional absolute file paths to scope the run to
- * @param lintCache - Optional lint cache for per-package result memoization
- * @returns Aggregated lint results from checked packages
+ * @param {string} cwd - Workspace root directory
+ * @param {LintCache | null}} files - Optional absolute file paths to scope the run to
+ * @param {LintCache | null} lintCache - Optional lint cache for per-package result memoization
+ * @returns {Promise<LintResult[]>} Aggregated lint results from checked packages
+  * @param {string[]} files - Description
  */
 export async function runTsgoAllPackages(
   cwd: string,

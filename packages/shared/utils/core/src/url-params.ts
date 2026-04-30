@@ -30,9 +30,9 @@ export type UrlOverrides = v.InferOutput<typeof UrlOverridesSchema>;
  * Extracts all parameters matching a given prefix from a URL.
  * Returns unprefixed keys mapped to raw string values.
  *
- * @param url - The URL to parse
- * @param prefix - The parameter prefix to match and strip (e.g., `'app.'`, `'wf_'`)
- * @returns Result containing the extracted overrides map
+ * @param {URL} url - The URL to parse
+ * @param {Str} prefix - The parameter prefix to match and strip (e.g., `'app.'`, `'wf_'`)
+ * @returns {Result<UrlOverrides>} Result containing the extracted overrides map
  *
  * @example
  * ```typescript

@@ -37,9 +37,9 @@ export type TooltipPayload = ExtractSnippetParams<
  * tooltip payload by trying `payload.key`, `payload.name`, an
  * inline `key` field, and finally the nested `payload.payload`.
  *
- * @param config - The full ChartConfig to look up
- * @param payload - One tooltip payload entry
- * @param key - The fallback config key when no match is found
+ * @param {ChartConfig} config - The full ChartConfig to look up
+ * @param {TooltipPayload} payload - One tooltip payload entry
+ * @param {string} key - The fallback config key when no match is found
  * @returns The matched `ChartConfig` entry, or `undefined`
  */
 export function getPayloadConfigFromPayload(
@@ -85,7 +85,7 @@ const chartContextKey = Symbol('chart-context');
  * Stores the chart's shared `ChartContextValue` (current
  * `config`) under the chart context key for descendants.
  *
- * @param value - The ChartContextValue to publish
+ * @param {ChartContextValue} value - The ChartContextValue to publish
  * @returns The stored value (Svelte's `setContext` return)
  */
 export function setChartContext(value: ChartContextValue) {

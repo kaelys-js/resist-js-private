@@ -30,8 +30,8 @@ import { type AppError, type Result, ok, okUnchecked } from '@/schemas/result/re
  *
  * Inspired by Rust's `Display` trait.
  *
- * @param error - The AppError to format.
- * @returns `Result<Str>` — formatted string.
+ * @param {AppError} error - The AppError to format.
+ * @returns {Result<Str>} `Result<Str>` — formatted string.
  *
  * @example
  * ```typescript
@@ -64,8 +64,8 @@ export function formatErrorDisplay(error: AppError): Result<Str> {
  *
  * Inspired by Rust's `Debug` trait and miette's narratable report handler.
  *
- * @param error - The AppError to format.
- * @returns `Result<Str>` — detailed multi-line string.
+ * @param {AppError} error - The AppError to format.
+ * @returns {Result<Str>} `Result<Str>` — detailed multi-line string.
  *
  * @example
  * ```typescript
@@ -175,8 +175,8 @@ export function formatErrorDebug(error: AppError): Result<Str> {
  * to a single-line JSON string. Suitable for log aggregation systems
  * that parse structured JSON logs.
  *
- * @param error - The AppError to format.
- * @returns `Result<Str>` — JSON string.
+ * @param {AppError} error - The AppError to format.
+ * @returns {Result<Str>} `Result<Str>` — JSON string.
  *
  * @example
  * ```typescript
@@ -237,9 +237,9 @@ export type ProblemDetails = v.InferOutput<typeof ProblemDetailsSchema>;
  * Maps error codes to `type` URIs, uses the error code as `title`, and the
  * error message as `detail`.
  *
- * @param error - The AppError to convert.
- * @param baseUrl - Base URL for constructing the `type` URI (e.g., `'https://api.example.com/errors'`).
- * @returns `Result<ProblemDetails>` — RFC 9457 Problem Details object.
+ * @param {AppError} error - The AppError to convert.
+ * @param {Str} baseUrl - Base URL for constructing the `type` URI (e.g., `'https://api.example.com/errors'`).
+ * @returns {Result<ProblemDetails>} `Result<ProblemDetails>` — RFC 9457 Problem Details object.
  *
  * @example
  * ```typescript
@@ -295,9 +295,9 @@ export function toRfc9457(error: AppError, baseUrl: Str): Result<ProblemDetails>
  * Replaces the hardcoded `Response("Internal Server Error", { status: 500 })`
  * in `wrapFetchHandler`.
  *
- * @param error - The AppError to convert.
- * @param baseUrl - Base URL for RFC 9457 type URIs.
- * @returns `Result<Response>` — HTTP Response ready to send.
+ * @param {AppError} error - The AppError to convert.
+ * @param {Str} baseUrl - Base URL for RFC 9457 type URIs.
+ * @returns {Result<Response>} `Result<Response>` — HTTP Response ready to send.
  *
  * @example
  * ```typescript
@@ -337,8 +337,8 @@ export function toHttpResponse(error: AppError, baseUrl: Str): Result<Response> 
  *
  * Inspired by cockroachdb/errors `GetSafeDetails()`.
  *
- * @param error - The AppError to sanitize.
- * @returns `Result<AppError>` — PII-free copy of the error.
+ * @param {AppError} error - The AppError to sanitize.
+ * @returns {Result<AppError>} `Result<AppError>` — PII-free copy of the error.
  *
  * @example
  * ```typescript

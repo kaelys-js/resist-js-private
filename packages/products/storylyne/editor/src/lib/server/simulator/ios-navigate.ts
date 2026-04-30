@@ -24,8 +24,8 @@ const execFileAsync = promisify(execFile);
  * Uses `xcrun simctl openurl <udid> <url>` which launches Safari
  * with the given URL in the specified simulator.
  *
- * @param udid - Device UDID (must be booted)
- * @param url - URL to open (must be http:// or https://)
+ * @param {Str} udid - Device UDID (must be booted)
+ * @param {Str} url - URL to open (must be http:// or https://)
  * @throws If the URL is invalid or the device is not booted
  *
  * @example

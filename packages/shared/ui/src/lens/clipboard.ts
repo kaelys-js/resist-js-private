@@ -15,8 +15,8 @@ import type { Bool, Str } from '@/schemas/common';
  * `document.execCommand('copy')` via a hidden textarea for older browsers
  * or insecure contexts.
  *
- * @param text - The string to copy to the clipboard
- * @returns Whether the copy succeeded
+ * @param {Str} text - The string to copy to the clipboard
+ * @returns {Promise<Bool>} Whether the copy succeeded
  *
  * @example
  * ```typescript

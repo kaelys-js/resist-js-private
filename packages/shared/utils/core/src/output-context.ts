@@ -33,8 +33,8 @@ let currentOutputFormat: OutputFormat = DEFAULT_OUTPUT_FORMAT;
 /**
  * Set the global output format.
  *
- * @param format - Output format to set.
- * @returns `Result<Void>` — success, or a validation error.
+ * @param {OutputFormat} format - Output format to set.
+ * @returns {Result<Void>} `Result<Void>` — success, or a validation error.
  *
  * @example
  * ```typescript
@@ -53,7 +53,7 @@ export function setOutputFormat(format: OutputFormat): Result<Void> {
 /**
  * Get the current output format.
  *
- * @returns `Result<OutputFormat>` — the current output format.
+ * @returns {Result<OutputFormat>} `Result<OutputFormat>` — the current output format.
  *
  * @example
  * ```typescript
@@ -69,7 +69,7 @@ export function getOutputFormat(): Result<OutputFormat> {
 /**
  * Check if current format is machine-readable (json, junit, github).
  *
- * @returns `Result<Bool>` — `true` if machine-readable.
+ * @returns {Result<Bool>} `Result<Bool>` — `true` if machine-readable.
  *
  * @example
  * ```typescript

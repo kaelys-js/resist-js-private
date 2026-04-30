@@ -45,10 +45,10 @@ export type AccessibilityCommand = {
 /**
  * Build `adb shell` commands for applying accessibility settings.
  *
- * @param _adbPath - Path to `adb` binary (unused in command building, kept for API symmetry)
- * @param serial - Emulator serial (e.g. 'emulator-5554')
- * @param settings - Accessibility settings to apply
- * @returns Array of command descriptors
+ * @param {Str} _adbPath - Path to `adb` binary (unused in command building, kept for API symmetry)
+ * @param {Str} serial - Emulator serial (e.g. 'emulator-5554')
+ * @param {AndroidAccessibilitySettings} settings - Accessibility settings to apply
+ * @returns {AccessibilityCommand[]} Array of command descriptors
  *
  * @example
  * const cmds = buildAccessibilityCommands('/path/to/adb', 'emulator-5554', { nightMode: 'yes' });
@@ -119,9 +119,9 @@ export function buildAccessibilityCommands(
  * Runs all commands via `Promise.allSettled` — individual failures
  * do not prevent other settings from being applied.
  *
- * @param adbPath - Path to `adb` binary
- * @param serial - Emulator serial
- * @param settings - Settings to apply
+ * @param {Str} adbPath - Path to `adb` binary
+ * @param {Str} serial - Emulator serial
+ * @param {AndroidAccessibilitySettings} settings - Settings to apply
  *
  * @example
  * await applyAccessibilitySettings('/path/to/adb', 'emulator-5554', { nightMode: 'yes' });
@@ -146,8 +146,8 @@ export async function applyAccessibilitySettings(
 /**
  * Parse accessibility settings from URL search params.
  *
- * @param params - URL search parameters
- * @returns Parsed settings object
+ * @param {URLSearchParams} params - URL search parameters
+ * @returns {AndroidAccessibilitySettings} Parsed settings object
  *
  * @example
  * const settings = parseAccessibilityParams(url.searchParams);

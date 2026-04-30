@@ -142,9 +142,9 @@ function mermaidEdgeLabel(kind: Str): Str {
 /**
  * Download a DOM element as a PNG image.
  *
- * @param element - Target DOM element
- * @param filename - Download filename (without extension)
- * @param options - Export options
+ * @param {HTMLElement} element - Target DOM element
+ * @param {Str} filename - Download filename (without extension)
+ * @param {ExportOptions} options - Export options
  */
 export async function exportPng(
   element: HTMLElement,
@@ -161,9 +161,9 @@ export async function exportPng(
 /**
  * Download a DOM element as a JPEG image.
  *
- * @param element - Target DOM element
- * @param filename - Download filename (without extension)
- * @param options - Export options
+ * @param {HTMLElement} element - Target DOM element
+ * @param {Str} filename - Download filename (without extension)
+ * @param {ExportOptions} options - Export options
  */
 export async function exportJpeg(
   element: HTMLElement,
@@ -181,9 +181,9 @@ export async function exportJpeg(
 /**
  * Download a DOM element as an SVG image.
  *
- * @param element - Target DOM element
- * @param filename - Download filename (without extension)
- * @param options - Export options
+ * @param {HTMLElement} element - Target DOM element
+ * @param {Str} filename - Download filename (without extension)
+ * @param {ExportOptions} options - Export options
  */
 export async function exportSvg(
   element: HTMLElement,
@@ -202,9 +202,9 @@ export async function exportSvg(
  *
  * Falls back to PNG if the browser does not support WebP encoding.
  *
- * @param element - Target DOM element
- * @param filename - Download filename (without extension)
- * @param options - Export options
+ * @param {HTMLElement} element - Target DOM element
+ * @param {Str} filename - Download filename (without extension)
+ * @param {ExportOptions} options - Export options
  */
 export async function exportWebp(
   element: HTMLElement,
@@ -232,9 +232,9 @@ export async function exportWebp(
  *
  * Uses the Clipboard API's `ClipboardItem` for async image write.
  *
- * @param element - Target DOM element
- * @param options - Export options
- * @returns Whether the copy succeeded
+ * @param {HTMLElement} element - Target DOM element
+ * @param {ExportOptions} options - Export options
+ * @returns {Promise<Bool>} Whether the copy succeeded
  */
 export async function copyImageToClipboard(
   element: HTMLElement,
@@ -258,9 +258,9 @@ export async function copyImageToClipboard(
  * Copy a DOM element as a PNG data URI string to the clipboard.
  * Useful for pasting directly into Markdown `<img src="...">` or GitHub issues.
  *
- * @param element - Target DOM element
- * @param options - Export options
- * @returns Whether the copy succeeded
+ * @param {HTMLElement} element - Target DOM element
+ * @param {ExportOptions} options - Export options
+ * @returns {Promise<Bool>} Whether the copy succeeded
  */
 export async function copyDataUri(element: HTMLElement, options?: ExportOptions): Promise<Bool> {
   const dataUrl: Str = await domToPng(element, {
@@ -420,8 +420,8 @@ function buildSelfContainedHtml(element: HTMLElement): Str {
 /**
  * Download a DOM element as a self-contained HTML file with inlined styles.
  *
- * @param element - Target DOM element
- * @param filename - Download filename (without extension)
+ * @param {HTMLElement} element - Target DOM element
+ * @param {Str} filename - Download filename (without extension)
  */
 export function downloadHtml(element: HTMLElement, filename: Str): void {
   const html: Str = buildSelfContainedHtml(element);
@@ -432,8 +432,8 @@ export function downloadHtml(element: HTMLElement, filename: Str): void {
 /**
  * Copy a DOM element's self-contained HTML to the clipboard.
  *
- * @param element - Target DOM element
- * @returns Whether the copy succeeded
+ * @param {HTMLElement} element - Target DOM element
+ * @returns {Promise<Bool>} Whether the copy succeeded
  */
 export function copyHtml(element: HTMLElement): Promise<Bool> {
   const html: Str = buildSelfContainedHtml(element);
@@ -447,9 +447,9 @@ export function copyHtml(element: HTMLElement): Promise<Bool> {
 /**
  * Export chain nodes as a JSON string and copy to clipboard.
  *
- * @param nodes - Chain node data
- * @param componentName - Root component name
- * @returns Whether the copy succeeded
+ * @param {ChainExportNode[]} nodes - Chain node data
+ * @param {Str} componentName - Root component name
+ * @returns {Promise<Bool>} Whether the copy succeeded
  */
 export function copyChainJson(nodes: ChainExportNode[], componentName: Str): Promise<Bool> {
   const data = {
@@ -466,8 +466,8 @@ export function copyChainJson(nodes: ChainExportNode[], componentName: Str): Pro
 /**
  * Export chain nodes as Mermaid flowchart syntax and copy to clipboard.
  *
- * @param nodes - Chain node data
- * @returns Whether the copy succeeded
+ * @param {ChainExportNode[]} nodes - Chain node data
+ * @returns {Promise<Bool>} Whether the copy succeeded
  */
 export function copyChainMermaid(nodes: ChainExportNode[]): Promise<Bool> {
   const lines: Str[] = ['flowchart TD'];
@@ -498,9 +498,9 @@ export function copyChainMermaid(nodes: ChainExportNode[]): Promise<Bool> {
 /**
  * Export chain nodes as DOT (Graphviz) syntax and copy to clipboard.
  *
- * @param nodes - Chain node data
- * @param componentName - Root component name
- * @returns Whether the copy succeeded
+ * @param {ChainExportNode[]} nodes - Chain node data
+ * @param {Str} componentName - Root component name
+ * @returns {Promise<Bool>} Whether the copy succeeded
  */
 export function copyChainDot(nodes: ChainExportNode[], componentName: Str): Promise<Bool> {
   const lines: Str[] = [
@@ -542,8 +542,8 @@ export function copyChainDot(nodes: ChainExportNode[], componentName: Str): Prom
  * Export chain nodes as CSV and copy to clipboard.
  * Columns: Name, Kind, Category, Parent.
  *
- * @param nodes - Chain node data
- * @returns Whether the copy succeeded
+ * @param {ChainExportNode[]} nodes - Chain node data
+ * @returns {Promise<Bool>} Whether the copy succeeded
  */
 export function copyChainCsv(nodes: ChainExportNode[]): Promise<Bool> {
   const lines: Str[] = ['Name,Kind,Category,Parent'];
@@ -558,9 +558,9 @@ export function copyChainCsv(nodes: ChainExportNode[]): Promise<Bool> {
 /**
  * Export chain nodes as PlantUML syntax and copy to clipboard.
  *
- * @param nodes - Chain node data
- * @param componentName - Root component name
- * @returns Whether the copy succeeded
+ * @param {ChainExportNode[]} nodes - Chain node data
+ * @param {Str} componentName - Root component name
+ * @returns {Promise<Bool>} Whether the copy succeeded
  */
 export function copyChainPlantUml(nodes: ChainExportNode[], componentName: Str): Promise<Bool> {
   const lines: Str[] = ['@startuml', `title ${componentName} Dependencies`, ''];
@@ -594,9 +594,9 @@ export function copyChainPlantUml(nodes: ChainExportNode[], componentName: Str):
 /**
  * Export chain nodes as an indented Markdown list and copy to clipboard.
  *
- * @param nodes - Chain node data
- * @param componentName - Root component name
- * @returns Whether the copy succeeded
+ * @param {ChainExportNode[]} nodes - Chain node data
+ * @param {Str} componentName - Root component name
+ * @returns {Promise<Bool>} Whether the copy succeeded
  */
 export function copyChainMarkdown(nodes: ChainExportNode[], componentName: Str): Promise<Bool> {
   const lines: Str[] = [`# ${componentName} — Dependency Chain`, ''];
@@ -648,12 +648,12 @@ export function copyChainMarkdown(nodes: ChainExportNode[], componentName: Str):
  * The resulting HTML file is fully interactive — it contains the compiled
  * component JS, Svelte runtime, and scoped Tailwind CSS all inlined.
  *
- * @param componentDir - Component directory name (e.g. 'button')
- * @param props - Props to pass to the component
- * @param children - Text content for children/slots
- * @param darkMode - Whether dark mode is active
- * @param theme - Active theme name
- * @returns Whether the download succeeded
+ * @param {Str} componentDir - Component directory name (e.g. 'button')
+ * @param {Record<Str, unknown>} props - Props to pass to the component
+ * @param {Str} children - Text content for children/slots
+ * @param {Bool} darkMode - Whether dark mode is active
+ * @param {Str} theme - Active theme name
+ * @returns {Promise<Bool>} Whether the download succeeded
  */
 export async function downloadStandaloneHtml(
   componentDir: Str,

@@ -118,7 +118,7 @@ const FRAMES: DeviceFrame[] = [
 /**
  * List all registered device frames.
  *
- * @returns Array of device frame entries
+ * @returns {DeviceFrame[]} Array of device frame entries
  *
  * @example
  * const frames = listDeviceFrames();
@@ -131,8 +131,8 @@ export function listDeviceFrames(): DeviceFrame[] {
 /**
  * Look up a device frame by its ID.
  *
- * @param frameId - Frame identifier (e.g. 'iphone-16-pro')
- * @returns Device frame entry or null
+ * @param {Str} frameId - Frame identifier (e.g. 'iphone-16-pro')
+ * @returns {DeviceFrame | null} Device frame entry or null
  *
  * @example
  * const frame = getDeviceFrame('pixel-9');
@@ -148,8 +148,8 @@ export function getDeviceFrame(frameId: Str): DeviceFrame | null {
  * Useful for automatically matching a simulator device name (e.g. 'iPhone 16 Pro')
  * to a registered frame without requiring the exact kebab-case frame ID.
  *
- * @param deviceName - Human-readable device name (e.g. 'iPhone 16 Pro Max')
- * @returns Matching device frame or null
+ * @param {Str} deviceName - Human-readable device name (e.g. 'iPhone 16 Pro Max')
+ * @returns {DeviceFrame | null} Matching device frame or null
  *
  * @example
  * const frame = findDeviceFrameByName('iPhone 16 Pro');

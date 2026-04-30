@@ -81,7 +81,7 @@ const DEFAULT_SCALE_FACTOR: Num = 2 as Num;
  * Uses AppleScript to query the position and size of the
  * frontmost Simulator window.
  *
- * @returns Window bounds in macOS screen coordinates
+ * @returns {Promise<WindowBounds>} Window bounds in macOS screen coordinates
  * @throws If Simulator.app is not running or AppleScript fails
  *
  * @example
@@ -133,8 +133,8 @@ export async function getSimulatorWindowBounds(): Promise<WindowBounds> {
  * Queries the device name via `xcrun simctl list` and looks up
  * the scale factor from the known device table.
  *
- * @param udid - Device UDID
- * @returns Scale factor (2 or 3 for current iOS devices)
+ * @param {Str} udid - Device UDID
+ * @returns {Promise<Num>} Scale factor (2 or 3 for current iOS devices)
  *
  * @example
  * const scale = await getDeviceScaleFactor('B33CE7D0-...');
@@ -172,10 +172,12 @@ export async function getDeviceScaleFactor(udid: Str): Promise<Num> {
  *
  * Clamps coordinates within the window bounds.
  *
- * @param viewX - X coordinate in viewport pixels
- * @param viewY - Y coordinate in viewport pixels
- * @param bounds - Current Simulator window bounds
- * @returns Absolute macOS screen coordinates
+ * @param {Num} viewX - X coordinate in viewport pixels
+ * @param {Num} viewY - Y coordinate in viewport pixels
+ * @param {WindowBounds} bounds - Current Simulator window bounds
+ *{{ screenX: Num; screenY: Num }}eenY: Num }} Absolute macOS screen coordinates
+  *{{ screenX: Num; screenY: Num }}eenY: Num }} Description
+  * @returns {{ screenX: Num; screenY: Num }} Description
  */
 export function mapViewportToScreen(
   viewX: Num,

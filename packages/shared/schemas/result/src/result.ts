@@ -1221,7 +1221,7 @@ export type Result<T> =
  *
  * @internal
  *
- * @param DataSchema - Valibot schema for the `data` field.
+ * @param {T} DataSchema - Valibot schema for the `data` field.
  * @returns A strict object schema for `{ ok: true, data: T, error: null }`.
  *
  * @example Deserialization context (validating Result objects from external sources)
@@ -1362,11 +1362,11 @@ function _captureCallerStack(message: string): string {
  * template exists, the error code string itself is used as the message.
  * Explicit messages always override templates.
  *
- * @param code - A known error code from the {@link ERRORS} registry.
- * @param message - Optional human-readable description. If omitted, uses template.
- * @param options - Optional details: validation, source, cause, meta, severity,
+ * @param {KnownErrorCode} code - A known error code from the {@link ERRORS} registry.
+ * @param {string | ErrOptions} message - Optional human-readable description. If omitted, uses template.
+ * @param {ErrOptions} options - Optional details: validation, source, cause, meta, severity,
  *   httpStatus, help, links, tags, retry, related.
- * @returns A Result with `ok: false` and a fully populated AppError.
+ * @returns {Result<never>} A Result with `ok: false` and a fully populated AppError.
  *
  * @example
  * ```typescript
@@ -1463,9 +1463,9 @@ export function err(
  * returns `err(ERRORS.INTERNAL.OUTPUT_VALIDATION_FAILED)` instead of a
  * success Result. No codepath skips schema validation.
  *
- * @param schema - Valibot schema to validate the data against.
- * @param data - The success value to validate and wrap.
- * @returns A Result with `ok: true` and validated data, or an error if validation fails.
+ * @param {TSchema} schema - Valibot schema to validate the data against.
+ * @param {v.InferInput<TSchema>} data - The success value to validate and wrap.
+ * @returns {Result<v.InferOutput<TSchema>>} A Result with `ok: true` and validated data, or an error if validation fails.
  *
  * @example
  * ```typescript
@@ -1511,8 +1511,8 @@ export function ok<TSchema extends v.BaseSchema<unknown, unknown, v.BaseIssue<un
  * discriminated unions, opaque library types). Prefer `ok(schema, data)` when a
  * schema exists — it catches output bugs at runtime.
  *
- * @param data - The success value to wrap.
- * @returns `Result<T>` — frozen success result with deep-frozen data.
+ * @param {T} data - The success value to wrap.
+ * @returns {Result<T>} `Result<T>` — frozen success result with deep-frozen data.
  *
  * @example
  * ```typescript

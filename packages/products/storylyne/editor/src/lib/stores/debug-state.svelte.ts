@@ -32,8 +32,8 @@ export const STORAGE_KEY: Str = storageKey('debug-state');
 /**
  * Creates a new debug store with Storylyne-specific storage key and URL prefix.
  *
- * @param url - Optional URL to parse debug params from
- * @returns `Result<DebugStore>` — always ok
+ * @param {URL} url - Optional URL to parse debug params from
+ * @returns {Result<DebugStore>} `Result<DebugStore>` — always ok
  */
 export function createDebugStore(url?: URL): Result<DebugStore> {
   return createSharedDebugStore({
@@ -52,8 +52,8 @@ let _singleton: DebugStore | null = null;
 /**
  * Initializes the debug store singleton. Call once in `+layout.svelte`.
  *
- * @param url - Optional URL to parse debug params from
- * @returns The singleton DebugStore instance
+ * @param {URL} url - Optional URL to parse debug params from
+ * @returns {DebugStore} The singleton DebugStore instance
  * @throws If `createDebugStore()` returns an error
  */
 export function initDebugStore(url?: URL): DebugStore {
@@ -68,7 +68,7 @@ export function initDebugStore(url?: URL): DebugStore {
 /**
  * Returns the debug store singleton. Must be called after `initDebugStore()`.
  *
- * @returns The singleton DebugStore instance
+ * @returns {DebugStore} The singleton DebugStore instance
  * @throws If `initDebugStore()` has not been called yet
  */
 export function useDebugStore(): DebugStore {

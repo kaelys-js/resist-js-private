@@ -29,8 +29,8 @@ let _breadcrumbs: Breadcrumb[] = [];
  * If the buffer exceeds {@link MAX_BREADCRUMBS}, the oldest breadcrumb
  * is dropped (FIFO). Timestamp is auto-generated if not provided.
  *
- * @param breadcrumb - The breadcrumb to add (timestamp auto-filled if missing).
- * @returns `Result<void>` — success or validation error.
+ * @param {Omit<Breadcrumb, 'timestamp'> & { timestamp?: string }} breadcrumb - The breadcrumb to add (timestamp auto-filled if missing).
+ * @returns {Result<void>} `Result<void>` — success or validation error.
  *
  * @example
  * ```typescript
@@ -44,6 +44,10 @@ let _breadcrumbs: Breadcrumb[] = [];
  *   timestamp: new Date().toISOString(),
  * });
  * ```
+  * @param {Omit<Breadcrumb, 'timestamp'> & { timestamp?: string }} breadcrumb - Description
+  * @param {Omit<Breadcrumb, 'timestamp'> & { timestamp?: string }} breadcrumb - Description
+  * @param {Omit<Breadcrumb, 'timestamp'> & { timestamp?: string }} breadcrumb - Description
+  * @param {Omit<Breadcrumb, 'timestamp'> & { timestamp?: string }} breadcrumb - Description
  */
 export function addBreadcrumb(
   breadcrumb: Omit<Breadcrumb, 'timestamp'> & { timestamp?: string },
@@ -73,7 +77,7 @@ export function addBreadcrumb(
  * Call this when creating a `CapturedError` to attach the breadcrumb trail.
  * The buffer is emptied after draining so subsequent errors get a fresh trail.
  *
- * @returns `Result<ReadonlyArray<Breadcrumb>>` — the breadcrumb trail.
+ * @returns {Result<readonly Breadcrumb[]>} `Result<ReadonlyArray<Breadcrumb>>` — the breadcrumb trail.
  *
  * @example
  * ```typescript
@@ -94,7 +98,7 @@ export function drainBreadcrumbs(): Result<readonly Breadcrumb[]> {
 /**
  * Returns all collected breadcrumbs without clearing the buffer.
  *
- * @returns `Result<ReadonlyArray<Breadcrumb>>` — the breadcrumb trail.
+ * @returns {Result<readonly Breadcrumb[]>} `Result<ReadonlyArray<Breadcrumb>>` — the breadcrumb trail.
  *
  * @example
  * ```typescript
@@ -117,7 +121,7 @@ export function getBreadcrumbs(): Result<readonly Breadcrumb[]> {
  *
  * Primarily for testing — resets the global breadcrumb buffer to empty.
  *
- * @returns `Result<void>`
+ * @returns {Result<void>} `Result<void>`
  *
  * @example
  * ```typescript

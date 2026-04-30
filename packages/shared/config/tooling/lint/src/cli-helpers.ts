@@ -305,8 +305,8 @@ const _packageMapCache: Map<string, Map<string, string>> = new Map<string, Map<s
  * directories by walking `<root>/packages/**` and reading each `package.json`'s
  * `name` field. Walks pnpm-style monorepo layout. Skips `node_modules` and dot dirs.
  *
- * @param workspaceRoot - Absolute path to the workspace root (where pnpm-workspace.yaml lives)
- * @returns Map of package name → absolute directory containing that package's package.json
+ * @param {string} workspaceRoot - Absolute path to the workspace root (where pnpm-workspace.yaml lives)
+ * @returns {ReadonlyMap<string, string>} Map of package name → absolute directory containing that package's package.json
  */
 export function getPackageMap(workspaceRoot: string): ReadonlyMap<string, string> {
   const cached: Map<string, string> | undefined = _packageMapCache.get(workspaceRoot);
@@ -384,9 +384,9 @@ function ruleDomainFor(ruleId: string): string | null {
  *
  * Path normalization: leading `./` is stripped; trailing `/` is stripped.
  *
- * @param paths - User-passed positional paths (repo-relative or absolute)
- * @param domain - Repo-relative domain prefix
- * @returns `true` if any path intersects the domain
+ * @param {readonly string[]} paths - User-passed positional paths (repo-relative or absolute)
+ * @param {string} domain - Repo-relative domain prefix
+ * @returns {boolean} `true` if any path intersects the domain
  */
 export function pathsIntersectDomain(paths: readonly string[], domain: string): boolean {
   const normDomain: string = domain.replace(/^\.\//, '').replace(/\/+$/, '');
@@ -409,9 +409,9 @@ export function pathsIntersectDomain(paths: readonly string[], domain: string): 
  * Decide whether a workspace rule should run given the user's path scope.
  * Returns `true` always when no paths were passed (full-workspace mode).
  *
- * @param ruleId - Workspace-rule ID
- * @param paths - User-passed positional paths
- * @returns `true` if the rule should run, `false` if it should be skipped
+ * @param {string} ruleId - Workspace-rule ID
+ * @param {readonly string[]} paths - User-passed positional paths
+ * @returns {boolean} `true` if the rule should run, `false` if it should be skipped
  */
 export function shouldRunWorkspaceRule(ruleId: string, paths: readonly string[]): boolean {
   if (paths.length === 0) {
@@ -840,11 +840,12 @@ let schemaWritten: boolean = false;
  * editor autocomplete and validation. Idempotent within a process
  * via `schemaWritten`.
  *
- * @param tsRules - All registered TypeScript rules
- * @param pkgRules - All registered package.json rules
- * @param strings - Locale strings used for schema descriptions
- * @param wsRules - Optional workspace-level rules
- * @param cwd - Project root used to resolve the schema output path
+ * @param {TypeScriptRule[]} tsRules - All registered TypeScript rules
+ * @param {PackageJsonRule[]} pkgRules - All registered package.json rules
+ * @param {LintStrings} strings - Locale strings used for schema descriptions
+ * @param {string}eRule[]} wsRules - Optional workspace-level rules
+ * @param {string} cwd - Project root used to resolve the schema output path
+  * @param {WorkspaceRule[]} wsRules - Description
  */
 export function writeJsonSchema(
   tsRules: TypeScriptRule[],
@@ -1110,14 +1111,14 @@ function processBailTasks(
  * Separated from {@link runLinter} so the programmatic API can call this
  * directly without CLI-specific I/O (help text, formatting, exit codes).
  *
- * @param cliArgs - Parsed CLI arguments (or synthesized from API options)
- * @param output - Output sink for messages
- * @param strings - Locale strings for user-facing messages
- * @param config - Loaded and merged config
- * @param loaded - All discovered rules
- * @param cwd - Working directory
- * @param stdinContent - Optional stdin source text (for `--stdin-filename` mode)
- * @returns Lint results, file count, and fix count
+ * @param {CliArgs} cliArgs - Parsed CLI arguments (or synthesized from API options)
+ * @param {CliOutput} output - Output sink for messages
+ * @param {LintStrings} strings - Locale strings for user-facing messages
+ * @param {LintConfig} config - Loaded and merged config
+ * @param {Awaited<ReturnType<typeof loadAllRules>>} loaded - All discovered rules
+ * @param {string} cwd - Working directory
+ * @param {string} stdinContent - Optional stdin source text (for `--stdin-filename` mode)
+ * @returns {Promise<LintCoreResult>} Lint results, file count, and fix count
  */
 export async function _runLintCore(
   cliArgs: CliArgs,
@@ -1898,11 +1899,11 @@ export async function _runLintCore(
  * Loads config, discovers rules, collects files, runs rules,
  * applies fixes, and outputs results. Returns an exit code.
  *
- * @param cliArgs - Parsed CLI arguments
- * @param output - Output sink for messages
- * @param strings - Locale strings for user-facing messages
- * @param stdinContent - Optional stdin source text (for `--stdin-filename` mode)
- * @returns Exit code (0 = clean, 1 = errors, 2 = crash)
+ * @param {CliArgs} cliArgs - Parsed CLI arguments
+ * @param {CliOutput} output - Output sink for messages
+ * @param {LintStrings} strings - Locale strings for user-facing messages
+ * @param {string} stdinContent - Optional stdin source text (for `--stdin-filename` mode)
+ * @returns {Promise<number>} Exit code (0 = clean, 1 = errors, 2 = crash)
  */
 export async function runLinter(
   cliArgs: CliArgs,

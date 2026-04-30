@@ -84,7 +84,7 @@ async function emitFrame(
 /**
  * GET handler — returns MJPEG stream from Android Emulator.
  *
- * @param event - SvelteKit request event with `url` for query params
+ * @param {unknown} event - SvelteKit request event with `url` for query params
  * @returns Multipart MJPEG stream (200) or error (503) or 404 in production
  */
 export const GET: RequestHandler = async (event) => {

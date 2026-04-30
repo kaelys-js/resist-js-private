@@ -144,8 +144,8 @@ function parseImport(clause: Str): ParsedImport {
  * Scans all `<script>` blocks (both `module` and instance) for import statements.
  * Categorizes each into internal (sibling component), workspace (`@/`), or external.
  *
- * @param source - Raw Svelte component source string
- * @returns Categorized dependency tree
+ * @param {Str} source - Raw Svelte component source string
+ * @returns {DepTree} Categorized dependency tree
  *
  * @example
  * ```typescript
@@ -235,10 +235,10 @@ export type ReverseDep = {
  * Scans all provided raw sources, extracts their dependencies, and returns
  * entries where the dependency is an internal import pointing to `targetComponent`.
  *
- * @param targetComponent - The component directory name to find consumers of
- * @param allSources - Map of glob keys → raw source strings for ALL components
- * @param extractDirFn - Function to extract directory name from a glob key
- * @returns Array of components that import the target component
+ * @param {Str} targetComponent - The component directory name to find consumers of
+ * @param {Record<Str, Str>} allSources - Map of glob keys → raw source strings for ALL components
+ * @param {(key: Str) => Str} extractDirFn - Function to extract directory name from a glob key
+ * @returns {ReverseDep[]} Array of components that import the target component
  *
  * @example
  * ```typescript

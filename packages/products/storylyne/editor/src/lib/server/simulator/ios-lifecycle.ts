@@ -37,8 +37,8 @@ const BOOT_TIMEOUT_MS: Num = 60_000 as Num;
  * Idempotent — if the device is already booted (exit code 149),
  * this returns `true` without error.
  *
- * @param udid - Device UDID from `xcrun simctl list`
- * @returns `true` if device is now booted (or was already booted)
+ * @param {Str} udid - Device UDID from `xcrun simctl list`
+ * @returns {Promise<Bool>} `true` if device is now booted (or was already booted)
  * @throws If boot fails for a reason other than "already booted"
  *
  * @example
@@ -64,9 +64,9 @@ export async function bootSimulator(udid: Str): Promise<Bool> {
  * Polls `xcrun simctl list devices --json` until the device reports
  * state 'Booted' or the timeout expires.
  *
- * @param udid - Device UDID to monitor
- * @param timeoutMs - Maximum wait time (default: 60000ms)
- * @returns `true` when device is booted
+ * @param {Str} udid - Device UDID to monitor
+ * @param {Num} timeoutMs - Maximum wait time (default: 60000ms)
+ * @returns {Promise<Bool>} `true` when device is booted
  * @throws If timeout expires before device boots
  */
 export function waitForBoot(udid: Str, timeoutMs: Num = BOOT_TIMEOUT_MS): Promise<Bool> {
@@ -97,8 +97,8 @@ export function waitForBoot(udid: Str, timeoutMs: Num = BOOT_TIMEOUT_MS): Promis
  *
  * Idempotent — if the device is already shutdown, no error is thrown.
  *
- * @param udid - Device UDID
- * @returns `true` when device is shut down
+ * @param {Str} udid - Device UDID
+ * @returns {Promise<Bool>} `true` when device is shut down
  */
 export async function shutdownSimulator(udid: Str): Promise<Bool> {
   try {
@@ -113,8 +113,8 @@ export async function shutdownSimulator(udid: Str): Promise<Bool> {
 /**
  * Get the current state of a simulator device.
  *
- * @param udid - Device UDID
- * @returns Device state string ('Booted', 'Shutdown', 'Shutting Down')
+ * @param {Str} udid - Device UDID
+ * @returns {Promise<Str>} Device state string ('Booted', 'Shutdown', 'Shutting Down')
  */
 export async function getDeviceState(udid: Str): Promise<Str> {
   const { stdout } = await execFileAsync('xcrun', ['simctl', 'list', 'devices', '--json']);

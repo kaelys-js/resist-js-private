@@ -23,7 +23,7 @@ let message: Str = $state('');
  * so the DOM mutation is detected as a change (prevents "same value"
  * announcements from being ignored).
  *
- * @param text - The message to announce
+ * @param {Str} text - The message to announce
  */
 export function announce(text: Str): Void {
   message = '';
@@ -35,7 +35,7 @@ export function announce(text: Str): Void {
 /**
  * Returns the current announcement message for binding in the live region.
  *
- * @returns The current announcement text (empty string when idle)
+ * @returns {Str} The current announcement text (empty string when idle)
  */
 export function getAnnouncement(): Str {
   return message;

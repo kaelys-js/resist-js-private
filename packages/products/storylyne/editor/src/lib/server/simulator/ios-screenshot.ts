@@ -29,8 +29,8 @@ const execFileAsync = promisify(execFile);
  * preserves notch geometry, Dynamic Island, and home indicator as
  * transparent regions in the PNG.
  *
- * @param udid - Device UDID (must be booted)
- * @returns PNG image as a Buffer
+ * @param {Str} udid - Device UDID (must be booted)
+ * @returns {Promise<Buffer>} PNG image as a Buffer
  * @throws If the device is not booted or screenshot fails
  *
  * @example

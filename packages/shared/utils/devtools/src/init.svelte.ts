@@ -35,10 +35,10 @@ export type DebugServicesHandle = {
  * Activates debug services — creates state logger and devtools API.
  * Returns a handle to destroy all services.
  *
- * @param appStore - The app state store
- * @param debugStore - The debug state store
- * @param config - Product-specific devtools configuration
- * @returns Handle with `destroy()` method
+ * @param {AppStoreContract} appStore - The app state store
+ * @param {DebugStoreContract} debugStore - The debug state store
+ * @param {DevtoolsConfig} config - Product-specific devtools configuration
+ * @returns {DebugServicesHandle} Handle with `destroy()` method
  */
 export function activateDebugServices(
   appStore: AppStoreContract,
@@ -264,11 +264,11 @@ function logWelcomeBanner(
  * Initializes all debug services reactively. Call once in `+layout.svelte`
  * inside a `$effect` block to watch `debug.enabled` for transitions.
  *
- * @param appStore - The app state store
- * @param debugStore - The debug state store
- * @param config - Product-specific devtools configuration
- * @param handle - Current active handle (or null if not active)
- * @returns Updated handle (or null if deactivated)
+ * @param {AppStoreContract} appStore - The app state store
+ * @param {DebugStoreContract} debugStore - The debug state store
+ * @param {DevtoolsConfig} config - Product-specific devtools configuration
+ * @param {DebugServicesHandle | null} handle - Current active handle (or null if not active)
+ * @returns {DebugServicesHandle | null} Updated handle (or null if deactivated)
  */
 export function syncDebugServices(
   appStore: AppStoreContract,
