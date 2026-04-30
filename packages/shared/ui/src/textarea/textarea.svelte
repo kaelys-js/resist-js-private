@@ -1,5 +1,11 @@
 <!-- @convert-to-lens -->
 <script lang="ts">
+  /**
+   * Textarea Svelte component — multi-line text input with
+   * auto-sizing and validation states.
+   *
+   * @module
+   */
   import { cn, type WithElementRef, type WithoutChildren } from '../utils.js';
   import type { HTMLTextareaAttributes } from 'svelte/elements';
 

@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Textarea component (form category)
+ * — auto-sizing multi-line text input. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
