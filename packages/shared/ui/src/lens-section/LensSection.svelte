@@ -121,6 +121,7 @@
           /* Skip toggle when the click originated inside the code-controls
              toolbar — those are independent buttons (toggle code, copy). */
           const target: HTMLElement = e.target as HTMLElement;
+
           if (target.closest('[data-lens-section-toolbar]')) {
             return;
           }
@@ -131,7 +132,6 @@
   >
     <div class="min-w-0 flex-1">
       <div class="flex items-center gap-2">
-
         {#if validated.collapsible}
           <ChevronRight
             class={cn(
@@ -206,4 +206,3 @@
     </div>
   {/if}
 </section>
-

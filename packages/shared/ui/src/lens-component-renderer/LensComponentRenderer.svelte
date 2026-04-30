@@ -8709,6 +8709,7 @@
                     class="text-[10px] text-muted-foreground transition-colors hover:text-foreground"
                     onclick={() => {
                       const next: Record<Num, Bool> = {};
+
                       for (
                         let i: Num = 0 as Num;
                         (i as number) < DEBUG_OUTLINE_LEGEND.length;
@@ -8731,7 +8732,6 @@
                       ? countElements(debugContainer, entry.selectors)
                       : (0 as Num)}
                     <div
-
                       class={cn(
                         'flex w-full items-start gap-2.5 border-b px-3 py-1.5 transition-colors last:border-b-0',
                         isEnabled ? 'hover:bg-muted/50' : 'opacity-40',
@@ -8836,6 +8836,7 @@
           (cardModes[cardKey] ?? 'auto') !== 'auto',
           () => {
             const current: Str = cardModes[cardKey] ?? 'auto';
+
             if (current === 'dark') setCardMode(cardKey, 'light' as Str);
             else if (current === 'light') setCardMode(cardKey, 'auto' as Str);
             else setCardMode(cardKey, 'dark' as Str);
@@ -8848,7 +8849,6 @@
               <Tooltip.Trigger>
                 {#snippet child({ props: tipProps })}
                   <DropdownMenu.Trigger>
-
                     {#snippet child({ props })}
                       <button
                         type="button"
@@ -11440,7 +11440,8 @@
                           {#if componentName}
                             {@const liveEngine: Str = (() => {
                               const src: Str = cardScreenSource[cardKey] || ('playwright' as Str);
-                              if (src === 'playwright') return cardScreenBrowser[cardKey] || ('chromium' as Str);
+                              
+if (src === 'playwright') return cardScreenBrowser[cardKey] || ('chromium' as Str);
                               if (src === 'ios-simulator') return 'ios-simulator' as Str;
                               return 'android-emulator' as Str;
                             })()}
@@ -11470,7 +11471,6 @@
                                 Interactive live preview with real browser
                               </Tooltip.Content>
                             </Tooltip.Root>
-
                           {/if}
                         </div>
                       </div>
@@ -12490,6 +12490,7 @@
                         onSelect={(e) => {
                           e.preventDefault();
                           const hideAll: Record<Str, Bool> = {};
+
                           for (const lvl of CONSOLE_LEVELS) {
                             hideAll[lvl.id] = false as Bool;
                           }
@@ -12934,7 +12935,9 @@
                           if (cardComparePosition[cardKey] === undefined)
                             cardComparePosition[cardKey] = 50 as Num;
                           /* Default to last two screenshots */
+
                           const len: Num = (cardScreenshots[cardKey] ?? []).length as Num;
+
                           if (cardCompareLeft[cardKey] === undefined)
                             cardCompareLeft[cardKey] = ((len as number) - 2) as Num;
                           if (cardCompareRight[cardKey] === undefined)
@@ -12960,9 +12963,7 @@
                     type="button"
                     class="inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                     aria-label="Screenshot options"
-
                   >
-
                     <EllipsisVertical class="size-3.5" aria-hidden="true" />
                   </button>
                 {/snippet}
@@ -13057,6 +13058,7 @@
                     e.preventDefault();
                     if (!confirmDestructive(`clear-all-${cardKey}` as Str)) return;
                     const captures: ScreenshotCapture[] = cardScreenshots[cardKey] ?? [];
+
                     for (const c of captures) URL.revokeObjectURL(c.imageUrl);
                     cardScreenshots[cardKey] = [];
                     /* Auto-close compare mode when clearing all screenshots */
@@ -13077,7 +13079,6 @@
         </div>
         {#if cardScreenshotsOpen[cardKey] ?? true}
           {#if (cardScreenCompare[cardKey] ?? false) && (cardScreenshots[cardKey] ?? []).length >= 2}
-
             <!-- Compare view: side-by-side slider with selectable screenshots -->
             {@const allCaptures = cardScreenshots[cardKey] ?? []}
             {@const leftIdx = Math.min(
@@ -13568,6 +13569,7 @@
                       onkeydown={(e) => {
                         if (!e.shiftKey) return;
                         const cur: Num = (cardComparePosition[cardKey] ?? 50) as Num;
+
                         if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
                           e.preventDefault();
                           cardComparePosition[cardKey] = Math.max(0, (cur as number) - 10) as Num;
@@ -13592,7 +13594,6 @@
               <!-- Error feedback card -->
               <div class="flex w-full items-center justify-center">
                 <div
-
                   class="w-[30rem] overflow-hidden rounded-md border border-destructive/30 bg-destructive/5 shadow-sm"
                 >
                   <div class="flex flex-col items-center gap-2 px-4 py-6 text-center">
@@ -14194,6 +14195,7 @@
               value={lvEngine}
               onchange={(e) => {
                 const newEngine: Str = (e.currentTarget as HTMLSelectElement).value as Str;
+
                 if (newEngine !== lvEngine && componentName) {
                   stopLiveView(cardKey);
                   startLiveView(cardKey, componentName, newEngine, 1280 as Num, 720 as Num);
@@ -14243,6 +14245,7 @@
               value=""
               onchange={(e) => {
                 const val: Str = (e.currentTarget as HTMLSelectElement).value as Str;
+
                 if (!val || !componentName) return;
                 const parts: string[] = (val as string).split('x');
                 const w: Num = Number.parseInt(parts[0] ?? '1280', 10) as Num;
@@ -14259,7 +14262,6 @@
                 (e.currentTarget as HTMLSelectElement).value = '';
               }}
             >
-
               <option value="" disabled selected>Size</option>
               <option value="375x667">iPhone SE</option>
               <option value="390x844">iPhone 14</option>
@@ -14376,9 +14378,11 @@
             onmousedown={(e) => {
               const canvas: HTMLCanvasElement = e.currentTarget;
               const { x, y } = canvasToViewport(e, canvas);
+
               if (liveViewTouchSim[cardKey]) {
                 const touches = [{ x, y, id: 0 }];
                 /* Shift+click simulates a two-finger pinch (mirrored point) */
+
                 if (e.shiftKey) {
                   touches.push({
                     x: (canvas.width as number) - (x as number),
@@ -14396,14 +14400,15 @@
                   button: e.button === 0 ? 'left' : e.button === 1 ? 'middle' : 'right',
                   modifiers: getModifiers(e),
                 });
-
               }
             }}
             onmouseup={(e) => {
               const canvas: HTMLCanvasElement = e.currentTarget;
               const { x, y } = canvasToViewport(e, canvas);
+
               if (liveViewTouchSim[cardKey]) {
                 const touches = [{ x, y, id: 0 }];
+
                 if (e.shiftKey) {
                   touches.push({
                     x: (canvas.width as number) - (x as number),
@@ -14421,14 +14426,15 @@
                   button: e.button === 0 ? 'left' : e.button === 1 ? 'middle' : 'right',
                   modifiers: getModifiers(e),
                 });
-
               }
             }}
             onmousemove={(e) => {
               const canvas: HTMLCanvasElement = e.currentTarget;
               const { x, y } = canvasToViewport(e, canvas);
+
               if (liveViewTouchSim[cardKey] && e.buttons > 0) {
                 const touches = [{ x, y, id: 0 }];
+
                 if (e.shiftKey) {
                   touches.push({
                     x: (canvas.width as number) - (x as number),
@@ -14441,7 +14447,6 @@
                 sendBatchedMouseMove(cardKey, { type: 'mouseMove', x, y });
               }
             }}
-
             onclick={(e) => {
               if (liveViewTouchSim[cardKey]) return;
               const canvas: HTMLCanvasElement = e.currentTarget;
@@ -14618,15 +14623,16 @@
       if (e.key === 'ArrowLeft' && lbHasPrev) {
         lightboxIdx = ((lightboxIdx as number) - 1) as Num;
         const prev: ScreenshotCapture | undefined = lbCaptures[lightboxIdx];
+
         if (prev) lightboxUrl = prev.imageUrl;
       }
       if (e.key === 'ArrowRight' && lbHasNext) {
         lightboxIdx = ((lightboxIdx as number) + 1) as Num;
         const next: ScreenshotCapture | undefined = lbCaptures[lightboxIdx];
+
         if (next) lightboxUrl = next.imageUrl;
       }
     }}
-
     tabindex="-1"
     use:autoFocus
     transition:fade={{ duration: 150 }}
@@ -14674,6 +14680,7 @@
                   e.stopPropagation();
                   lightboxIdx = ((lightboxIdx as number) - 1) as Num;
                   const prev: ScreenshotCapture | undefined = lbCaptures[lightboxIdx];
+
                   if (prev) lightboxUrl = prev.imageUrl;
                 }}
                 aria-label="Previous screenshot"
@@ -14692,7 +14699,6 @@
       </Tooltip.Provider>
     {/if}
 
-
     <!-- Next button -->
     {#if lbHasNext}
       <Tooltip.Provider>
@@ -14707,6 +14713,7 @@
                   e.stopPropagation();
                   lightboxIdx = ((lightboxIdx as number) + 1) as Num;
                   const next: ScreenshotCapture | undefined = lbCaptures[lightboxIdx];
+
                   if (next) lightboxUrl = next.imageUrl;
                 }}
                 aria-label="Next screenshot"
@@ -14724,7 +14731,6 @@
         </Tooltip.Root>
       </Tooltip.Provider>
     {/if}
-
 
     <button
       type="button"
@@ -15090,23 +15096,3 @@
     outline-color: oklch(0 0 0) !important;
   }
 </style>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

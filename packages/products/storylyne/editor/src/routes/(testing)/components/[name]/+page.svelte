@@ -3050,6 +3050,7 @@
     {#if deps.internal.length > 0}
       {@const deprecatedDeps = deps.internal.filter((dep) => {
         const key = Object.keys(eagerLensMetas).find((k) => extractDir(k) === dep.component);
+
         return key ? eagerLensMetas[key]?.meta?.status === 'deprecated' : false;
       })}
       {#if deprecatedDeps.length > 0}
@@ -3058,7 +3059,6 @@
             <TriangleAlert class="mt-0.5 size-4 shrink-0 text-amber-500" />
             <div class="min-w-0 flex-1">
               <p class="text-sm font-medium text-amber-600 dark:text-amber-400">
-
                 Deprecated dependenc{deprecatedDeps.length === 1 ? 'y' : 'ies'}
               </p>
               <p class="mt-0.5 text-xs text-muted-foreground">
@@ -4725,6 +4725,7 @@
                         class="inline-flex items-center gap-1.5 rounded-md border bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                         onclick={async () => {
                           const path = `packages/shared/ui/src/${name}/docs.md`;
+
                           try {
                             await navigator.clipboard.writeText(path);
                           } catch {
@@ -4751,7 +4752,6 @@
                 {/if}
               </div>
             {/if}
-
           </section>
 
           <!-- ═══ Dependencies ═══ -->
@@ -5371,5 +5371,3 @@
     </div>
   {/if}
 </div>
-
-
