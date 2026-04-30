@@ -282,7 +282,18 @@ export async function lint(options?: LintOptions): Promise<LintApiResult<LintRes
   }
 
   /* Merge results */
-  const allResults: readonly LintResult[] = [...fileResults, ...sourceResults];
+  let allResults: readonly LintResult[] = [...fileResults, ...sourceResults];
+
+  /* Apply global severityOverride — mirrors cli-helpers.ts behaviour so
+   * programmatic callers see the same filtering as the CLI. */
+  if (cliArgs.severityOverride === 'off') {
+    allResults = [];
+  } else if (cliArgs.severityOverride === 'warn') {
+    allResults = allResults.map((r: LintResult): LintResult => ({ ...r, severity: 'warning' }));
+  } else if (cliArgs.severityOverride === 'error') {
+    allResults = allResults.map((r: LintResult): LintResult => ({ ...r, severity: 'error' }));
+  }
+
   const hasErrors: boolean = allResults.some((r: LintResult): boolean => r.severity === 'error');
 
   return {

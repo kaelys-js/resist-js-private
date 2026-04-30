@@ -18,11 +18,13 @@
     "ignoreUnknown": true,
     "includes": [
       "**",
+      "!.resist-lint-cache.json",
       "!**/_INTEGRATE/**",
       "!**/.agents/**",
       "!**/.claude/**",
       "!**/app.css",
       "!**/.svelte-kit/**",
+      "!**/.svelte-check/**",
       "!**/.turbo/**",
       "!**/coverage/**",
       "!**/dist/**",
