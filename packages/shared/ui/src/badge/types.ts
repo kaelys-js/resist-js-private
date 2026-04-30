@@ -76,8 +76,11 @@ export const badgeVariants = tv({
   },
 });
 
+/** Visual variant prop type for the Badge component. */
 export type BadgeVariant = VariantProps<typeof badgeVariants>['variant'];
+/** Size prop type for the Badge component. */
 export type BadgeSize = VariantProps<typeof badgeVariants>['size'];
+/** Border-radius prop type for the Badge component. */
 export type BadgeRadius = VariantProps<typeof badgeVariants>['radius'];
 
 export const BadgePropsSchema = v.strictObject({

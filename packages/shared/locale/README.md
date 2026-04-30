@@ -749,7 +749,9 @@ export const MyToolStringsSchema = v.intersect([
   }),
 ]);
 
+/** Output type inferred from `MyToolStringsSchema` (per-tool strings). */
 export type MyToolStrings = v.InferOutput<typeof MyToolStringsSchema>;
+/** Built locale wrapping `MyToolStrings` with format helpers. */
 export type BuiltMyToolStrings = BuiltLocale<typeof MyToolStringsSchema>;
 ```
 

@@ -45,9 +45,12 @@ export const buttonVariants = tv({
   },
 });
 
+/** Visual variant prop type for the Button component. */
 export type ButtonVariant = VariantProps<typeof buttonVariants>['variant'];
+/** Size prop type for the Button component. */
 export type ButtonSize = VariantProps<typeof buttonVariants>['size'];
 
+/** Public component props for the Button component (button + anchor element refs with variant + size). */
 export type ButtonProps = WithElementRef<HTMLButtonAttributes> &
   WithElementRef<HTMLAnchorAttributes> & {
     /** The visual style variant. */
