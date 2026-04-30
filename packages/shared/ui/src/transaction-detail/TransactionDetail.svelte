@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * TransactionDetail Svelte component — finance transaction
+   * breakdown with amounts, fees, and status. Placeholder
+   * shell awaiting full implementation; ships with a class
+   * prop for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 

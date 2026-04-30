@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Tour component (overlay category) —
+ * guided onboarding walkthrough. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
