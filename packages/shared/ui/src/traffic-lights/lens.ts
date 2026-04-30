@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the TrafficLights component (desktop
+ * category) — macOS window-control trio. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
