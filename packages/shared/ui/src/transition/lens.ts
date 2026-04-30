@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Transition component (animation
+ * category) — enter/exit animation wrapper. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
