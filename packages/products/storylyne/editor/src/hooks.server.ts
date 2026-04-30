@@ -226,7 +226,9 @@ export function getWaitUntil(): ((promise: Promise<unknown>) => void) | null {
  * with user, data service, sidebar/theme preferences, and applies
  * security headers + cache-control.
  *
- * @param input - SvelteKit handle event with `event` and `resolve`
+ * @param input - SvelteKit handle event
+ * @param input.event - The current request event
+ * @param input.resolve - Inner resolver invoked to render the page
  * @returns Response with security headers, locale, and cache rules
  */
 export const handle: Handle = async ({ event, resolve }) => {
