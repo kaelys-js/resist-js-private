@@ -36,6 +36,7 @@ Loads, validates, and caches `resist.config.ts` as a frozen singleton. All falli
 import { getConfig } from '@/config/loader';
 
 const result = getConfig();
+
 if (!result.ok) throw new Error(result.error.message);
 const config = result.data;
 ```

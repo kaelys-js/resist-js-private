@@ -983,6 +983,7 @@
             : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground'}"
           onclick={() => {
             const next: Set<Str> = new Set(activeFilters);
+
             if (next.has(opt.value)) {
               next.delete(opt.value);
             } else {
@@ -1637,4 +1638,3 @@
     {/if}
   </div>
 </div>
-

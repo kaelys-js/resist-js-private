@@ -64,10 +64,12 @@ import { safeParse } from '@/utils/result/safe';
 
 function loadUser(id: string): Result<User> {
   const parsed = safeParse(UserIdSchema, id);
-  if (!parsed.ok) return parsed;
+  
+if (!parsed.ok) return parsed;
 
   const user = db.find(parsed.data);
-  if (!user) {
+  
+if (!user) {
     return err(ERRORS.DB.NOT_FOUND, {
       meta: { table: 'users', id },
       httpStatus: 404,

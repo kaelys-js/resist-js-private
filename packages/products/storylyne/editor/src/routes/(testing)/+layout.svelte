@@ -3419,6 +3419,7 @@
                 onscroll={(e) => {
                   /* Load more when scrolled near bottom */
                   const el = e.currentTarget as HTMLDivElement;
+
                   if (el.scrollHeight - el.scrollTop - el.clientHeight < 100 && hasMoreNotifs) {
                     visibleNotifCount = ((visibleNotifCount as number) + 50) as Num;
                   }
@@ -3437,7 +3438,6 @@
                   {#each displayedNotifs as notif (notif.id)}
                     {@const NIcon =
                       notif.type === 'error'
-
                         ? CircleX
                         : notif.type === 'warning'
                           ? TriangleAlert
@@ -3546,4 +3546,3 @@
       '!border !border-border shadow-lg !bg-card !text-foreground [&_[data-close-button]]:!bg-card [&_[data-close-button]]:!text-muted-foreground [&_[data-close-button]]:!border-border [&_[data-close-button]:hover]:!bg-accent [&_[data-close-button]:hover]:!text-accent-foreground',
   }}
 />
-

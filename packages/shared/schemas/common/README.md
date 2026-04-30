@@ -20,6 +20,7 @@ import type { Str, Path, ExitCode } from '@/schemas/common';
 import { safeParse } from '@/utils/result/safe';
 
 const result = safeParse(PathSchema, '/usr/local/bin');
+
 if (result.ok) {
   const p: Path = result.data;
 }
