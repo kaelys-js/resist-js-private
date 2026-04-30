@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Toast component (feedback category)
+ * — auto-dismissing brief notification. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
