@@ -1,4 +1,6 @@
 /**
+ * @module
+ *
  * Integration tests for the error reporting pipeline.
  *
  * Tests the full flow: CapturedError → toBeaconPayload → JSON serialize →

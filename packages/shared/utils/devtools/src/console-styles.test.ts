@@ -1,3 +1,9 @@
+/**
+ * Tests for the console-styles devtools utilities — colour
+ * tokens, timestamp formatter, and snapshot diff helper.
+ *
+ * @module
+ */
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { styles, formatTimestamp, diffSnapshot } from './console-styles';
 import type { Str } from '@/schemas/common';

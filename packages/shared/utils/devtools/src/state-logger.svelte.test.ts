@@ -1,3 +1,9 @@
+/**
+ * Tests for the devtools state-logger — `LOG_LEVEL_PRIORITY`
+ * and the reactive state-change logger helpers.
+ *
+ * @module
+ */
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { tick } from 'svelte';
 import type { Str } from '@/schemas/common';

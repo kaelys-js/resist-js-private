@@ -1,3 +1,9 @@
+/**
+ * Tests for `DebugStateSchema` and the `LOG_LEVELS` enum
+ * exported from the devtools debug-state module.
+ *
+ * @module
+ */
 import { describe, expect, it } from 'vitest';
 import { safeParse } from '@/utils/result/safe';
 import {

@@ -1,4 +1,6 @@
 /**
+ * @module
+ *
  * Vite `define` constants injected at build time.
  *
  * These are replaced by Vite's `define` plugin during compilation.
@@ -21,6 +23,7 @@ declare global {
   var __BUILD_TIMESTAMP__: string;
 }
 
+/** Description. */
 export type BuildGlobalKey =
   | '__APP_VERSION__'
   | '__GIT_COMMIT__'

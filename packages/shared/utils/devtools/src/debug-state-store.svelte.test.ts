@@ -1,3 +1,9 @@
+/**
+ * Tests for `createDebugStore` — the reactive devtools
+ * debug-state store backed by Svelte runes.
+ *
+ * @module
+ */
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import type { Num, NullableStr, Str } from '@/schemas/common';
 import { createDebugStore } from './debug-state-store.svelte';

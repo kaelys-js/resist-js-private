@@ -1,3 +1,9 @@
+/**
+ * Tests for `parseDebugParams` and `applyUrlOverrides` —
+ * URL-driven devtools-debug-state overrides.
+ *
+ * @module
+ */
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import type { Str } from '@/schemas/common';
 import {

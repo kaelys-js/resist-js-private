@@ -1,3 +1,9 @@
+/**
+ * Tests for `activateDebugServices` / `syncDebugServices` —
+ * devtools bootstrap helpers wiring debug stores.
+ *
+ * @module
+ */
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import type { Bool, Str, Void } from '@/schemas/common';
 import { activateDebugServices, syncDebugServices, type DebugServicesHandle } from './init.svelte';
