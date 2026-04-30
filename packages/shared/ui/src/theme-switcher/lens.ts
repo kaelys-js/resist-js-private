@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the ThemeSwitcher component (utility
+ * category) — colour theme selection dropdown. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 import LensWrapper from './LensWrapper.svelte';
 

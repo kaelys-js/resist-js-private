@@ -1,8 +1,10 @@
 <script lang="ts">
   /**
-   * Lens context wrapper for ThemeSwitcher.
+   * LensWrapper Svelte component — Lens-only context wrapper
+   * for ThemeSwitcher providing the `DropdownMenu.Root` +
+   * `Content` parents required by `DropdownMenu.Sub`.
    *
-   * Provides the DropdownMenu.Root + Content context required by DropdownMenu.Sub.
+   * @module
    */
   import type { Snippet } from 'svelte';
   import * as DropdownMenu from '../dropdown-menu/index.js';

@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * ThreeDCard Svelte component — card that tilts in 3D
+   * perspective in response to mouse movement. Placeholder
+   * shell awaiting full implementation; ships with a class
+   * prop for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
