@@ -105,7 +105,7 @@ export const isLinux: Bool = platform === 'linux';
  *
  * Returns `false` in non-Node environments (browser, Workers).
  *
- * @returns `Result<Bool>` — `true` if stdout is a TTY, `false` otherwise.
+ * @returns {Result<Bool>} `Result<Bool>` — `true` if stdout is a TTY, `false` otherwise.
  *
  * @example
  * ```typescript
@@ -127,7 +127,7 @@ export function isTTY(): Result<Bool> {
  *
  * Returns `80` in non-Node environments or when stdout is not a TTY.
  *
- * @returns `Result<NonNegativeInteger>` — terminal width in columns.
+ * @returns {Result<NonNegativeInteger>} `Result<NonNegativeInteger>` — terminal width in columns.
  *
  * @example
  * ```typescript
@@ -153,7 +153,7 @@ export function getColumns(): Result<NonNegativeInteger> {
  *
  * Returns an empty array in non-Node environments.
  *
- * @returns `Result<StrArray>` — CLI arguments after the script path.
+ * @returns {Result<StrArray>} `Result<StrArray>` — CLI arguments after the script path.
  *
  * @example
  * ```typescript
@@ -176,7 +176,7 @@ export function getArgv(): Result<StrArray> {
  * Returns `undefined` in non-Node environments or when argv[1] is not set.
  * Used for direct-execution detection (e.g., comparing import.meta.url with the script path).
  *
- * @returns Result containing the script path, or undefined if unavailable
+ * @returns {Result<OptionalStr>} Result containing the script path, or undefined if unavailable
  *
  * @example
  * ```typescript
@@ -201,8 +201,8 @@ export function getScriptPath(): Result<OptionalStr> {
  * Returns `undefined` (not an error) when the variable is unset or
  * in a non-Node environment.
  *
- * @param name - Environment variable name.
- * @returns `Result<OptionalStr>` — the variable value, or `undefined` if unset.
+ * @param {Str} name - Environment variable name.
+ * @returns {Result<OptionalStr>} `Result<OptionalStr>` — the variable value, or `undefined` if unset.
  *
  * @example
  * ```typescript
@@ -228,7 +228,7 @@ export function getEnvVar(name: Str): Result<OptionalStr> {
  *
  * Returns an empty object in non-Node environments.
  *
- * @returns `Result<EnvRecordWithUndefined>` — environment variable record.
+ * @returns {Result<EnvRecordWithUndefined>} `Result<EnvRecordWithUndefined>` — environment variable record.
  *
  * @example
  * ```typescript
@@ -254,8 +254,8 @@ export function getEnvRecord(): Result<EnvRecordWithUndefined> {
  *
  * Returns an error in non-Node environments where stdout is unavailable.
  *
- * @param text - Text to write.
- * @returns `Result<Void>` — success, or `IO.WRITE_FAILED` if stdout is unavailable.
+ * @param {Str} text - Text to write.
+ * @returns {Result<Void>} `Result<Void>` — success, or `IO.WRITE_FAILED` if stdout is unavailable.
  *
  * @example
  * ```typescript
@@ -283,8 +283,8 @@ export function writeStdout(text: Str): Result<Void> {
  *
  * Returns an error in non-Node environments where stderr is unavailable.
  *
- * @param text - Text to write.
- * @returns `Result<Void>` — success, or `IO.WRITE_FAILED` if stderr is unavailable.
+ * @param {Str} text - Text to write.
+ * @returns {Result<Void>} `Result<Void>` — success, or `IO.WRITE_FAILED` if stderr is unavailable.
  *
  * @example
  * ```typescript
@@ -312,7 +312,7 @@ export function writeStderr(text: Str): Result<Void> {
  *
  * No-op in non-Node environments or when stdout is not a TTY.
  *
- * @returns `Result<Void>` — always succeeds (no-op when unavailable).
+ * @returns {Result<Void>} `Result<Void>` — always succeeds (no-op when unavailable).
  *
  * @example
  * ```typescript
@@ -333,8 +333,8 @@ export function clearLine(): Result<Void> {
  *
  * No-op in non-Node environments or when stdout is not a TTY.
  *
- * @param column - Zero-based column number.
- * @returns `Result<Void>` — success, or validation error if column is invalid.
+ * @param {NonNegativeInteger} column - Zero-based column number.
+ * @returns {Result<Void>} `Result<Void>` — success, or validation error if column is invalid.
  *
  * @example
  * ```typescript
@@ -359,8 +359,8 @@ export function cursorTo(column: NonNegativeInteger): Result<Void> {
  *
  * No-op in non-Node environments.
  *
- * @param code - Exit code (0–255).
- * @returns `Result<Void>` — success, or validation error if code is invalid.
+ * @param {ExitCode} code - Exit code (0–255).
+ * @returns {Result<Void>} `Result<Void>` — success, or validation error if code is invalid.
  *
  * @example
  * ```typescript
@@ -391,8 +391,8 @@ export function setExitCode(code: ExitCode): Result<Void> {
  * or if no data arrives within `timeoutMs`. Returns an error in
  * non-Node environments.
  *
- * @param timeoutMs - Maximum time to wait for initial data (in milliseconds).
- * @returns `Promise<Result<Str>>` — stdin content, or `IO.READ_FAILED` if unavailable.
+ * @param {NonNegativeInteger} timeoutMs - Maximum time to wait for initial data (in milliseconds).
+ * @returns {Promise<Result<Str>>} `Promise<Result<Str>>` — stdin content, or `IO.READ_FAILED` if unavailable.
  *
  * @example
  * ```typescript
@@ -486,7 +486,7 @@ export async function readStdin(timeoutMs: NonNegativeInteger): Promise<Result<S
  * Validates the exit code via `safeParse`. If validation fails,
  * exits with code `1` as a safe fallback.
  *
- * @param code - Exit code (0–255). Defaults to `0`.
+ * @param {OptionalExitCode} code - Exit code (0–255). Defaults to `0`.
  * @returns `Never` — process exits, control never returns.
  *
  * @example
@@ -520,7 +520,7 @@ export function exit(code: OptionalExitCode = DEFAULT_EXIT_CODE): never {
  *   impossible (e.g. `caddy.on('error', ...)`). All normal control flow MUST use
  *   the Result system and let `dispatchTool` handle error display.
  *
- * @param options - Error display options (message, exitCode, error, details).
+ * @param {FatalExitOptions} options - Error display options (message, exitCode, error, details).
  * @returns `Never` — process exits, control never returns.
  *
  * @example

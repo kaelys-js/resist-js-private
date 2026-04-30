@@ -24,8 +24,8 @@ const execFileAsync = promisify(execFile);
  * machine directly. The special IP `10.0.2.2` is routed to the host's
  * loopback adapter.
  *
- * @param url - Original URL (may contain localhost or 127.0.0.1)
- * @returns URL with host replaced by 10.0.2.2 if applicable
+ * @param {Str} url - Original URL (may contain localhost or 127.0.0.1)
+ * @returns {Str} URL with host replaced by 10.0.2.2 if applicable
  *
  * @example
  * rewriteUrlForEmulator('http://localhost:3100/isolate/button');
@@ -47,8 +47,8 @@ export function rewriteUrlForEmulator(url: Str): Str {
  * Uses the `VIEW` intent action to launch the default browser (Chrome)
  * with the specified URL.
  *
- * @param url - URL to open (should already be rewritten for emulator)
- * @returns Array of adb command arguments
+ * @param {Str} url - URL to open (should already be rewritten for emulator)
+ * @returns {Str[]} Array of adb command arguments
  *
  * @example
  * const args = buildAmStartArgs('http://10.0.2.2:3100/isolate/button');
@@ -64,9 +64,9 @@ export function buildAmStartArgs(url: Str): Str[] {
  * Maps a host port to a device port so the emulator can reach the
  * dev server via `10.0.2.2`.
  *
- * @param hostPort - Port on the host machine
- * @param devicePort - Port on the emulator
- * @returns Array of adb forward arguments
+ * @param {Num} hostPort - Port on the host machine
+ * @param {Num} devicePort - Port on the emulator
+ * @returns {Str[]} Array of adb forward arguments
  *
  * @example
  * const args = buildPortForwardArgs(3100, 3100);
@@ -82,9 +82,9 @@ export function buildPortForwardArgs(hostPort: Num, devicePort: Num): Str[] {
  * Rewrites localhost URLs to use `10.0.2.2` and launches Chrome
  * via an Android VIEW intent.
  *
- * @param adbPath - Path to `adb` binary
- * @param serial - Emulator serial (e.g. 'emulator-5554')
- * @param url - URL to open (localhost URLs are auto-rewritten)
+ * @param {Str} adbPath - Path to `adb` binary
+ * @param {Str} serial - Emulator serial (e.g. 'emulator-5554')
+ * @param {Str} url - URL to open (localhost URLs are auto-rewritten)
  *
  * @example
  * await openUrlInEmulator('/path/to/adb', 'emulator-5554', 'http://localhost:3100/isolate/btn');
@@ -99,10 +99,10 @@ export async function openUrlInEmulator(adbPath: Str, serial: Str, url: Str): Pr
 /**
  * Set up port forwarding from emulator to host.
  *
- * @param adbPath - Path to `adb` binary
- * @param serial - Emulator serial
- * @param hostPort - Host port to forward
- * @param devicePort - Device port to map to
+ * @param {Str} adbPath - Path to `adb` binary
+ * @param {Str} serial - Emulator serial
+ * @param {Num} hostPort - Host port to forward
+ * @param {Num} devicePort - Device port to map to
  *
  * @example
  * await setupPortForward('/path/to/adb', 'emulator-5554', 3100, 3100);

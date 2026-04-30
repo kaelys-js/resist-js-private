@@ -22,8 +22,8 @@ import { statSync, type Stats } from 'node:fs';
  * Missing files contribute a sentinel so the hash still differs from a
  * run where the file existed. Inputs are sorted for deterministic output.
  *
- * @param files - Absolute file paths to fingerprint
- * @returns Hex-encoded sha256 hash
+ * @param {readonly string[]} files - Absolute file paths to fingerprint
+ * @returns {string} Hex-encoded sha256 hash
  */
 export function fingerprintFiles(files: readonly string[]): string {
   const h: ReturnType<typeof createHash> = createHash('sha256');

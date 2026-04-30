@@ -29,8 +29,8 @@ const ERLC_ERROR: RegExp = /^(.+?):(\d+):\s*error:\s*(.+)$/;
 /**
  * Transform erlc compilation output into LintResult[].
  *
- * @param output - Raw stderr output from erlc -W (one diagnostic per line)
- * @returns Parsed lint results
+ * @param {string} output - Raw stderr output from erlc -W (one diagnostic per line)
+ * @returns {LintResult[]} Parsed lint results
  */
 export function transformErlcOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();

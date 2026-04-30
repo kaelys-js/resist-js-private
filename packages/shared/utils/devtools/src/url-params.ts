@@ -24,9 +24,9 @@ const FF_PREFIX = 'ff.';
 /**
  * Checks whether a key is a valid app preference field.
  *
- * @param key - The key to check
- * @param schemaEntries - Valibot schema entries to check against
- * @returns True if the key exists in the schema
+ * @param {Str} key - The key to check
+ * @param {Record<Str, unknown>} schemaEntries - Valibot schema entries to check against
+ * @returns {Bool} True if the key exists in the schema
  */
 export function isValidAppKey(key: Str, schemaEntries: Record<Str, unknown>): Bool {
   return key in schemaEntries;
@@ -35,9 +35,9 @@ export function isValidAppKey(key: Str, schemaEntries: Record<Str, unknown>): Bo
 /**
  * Checks whether a key is a valid feature flag.
  *
- * @param key - The key to check
- * @param schemaEntries - Valibot schema entries to check against
- * @returns True if the key exists in the schema
+ * @param {Str} key - The key to check
+ * @param {Record<Str, unknown>} schemaEntries - Valibot schema entries to check against
+ * @returns {Bool} True if the key exists in the schema
  */
 export function isValidFeatureFlag(key: Str, schemaEntries: Record<Str, unknown>): Bool {
   return key in schemaEntries;
@@ -47,9 +47,9 @@ export function isValidFeatureFlag(key: Str, schemaEntries: Record<Str, unknown>
  * Extracts all app-prefixed parameters from a URL.
  * Returns unprefixed keys mapped to raw string values.
  *
- * @param url - The URL to parse
- * @param urlParamPrefix - The URL param prefix (e.g., 'sto.')
- * @returns Result containing the extracted overrides map
+ * @param {URL} url - The URL to parse
+ * @param {Str} urlParamPrefix - The URL param prefix (e.g., 'sto.')
+ * @returns {Result<UrlOverrides>} Result containing the extracted overrides map
  *
  * @example
  * ```typescript
@@ -84,11 +84,11 @@ function buildSetterMap(schemaEntries: Record<Str, unknown>): Record<Str, Str> {
  * 2. App params (from config schemas) → app store setters
  * 3. Feature flag params (`ff.*`) → appStore.setFeature()
  *
- * @param appStore - The app state store
- * @param debugStore - The debug state store
- * @param overrides - Unprefixed URL overrides from parseDebugParams
- * @param config - Devtools config for schema-driven validation
- * @returns Result<Void> — always ok (individual setter errors are non-fatal)
+ * @param {AppStoreContract} appStore - The app state store
+ * @param {DebugStoreLike} debugStore - The debug state store
+ * @param {UrlOverrides} overrides - Unprefixed URL overrides from parseDebugParams
+ * @param {DevtoolsConfig} config - Devtools config for schema-driven validation
+ * @returns {Result<Void>} Result<Void> — always ok (individual setter errors are non-fatal)
  */
 export function applyUrlOverrides(
   appStore: AppStoreContract,

@@ -24,9 +24,9 @@ import type { Num, Str } from '@/schemas/common';
  * component directory name via `extractDirFn`, and sums the
  * `String.length` of all files in each directory.
  *
- * @param allSources - Map of glob keys → raw source strings
- * @param extractDirFn - Function to extract directory name from a glob key
- * @returns Map of component directory → total source character count
+ * @param {Record<Str, Str>} allSources - Map of glob keys → raw source strings
+ * @param {(key: Str) => Str} extractDirFn - Function to extract directory name from a glob key
+ * @returns {Record<Str, Num>} Map of component directory → total source character count
  *
  * @example
  * ```typescript
@@ -57,8 +57,8 @@ export function extractSourceSizes(
  * Uses B for values under 1024, kB for kilobytes, MB for megabytes.
  * Always uses one decimal place for kB and MB.
  *
- * @param bytes - The byte count to format
- * @returns Formatted string like '1.4 kB' or '512 B'
+ * @param {Num} bytes - The byte count to format
+ * @returns {Str} Formatted string like '1.4 kB' or '512 B'
  *
  * @example
  * ```typescript

@@ -153,8 +153,8 @@ const DEVICE_INSETS: DeviceInsetEntry[] = [
  * Uses case-insensitive substring matching against the device name.
  * Returns `null` if no matching entry is found.
  *
- * @param deviceName - Device model name (e.g. 'iPhone 16 Pro')
- * @returns Safe area insets or null
+ * @param {Str} deviceName - Device model name (e.g. 'iPhone 16 Pro')
+ * @returns {SafeAreaInsets | null} Safe area insets or null
  *
  * @example
  * const insets = getStaticSafeAreaInsets('iPhone 16 Pro');
@@ -175,7 +175,7 @@ export function getStaticSafeAreaInsets(deviceName: Str): SafeAreaInsets | null 
  * returns a JSON string of `{ top, right, bottom, left }` with
  * numeric pixel values from CSS `env(safe-area-inset-*)`.
  *
- * @returns JavaScript expression string
+ * @returns {Str} JavaScript expression string
  *
  * @example
  * const script = buildSafeAreaScript();

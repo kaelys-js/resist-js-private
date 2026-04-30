@@ -28,11 +28,11 @@ import { _toFnType, createWrapper, getWrapperMeta } from '@/schemas/function/wra
  *
  * @typeParam TArgs - Tuple type of function parameters.
  * @typeParam TReturn - Function return type (preserved through the transform).
- * @param schema - A tuple schema defining positional parameter types.
+ * @param {v.GenericSchema<TArgs>} schema - A tuple schema defining positional parameter types.
  *   Use `v.tuple([...])` for fixed params, `v.tupleWithRest([...], restSchema)` for rest params.
- * @param options - Optional configuration.
+ * @param {CallTimeOptions} options - Optional configuration.
  * @param options.onError - Error behavior: `'throw'` (default) or `'result'`.
- * @returns A pipe action that transforms the function into a validated wrapper.
+ * @returns {v.TransformAction<FnType<unknown[], TReturn>, FnType<TArgs, TReturn>>} A pipe action that transforms the function into a validated wrapper.
  *
  * @example
  * ```typescript

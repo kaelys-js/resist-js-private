@@ -79,8 +79,8 @@ function _isPlainObject(value: unknown): value is Record<string, unknown> {
  * Recursively freezes all nested objects and arrays.
  * Functions are left callable but their properties are frozen.
  *
- * @param obj - Object to deep freeze.
- * @returns The same object reference, deeply frozen.
+ * @param {T} obj - Object to deep freeze.
+ * @returns {Readonly<T>} The same object reference, deeply frozen.
  *
  * @remarks Intentionally returns T instead of Result<T> because this function is used by the Result system itself — returning Result would create a circular dependency.
  *
@@ -107,9 +107,9 @@ export function deepFreeze<T extends object>(obj: T): Readonly<T> {
  * Deep merge two objects. Source values override target values.
  * Arrays are replaced, not merged.
  *
- * @param target - Base object.
- * @param source - Partial object with overrides.
- * @returns New object with deep-merged values (target structure with source overrides).
+ * @param {T} target - Base object.
+ * @param {Partial<T>} source - Partial object with overrides.
+ * @returns {T} New object with deep-merged values (target structure with source overrides).
  *
  * @remarks Intentionally returns T instead of Result<T> because this function is used by the Result system itself — returning Result would create a circular dependency.
  *
@@ -154,9 +154,9 @@ export function deepMerge<T extends Record<string, unknown>>(target: T, source: 
  * compatibility reasons — those are used by the Result system itself. This
  * function DOES return Result because it's not in the Result dependency chain.
  *
- * @param data - Serializable data to stringify.
- * @param indent - Indentation: a number (spaces) or string (e.g. `'\t'`). Defaults to 2.
- * @returns `Result<Str>` — JSON string, or error if serialization fails.
+ * @param {JsonData} data - Serializable data to stringify.
+ * @param {NonNegativeInteger | Str} indent - Indentation: a number (spaces) or string (e.g. `'\t'`). Defaults to 2.
+ * @returns {Result<Str>} `Result<Str>` — JSON string, or error if serialization fails.
  *
  * @example
  * ```typescript

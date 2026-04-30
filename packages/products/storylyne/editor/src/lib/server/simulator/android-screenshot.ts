@@ -24,8 +24,8 @@ const execFileAsync = promisify(execFile);
  * Uses `exec-out` (not `shell`) to avoid LF→CRLF conversion that
  * corrupts binary data. The `-p` flag outputs PNG format.
  *
- * @param serial - Emulator serial (e.g. 'emulator-5554')
- * @returns Array of adb command arguments
+ * @param {Str} serial - Emulator serial (e.g. 'emulator-5554')
+ * @returns {Str[]} Array of adb command arguments
  *
  * @example
  * const args = buildScreencapArgs('emulator-5554');
@@ -45,9 +45,9 @@ export function buildScreencapArgs(serial: Str): Str[] {
  * Runs `adb exec-out screencap -p` to stream PNG data from the device
  * and returns it as a base64-encoded string.
  *
- * @param adbPath - Path to `adb` binary
- * @param serial - Emulator serial (e.g. 'emulator-5554')
- * @returns Base64-encoded PNG image data
+ * @param {Str} adbPath - Path to `adb` binary
+ * @param {Str} serial - Emulator serial (e.g. 'emulator-5554')
+ * @returns {Promise<Str>} Base64-encoded PNG image data
  * @throws If screencap fails
  *
  * @example

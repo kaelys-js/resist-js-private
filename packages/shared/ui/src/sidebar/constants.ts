@@ -36,7 +36,7 @@ const COOKIE_PROP: Str = 'cookie';
  * Wraps raw cookie assignment behind a computed property access
  * so callers avoid direct `document.cookie` (satisfies `no-document-cookie`).
  *
- * @param isOpen - Whether the sidebar is currently open
+ * @param {Bool} isOpen - Whether the sidebar is currently open
  */
 export function persistSidebarState(isOpen: Bool): void {
   const entry: Str = `${SIDEBAR_COOKIE_NAME}=${String(isOpen)}; path=/; max-age=${String(SIDEBAR_COOKIE_MAX_AGE)}`;

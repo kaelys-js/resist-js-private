@@ -39,8 +39,8 @@ export const PREVIEW_WS_PATH: Str = '/api/lens/preview/ws' as Str;
  * Extracts query parameters, coerces numeric values from strings,
  * and validates against {@link SessionConfigSchema}.
  *
- * @param url - Request URL path with query string (e.g., `/api/lens/preview/ws?engine=chromium&...`)
- * @returns Result containing the validated SessionConfig or a validation error
+ * @param {Str} url - Request URL path with query string (e.g., `/api/lens/preview/ws?engine=chromium&...`)
+ * @returns {Result<SessionConfig>} Result containing the validated SessionConfig or a validation error
  *
  * @example
  * const result = parseSessionQuery('/api/lens/preview/ws?engine=chromium&component=button&width=1280&height=720');
@@ -87,7 +87,7 @@ export function parseSessionQuery(url: Str): Result<SessionConfig> {
  * Called from the Vite config's lazy plugin wrapper via dynamic import,
  * so `@/` aliases are resolved by the time this runs.
  *
- * @param server - Vite dev server instance
+ * @param {ViteDevServer} server - Vite dev server instance
  *
  * @example
  * // Inside a Vite plugin's configureServer hook:

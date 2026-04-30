@@ -44,11 +44,11 @@ import {
  *
  * @typeParam TParts - The tuple of template literal parts. Inferred from
  *   the `parts` argument — do not specify manually.
- * @param parts - An array of string literals and Valibot schemas.
+ * @param {TParts} parts - An array of string literals and Valibot schemas.
  *   String elements represent fixed text. Schema elements represent
  *   dynamic interpolation slots (e.g., `v.string()`, `v.number()`).
- * @param message - Optional custom error message.
- * @returns Result containing a `TemplateLiteralSchema` that validates strings
+ * @param {v.ErrorMessage<TemplateLiteralIssue>} message - Optional custom error message.
+ * @returns {Result<TemplateLiteralSchema<TParts, InferTemplateLiteralParts<TParts>, typeof message>>} Result containing a `TemplateLiteralSchema` that validates strings
  *   against the compiled regex pattern.
  *
  * @example

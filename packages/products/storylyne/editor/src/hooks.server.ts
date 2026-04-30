@@ -213,7 +213,7 @@ let _waitUntil: ((promise: Promise<unknown>) => void) | null = null;
 /**
  * Returns the current request's `waitUntil` function, or `null` if unavailable.
  *
- * @returns The `waitUntil` function from Cloudflare's ExecutionContext, or `null`.
+ * @returns {((promise: Promise<unknown>) => void) | null} The `waitUntil` function from Cloudflare's ExecutionContext, or `null`.
  */
 export function getWaitUntil(): ((promise: Promise<unknown>) => void) | null {
   return _waitUntil;

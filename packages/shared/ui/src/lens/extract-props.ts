@@ -87,9 +87,9 @@ const SKIP_PROPS: ReadonlySet<string> = new Set(['ref', 'class', 'children', 'ch
  * Finds the `let { ... }: Type = $props()` block, parses each destructured
  * prop for name/default/bindable/JSDoc, and enriches with inline type info.
  *
- * @param source - Raw `.svelte` file content
- * @param supplementarySources - Optional raw `.ts` sources from the same directory for cross-file type resolution
- * @returns Array of PropMeta for user-facing props
+ * @param {string} source - Raw `.svelte` file content
+ * @param {string[]} supplementarySources - Optional raw `.ts` sources from the same directory for cross-file type resolution
+ * @returns {PropMeta[]} Array of PropMeta for user-facing props
  */
 export function extractProps(source: string, supplementarySources?: string[]): PropMeta[] {
   if (!source) {
@@ -288,8 +288,8 @@ function extractSchemaBasedProps(source: string, supplementarySources?: string[]
  * Looks for the first multi-line JSDoc comment in the instance `<script>` block
  * (not `<script module>`) and returns the first paragraph before any `@` tags.
  *
- * @param source - Raw `.svelte` file content
- * @returns Component description, or empty string
+ * @param {string} source - Raw `.svelte` file content
+ * @returns {string} Component description, or empty string
  */
 export function extractDescription(source: string): string {
   if (!source) {
@@ -340,8 +340,8 @@ export function extractDescription(source: string): string {
  * and converts them to variant key metadata for auto-variant rendering.
  * This enables variant grids for ALL components, not just TV components.
  *
- * @param props - Extracted prop metadata array
- * @returns Array of variant key metadata for renderable props
+ * @param {PropMeta[]} props - Extracted prop metadata array
+ * @returns {VariantKeyMeta[]} Array of variant key metadata for renderable props
  */
 export function extractPropsVariants(props: PropMeta[]): VariantKeyMeta[] {
   const variants: VariantKeyMeta[] = [];
@@ -597,8 +597,8 @@ function parseTypeFieldAccepts(tf: TypeField): TypeFieldVariantResult {
  * by constructing placeholder objects with empty string values, and
  * function types with no-op callbacks.
  *
- * @param propsMeta - Extracted prop metadata array
- * @returns Record of prop name to value (scalars, objects, or functions)
+ * @param {PropMeta[]} propsMeta - Extracted prop metadata array
+ * @returns {Record<string, unknown>} Record of prop name to value (scalars, objects, or functions)
  */
 export function buildBaseProps(propsMeta: PropMeta[]): Record<string, unknown> {
   const base: Record<string, unknown> = {};

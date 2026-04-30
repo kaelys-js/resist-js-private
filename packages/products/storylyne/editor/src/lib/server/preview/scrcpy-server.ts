@@ -71,7 +71,7 @@ export type ScrcpyServerHandle = {
 /**
  * Check if `adb` is available on the system PATH.
  *
- * @returns True if adb responds to `adb version`
+ * @returns {Promise<boolean>} True if adb responds to `adb version`
  */
 export function isAdbAvailable(): Promise<boolean> {
   return new Promise<boolean>((resolve): void => {
@@ -88,7 +88,7 @@ export function isAdbAvailable(): Promise<boolean> {
 /**
  * Push the scrcpy-server JAR to the connected Android device.
  *
- * @param localPath - Local path to the scrcpy-server.jar file
+ * @param {Str} localPath - Local path to the scrcpy-server.jar file
  * @returns Promise that resolves when push completes
  * @throws Error if adb push fails
  */
@@ -131,9 +131,9 @@ function generateScid(): Num {
  * Spawns `adb -s <serial> shell CLASSPATH=... app_process / ...`
  * with the appropriate key=value configuration parameters.
  *
- * @param serial - Device serial (e.g., 'emulator-5554')
- * @param options - Server configuration options
- * @returns Handle for the running server process
+ * @param {Str} serial - Device serial (e.g., 'emulator-5554')
+ * @param {ScrcpyServerOptions} options - Server configuration options
+ * @returns {ScrcpyServerHandle} Handle for the running server process
  */
 export function startScrcpyServer(serial: Str, options: ScrcpyServerOptions): ScrcpyServerHandle {
   const scid: Num = generateScid();
@@ -196,7 +196,7 @@ export function startScrcpyServer(serial: Str, options: ScrcpyServerOptions): Sc
 /**
  * Stop a running scrcpy server.
  *
- * @param handle - Server handle from startScrcpyServer
+ * @param {ScrcpyServerHandle} handle - Server handle from startScrcpyServer
  */
 export function stopScrcpyServer(handle: ScrcpyServerHandle): void {
   handle.kill();

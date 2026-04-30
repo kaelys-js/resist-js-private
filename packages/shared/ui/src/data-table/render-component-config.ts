@@ -42,8 +42,8 @@ export class RenderComponentConfig<TComponent extends Component> {
  *
  * This is only to be used with Svelte Components - use `renderSnippet` for Svelte Snippets.
  *
- * @param component A Svelte component
- * @param props The props to pass to `component`
+ * @param {T} component A Svelte component
+ * @param {Props} props The props to pass to `component`
  * @returns A `RenderComponentConfig` object that helps svelte-table know how to render the header/cell component.
  * @example
  * ```ts

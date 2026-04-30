@@ -37,8 +37,8 @@ export type EmulatorInstance = {
  * Uses headless mode (`-no-window`) for screenshot capture, disables
  * audio, and uses SwiftShader for GPU emulation (compatible with CI).
  *
- * @param avdName - AVD name to launch
- * @returns Array of CLI arguments
+ * @param {Str} avdName - AVD name to launch
+ * @returns {Str[]} Array of CLI arguments
  *
  * @example
  * const args = buildEmulatorArgs('Pixel_9_API_35');
@@ -65,8 +65,8 @@ export function buildEmulatorArgs(avdName: Str): Str[] {
  *
  * Returns `true` only when the property value is exactly `'1'`.
  *
- * @param output - Raw stdout from the getprop command
- * @returns Whether boot is completed
+ * @param {Str} output - Raw stdout from the getprop command
+ * @returns {boolean} Whether boot is completed
  *
  * @example
  * const done = parseBootStatus('1');
@@ -90,10 +90,10 @@ function bootPollDelay(): Promise<void> {
 /**
  * Wait for an emulator to finish booting by polling `sys.boot_completed`.
  *
- * @param adbPath - Path to `adb` binary
- * @param serial - Emulator serial (e.g. 'emulator-5554')
- * @param timeoutMs - Maximum wait time (default: 120_000ms)
- * @returns `true` when boot completes, `false` on timeout
+ * @param {Str} adbPath - Path to `adb` binary
+ * @param {Str} serial - Emulator serial (e.g. 'emulator-5554')
+ * @param {Num} timeoutMs - Maximum wait time (default: 120_000ms)
+ * @returns {Promise<Bool>} `true` when boot completes, `false` on timeout
  *
  * @example
  * const booted = await waitForBoot('/path/to/adb', 'emulator-5554');
@@ -173,10 +173,10 @@ async function pollBoot(
  * Spawns the emulator in headless mode and returns immediately.
  * Use `waitForBoot()` to wait for the boot to complete.
  *
- * @param emulatorPath - Path to the `emulator` binary
- * @param avdName - AVD name to boot
- * @param serial - Expected serial (e.g. 'emulator-5554')
- * @returns The running emulator instance
+ * @param {Str} emulatorPath - Path to the `emulator` binary
+ * @param {Str} avdName - AVD name to boot
+ * @param {Str} serial - Expected serial (e.g. 'emulator-5554')
+ * @returns {EmulatorInstance} The running emulator instance
  *
  * @example
  * const instance = startEmulator('/path/to/emulator', 'Pixel_9_API_35', 'emulator-5554');
@@ -198,8 +198,8 @@ export function startEmulator(emulatorPath: Str, avdName: Str, serial: Str): Emu
 /**
  * Shut down an emulator via `adb emu kill`.
  *
- * @param adbPath - Path to `adb` binary
- * @param serial - Emulator serial to kill
+ * @param {Str} adbPath - Path to `adb` binary
+ * @param {Str} serial - Emulator serial to kill
  *
  * @example
  * await shutdownEmulator('/path/to/adb', 'emulator-5554');
@@ -217,7 +217,7 @@ export async function shutdownEmulator(adbPath: Str, serial: Str): Promise<void>
  *
  * Falls back to SIGTERM if `emu kill` is not responsive.
  *
- * @param instance - The emulator instance to kill
+ * @param {EmulatorInstance} instance - The emulator instance to kill
  */
 export function killEmulatorProcess(instance: EmulatorInstance): void {
   if (instance.process && instance.process.exitCode === null) {

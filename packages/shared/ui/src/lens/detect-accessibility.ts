@@ -9218,8 +9218,8 @@ const A11Y_RULES: A11yRule[] = [
  * and computes an aggregate score with detailed per-rule results, including
  * WCAG 2.1 AA criteria coverage metrics.
  *
- * @param sources - Map of filename to raw source content
- * @returns Complete accessibility audit result with scores and per-rule details
+ * @param {Record<Str, Str>} sources - Map of filename to raw source content
+ * @returns {A11yAuditResult} Complete accessibility audit result with scores and per-rule details
  *
  * @example
  * const sources = { 'Button.svelte': btnSrc, 'app.css': cssSrc };

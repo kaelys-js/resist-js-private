@@ -43,8 +43,8 @@ import type { ArityConstraint, FnType } from '@/schemas/function/types';
  * Returns `Result<v.CheckAction<FnType, Message>>` so that validation
  * errors on the constraint itself can propagate to callers.
  *
- * @param constraint - Either an exact arity (number) or a range `{ min?, max? }`.
- * @returns `Result<v.CheckAction<FnType, Message>>` — the check action on success,
+ * @param {ArityConstraint} constraint - Either an exact arity (number) or a range `{ min?, max? }`.
+ * @returns {Result<v.CheckAction<FnType, Message>>} `Result<v.CheckAction<FnType, Message>>` — the check action on success,
  *   or an error if the constraint values fail branded type validation.
  *
  * @example

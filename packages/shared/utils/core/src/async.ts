@@ -49,10 +49,10 @@ function _okResult<T>(data: T): Result<T> {
  * Wraps a promise with a timeout.
  * If the promise doesn't resolve within the timeout, returns a timeout error.
  *
- * @param promise - The promise to wrap.
- * @param timeoutMs - Timeout in milliseconds (0 or negative disables timeout).
- * @param errorMessage - Error message for the timeout.
- * @returns `Promise<Result<T>>` — the resolved value wrapped in Result, or a timeout error.
+ * @param {Promise<T>} promise - The promise to wrap.
+ * @param {NonNegativeInteger} timeoutMs - Timeout in milliseconds (0 or negative disables timeout).
+ * @param {Message} errorMessage - Error message for the timeout.
+ * @returns {Promise<Result<T>>} `Promise<Result<T>>` — the resolved value wrapped in Result, or a timeout error.
  *
  * @example
  * ```typescript

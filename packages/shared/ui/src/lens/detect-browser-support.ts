@@ -298,9 +298,9 @@ const CSS_FEATURES: CssFeature[] = [
 /**
  * Scan source files for CSS feature usage and compute browser support.
  *
- * @param sources - Map of filename → raw source content
- * @param frameworkVersions - Optional framework version overrides
- * @returns Full browser support analysis
+ * @param {Record<Str, Str>} sources - Map of filename → raw source content
+ * @param {Partial<Record<Str, Str>>} frameworkVersions - Optional framework version overrides
+ * @returns {BrowserSupportResult} Full browser support analysis
  *
  * @example
  * const sources = { 'app.css': rawCss, 'Button.svelte': rawSvelte };

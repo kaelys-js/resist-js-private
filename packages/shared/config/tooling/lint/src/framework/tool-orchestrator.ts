@@ -449,10 +449,10 @@ export const TOOL_CONCURRENCY: number = Math.min(availableParallelism(), 8);
  * a shared cursor. Order of `results` matches input order regardless of
  * completion order.
  *
- * @param items - Items to map
- * @param limit - Maximum parallel `fn` invocations
- * @param fn - Async transform applied to each item
- * @returns Results in input order
+ * @param {readonly T[]} items - Items to map
+ * @param {number} limit - Maximum parallel `fn` invocations
+ * @param {(item: T) => Promise<R>} fn - Async transform applied to each item
+ * @returns {Promise<R[]>} Results in input order
  */
 export async function mapWithConcurrency<T, R>(
   items: readonly T[],

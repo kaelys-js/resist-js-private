@@ -134,8 +134,8 @@ const useUnicode: Bool =
 /**
  * Override color setting.
  *
- * @param enabled - Whether to enable colors.
- * @returns `Result<Void>` — success, or a validation error if `enabled` is invalid.
+ * @param {Bool} enabled - Whether to enable colors.
+ * @returns {Result<Void>} `Result<Void>` — success, or a validation error if `enabled` is invalid.
  *
  * @example
  * ```typescript
@@ -160,7 +160,7 @@ export function setColors(enabled: Bool): Result<Void> {
 /**
  * Get current color support level.
  *
- * @returns `Result<ColorLevel>` — current color level (0–3).
+ * @returns {Result<ColorLevel>} `Result<ColorLevel>` — current color level (0–3).
  *
  * @example
  * ```typescript
@@ -177,8 +177,8 @@ export function getColorLevel(): Result<ColorLevel> {
  *
  * Also updates `useColors` flag (level > 0 = colors enabled).
  *
- * @param level - Color level (0–3).
- * @returns `Result<Void>` — success, or a validation error.
+ * @param {ColorLevel} level - Color level (0–3).
+ * @returns {Result<Void>} `Result<Void>` — success, or a validation error.
  *
  * @example
  * ```typescript
@@ -205,7 +205,7 @@ export function setColorLevel(level: ColorLevel): Result<Void> {
  * Returns columns if available, otherwise defaults to 80.
  * Safe in all runtimes — returns 80 when `process.stdout` is unavailable.
  *
- * @returns `Result<PositiveInteger>` — terminal width in columns (always ≥ 1).
+ * @returns {Result<PositiveInteger>} `Result<PositiveInteger>` — terminal width in columns (always ≥ 1).
  *
  * @example
  * ```typescript
@@ -225,9 +225,9 @@ export function getTerminalWidth(): Result<PositiveInteger> {
  * Truncates a line to fit within terminal width.
  * Wraps core truncateLine with getTerminalWidth() as the default maxWidth.
  *
- * @param line - String to truncate (may contain ANSI codes).
- * @param maxWidth - Maximum visible character width (defaults to terminal width).
- * @returns `Result<Str>` — truncated string, or a validation error.
+ * @param {Str} line - String to truncate (may contain ANSI codes).
+ * @param {NonNegativeInteger} maxWidth - Maximum visible character width (defaults to terminal width).
+ * @returns {Result<Str>} `Result<Str>` — truncated string, or a validation error.
  *
  * @example
  * ```typescript
@@ -594,8 +594,8 @@ function stripMarkup(text: Str): Result<Str> {
  * - Invalid symbol names (`{symbol:bogus}`) — pass through as literal `{symbol:bogus}`.
  * - Malformed symbol syntax (`{symbol:}`, `{symbol}`) — pass through unchanged.
  *
- * @param text - String with optional `{tag}...{/}` and `{symbol:name}` markup.
- * @returns `Result<Str>` — string with ANSI codes and symbols applied (or tags stripped).
+ * @param {Str} text - String with optional `{tag}...{/}` and `{symbol:name}` markup.
+ * @returns {Result<Str>} `Result<Str>` — string with ANSI codes and symbols applied (or tags stripped).
  *
  * @example
  * ```typescript
@@ -791,8 +791,8 @@ let spinnerInterval: NullableIntervalId = null;
  * Starts a spinner with a message.
  * Only animates in Node TTY mode. Falls back to a single plain-text log in other runtimes.
  *
- * @param message - Message to display alongside the spinner.
- * @returns `Result<Void>` — success, or a validation error.
+ * @param {Str} message - Message to display alongside the spinner.
+ * @returns {Result<Void>} `Result<Void>` — success, or a validation error.
  *
  * @example
  * ```typescript
@@ -842,8 +842,8 @@ export function startSpinner(message: Str): Result<Void> {
 /**
  * Stops the spinner.
  *
- * @param finalMessage - Optional final message to display after stopping.
- * @returns `Result<Void>` — success, or a validation error if `finalMessage` is invalid.
+ * @param {Str} finalMessage - Optional final message to display after stopping.
+ * @returns {Result<Void>} `Result<Void>` — success, or a validation error if `finalMessage` is invalid.
  *
  * @example
  * ```typescript
@@ -886,10 +886,10 @@ export function stopSpinner(finalMessage?: Str): Result<Void> {
 /**
  * Renders a progress bar string.
  *
- * @param current - Current progress value.
- * @param total - Total items.
- * @param width - Bar width in characters (defaults to 20).
- * @returns `Result<Str>` — formatted progress bar, or a validation error.
+ * @param {NonNegativeInteger} current - Current progress value.
+ * @param {NonNegativeInteger} total - Total items.
+ * @param {PositiveInteger} width - Bar width in characters (defaults to 20).
+ * @returns {Result<Str>} `Result<Str>` — formatted progress bar, or a validation error.
  *
  * @example
  * ```typescript
@@ -1025,8 +1025,8 @@ function emitGitHubCommand(
  *
  * Groups collapse related output in the Actions log viewer.
  *
- * @param title - Group title shown in the collapsed header.
- * @returns `Result<Void>`
+ * @param {Str} title - Group title shown in the collapsed header.
+ * @returns {Result<Void>} `Result<Void>`
  *
  * @example
  * ```typescript
@@ -1047,7 +1047,7 @@ export function startGroup(title: Str): Result<Void> {
 /**
  * Ends a GitHub Actions log group.
  *
- * @returns `Result<Void>`
+ * @returns {Result<Void>} `Result<Void>`
  */
 export function endGroup(): Result<Void> {
   console.log('::endgroup::');

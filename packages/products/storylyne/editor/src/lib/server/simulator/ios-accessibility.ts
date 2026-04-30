@@ -67,9 +67,9 @@ export type SimctlCommand = {
  * Does NOT execute the commands — returns descriptors for caller to execute.
  * This separation allows testing without side effects.
  *
- * @param udid - Device UDID to configure
- * @param settings - Accessibility settings to apply
- * @returns Array of command descriptors (may be empty if no settings specified)
+ * @param {Str} udid - Device UDID to configure
+ * @param {IosAccessibilitySettings} settings - Accessibility settings to apply
+ * @returns {SimctlCommand[]} Array of command descriptors (may be empty if no settings specified)
  *
  * @example
  * const cmds = buildAccessibilityCommands(udid, { appearance: 'dark' });
@@ -132,9 +132,9 @@ export function buildAccessibilityCommands(
  * throw — accessibility settings are best-effort (screenshot still works
  * even if a setting fails to apply).
  *
- * @param udid - Device UDID (must be booted)
- * @param settings - Accessibility settings to apply
- * @returns Number of commands that executed successfully
+ * @param {Str} udid - Device UDID (must be booted)
+ * @param {IosAccessibilitySettings} settings - Accessibility settings to apply
+ * @returns {Promise<Num>} Number of commands that executed successfully
  *
  * @example
  * const applied = await applyAccessibilitySettings(udid, { appearance: 'dark' });
@@ -230,8 +230,8 @@ function buildDefaultsWriteCommand(udid: Str, prefKey: Str): SimctlCommand {
 /**
  * Parse accessibility settings from URL query parameters.
  *
- * @param searchParams - URL search params
- * @returns Parsed accessibility settings (only fields that were present)
+ * @param {URLSearchParams} searchParams - URL search params
+ * @returns {IosAccessibilitySettings} Parsed accessibility settings (only fields that were present)
  *
  * @example
  * const settings = parseAccessibilityParams(url.searchParams);

@@ -71,10 +71,10 @@ function _loadConfig(): typeof import('@/config/loader') {
 /**
  * Run a shell command synchronously.
  *
- * @param command - Non-empty command string to execute.
- * @param stdio - stdio option (defaults to `'inherit'`).
- * @param env - Optional additional environment variables.
- * @returns `Result<Str>` — command output, or an error if the command
+ * @param {Command} command - Non-empty command string to execute.
+ * @param {StdioOption} stdio - stdio option (defaults to `'inherit'`).
+ * @param {EnvRecord} env - Optional additional environment variables.
+ * @returns {Result<Str>} `Result<Str>` — command output, or an error if the command
  *          or validation fails.
  *
  * @example
@@ -125,8 +125,8 @@ export function runCommand(
 /**
  * Run a shell command and return its trimmed output.
  *
- * @param command - Non-empty command string to execute.
- * @returns `Result<Str>` — trimmed output on success, or an error if the
+ * @param {Command} command - Non-empty command string to execute.
+ * @returns {Result<Str>} `Result<Str>` — trimmed output on success, or an error if the
  *          command or validation fails.
  *
  * @example
@@ -164,8 +164,8 @@ export function execSyncSafe(command: Command): Result<Str> {
 /**
  * Run a shell command and return whether it succeeded.
  *
- * @param command - Non-empty command string to execute.
- * @returns `Result<Bool>` — `true` if command exited 0, `false` otherwise,
+ * @param {Command} command - Non-empty command string to execute.
+ * @returns {Result<Bool>} `Result<Bool>` — `true` if command exited 0, `false` otherwise,
  *          or a validation error.
  *
  * @example
@@ -195,10 +195,10 @@ export function execSyncBool(command: Command): Result<Bool> {
 /**
  * Spawn a child process.
  *
- * @param command - Non-empty command string to execute.
- * @param args - Command arguments.
- * @param options - Spawn options.
- * @returns `Result<ChildProcess>` — child process handle, or an error.
+ * @param {Command} command - Non-empty command string to execute.
+ * @param {StrArray} args - Command arguments.
+ * @param {SpawnProcessOptions} options - Spawn options.
+ * @returns {Result<ChildProcess>} `Result<ChildProcess>` — child process handle, or an error.
  *
  * @example
  * ```typescript
@@ -256,8 +256,8 @@ export function spawnProcess(
 /**
  * Check if a command exists in PATH.
  *
- * @param cmd - Non-empty command name to check.
- * @returns `Result<Bool>` — `true` if the command exists, or a validation error.
+ * @param {Command} cmd - Non-empty command name to check.
+ * @returns {Result<Bool>} `Result<Bool>` — `true` if the command exists, or a validation error.
  *
  * @example
  * ```typescript
@@ -288,9 +288,9 @@ export function commandExists(cmd: Command): Result<Bool> {
  *
  * The caller handles error display — this is a pure function with no CLI dependencies.
  *
- * @param cmd - Non-empty command name to check.
- * @param installHint - Installation instructions if command not found.
- * @returns `Result<EnsureCommandResult>` with `{ status: 'available' }` or
+ * @param {Command} cmd - Non-empty command name to check.
+ * @param {Command} installHint - Installation instructions if command not found.
+ * @returns {Result<EnsureCommandResult>} `Result<EnsureCommandResult>` with `{ status: 'available' }` or
  *          `{ status: 'not_found', command, installHint }`.
  *
  * @example
@@ -339,9 +339,9 @@ export function ensureCommand(cmd: Command, installHint: Command): Result<Ensure
  * Convenience wrapper around {@link ensureCommand} that converts
  * a `'not_found'` status to an error Result.
  *
- * @param cmd - Command name to check for in PATH.
- * @param installHint - Installation instructions if command not found.
- * @returns `Result<Void>` — success, or `CONFIG.NOT_FOUND` error if command is missing.
+ * @param {Command} cmd - Command name to check for in PATH.
+ * @param {Command} installHint - Installation instructions if command not found.
+ * @returns {Result<Void>} `Result<Void>` — success, or `CONFIG.NOT_FOUND` error if command is missing.
  *
  * @example
  * ```typescript
@@ -387,10 +387,10 @@ export function ensureCommandOrFail(cmd: Command, installHint: Command): Result<
  *
  * Uses the package manager configured in the workspace config, defaults to pnpm.
  *
- * @param args - Arguments to pass to the package manager.
- * @param stdio - stdio option (defaults to `'inherit'`).
- * @param env - Optional additional environment variables.
- * @returns `Result<Str>` — command output, or an error.
+ * @param {StrArray} args - Arguments to pass to the package manager.
+ * @param {StdioOption} stdio - stdio option (defaults to `'inherit'`).
+ * @param {EnvRecord} env - Optional additional environment variables.
+ * @returns {Result<Str>} `Result<Str>` — command output, or an error.
  *
  * @example
  * ```typescript
@@ -429,7 +429,7 @@ export function runPmCommand(
  * Returns `"npm run tool"` for npm (requires `run` for scripts),
  * `"{pm} tool"` for others.
  *
- * @returns `Result<Str>` — the tool command prefix, or a config error.
+ * @returns {Result<Str>} `Result<Str>` — the tool command prefix, or a config error.
  *
  * @example
  * ```typescript
@@ -459,7 +459,7 @@ export function getPmTool(): Result<Str> {
  *
  * Returns `'npx'` for npm, `'yarn'` for yarn, `'bunx'` for bun, `'pnpm'` for pnpm.
  *
- * @returns `Result<Str>` — the exec command, or a config error.
+ * @returns {Result<Str>} `Result<Str>` — the exec command, or a config error.
  *
  * @example
  * ```typescript
@@ -588,10 +588,10 @@ function installMise(workspaceRoot: Str, version: Str): Result<Bool> {
  * Ensure workspace-local mise is installed at the version pinned in config.
  * Checks `./bin/mise --version` first. If missing or wrong version, installs/updates.
  *
- * @param workspaceRoot - Absolute path to workspace root.
- * @param configVersion - Pinned mise version from `versions.systemTools.mise`.
- * @param dryRun - If `true`, skip actual operations and return `skipped_dry_run`.
- * @returns `Result<EnsureMiseResult>` — status variant indicating outcome.
+ * @param {Str} workspaceRoot - Absolute path to workspace root.
+ * @param {Str} configVersion - Pinned mise version from `versions.systemTools.mise`.
+ * @param {Bool} dryRun - If `true`, skip actual operations and return `skipped_dry_run`.
+ * @returns {Result<EnsureMiseResult>} `Result<EnsureMiseResult>` — status variant indicating outcome.
  */
 export function ensureMise(
   workspaceRoot: Str,

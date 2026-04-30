@@ -325,8 +325,8 @@ const PROVIDERS: readonly ProviderDefinition[] = Object.freeze([
  * Iterates ~71 known provider definitions. For each, ALL `checks` must
  * pass (env key exists, or key equals specific value). First match wins.
  *
- * @param env - Environment variable record (from `getEnvRecord()`).
- * @returns `Result<ProviderInfo | undefined>` — detected provider, or `undefined` if none matched.
+ * @param {EnvRecordWithUndefined} env - Environment variable record (from `getEnvRecord()`).
+ * @returns {Result<ProviderInfo | undefined>} `Result<ProviderInfo | undefined>` — detected provider, or `undefined` if none matched.
  *
  * @example
  * ```typescript

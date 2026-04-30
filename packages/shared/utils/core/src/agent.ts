@@ -66,8 +66,8 @@ const AGENTS: readonly AgentDefinition[] = Object.freeze([
  * env var as manual override. IDE-based agents (devin, cursor, kiro)
  * are checked last so agents running inside them are detected first.
  *
- * @param env - Environment variable record (from `getEnvRecord()`).
- * @returns `Result<AgentInfo | undefined>` — detected agent, or `undefined` if none matched.
+ * @param {EnvRecordWithUndefined} env - Environment variable record (from `getEnvRecord()`).
+ * @returns {Result<AgentInfo | undefined>} `Result<AgentInfo | undefined>` — detected agent, or `undefined` if none matched.
  *
  * @example
  * ```typescript

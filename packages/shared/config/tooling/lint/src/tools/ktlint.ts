@@ -27,8 +27,8 @@ const KTLINT_LINE: RegExp = /^(.+?):(\d+):(\d+):\s*(.+?)\s+\((.+?)\)$/;
 /**
  * Transform ktlint plain reporter output into LintResult[].
  *
- * @param output - Raw text output from ktlint (one diagnostic per line)
- * @returns Parsed lint results
+ * @param {string} output - Raw text output from ktlint (one diagnostic per line)
+ * @returns {LintResult[]} Parsed lint results
  */
 export function transformKtlintOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();

@@ -37,7 +37,7 @@ const FALLBACK_DELAY_MS: Num = 3000 as Num;
  * Checks for `[data-lens-ready]` attribute on any element in the DOM.
  * Returns `true` if the element exists, `false` otherwise.
  *
- * @returns JavaScript expression string
+ * @returns {Str} JavaScript expression string
  *
  * @example
  * const script = buildReadyCheckScript();
@@ -54,8 +54,8 @@ export function buildReadyCheckScript(): Str {
 /**
  * Parse a WebKit Inspector Runtime.evaluate response to extract the result.
  *
- * @param rawResponse - JSON string from the WebSocket
- * @returns `true` if the evaluation returned a truthy value
+ * @param {Str} rawResponse - JSON string from the WebSocket
+ * @returns {boolean} `true` if the evaluation returned a truthy value
  *
  * @example
  * const ready = parseEvalResponse('{"id":1,"result":{"result":{"type":"boolean","value":true}}}');
@@ -108,9 +108,9 @@ export function parseEvalResponse(rawResponse: Str): boolean {
  * `Runtime.evaluate` commands at regular intervals until the selector
  * matches or the timeout expires.
  *
- * @param wsUrl - WebSocket URL from the debug proxy's inspectable page
- * @param timeoutMs - Maximum wait time (default: 10000ms)
- * @returns `true` if page became ready, `false` if timed out
+ * @param {Str} wsUrl - WebSocket URL from the debug proxy's inspectable page
+ * @param {Num} timeoutMs - Maximum wait time (default: 10000ms)
+ * @returns {Promise<Bool>} `true` if page became ready, `false` if timed out
  *
  * @example
  * const ready = await waitForPageReady('ws://localhost:27753/devtools/page/1');
@@ -192,9 +192,9 @@ export async function waitForPageReady(
  * If `wsUrl` is provided, uses WebSocket polling.
  * If `wsUrl` is empty/null, falls back to a fixed delay.
  *
- * @param wsUrl - WebSocket URL (empty string = use fallback delay)
- * @param timeoutMs - Maximum wait time for WebSocket polling
- * @returns `true` if page is ready (or fallback completed)
+ * @param {Str} wsUrl - WebSocket URL (empty string = use fallback delay)
+ * @param {Num} timeoutMs - Maximum wait time for WebSocket polling
+ * @returns {Promise<Bool>} `true` if page is ready (or fallback completed)
  *
  * @example
  * await waitForPageLoad('ws://localhost:27753/devtools/page/1');

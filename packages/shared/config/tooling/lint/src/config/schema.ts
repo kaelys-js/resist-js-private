@@ -98,10 +98,10 @@ export function _resetConfigCache(): void {
  * are shallow-cloned so callers can mutate `exclude`/`rules`
  * without poisoning the cache.
  *
- * @param cwd - Working directory used to resolve the config path
- * @param customConfigPath - Optional config path (overrides default)
- * @param strings - Locale strings for parse / validation errors
- * @returns The parsed and validated `LintConfig`
+ * @param {string} cwd - Working directory used to resolve the config path
+ * @param {string | undefined} customConfigPath - Optional config path (overrides default)
+ * @param {LintStrings} strings - Locale strings for parse / validation errors
+ * @returns {LintConfig} The parsed and validated `LintConfig`
  */
 export function loadConfig(
   cwd: string,
@@ -359,10 +359,10 @@ export type ConfigWarning = {
  *
  * Returns warnings (not errors) since unknown rules may come from future versions.
  *
- * @param config - Validated linter configuration
- * @param knownRuleIds - Set of all known rule IDs
- * @param optionsSchemas - Map of rule ID → declared options schema (from rules with optionsSchema)
- * @returns Array of config warnings (empty if config is clean)
+ * @param {LintConfig} config - Validated linter configuration
+ * @param {ReadonlySet<string>} knownRuleIds - Set of all known rule IDs
+ * @param {ReadonlyMap<string, OptionsSchema>} optionsSchemas - Map of rule ID → declared options schema (from rules with optionsSchema)
+ * @returns {ConfigWarning[]} Array of config warnings (empty if config is clean)
  */
 export function validateConfig(
   config: LintConfig,
@@ -551,11 +551,11 @@ export type JsonSchemaDocument = v.InferOutput<typeof JsonSchemaDocumentSchema>;
  * Includes all discovered rule IDs as enum values in the rules property,
  * giving IDE autocomplete with descriptions.
  *
- * @param ruleIds - All known rule IDs (e.g. ['jsdoc/require-param', ...])
- * @param ruleDescriptions - Map of rule ID to human-readable description
- * @param strings - Locale strings for user-facing messages
- * @param optionsSchemas - Optional per-rule options schemas (rule ID -> OptionsSchema)
- * @returns JSON Schema document as a plain object
+ * @param {string[]} ruleIds - All known rule IDs (e.g. ['jsdoc/require-param', ...])
+ * @param {Map<string, string>} ruleDescriptions - Map of rule ID to human-readable description
+ * @param {LintStrings} strings - Locale strings for user-facing messages
+ * @param {ReadonlyMap<string, OptionsSchema>} optionsSchemas - Optional per-rule options schemas (rule ID -> OptionsSchema)
+ * @returns {JsonSchemaDocument} JSON Schema document as a plain object
  */
 export function generateJsonSchema(
   ruleIds: string[],

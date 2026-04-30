@@ -26,8 +26,8 @@ const NIX_LINE: RegExp = /^error:\s+(.+?),?\s+at\s+(.+?):(\d+):(\d+)$/;
  * Lines that don't match the expected pattern (trace output,
  * blank lines) are silently skipped.
  *
- * @param output - Raw text output from nix-instantiate (one diagnostic per line)
- * @returns Parsed lint results
+ * @param {string} output - Raw text output from nix-instantiate (one diagnostic per line)
+ * @returns {LintResult[]} Parsed lint results
  */
 export function transformNixOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();

@@ -94,9 +94,9 @@ function _okResult<T>(data: T): Result<T> {
  * This is the primary way to validate data in the codebase. It replaces
  * `v.parse()` (which throws) with a Result-returning alternative.
  *
- * @param schema - Valibot schema to validate against.
- * @param input - The value to validate.
- * @returns `Result<T>` — the validated output on success, or a validation
+ * @param {TSchema} schema - Valibot schema to validate against.
+ * @param {unknown} input - The value to validate.
+ * @returns {Result<v.InferOutput<TSchema>>} `Result<T>` — the validated output on success, or a validation
  *          error with full issue details.
  *
  * @example
@@ -166,8 +166,8 @@ export function safeParse<TSchema extends v.BaseSchema<unknown, unknown, v.BaseI
  * Used by the safe wrappers and any catch block that needs a typed cause chain.
  * Handles `Error` instances, plain strings, and arbitrary values.
  *
- * @param thrown - The caught value (could be `Error`, `string`, or anything).
- * @returns `AppError` — a typed error representing the original thrown value.
+ * @param {unknown} thrown - The caught value (could be `Error`, `string`, or anything).
+ * @returns {AppError} `AppError` — a typed error representing the original thrown value.
  *
  * @example
  * ```typescript

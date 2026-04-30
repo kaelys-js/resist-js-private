@@ -59,8 +59,8 @@ export const STORAGE_PREFIX: Str = APP_NAME.toLowerCase();
 /**
  * Builds a namespaced localStorage/cookie key.
  *
- * @param suffix - The key-specific suffix (e.g. 'editor-state', 'mode')
- * @returns Prefixed key string (e.g. `${STORAGE_PREFIX}:editor-state`)
+ * @param {Str} suffix - The key-specific suffix (e.g. 'editor-state', 'mode')
+ * @returns {Str} Prefixed key string (e.g. `${STORAGE_PREFIX}:editor-state`)
  *
  * @example
  * storageKey('editor-state') // `${STORAGE_PREFIX}:editor-state`

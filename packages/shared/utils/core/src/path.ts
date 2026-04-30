@@ -48,7 +48,7 @@ import { fromUnknownError, safeParse } from '@/utils/result/safe';
  * Wraps `process.cwd()` in a Result. Can fail if the working directory
  * has been deleted or is otherwise inaccessible.
  *
- * @returns `Result<Path>` — the current working directory path, or
+ * @returns {Result<Path>} `Result<Path>` — the current working directory path, or
  *          `IO.READ_FAILED` if the cwd is inaccessible.
  *
  * @example
@@ -79,8 +79,8 @@ export function cwd(): Result<Path> {
  * Validates the segments array via `safeParse`, then delegates
  * to `path.join()`. Empty segments are valid and ignored by `path.join`.
  *
- * @param segments - Array of path segments to join.
- * @returns `Result<Path>` — the joined path, or
+ * @param {PathArray} segments - Array of path segments to join.
+ * @returns {Result<Path>} `Result<Path>` — the joined path, or
  *          `VALIDATION.SCHEMA_FAILED` on invalid input.
  *
  * @example
@@ -114,8 +114,8 @@ export function joinPath(segments: PathArray): Result<Path> {
  * behavior, not an error. Only schema validation failure returns an
  * error Result.
  *
- * @param path - Path to check (must be non-empty).
- * @returns `Result<Bool>` — `true` if the path exists, `false` otherwise,
+ * @param {Path} path - Path to check (must be non-empty).
+ * @returns {Result<Bool>} `Result<Bool>` — `true` if the path exists, `false` otherwise,
  *          or `VALIDATION.SCHEMA_FAILED` on invalid input.
  *
  * @example
@@ -148,8 +148,8 @@ export function pathExists(path: Path): Result<Bool> {
  * Converts a `file://` URL to a filesystem path, then returns
  * the parent directory. Can fail if the URL is not a valid `file://` URL.
  *
- * @param importMetaUrl - The `import.meta.url` value (a `file://` URL).
- * @returns `Result<Path>` — the directory containing the module, or
+ * @param {UrlString} importMetaUrl - The `import.meta.url` value (a `file://` URL).
+ * @returns {Result<Path>} `Result<Path>` — the directory containing the module, or
  *          `VALIDATION.SCHEMA_FAILED` on invalid input, or
  *          `IO.READ_FAILED` if URL-to-path conversion fails.
  *
@@ -184,8 +184,8 @@ export function getDirFromImportMeta(importMetaUrl: UrlString): Result<Path> {
 /**
  * Convert a file path to a `file://` URL string.
  *
- * @param path - File path to convert (must be non-empty).
- * @returns `Result<UrlString>` — the `file://` URL, or
+ * @param {Path} path - File path to convert (must be non-empty).
+ * @returns {Result<UrlString>} `Result<UrlString>` — the `file://` URL, or
  *          `VALIDATION.SCHEMA_FAILED` on invalid input.
  *
  * @example
@@ -214,8 +214,8 @@ export function getFileUrl(path: Path): Result<UrlString> {
  * If the relative path would escape cwd (starts with `..`), returns the
  * original absolute path unchanged. Can fail if the cwd is inaccessible.
  *
- * @param absolutePath - Absolute file path (must be non-empty).
- * @returns `Result<Path>` — relative path from cwd, or the original absolute
+ * @param {Path} absolutePath - Absolute file path (must be non-empty).
+ * @returns {Result<Path>} `Result<Path>` — relative path from cwd, or the original absolute
  *          path if outside cwd, or `VALIDATION.SCHEMA_FAILED` on invalid input,
  *          or `IO.READ_FAILED` if cwd is inaccessible.
  *
@@ -273,8 +273,8 @@ export function toRelativePath(absolutePath: Path): Result<Path> {
  * Validates the segments array via `safeParse`, then delegates
  * to `path.resolve()`. If no segments are provided, resolves to cwd.
  *
- * @param segments - Array of path segments to resolve.
- * @returns `Result<Path>` — the resolved absolute path, or
+ * @param {PathArray} segments - Array of path segments to resolve.
+ * @returns {Result<Path>} `Result<Path>` — the resolved absolute path, or
  *          `VALIDATION.SCHEMA_FAILED` on invalid input.
  *
  * @example
@@ -306,8 +306,8 @@ export function resolvePath(segments: PathArray): Result<Path> {
  *
  * Returns an empty string if the path has no extension.
  *
- * @param path - File path to extract the extension from (must be non-empty).
- * @returns `Result<Str>` — extension string (e.g., `'.ts'`), or empty string if none.
+ * @param {Path} path - File path to extract the extension from (must be non-empty).
+ * @returns {Result<Str>} `Result<Str>` — extension string (e.g., `'.ts'`), or empty string if none.
  *
  * @example
  * ```typescript
@@ -334,9 +334,9 @@ export function getFileExtension(path: Path): Result<Str> {
  *
  * Optionally strips a trailing extension suffix.
  *
- * @param path - File path to extract the basename from (must be non-empty).
- * @param ext - Optional extension to strip (e.g., `'.ts'`).
- * @returns `Result<Str>` — the basename, or `VALIDATION.SCHEMA_FAILED` on invalid input.
+ * @param {Path} path - File path to extract the basename from (must be non-empty).
+ * @param {Str} ext - Optional extension to strip (e.g., `'.ts'`).
+ * @returns {Result<Str>} `Result<Str>` — the basename, or `VALIDATION.SCHEMA_FAILED` on invalid input.
  *
  * @example
  * ```typescript
@@ -376,8 +376,8 @@ export function getBasename(path: Path, ext?: Str): Result<Str> {
 /**
  * Get the directory name of a path.
  *
- * @param path - File path to extract the directory from (must be non-empty).
- * @returns `Result<Path>` — the parent directory path, or
+ * @param {Path} path - File path to extract the directory from (must be non-empty).
+ * @returns {Result<Path>} `Result<Path>` — the parent directory path, or
  *          `VALIDATION.SCHEMA_FAILED` on invalid input.
  *
  * @example
@@ -410,7 +410,7 @@ export function getDirname(path: Path): Result<Path> {
  * Wraps `os.tmpdir()` in a Result. Can fail if the temp directory
  * is inaccessible.
  *
- * @returns `Result<Path>` — the system temp directory path, or
+ * @returns {Result<Path>} `Result<Path>` — the system temp directory path, or
  *          `IO.READ_FAILED` if the temp directory is inaccessible.
  *
  * @example
@@ -441,7 +441,7 @@ export function getTempDir(): Result<Path> {
  * Wraps `os.homedir()` in a Result. Returns an error in non-Node
  * environments where the home directory is inaccessible.
  *
- * @returns `Result<Path>` — the home directory path, or
+ * @returns {Result<Path>} `Result<Path>` — the home directory path, or
  *          `IO.READ_FAILED` if unavailable.
  *
  * @example

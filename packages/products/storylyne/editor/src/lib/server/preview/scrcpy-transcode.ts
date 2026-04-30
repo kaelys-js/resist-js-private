@@ -50,7 +50,7 @@ export type TranscodeHandle = {
 /**
  * Check if ffmpeg is available on the system PATH.
  *
- * @returns True if ffmpeg responds to `-version`
+ * @returns {Promise<boolean>} True if ffmpeg responds to `-version`
  */
 export function isFfmpegAvailable(): Promise<boolean> {
   return new Promise<boolean>((resolve): void => {
@@ -89,9 +89,9 @@ function mapQuality(quality: Num): Num {
  * Spawns ffmpeg reading raw H.264 from stdin and writing MJPEG
  * frames to stdout. Each stdout data chunk is a JPEG frame.
  *
- * @param options - Transcode configuration (dimensions, quality)
- * @param onFrame - Callback invoked with each JPEG frame buffer
- * @returns Handle for writing H.264 data and stopping the process
+ * @param {TranscodeOptions} options - Transcode configuration (dimensions, quality)
+ * @param {(jpeg: Buffer) => void} onFrame - Callback invoked with each JPEG frame buffer
+ * @returns {TranscodeHandle} Handle for writing H.264 data and stopping the process
  */
 export function createTranscoder(
   options: TranscodeOptions,

@@ -19,7 +19,7 @@ import {
 
 /**
  * Creates a reactive TanStack table object for Svelte.
- * @param options Table options to create the table with.
+ * @param {TableOptions<TData>} options Table options to create the table with.
  * @returns A reactive table object.
  * @example
  * ```svelte
@@ -112,9 +112,11 @@ function resolveThunk<T extends object>(src: MaybeThunk<T>): T | undefined {
  * property reads pick the value from the right-most source that
  * defines the key (function sources are resolved lazily).
  *
- * @param sources - One or more plain objects or thunks returning
+ * @param {Sources} sources - One or more plain objects or thunks returning
  *   objects; later entries override earlier ones
- * @returns A live object whose keys reflect the merged sources
+ *{Intersection<{ [K in keyof Sources]: Sources[K] }>}ources[K] }>} A live object whose keys reflect the merged sources
+  *{Intersection<{ [K in keyof Sources]: Sources[K] }>}ources[K] }>} Description
+  * @returns {Intersection<{ [K in keyof Sources]: Sources[K] }>} Description
  */
 export function mergeObjects<Sources extends readonly MaybeThunk<object>[]>(
   ...sources: Sources

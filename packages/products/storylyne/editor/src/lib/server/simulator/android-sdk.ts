@@ -51,8 +51,8 @@ export type AndroidSdkStatus = {
 /**
  * Build SDK binary paths from an ANDROID_HOME root.
  *
- * @param sdkRoot - Path to the Android SDK root directory
- * @returns Object with resolved `adb`, `emulator`, and `avdmanager` paths
+ * @param {Str} sdkRoot - Path to the Android SDK root directory
+ * @returns {AndroidSdkPaths} Object with resolved `adb`, `emulator`, and `avdmanager` paths
  *
  * @example
  * const paths = buildSdkPaths('/Users/me/Library/Android/sdk');
@@ -76,8 +76,8 @@ export function buildSdkPaths(sdkRoot: Str): AndroidSdkPaths {
  *
  * Looks for the `Version X.Y.Z` line in the multi-line output.
  *
- * @param output - Raw stdout from `adb version`
- * @returns Version string (e.g. '35.0.2'), or null if not found
+ * @param {Str} output - Raw stdout from `adb version`
+ * @returns {Str | null} Version string (e.g. '35.0.2'), or null if not found
  *
  * @example
  * const ver = parseAdbVersion('Android Debug Bridge version 1.0.41\nVersion 35.0.2-12147458');
@@ -140,7 +140,7 @@ function detectSdkRoot(): Str {
  * the version string. Returns a complete status object with install
  * instructions when the SDK is not found.
  *
- * @returns SDK installation status
+ * @returns {Promise<AndroidSdkStatus>} SDK installation status
  *
  * @example
  * const status = await checkAndroidSdk();
@@ -188,7 +188,7 @@ export async function checkAndroidSdk(): Promise<AndroidSdkStatus> {
 /**
  * Check if `adb` is available on the system PATH.
  *
- * @returns `true` if adb is found
+ * @returns {Promise<Bool>} `true` if adb is found
  *
  * @example
  * const available = await isAdbAvailable();

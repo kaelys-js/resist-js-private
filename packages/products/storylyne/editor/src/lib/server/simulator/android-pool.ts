@@ -45,8 +45,8 @@ const BASE_PORT: Num = 5554 as Num;
  * Android emulators use sequential even port numbers starting from 5554:
  * `emulator-5554`, `emulator-5556`, `emulator-5558`, etc.
  *
- * @param index - Pool slot index (0-based)
- * @returns Serial string (e.g. 'emulator-5554')
+ * @param {Num} index - Pool slot index (0-based)
+ * @returns {Str} Serial string (e.g. 'emulator-5554')
  *
  * @example
  * assignSerial(0); // 'emulator-5554'
@@ -70,10 +70,10 @@ const pool: Map<string, PoolSlot> = new Map();
  * If an emulator with the requested AVD is already running and not in use,
  * it is returned immediately. Otherwise, a new emulator is booted.
  *
- * @param emulatorPath - Path to the `emulator` binary
- * @param adbPath - Path to the `adb` binary
- * @param avdName - AVD name to boot
- * @returns The acquired emulator instance, or null if boot failed
+ * @param {Str} emulatorPath - Path to the `emulator` binary
+ * @param {Str} adbPath - Path to the `adb` binary
+ * @param {Str} avdName - AVD name to boot
+ * @returns {Promise<EmulatorInstance | null>} The acquired emulator instance, or null if boot failed
  *
  * @example
  * const instance = await acquireEmulator('/path/to/emulator', '/path/to/adb', 'Pixel_9_API_35');
@@ -119,7 +119,7 @@ export async function acquireEmulator(
  *
  * The emulator keeps running for future requests (Quick Boot reuse).
  *
- * @param avdName - AVD name to release
+ * @param {Str} avdName - AVD name to release
  *
  * @example
  * releaseEmulator('Pixel_9_API_35');
@@ -134,7 +134,7 @@ export function releaseEmulator(avdName: Str): void {
 /**
  * Shut down all emulators in the pool and clear it.
  *
- * @param adbPath - Path to `adb` binary
+ * @param {Str} adbPath - Path to `adb` binary
  *
  * @example
  * await shutdownPool('/path/to/adb');
@@ -156,7 +156,7 @@ export async function shutdownPool(adbPath: Str): Promise<void> {
 /**
  * Get the number of emulators currently in the pool.
  *
- * @returns Pool size
+ * @returns {Num} Pool size
  */
 export function getPoolSize(): Num {
   return pool.size as Num;

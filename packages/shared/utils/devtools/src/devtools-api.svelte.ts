@@ -39,8 +39,8 @@ import { formatThresholds } from '@/utils/web-vitals/vitals-diagnostics';
 /**
  * Returns the window global key for the devtools API.
  *
- * @param appName - The application name to derive the key from.
- * @returns The uppercase `__<APP>_DEVTOOLS__` global key.
+ * @param {Str} appName - The application name to derive the key from.
+ * @returns {Str} The uppercase `__<APP>_DEVTOOLS__` global key.
  */
 export function getDevtoolsKey(appName: Str): Str {
   return `__${appName.toUpperCase()}_DEVTOOLS__`;
@@ -49,8 +49,8 @@ export function getDevtoolsKey(appName: Str): Str {
 /**
  * Returns the window global key for build info.
  *
- * @param appName - The application name to derive the key from.
- * @returns The uppercase `__<APP>_BUILD__` global key.
+ * @param {Str} appName - The application name to derive the key from.
+ * @returns {Str} The uppercase `__<APP>_BUILD__` global key.
  */
 export function getBuildKey(appName: Str): Str {
   return `__${appName.toUpperCase()}_BUILD__`;
@@ -152,10 +152,12 @@ const HELP_DESC = 'color:#888;font-size:11px';
 /**
  * Creates and registers the devtools API on the window object.
  *
- * @param appStore - The app state store (conforms to AppStoreContract)
- * @param debugStore - The debug state store (conforms to DebugStoreContract)
- * @param config - Product-specific devtools configuration
- * @returns Object with `destroy()` method to unregister the global
+ * @param {AppStoreContract} appStore - The app state store (conforms to AppStoreContract)
+ * @param {DebugStoreContract} debugStore - The debug state store (conforms to DebugStoreContract)
+ * @param {DevtoolsConfig} config - Product-specific devtools configuration
+ *{{ destroy(): Void }}y(): Void }} Object with `destroy()` method to unregister the global
+  *{{ destroy(): Void }}y(): Void }} Description
+  * @returns {{ destroy(): Void }} Description
  */
 export function createDevtoolsAPI(
   appStore: AppStoreContract,

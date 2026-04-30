@@ -16,8 +16,8 @@ const ZSH_LINE: RegExp = /^(.+?):(\d+): (.+)$/;
 /**
  * Transform zsh syntax check output into LintResult[].
  *
- * @param output - Raw stderr output from zsh -n (one diagnostic per line)
- * @returns Parsed lint results
+ * @param {string} output - Raw stderr output from zsh -n (one diagnostic per line)
+ * @returns {LintResult[]} Parsed lint results
  */
 export function transformZshOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();

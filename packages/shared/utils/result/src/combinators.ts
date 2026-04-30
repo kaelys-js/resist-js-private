@@ -35,9 +35,9 @@ import { fromUnknownError } from '@/utils/result/safe';
  * output in a new `ok` Result. If the Result is `err`, passes it through
  * unchanged.
  *
- * @param result - The Result to transform.
- * @param fn - Function to apply to the success value.
- * @returns `Result<U>` — transformed success or unchanged error.
+ * @param {Result<T>} result - The Result to transform.
+ * @param {(data: T) => U} fn - Function to apply to the success value.
+ * @returns {Result<U>} `Result<U>` — transformed success or unchanged error.
  *
  * @example
  * ```typescript
@@ -68,9 +68,9 @@ export function map<T, U>(result: Result<T>, fn: (data: T) => U): Result<U> {
  * If the Result is `err`, applies the function to create a new error.
  * If the Result is `ok`, passes it through unchanged.
  *
- * @param result - The Result to transform.
- * @param fn - Function that receives the AppError and returns `{ code, message?, options? }`.
- * @returns `Result<T>` — unchanged success or transformed error.
+ * @param {Result<T>} result - The Result to transform.
+ * @param {(error: AppError) => { code: KnownErrorCode; message?: string; options?: ErrOptions }} fn - Function that receives the AppError and returns `{ code, message?, options? }`.
+ * @returns {Result<T>} `Result<T>` — unchanged success or transformed error.
  *
  * @example
  * ```typescript
@@ -82,6 +82,10 @@ export function map<T, U>(result: Result<T>, fn: (data: T) => U): Result<U> {
  *   options: { cause: e },
  * }));
  * ```
+  * @param {(error: AppError) => { code: KnownErrorCode; message?: string; options?: ErrOptions }} fn - Description
+  * @param {(error: AppError) => { code: KnownErrorCode; message?: string; options?: ErrOptions }} fn - Description
+  * @param {(error: AppError) => { code: KnownErrorCode; message?: string; options?: ErrOptions }} fn - Description
+  * @param {(error: AppError) => { code: KnownErrorCode; message?: string; options?: ErrOptions }} fn - Description
  */
 export function mapErr<T>(
   result: Result<T>,
@@ -101,9 +105,9 @@ export function mapErr<T>(
  * If the Result is `err`, passes it through unchanged. This is `flatMap` /
  * `chain` / `bind` — the monadic bind operation.
  *
- * @param result - The Result to chain from.
- * @param fn - Function that takes the success value and returns a new Result.
- * @returns `Result<U>` — the chained Result.
+ * @param {Result<T>} result - The Result to chain from.
+ * @param {(data: T) => Result<U>} fn - Function that takes the success value and returns a new Result.
+ * @returns {Result<U>} `Result<U>` — the chained Result.
  *
  * @example
  * ```typescript
@@ -135,9 +139,9 @@ export function andThen<T, U>(result: Result<T>, fn: (data: T) => Result<U>): Re
  * If the Result is `err`, applies the function (which returns a new Result).
  * If the Result is `ok`, passes it through unchanged.
  *
- * @param result - The Result to recover from.
- * @param fn - Function that takes the AppError and returns a recovery Result.
- * @returns `Result<T>` — the original success or the recovery Result.
+ * @param {Result<T>} result - The Result to recover from.
+ * @param {(error: AppError) => Result<T>} fn - Function that takes the AppError and returns a recovery Result.
+ * @returns {Result<T>} `Result<T>` — the original success or the recovery Result.
  *
  * @example
  * ```typescript
@@ -169,9 +173,12 @@ export function orElse<T>(result: Result<T>, fn: (error: AppError) => Result<T>)
  * Applies one of two functions depending on whether the Result is
  * success or failure. Both branches must return the same type.
  *
- * @param result - The Result to match.
- * @param handlers - Object with `ok` and `err` handler functions.
- * @returns `U` — the value from whichever handler was invoked.
+ * @param {Result<T>} result - The Result to match.
+ * @param {{
+    ok: (data: T) => U;
+    err: (error: AppError) => U;
+  }} handlers - Object with `ok` and `err` handler functions.
+ * @returns {U} `U` — the value from whichever handler was invoked.
  *
  * @example
  * ```typescript
@@ -182,6 +189,22 @@ export function orElse<T>(result: Result<T>, fn: (error: AppError) => Result<T>)
  *   err: (error) => `Error: ${error.message}`,
  * });
  * ```
+  * @param {{
+    ok: (data: T) => U;
+    err: (error: AppError) => U;
+  }} handlers - Description
+  * @param {{
+    ok: (data: T) => U;
+    err: (error: AppError) => U;
+  }} handlers - Description
+  * @param {{
+    ok: (data: T) => U;
+    err: (error: AppError) => U;
+  }} handlers - Description
+  * @param {{
+    ok: (data: T) => U;
+    err: (error: AppError) => U;
+  }} handlers - Description
  */
 export function match<T, U>(
   result: Result<T>,
@@ -202,9 +225,9 @@ export function match<T, U>(
  * If the Result is `ok`, returns the data. If `err`, returns the
  * provided default value.
  *
- * @param result - The Result to unwrap.
- * @param defaultValue - The value to return if the Result is an error.
- * @returns `T` — the success data or the default.
+ * @param {Result<T>} result - The Result to unwrap.
+ * @param {T} defaultValue - The value to return if the Result is an error.
+ * @returns {T} `T` — the success data or the default.
  *
  * @example
  * ```typescript
@@ -233,9 +256,9 @@ export function unwrapOr<T>(result: Result<T>, defaultValue: T): T {
  *
  * Named `tap` following true-myth / Ramda conventions.
  *
- * @param result - The Result to tap.
- * @param fn - Side-effect function. Return value is ignored.
- * @returns `Result<T>` — the original Result, unchanged.
+ * @param {Result<T>} result - The Result to tap.
+ * @param {(data: T) => void} fn - Side-effect function. Return value is ignored.
+ * @returns {Result<T>} `Result<T>` — the original Result, unchanged.
  *
  * @example
  * ```typescript
@@ -263,9 +286,9 @@ export function tap<T>(result: Result<T>, fn: (data: T) => void): Result<T> {
  * If the Result is `err`, calls the function with the error and returns
  * the original Result unchanged. If `ok`, passes through.
  *
- * @param result - The Result to tap on error.
- * @param fn - Side-effect function. Return value is ignored.
- * @returns `Result<T>` — the original Result, unchanged.
+ * @param {Result<T>} result - The Result to tap on error.
+ * @param {(error: AppError) => void} fn - Side-effect function. Return value is ignored.
+ * @returns {Result<T>} `Result<T>` — the original Result, unchanged.
  *
  * @example
  * ```typescript
@@ -299,8 +322,8 @@ export function tapErr<T>(result: Result<T>, fn: (error: AppError) => void): Res
  *
  * For accumulating ALL errors, use {@link combineWithAllErrors}.
  *
- * @param results - Array of Results to combine.
- * @returns `Result<ReadonlyArray<T>>` — combined success or first error.
+ * @param {ReadonlyArray<Result<T>>} results - Array of Results to combine.
+ * @returns {Result<readonly T[]>} `Result<ReadonlyArray<T>>` — combined success or first error.
  *
  * @example
  * ```typescript
@@ -333,8 +356,8 @@ export function combine<T>(results: ReadonlyArray<Result<T>>): Result<readonly T
  * every error. Follows neverthrow's `combineWithAllErrors` and Effect's
  * `validate` pattern.
  *
- * @param results - Array of Results to combine.
- * @returns `Result<ReadonlyArray<T>>` — combined success or accumulated errors.
+ * @param {ReadonlyArray<Result<T>>} results - Array of Results to combine.
+ * @returns {Result<readonly T[]>} `Result<ReadonlyArray<T>>` — combined success or accumulated errors.
  *
  * @example
  * ```typescript
@@ -387,9 +410,9 @@ export function combineWithAllErrors<T>(results: ReadonlyArray<Result<T>>): Resu
  * Results using `fromUnknownError()`. Follows neverthrow's `fromThrowable`
  * and true-myth's `tryOr`.
  *
- * @param fn - A function that may throw.
- * @param errorCode - The error code to use if the function throws.
- * @returns A new function with the same signature but returning `Result<T>`.
+ * @param {(...args: TArgs) => TReturn} fn - A function that may throw.
+ * @param {KnownErrorCode} errorCode - The error code to use if the function throws.
+ * @returns {(...args: TArgs) => Result<TReturn>} A new function with the same signature but returning `Result<T>`.
  *
  * @example
  * ```typescript
@@ -424,9 +447,9 @@ export function fromThrowable<TArgs extends unknown[], TReturn>(
  *
  * Same as {@link fromThrowable} but for async functions.
  *
- * @param fn - An async function that may throw or reject.
- * @param errorCode - The error code to use on failure.
- * @returns A new async function returning `Promise<Result<T>>`.
+ * @param {(...args: TArgs) => Promise<TReturn>} fn - An async function that may throw or reject.
+ * @param {KnownErrorCode} errorCode - The error code to use on failure.
+ * @returns {(...args: TArgs) => Promise<Result<TReturn>>} A new async function returning `Promise<Result<T>>`.
  *
  * @example
  * ```typescript

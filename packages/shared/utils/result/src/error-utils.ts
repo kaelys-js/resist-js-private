@@ -43,8 +43,8 @@ import { safeParse } from '@/utils/result/safe';
  * an `unknown` value that might be an error (e.g., from `JSON.parse`,
  * an external API, or an untyped catch block).
  *
- * @param value - The value to check.
- * @returns `true` if the value conforms to the `AppError` shape.
+ * @param {unknown} value - The value to check.
+ * @returns {value is AppError} `true` if the value conforms to the `AppError` shape.
  *
  * @example
  * ```typescript
@@ -68,8 +68,8 @@ export function isAppError(value: unknown): value is AppError {
  * validate the inner data or error types beyond confirming the error
  * is an `AppError` when `ok` is `false`.
  *
- * @param value - The value to check.
- * @returns `true` if the value has the `Result` shape.
+ * @param {unknown} value - The value to check.
+ * @returns {value is Result<unknown>} `true` if the value has the `Result` shape.
  *
  * @example
  * ```typescript
@@ -103,9 +103,9 @@ export function isResult(value: unknown): value is Result<unknown> {
 /**
  * Checks whether an `AppError` has a specific error code.
  *
- * @param error - The AppError to check.
- * @param code - The error code to match against.
- * @returns `Result<Bool>` — `true` if the error code matches.
+ * @param {AppError} error - The AppError to check.
+ * @param {KnownErrorCode} code - The error code to match against.
+ * @returns {Result<Bool>} `Result<Bool>` — `true` if the error code matches.
  *
  * @example
  * ```typescript
@@ -126,9 +126,9 @@ export function hasCode(error: AppError, code: KnownErrorCode): Result<Bool> {
 /**
  * Checks whether an `AppError` has any of the specified error codes.
  *
- * @param error - The AppError to check.
- * @param codes - Array of error codes to match against.
- * @returns `Result<Bool>` — `true` if the error code matches any in the array.
+ * @param {AppError} error - The AppError to check.
+ * @param {readonly KnownErrorCode[]} codes - Array of error codes to match against.
+ * @returns {Result<Bool>} `Result<Bool>` — `true` if the error code matches any in the array.
  *
  * @example
  * ```typescript
@@ -155,9 +155,9 @@ export function hasAnyCode(error: AppError, codes: readonly KnownErrorCode[]): R
  *
  * Extracts the domain prefix (first segment before the dot) and compares.
  *
- * @param error - The AppError to check.
- * @param domain - The error domain to match against.
- * @returns `Result<Bool>` — `true` if the error belongs to the domain.
+ * @param {AppError} error - The AppError to check.
+ * @param {ErrorDomain} domain - The error domain to match against.
+ * @returns {Result<Bool>} `Result<Bool>` — `true` if the error belongs to the domain.
  *
  * @example
  * ```typescript
@@ -190,8 +190,8 @@ export function isInDomain(error: AppError, domain: ErrorDomain): Result<Bool> {
  * in the chain, starting with the root error and ending with the
  * deepest cause. Safe against circular references (max depth 100).
  *
- * @param error - The root AppError to start from.
- * @returns `Result<ReadonlyArray<AppError>>` — flat array of all errors in the chain.
+ * @param {AppError} error - The root AppError to start from.
+ * @returns {Result<readonly AppError[]>} `Result<ReadonlyArray<AppError>>` — flat array of all errors in the chain.
  *
  * @example
  * ```typescript
@@ -230,9 +230,9 @@ export function getCauseChain(error: AppError): Result<readonly AppError[]> {
  *
  * Inspired by Rust's `Error::source()` chain traversal and Go's `errors.Is()`.
  *
- * @param error - The root AppError to start from.
- * @param code - The error code to search for.
- * @returns `Result<AppError | null>` — the matching error, or `null` if not found.
+ * @param {AppError} error - The root AppError to start from.
+ * @param {KnownErrorCode} code - The error code to search for.
+ * @returns {Result<AppError | null>} `Result<AppError | null>` — the matching error, or `null` if not found.
  *
  * @example
  * ```typescript
@@ -268,8 +268,8 @@ export function findInCauseChain(error: AppError, code: KnownErrorCode): Result<
  * Walks `cause.cause.cause...` until reaching the terminal error.
  * Inspired by Go's `errors.Unwrap()` recursive unwrapping.
  *
- * @param error - The AppError to unwrap.
- * @returns `Result<AppError>` — the deepest cause in the chain.
+ * @param {AppError} error - The AppError to unwrap.
+ * @returns {Result<AppError>} `Result<AppError>` — the deepest cause in the chain.
  *
  * @example
  * ```typescript
@@ -304,8 +304,8 @@ export function getRootCause(error: AppError): Result<AppError> {
  * The domain is the first segment before the dot (e.g., `'AUTH'` from
  * `'AUTH.INVALID_TOKEN'`).
  *
- * @param error - The AppError whose domain to extract.
- * @returns `Result<ErrorDomain>` — the error domain.
+ * @param {AppError} error - The AppError whose domain to extract.
+ * @returns {Result<ErrorDomain>} `Result<ErrorDomain>` — the error domain.
  *
  * @example
  * ```typescript
@@ -338,8 +338,8 @@ export function getDomain(error: AppError): Result<ErrorDomain> {
  * Returns the error's explicit `severity` field if set, otherwise
  * returns `'error'` as the default.
  *
- * @param error - The AppError to check.
- * @returns `Result<ErrorSeverity>` — the effective severity.
+ * @param {AppError} error - The AppError to check.
+ * @returns {Result<ErrorSeverity>} `Result<ErrorSeverity>` — the effective severity.
  *
  * @example
  * ```typescript
@@ -360,8 +360,8 @@ export function getSeverity(error: AppError): Result<ErrorSeverity> {
  *
  * Returns `true` if the error has `retry.retryable === true`.
  *
- * @param error - The AppError to check.
- * @returns `Result<Bool>` — `true` if the error is retryable.
+ * @param {AppError} error - The AppError to check.
+ * @returns {Result<Bool>} `Result<Bool>` — `true` if the error is retryable.
  *
  * @example
  * ```typescript

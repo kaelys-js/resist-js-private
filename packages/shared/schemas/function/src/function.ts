@@ -51,7 +51,7 @@ const AsyncFunction: FnType = _toFnType(_emptyAsync.constructor);
  *
  * @typeParam TArgs - Tuple type of function parameters. Defaults to `unknown[]`.
  * @typeParam TReturn - Function return type. Defaults to `unknown`.
- * @returns `GenericSchema<(...args: TArgs) => TReturn>` — a Valibot schema that validates callability.
+ * @returns {v.GenericSchema<FnType<TArgs, TReturn>>} `GenericSchema<(...args: TArgs) => TReturn>` — a Valibot schema that validates callability.
  *
  * @example
  * ```typescript
@@ -100,8 +100,8 @@ export function functionSchema<
 /**
  * Checks whether a function is async (constructed with AsyncFunction).
  *
- * @param fn - The function to check.
- * @returns `true` if the function is an async function.
+ * @param {FnType} fn - The function to check.
+ * @returns {Bool} `true` if the function is an async function.
  */
 export function isAsyncFunction(fn: FnType): Bool {
   return fn.constructor === AsyncFunction;

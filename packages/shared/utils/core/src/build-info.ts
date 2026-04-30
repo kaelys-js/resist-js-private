@@ -14,7 +14,7 @@ import type { Result } from '@/schemas/result/result';
 /**
  * Returns validated build-time metadata from Vite `define` constants.
  *
- * @returns Result containing build version, git commit, branch, dirty flag, and build timestamp
+ * @returns {Result<BuildInfo>} Result containing build version, git commit, branch, dirty flag, and build timestamp
  *
  * @example
  * ```typescript

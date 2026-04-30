@@ -14,8 +14,8 @@ import type { AstNode, ImportInfo } from '@/lint/framework/types.ts';
  *
  * Handles both `Identifier` keys (`{ foo: ... }`) and `StringLiteral` keys (`{ "foo": ... }`).
  *
- * @param prop - An ObjectProperty AST node
- * @returns The property key name, or undefined if not extractable
+ * @param {AstNode} prop - An ObjectProperty AST node
+ * @returns {string | undefined} The property key name, or undefined if not extractable
  */
 export function getPropertyName(prop: AstNode): string | undefined {
   const key: AstNode | undefined = prop.key as AstNode | undefined;
@@ -37,9 +37,9 @@ export function getPropertyName(prop: AstNode): string | undefined {
 /**
  * Find a property by name in an ObjectExpression node.
  *
- * @param obj - An ObjectExpression AST node
- * @param name - The property key name to find
- * @returns The matching ObjectProperty node, or undefined
+ * @param {AstNode} obj - An ObjectExpression AST node
+ * @param {string} name - The property key name to find
+ * @returns {AstNode | undefined} The matching ObjectProperty node, or undefined
  */
 export function findProperty(obj: AstNode, name: string): AstNode | undefined {
   if (obj.type !== 'ObjectExpression') {
@@ -67,9 +67,9 @@ export function findProperty(obj: AstNode, name: string): AstNode | undefined {
 /**
  * Get the value node of a property by name in an ObjectExpression.
  *
- * @param obj - An ObjectExpression AST node
- * @param name - The property key name
- * @returns The value AST node, or undefined
+ * @param {AstNode} obj - An ObjectExpression AST node
+ * @param {string} name - The property key name
+ * @returns {AstNode | undefined} The value AST node, or undefined
  */
 export function getPropertyValueNode(obj: AstNode, name: string): AstNode | undefined {
   const prop: AstNode | undefined = findProperty(obj, name);
@@ -85,9 +85,9 @@ export function getPropertyValueNode(obj: AstNode, name: string): AstNode | unde
  *
  * For example, `getNestedValue(obj, 'kit.adapter')` finds `obj.kit` then `.adapter`.
  *
- * @param obj - An ObjectExpression AST node
- * @param path - Dot-separated property path (e.g. `'kit.adapter'`)
- * @returns The value AST node at the end of the path, or undefined
+ * @param {AstNode} obj - An ObjectExpression AST node
+ * @param {string} path - Dot-separated property path (e.g. `'kit.adapter'`)
+ * @returns {AstNode | undefined} The value AST node at the end of the path, or undefined
  */
 export function getNestedValue(obj: AstNode, path: string): AstNode | undefined {
   const parts: string[] = path.split('.');
@@ -107,9 +107,9 @@ export function getNestedValue(obj: AstNode, path: string): AstNode | undefined 
 /**
  * Check if a property exists in an ObjectExpression.
  *
- * @param obj - An ObjectExpression AST node
- * @param name - The property key name
- * @returns True if the property exists
+ * @param {AstNode} obj - An ObjectExpression AST node
+ * @param {string} name - The property key name
+ * @returns {boolean} True if the property exists
  */
 export function hasProperty(obj: AstNode, name: string): boolean {
   return findProperty(obj, name) !== undefined;
@@ -118,8 +118,8 @@ export function hasProperty(obj: AstNode, name: string): boolean {
 /**
  * Check if a node is an `undefined` identifier.
  *
- * @param node - AST node to check
- * @returns True if the node is `undefined`
+ * @param {AstNode} node - AST node to check
+ * @returns {boolean} True if the node is `undefined`
  */
 export function isUndefinedValue(node: AstNode): boolean {
   return node.type === 'Identifier' && (node.name as string) === 'undefined';
@@ -132,8 +132,8 @@ export function isUndefinedValue(node: AstNode): boolean {
  * - `export default { ... }` → returns the ObjectExpression
  * - `export default defineConfig({ ... })` → returns the first argument ObjectExpression
  *
- * @param ast - Root AST node (Program)
- * @returns The config ObjectExpression, or undefined
+ * @param {AstNode} ast - Root AST node (Program)
+ * @returns {AstNode | undefined} The config ObjectExpression, or undefined
  */
 export function getDefaultExportObject(ast: AstNode): AstNode | undefined {
   const body: AstNode[] | undefined = ast.body as AstNode[] | undefined;
@@ -172,8 +172,8 @@ export function getDefaultExportObject(ast: AstNode): AstNode | undefined {
  *
  * Looks for default imports from known SvelteKit adapter packages.
  *
- * @param imports - Import info array from visitor context
- * @returns The adapter package name, or undefined
+ * @param {ImportInfo[]} imports - Import info array from visitor context
+ * @returns {string | undefined} The adapter package name, or undefined
  */
 export function getAdapterImport(imports: ImportInfo[]): string | undefined {
   const adapterPackages: Set<string> = new Set([
@@ -207,9 +207,9 @@ export const STATIC_ADAPTERS: ReadonlySet<string> = new Set(['@sveltejs/adapter-
 /**
  * Collect all property names from an ObjectExpression recursively with dot paths.
  *
- * @param obj - An ObjectExpression AST node
- * @param prefix - Dot-separated prefix for nested properties
- * @returns Array of dot-separated property paths
+ * @param {AstNode} obj - An ObjectExpression AST node
+ * @param {string} prefix - Dot-separated prefix for nested properties
+ * @returns {string[]} Array of dot-separated property paths
  */
 export function collectPropertyPaths(obj: AstNode, prefix: string = ''): string[] {
   const paths: string[] = [];
@@ -248,8 +248,8 @@ export function collectPropertyPaths(obj: AstNode, prefix: string = ''): string[
 /**
  * Get all property entries from an ObjectExpression as name-value pairs.
  *
- * @param obj - An ObjectExpression AST node
- * @returns Array of [name, valueNode] pairs
+ * @param {AstNode} obj - An ObjectExpression AST node
+ * @returns {Array<[string, AstNode]>} Array of [name, valueNode] pairs
  */
 export function getPropertyEntries(obj: AstNode): Array<[string, AstNode]> {
   const entries: Array<[string, AstNode]> = [];
@@ -282,9 +282,9 @@ export function getPropertyEntries(obj: AstNode): Array<[string, AstNode]> {
 /**
  * Check if a node is a string literal with a specific value.
  *
- * @param node - AST node to check
- * @param value - Expected string value
- * @returns True if node is a StringLiteral with the given value
+ * @param {AstNode} node - AST node to check
+ * @param {string} value - Expected string value
+ * @returns {boolean} True if node is a StringLiteral with the given value
  */
 export function isStringLiteral(node: AstNode, value?: string): boolean {
   const isStr: boolean =
@@ -304,8 +304,8 @@ export function isStringLiteral(node: AstNode, value?: string): boolean {
 /**
  * Get the string value from a StringLiteral node.
  *
- * @param node - AST node
- * @returns The string value, or undefined if not a StringLiteral
+ * @param {AstNode} node - AST node
+ * @returns {string | undefined} The string value, or undefined if not a StringLiteral
  */
 export function getStringValue(node: AstNode): string | undefined {
   if (node.type === 'StringLiteral') {
@@ -322,9 +322,9 @@ export function getStringValue(node: AstNode): string | undefined {
 /**
  * Check if a node is a boolean literal with a specific value.
  *
- * @param node - AST node to check
- * @param value - Expected boolean value
- * @returns True if node is a BooleanLiteral with the given value
+ * @param {AstNode} node - AST node to check
+ * @param {boolean} value - Expected boolean value
+ * @returns {boolean} True if node is a BooleanLiteral with the given value
  */
 export function isBooleanLiteral(node: AstNode, value?: boolean): boolean {
   const isBool: boolean =

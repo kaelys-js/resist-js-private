@@ -136,8 +136,8 @@ function parseBlock(blockBody: Str): DesignToken[] {
  * Parses `:root`, `.dark`, and `[data-theme='...']` blocks to build
  * a complete token registry for all theme contexts.
  *
- * @param cssSource - Raw CSS source string (app.css content)
- * @returns Array of theme token sets
+ * @param {Str} cssSource - Raw CSS source string (app.css content)
+ * @returns {ThemeTokenSet[]} Array of theme token sets
  */
 export function extractTokens(cssSource: Str): ThemeTokenSet[] {
   const sets: ThemeTokenSet[] = [];
@@ -186,8 +186,8 @@ export function extractTokens(cssSource: Str): ThemeTokenSet[] {
 /**
  * Group tokens by semantic category for display.
  *
- * @param tokens - Flat array of design tokens
- * @returns Grouped token arrays with labels
+ * @param {DesignToken[]} tokens - Flat array of design tokens
+ * @returns {TokenGroup[]} Grouped token arrays with labels
  */
 export function groupTokens(tokens: DesignToken[]): TokenGroup[] {
   const categoryLabels: Record<TokenCategory, Str> = {
@@ -220,8 +220,8 @@ export function groupTokens(tokens: DesignToken[]): TokenGroup[] {
 /**
  * Get all unique theme names from the extracted token sets.
  *
- * @param sets - Theme token sets from extractTokens
- * @returns Array of theme names (e.g., ['midnight', 'warm', 'forest'])
+ * @param {ThemeTokenSet[]} sets - Theme token sets from extractTokens
+ * @returns {Str[]} Array of theme names (e.g., ['midnight', 'warm', 'forest'])
  */
 export function getThemeNames(sets: ThemeTokenSet[]): Str[] {
   const names: Set<Str> = new Set();

@@ -124,8 +124,8 @@ const SYMBOL_KEY: Str = 'scn-sidebar';
 /**
  * Instantiates a new `SidebarState` instance and sets it in the context.
  *
- * @param props - The constructor props for the `SidebarState` class.
- * @returns The `SidebarState` instance.
+ * @param {SidebarStateProps} props - The constructor props for the `SidebarState` class.
+ * @returns {SidebarState} The `SidebarState` instance.
  *
  * @example
  * ```typescript
@@ -140,7 +140,7 @@ export function setSidebar(props: SidebarStateProps): SidebarState {
  * Retrieves the `SidebarState` instance from the context. This is a class instance,
  * so you cannot destructure it.
  *
- * @returns The `SidebarState` instance.
+ * @returns {SidebarState} The `SidebarState` instance.
  *
  * @example
  * ```typescript

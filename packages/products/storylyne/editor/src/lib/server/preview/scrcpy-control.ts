@@ -101,8 +101,8 @@ export type ScrollEventParams = {
  *
  * Layout: type(1) + action(1) + keycode(4) + repeat(4) + metaState(4)
  *
- * @param params - Keycode event parameters
- * @returns 14-byte buffer
+ * @param {KeycodeParams} params - Keycode event parameters
+ * @returns {Buffer} 14-byte buffer
  */
 export function encodeInjectKeycode(params: KeycodeParams): Buffer {
   const buf: Buffer = Buffer.alloc(14);
@@ -123,8 +123,8 @@ export function encodeInjectKeycode(params: KeycodeParams): Buffer {
  *
  * Layout: type(1) + length(4) + text(N)
  *
- * @param text - UTF-8 text to inject
- * @returns Variable-length buffer
+ * @param {Str} text - UTF-8 text to inject
+ * @returns {Buffer} Variable-length buffer
  */
 export function encodeInjectText(text: Str): Buffer {
   const textBuf: Buffer = Buffer.from(text as string, 'utf8');
@@ -146,8 +146,8 @@ export function encodeInjectText(text: Str): Buffer {
  *         + screenWidth(2) + screenHeight(2) + pressure(2)
  *         + actionButton(4) + buttons(4)
  *
- * @param params - Touch event parameters
- * @returns 32-byte buffer
+ * @param {TouchEventParams} params - Touch event parameters
+ * @returns {Buffer} 32-byte buffer
  */
 export function encodeInjectTouchEvent(params: TouchEventParams): Buffer {
   const buf: Buffer = Buffer.alloc(32);
@@ -174,8 +174,8 @@ export function encodeInjectTouchEvent(params: TouchEventParams): Buffer {
  * Layout: type(1) + x(4) + y(4) + screenWidth(2) + screenHeight(2)
  *         + hScroll(4) + vScroll(4)
  *
- * @param params - Scroll event parameters
- * @returns 21-byte buffer
+ * @param {ScrollEventParams} params - Scroll event parameters
+ * @returns {Buffer} 21-byte buffer
  */
 export function encodeInjectScrollEvent(params: ScrollEventParams): Buffer {
   const buf: Buffer = Buffer.alloc(21);
@@ -198,8 +198,8 @@ export function encodeInjectScrollEvent(params: ScrollEventParams): Buffer {
  *
  * Layout: type(1) + action(1)
  *
- * @param action - Key action (0=DOWN, 1=UP)
- * @returns 2-byte buffer
+ * @param {Num} action - Key action (0=DOWN, 1=UP)
+ * @returns {Buffer} 2-byte buffer
  */
 export function encodeBackOrScreenOn(action: Num): Buffer {
   const buf: Buffer = Buffer.alloc(2);
@@ -217,9 +217,9 @@ export function encodeBackOrScreenOn(action: Num): Buffer {
  *
  * Layout: type(1) + paste(1) + length(4) + text(N)
  *
- * @param text - Clipboard text content
- * @param paste - Whether to also paste the text
- * @returns Variable-length buffer
+ * @param {Str} text - Clipboard text content
+ * @param {boolean} paste - Whether to also paste the text
+ * @returns {Buffer} Variable-length buffer
  */
 export function encodeSetClipboard(text: Str, paste: boolean): Buffer {
   const textBuf: Buffer = Buffer.from(text as string, 'utf8');
@@ -240,8 +240,8 @@ export function encodeSetClipboard(text: Str, paste: boolean): Buffer {
  *
  * Layout: type(1) + mode(1)
  *
- * @param on - Whether to turn the display on (true) or off (false)
- * @returns 2-byte buffer
+ * @param {boolean} on - Whether to turn the display on (true) or off (false)
+ * @returns {Buffer} 2-byte buffer
  */
 export function encodeSetDisplayPower(on: boolean): Buffer {
   const buf: Buffer = Buffer.alloc(2);

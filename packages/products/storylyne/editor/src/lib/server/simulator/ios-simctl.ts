@@ -147,7 +147,7 @@ function lookupDimensions(deviceTypeIdentifier: Str): DeviceDimensions {
 /**
  * Check if `xcrun simctl` is available on this system.
  *
- * @returns `true` if Xcode CLI tools are installed and simctl is available
+ * @returns {Promise<Bool>} `true` if Xcode CLI tools are installed and simctl is available
  */
 export async function isXcrunAvailable(): Promise<Bool> {
   try {
@@ -162,8 +162,8 @@ export async function isXcrunAvailable(): Promise<Bool> {
 /**
  * Extract a human-readable iOS version from a runtime identifier.
  *
- * @param runtimeId - Runtime identifier (e.g., 'com.apple.CoreSimulator.SimRuntime.iOS-26-0')
- * @returns Human-readable version (e.g., 'iOS 26.0')
+ * @param {Str} runtimeId - Runtime identifier (e.g., 'com.apple.CoreSimulator.SimRuntime.iOS-26-0')
+ * @returns {Str} Human-readable version (e.g., 'iOS 26.0')
  *
  * @example
  * parseRuntimeVersion('com.apple.CoreSimulator.SimRuntime.iOS-26-0') // 'iOS 26.0'
@@ -193,7 +193,7 @@ export function parseRuntimeVersion(runtimeId: Str): Str {
  * and returns typed device metadata including dimensions looked up from
  * a static device type → screen size table.
  *
- * @returns Array of available simulator devices sorted by name
+ * @returns {Promise<SimulatorDevice[]>} Array of available simulator devices sorted by name
  */
 export async function listSimulatorDevices(): Promise<SimulatorDevice[]> {
   const { stdout } = await execFileAsync('xcrun', [

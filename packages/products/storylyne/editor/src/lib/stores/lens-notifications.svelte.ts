@@ -165,8 +165,52 @@ function generateId(): Str {
 /**
  * Push a new notification.
  *
- * @param opts - Notification options (type, title, message, etc.)
- * @returns The created notification
+ * @param {{
+  type: NotificationType;
+  title: Str;
+  message?: Str;
+  actionLabel?: Str;
+  actionHref?: Str;
+  componentName?: Str;
+  category?: Str;
+}} opts - Notification options (type, title, message, etc.)
+ * @returns {LensNotification} The created notification
+  * @param {{
+  type: NotificationType;
+  title: Str;
+  message?: Str;
+  actionLabel?: Str;
+  actionHref?: Str;
+  componentName?: Str;
+  category?: Str;
+}} opts - Description
+  * @param {{
+  type: NotificationType;
+  title: Str;
+  message?: Str;
+  actionLabel?: Str;
+  actionHref?: Str;
+  componentName?: Str;
+  category?: Str;
+}} opts - Description
+  * @param {{
+  type: NotificationType;
+  title: Str;
+  message?: Str;
+  actionLabel?: Str;
+  actionHref?: Str;
+  componentName?: Str;
+  category?: Str;
+}} opts - Description
+  * @param {{
+  type: NotificationType;
+  title: Str;
+  message?: Str;
+  actionLabel?: Str;
+  actionHref?: Str;
+  componentName?: Str;
+  category?: Str;
+}} opts - Description
  */
 export function pushNotification(opts: {
   type: NotificationType;
@@ -198,8 +242,52 @@ export function pushNotification(opts: {
  * Push multiple notifications at once (single persist at the end).
  * Use for batch operations to avoid N localStorage writes.
  *
- * @param items - Array of notification option objects
- * @returns Array of created notifications
+ * @param {Array<{
+    type: NotificationType;
+    title: Str;
+    message?: Str;
+    actionLabel?: Str;
+    actionHref?: Str;
+    componentName?: Str;
+    category?: Str;
+  }>} items - Array of notification option objects
+ * @returns {LensNotification[]} Array of created notifications
+  * @param {Array<{
+    type: NotificationType;
+    title: Str;
+    message?: Str;
+    actionLabel?: Str;
+    actionHref?: Str;
+    componentName?: Str;
+    category?: Str;
+  }>} items - Description
+  * @param {Array<{
+    type: NotificationType;
+    title: Str;
+    message?: Str;
+    actionLabel?: Str;
+    actionHref?: Str;
+    componentName?: Str;
+    category?: Str;
+  }>} items - Description
+  * @param {Array<{
+    type: NotificationType;
+    title: Str;
+    message?: Str;
+    actionLabel?: Str;
+    actionHref?: Str;
+    componentName?: Str;
+    category?: Str;
+  }>} items - Description
+  * @param {Array<{
+    type: NotificationType;
+    title: Str;
+    message?: Str;
+    actionLabel?: Str;
+    actionHref?: Str;
+    componentName?: Str;
+    category?: Str;
+  }>} items - Description
  */
 export function pushNotificationBatch(
   items: Array<{
@@ -234,7 +322,7 @@ export function pushNotificationBatch(
 /**
  * Mark a notification as read.
  *
- * @param id - Notification ID to mark as read
+ * @param {Str} id - Notification ID to mark as read
  */
 export function markRead(id: Str): void {
   notifications = notifications.map(
@@ -254,7 +342,7 @@ export function markAllRead(): void {
 /**
  * Remove a single notification.
  *
- * @param id - Notification ID to remove
+ * @param {Str} id - Notification ID to remove
  */
 export function removeNotification(id: Str): void {
   notifications = notifications.filter((n: LensNotification): boolean => n.id !== id);
@@ -264,7 +352,7 @@ export function removeNotification(id: Str): void {
 /**
  * Remove all notifications matching a category in a single bulk operation.
  *
- * @param category - Category string to match against
+ * @param {Str} category - Category string to match against
  */
 export function removeByCategory(category: Str): void {
   notifications = notifications.filter((n: LensNotification): boolean => n.category !== category);
@@ -284,7 +372,7 @@ export function clearAllNotifications(): void {
 /**
  * Update notification preferences.
  *
- * @param updates - Partial preferences to merge
+ * @param {Partial<NotificationPreferences>} updates - Partial preferences to merge
  */
 export function updatePreferences(updates: Partial<NotificationPreferences>): void {
   preferences = { ...preferences, ...updates };
@@ -304,8 +392,8 @@ export function resetPreferences(): void {
 /**
  * Check if a notification type is enabled in preferences.
  *
- * @param type - The notification type to check
- * @returns Whether the type is enabled
+ * @param {NotificationType} type - The notification type to check
+ * @returns {Bool} Whether the type is enabled
  */
 export function isTypeEnabled(type: NotificationType): Bool {
   return preferences[type] as Bool;
@@ -314,7 +402,7 @@ export function isTypeEnabled(type: NotificationType): Bool {
 /**
  * Get all notifications (reactive).
  *
- * @returns All notifications array, newest first
+ * @returns {LensNotification[]} All notifications array, newest first
  */
 export function getNotifications(): LensNotification[] {
   return notifications;
@@ -323,7 +411,7 @@ export function getNotifications(): LensNotification[] {
 /**
  * Get unread count (reactive).
  *
- * @returns Number of unread notifications
+ * @returns {Num} Number of unread notifications
  */
 export function getUnreadCount(): Num {
   return notifications.filter((n: LensNotification): boolean => !n.read).length as Num;
@@ -332,7 +420,7 @@ export function getUnreadCount(): Num {
 /**
  * Get current preferences (reactive).
  *
- * @returns Current notification preferences
+ * @returns {NotificationPreferences} Current notification preferences
  */
 export function getPreferences(): NotificationPreferences {
   return preferences;
@@ -341,7 +429,23 @@ export function getPreferences(): NotificationPreferences {
 /**
  * Get notifications grouped by time period.
  *
- * @returns Object with today, thisWeek, and older notification arrays
+ *{{
+  today: LensNotification[];
+  thisWeek: LensNotification[];
+  older: LensNotification[];
+}}cation[];
+}} Object with today, thisWeek, and older notification arrays
+  *{{
+  today: LensNotification[];
+  thisWeek: LensNotification[];
+  older: LensNotification[];
+}}cation[];
+}} Description
+  * @returns {{
+  today: LensNotification[];
+  thisWeek: LensNotification[];
+  older: LensNotification[];
+}} Description
  */
 export function getGroupedNotifications(): {
   today: LensNotification[];

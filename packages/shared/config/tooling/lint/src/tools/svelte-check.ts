@@ -131,8 +131,8 @@ const SKIP_DIRS: ReadonlySet<string> = new Set([
  * A directory qualifies when it has a `package.json` and at least one `.svelte`
  * file anywhere in its tree (skipping `node_modules`, `.svelte-kit`, etc.).
  *
- * @param cwd - Workspace root directory
- * @returns Absolute paths of Svelte package directories
+ * @param {string} cwd - Workspace root directory
+ * @returns {string[]} Absolute paths of Svelte package directories
  */
 export function discoverSveltePackageDirs(cwd: string): string[] {
   const packagesDir: string = join(cwd, 'packages');
@@ -207,8 +207,8 @@ export function discoverSveltePackageDirs(cwd: string): string[] {
  * Each diagnostic line matching the pattern is converted to a LintResult.
  * START lines and other non-diagnostic output are ignored.
  *
- * @param output - Raw stdout from svelte-check
- * @returns Parsed lint results
+ * @param {string} output - Raw stdout from svelte-check
+ * @returns {LintResult[]} Parsed lint results
  */
 export function transformSvelteCheckOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();
@@ -248,10 +248,11 @@ export function transformSvelteCheckOutput(output: string): LintResult[] {
  * Unlike per-file tools, this runs `svelte-check` once per SvelteKit package
  * directory and aggregates all results.
  *
- * @param cwd - Workspace root directory
- * @param files - Optional absolute file paths to scope the run to
- * @param lintCache - Optional lint cache for per-package result memoization
- * @returns Aggregated lint results from all packages
+ * @param {string} cwd - Workspace root directory
+ * @param {LintCache | null}} files - Optional absolute file paths to scope the run to
+ * @param {LintCache | null} lintCache - Optional lint cache for per-package result memoization
+ * @returns {Promise<LintResult[]>} Aggregated lint results from all packages
+  * @param {string[]} files - Description
  */
 export async function runSvelteCheckAllPackages(
   cwd: string,

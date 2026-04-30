@@ -22,8 +22,8 @@ const PHP_ERROR: RegExp = /^(?:PHP )?Parse error:\s*(.+?)\s+in\s+(.+?)\s+on\s+li
 /**
  * Transform PHP syntax check output into LintResult[].
  *
- * @param output - Raw output from php-l (one diagnostic per line)
- * @returns Parsed lint results
+ * @param {string} output - Raw output from php-l (one diagnostic per line)
+ * @returns {LintResult[]} Parsed lint results
  */
 export function transformPhpOutput(output: string): LintResult[] {
   const trimmed: string = output.trim();

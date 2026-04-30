@@ -27,8 +27,8 @@ import { safeParse } from '@/utils/result/safe';
 /**
  * Escapes special characters for XML.
  *
- * @param str - String to escape.
- * @returns `Result<Str>` — XML-safe string, or a validation error.
+ * @param {Str} str - String to escape.
+ * @returns {Result<Str>} `Result<Str>` — XML-safe string, or a validation error.
  *
  * @example
  * ```typescript
@@ -60,8 +60,8 @@ export function escapeXml(str: Str): Result<Str> {
 /**
  * Formats duration in human-readable form.
  *
- * @param ms - Duration in milliseconds (non-negative, may be fractional).
- * @returns `Result<Str>` — formatted string (e.g., `"<1ms"`, `"42ms"`,
+ * @param {NonNegativeNumber} ms - Duration in milliseconds (non-negative, may be fractional).
+ * @returns {Result<Str>} `Result<Str>` — formatted string (e.g., `"<1ms"`, `"42ms"`,
  *          `"1.50s"`, `"2m 30.0s"`), or a validation error.
  *
  * @example

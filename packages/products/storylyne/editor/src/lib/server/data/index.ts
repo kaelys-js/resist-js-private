@@ -15,9 +15,9 @@ import { createMockService } from '../mock/service';
 /**
  * Creates a DataService instance based on platform availability.
  *
- * @param _platform - SvelteKit platform object (contains D1 binding when deployed)
- * @param delayMs - Optional mock data delay in milliseconds (dev only, default: 0)
- * @returns A DataService implementation (mock or D1)
+ * @param {App.Platform} _platform - SvelteKit platform object (contains D1 binding when deployed)
+ * @param {Num} delayMs - Optional mock data delay in milliseconds (dev only, default: 0)
+ * @returns {DataService} A DataService implementation (mock or D1)
  *
  * @example
  * // In hooks.server.ts:

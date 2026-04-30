@@ -71,8 +71,24 @@ export type FieldDescriptor = v.InferOutput<typeof FieldDescriptorSchema>;
  * Unwraps a Valibot schema entry to find its inner type.
  * Handles `v.optional(inner, default)` and `v.pipe(inner, ...)` wrappers.
  *
- * @param entry - A Valibot schema node
- * @returns Object with detected type, options array, and default value
+ * @param {Record<Str, unknown>} entry - A Valibot schema node
+ *{{
+  type: 'boolean' | 'picklist' | 'string' | 'number';
+  options?: Str[];
+  default: unknown;
+}} unknown;
+}} Object with detected type, options array, and default value
+  *{{
+  type: 'boolean' | 'picklist' | 'string' | 'number';
+  options?: Str[];
+  default: unknown;
+}} unknown;
+}} Description
+  * @returns {{
+  type: 'boolean' | 'picklist' | 'string' | 'number';
+  options?: Str[];
+  default: unknown;
+}} Description
  */
 export function introspectEntry(entry: Record<Str, unknown>): {
   type: 'boolean' | 'picklist' | 'string' | 'number';
@@ -125,8 +141,8 @@ export function introspectEntry(entry: Record<Str, unknown>): {
  * Discovers all feature flags from a Valibot strict object schema.
  * Returns an array of flag descriptors with key and default value.
  *
- * @param schemaEntries - The `.entries` property of a Valibot strict object schema
- * @returns Array of flag descriptors
+ * @param {Record<Str, Record<Str, unknown>>} schemaEntries - The `.entries` property of a Valibot strict object schema
+ * @returns {FlagDescriptor[]} Array of flag descriptors
  *
  * @example
  * ```typescript
@@ -152,8 +168,8 @@ export function discoverFeatureFlags(
  * Discovers all app preference fields from a Valibot strict object schema.
  * Returns descriptors with control type (boolean/picklist/string/number) and options.
  *
- * @param schemaEntries - The `.entries` property of a Valibot strict object schema
- * @returns Array of field descriptors
+ * @param {Record<Str, Record<Str, unknown>>} schemaEntries - The `.entries` property of a Valibot strict object schema
+ * @returns {FieldDescriptor[]} Array of field descriptors
  */
 export function discoverAppPreferences(
   schemaEntries: Record<Str, Record<Str, unknown>>,
@@ -174,8 +190,8 @@ export function discoverAppPreferences(
  * Discovers all debug state fields from a Valibot strict object schema.
  * Returns descriptors with control type and options.
  *
- * @param schemaEntries - The `.entries` property of a Valibot strict object schema
- * @returns Array of field descriptors
+ * @param {Record<Str, Record<Str, unknown>>} schemaEntries - The `.entries` property of a Valibot strict object schema
+ * @returns {FieldDescriptor[]} Array of field descriptors
  */
 export function discoverDebugFields(
   schemaEntries: Record<Str, Record<Str, unknown>>,
@@ -200,11 +216,11 @@ export function discoverDebugFields(
  * Generates a debug URL with app-prefixed params reflecting current store state.
  * Includes all app preferences, debug state, and non-default feature flags.
  *
- * @param appStore - The app state store
- * @param debugStore - The debug state store
- * @param config - Devtools config for schemas and prefix
- * @param baseUrl - Base URL to append params to (defaults to current page URL)
- * @returns Full URL string with debug params
+ * @param {AppStoreContract} appStore - The app state store
+ * @param {DebugStoreContract} debugStore - The debug state store
+ * @param {DevtoolsConfig} config - Devtools config for schemas and prefix
+ * @param {Str} baseUrl - Base URL to append params to (defaults to current page URL)
+ * @returns {Str} Full URL string with debug params
  */
 export function generateDebugUrl(
   appStore: AppStoreContract,
@@ -256,8 +272,8 @@ export function generateDebugUrl(
 /**
  * Converts a camelCase key to Title Case with spaces.
  *
- * @param key - camelCase string (e.g., 'sceneList', 'projectDropdownSettings')
- * @returns Human-readable string (e.g., 'Scene List', 'Project Dropdown Settings')
+ * @param {Str} key - camelCase string (e.g., 'sceneList', 'projectDropdownSettings')
+ * @returns {Str} Human-readable string (e.g., 'Scene List', 'Project Dropdown Settings')
  */
 export function humanizeKey(key: Str): Str {
   // Insert space before uppercase letters, then capitalize first letter
@@ -290,9 +306,9 @@ const OPTION_LABELS: Record<Str, Record<Str, Str>> = {
  * Uses known labels for specific fields (e.g., locale codes → language names),
  * falls back to capitalizing the raw value.
  *
- * @param key - The field key (e.g., 'theme', 'locale', 'mode')
- * @param value - The raw option value (e.g., 'en', 'midnight', '')
- * @returns Human-readable label
+ * @param {Str} key - The field key (e.g., 'theme', 'locale', 'mode')
+ * @param {Str} value - The raw option value (e.g., 'en', 'midnight', '')
+ * @returns {Str} Human-readable label
  */
 export function humanizeOption(key: Str, value: Str): Str {
   const fieldLabels: Record<Str, Str> | undefined = OPTION_LABELS[key];

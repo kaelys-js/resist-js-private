@@ -63,8 +63,8 @@ export type EmblaContext = {
  * Stores the Carousel's EmblaContext under the shared key so
  * descendant Carousel parts can read it via `getEmblaContext`.
  *
- * @param config - The EmblaContext to publish for descendants
- * @returns The same `config` (passthrough for chaining)
+ * @param {EmblaContext} config - The EmblaContext to publish for descendants
+ * @returns {EmblaContext} The same `config` (passthrough for chaining)
  */
 export function setEmblaContext(config: EmblaContext): EmblaContext {
   setContext(EMBLA_CAROUSEL_CONTEXT, config);
@@ -76,7 +76,7 @@ export function setEmblaContext(config: EmblaContext): EmblaContext {
  * component, throwing a descriptive error if no `<Carousel.Root>`
  * ancestor has set it.
  *
- * @param name - Component name used in the error message
+ * @param {unknown} name - Component name used in the error message
  * @returns The EmblaContext set by the nearest `<Carousel.Root>`
  */
 export function getEmblaContext(name = 'This component') {

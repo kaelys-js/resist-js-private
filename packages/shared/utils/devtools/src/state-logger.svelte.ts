@@ -48,9 +48,9 @@ export const LOG_LEVEL_PRIORITY: Record<LogLevel, Num> = {
  * Checks whether a message at `messageLevel` should be logged
  * given the current `currentLevel` setting.
  *
- * @param messageLevel - The level of the message to potentially log
- * @param currentLevel - The current log level threshold
- * @returns True if the message should be logged
+ * @param {LogLevel} messageLevel - The level of the message to potentially log
+ * @param {LogLevel} currentLevel - The current log level threshold
+ * @returns {Bool} True if the message should be logged
  *
  * @example
  * ```typescript
@@ -103,11 +103,11 @@ function logChange(storeName: Str, section: Str, key: Str, oldVal: unknown, newV
  * the parent `$effect` tree and must be manually cleaned up by calling the
  * returned function.
  *
- * @param name - Section name shown in console output (e.g., 'app', 'sidebar')
- * @param getter - Function that returns a plain snapshot of the reactive state
- * @param debugStore - The debug store (for log level gating)
- * @param storeName - Display name for the store (defaults to 'Store')
- * @returns Cleanup function — call to stop watching
+ * @param {Str} name - Section name shown in console output (e.g., 'app', 'sidebar')
+ * @param {() => Record<Str, unknown>} getter - Function that returns a plain snapshot of the reactive state
+ * @param {DebugStoreLike} debugStore - The debug store (for log level gating)
+ * @param {Str} storeName - Display name for the store (defaults to 'Store')
+ * @returns {WatcherCleanup} Cleanup function — call to stop watching
  *
  * @example
  * ```typescript
@@ -159,10 +159,10 @@ export function createWatcher(
  * By default watches `app`, `features`, and `debug` sections.
  * Products can pass custom section names and getters.
  *
- * @param sections - Array of `{ name, getter }` pairs to watch
- * @param debugStore - The debug store (for log level gating)
- * @param storeName - Display name for the store (defaults to 'Store')
- * @returns Object with `destroy()` method to stop all watchers
+ * @param {Array<{ name: Str; getter: () => Record<Str, unknown> }>} sections - Array of `{ name, getter }` pairs to watch
+ * @param {DebugStoreLike} debugStore - The debug store (for log level gating)
+ * @param {Str} storeName - Display name for the store (defaults to 'Store')
+ *{{ destroy(): Void }}y(): Void }} Object with `destroy()` method to stop all watchers
  *
  * @example
  * ```typescript
@@ -178,6 +178,12 @@ export function createWatcher(
  * // ... later
  * logger.destroy();
  * ```
+  * @param {Array<{ name: Str; getter: () => Record<Str, unknown> }>} sections - Description
+  *{{ destroy(): Void }}y(): Void }} Description
+  * @param {Array<{ name: Str; getter: () => Record<Str, unknown> }>} sections - Description
+  * @param {Array<{ name: Str; getter: () => Record<Str, unknown> }>} sections - Description
+  * @returns {{ destroy(): Void }} Description
+  * @param {Array<{ name: Str; getter: () => Record<Str, unknown> }>} sections - Description
  */
 export function createStateLogger(
   sections: Array<{ name: Str; getter: () => Record<Str, unknown> }>,

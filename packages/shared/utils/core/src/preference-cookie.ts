@@ -30,10 +30,10 @@ const SIDEBAR_MAX_PX: Num = 1000;
  * The cookie is set with `max-age=1y`, `path=/`, and `SameSite=Lax` to
  * ensure it's sent with every SSR request and persists across sessions.
  *
- * @param storagePrefix - App-specific prefix (e.g. `'storylyne'`)
- * @param name - Cookie suffix (e.g. `'sidebar-px'` → `'storylyne:sidebar-px'`)
- * @param value - Cookie value (must be pre-sanitized by caller)
- * @returns Result indicating success
+ * @param {Str} storagePrefix - App-specific prefix (e.g. `'storylyne'`)
+ * @param {Str} name - Cookie suffix (e.g. `'sidebar-px'` → `'storylyne:sidebar-px'`)
+ * @param {Str} value - Cookie value (must be pre-sanitized by caller)
+ * @returns {Result<Void>} Result indicating success
  *
  * @example
  * ```typescript
@@ -58,9 +58,9 @@ export function setPreferenceCookie(storagePrefix: Str, name: Str, value: Str): 
 /**
  * Reads a namespaced preference cookie value.
  *
- * @param storagePrefix - App-specific prefix (e.g. `'storylyne'`)
- * @param name - Cookie suffix (e.g. `'sidebar-px'` → looks for `'storylyne:sidebar-px'`)
- * @returns The cookie value, or `null` if not found
+ * @param {Str} storagePrefix - App-specific prefix (e.g. `'storylyne'`)
+ * @param {Str} name - Cookie suffix (e.g. `'sidebar-px'` → looks for `'storylyne:sidebar-px'`)
+ * @returns {Str | null} The cookie value, or `null` if not found
  *
  * @example
  * ```typescript
@@ -94,8 +94,8 @@ export function getPreferenceCookie(storagePrefix: Str, name: Str): Str | null {
  * [100, 1000]. Returns `null` for any invalid input (non-numeric, out of
  * range, NaN, Infinity, XSS attempts).
  *
- * @param raw - Raw cookie string value, or `null`
- * @returns Sanitized pixel width as integer, or `null` if invalid
+ * @param {Str | null} raw - Raw cookie string value, or `null`
+ * @returns {Num | null} Sanitized pixel width as integer, or `null` if invalid
  *
  * @example
  * ```typescript
@@ -125,8 +125,8 @@ export function sanitizeSidebarWidth(raw: Str | null): Num | null {
  * Accepts only `'true'` or `'false'` strings. Returns `null` for any
  * invalid or missing input so the caller can fall back to the store default.
  *
- * @param raw - Raw cookie string value, or `null`
- * @returns `true` (expanded), `false` (collapsed), or `null` (unknown/invalid)
+ * @param {Str | null} raw - Raw cookie string value, or `null`
+ * @returns {boolean | null} `true` (expanded), `false` (collapsed), or `null` (unknown/invalid)
  *
  * @example
  * ```typescript
@@ -151,9 +151,9 @@ export function sanitizeSidebarOpen(raw: Str | null): boolean | null {
  * Validates against a provided list of supported themes. Returns empty string
  * (default theme) for any invalid or unsupported value.
  *
- * @param raw - Raw cookie string value, or `null`
- * @param supportedThemes - Array of valid theme identifiers (including `''` for default)
- * @returns Valid theme identifier, or `''` (default) if invalid
+ * @param {Str | null} raw - Raw cookie string value, or `null`
+ * @param {readonly Str[]} supportedThemes - Array of valid theme identifiers (including `''` for default)
+ * @returns {Str} Valid theme identifier, or `''` (default) if invalid
  *
  * @example
  * ```typescript

@@ -111,7 +111,7 @@
   }
 
   /**
-   * Set the table row density mode.
+  {Str} {Str} {Str} {Str} {Str}  * Set the table row density mode.
    *
    * @param density - One of 'compact', 'comfortable', or 'spacious'
    */
@@ -120,7 +120,7 @@
   }
 
   /**
-   * Get the current table row density mode.
+   * Get the{Str} {Str} {Str} {Str} {Str}  current table row density mode.
    *
    * @returns Current density string
    */
@@ -178,7 +178,7 @@
   );
 
   /**
-   * Returns whether any type fields are currently expanded.
+   * Returns whether any typ{Bool} {Bool} {Bool} {Bool} {Bool} e fields are currently expanded.
    *
    * @returns True if any type fields are expanded
    */
@@ -187,7 +187,7 @@
   }
 
   /**
-   * Returns whether any props have expandable type fields.
+   * Returns whether any pr{Bool} {Bool} {Bool} {Bool} {Bool} ops have expandable type fields.
    *
    * @returns True if any props have expandable type fields
    */

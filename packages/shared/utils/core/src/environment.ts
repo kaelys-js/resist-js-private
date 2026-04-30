@@ -47,7 +47,7 @@ import { safeParse } from '@/utils/result/safe';
  * codebase. All other functions must use `getProcess()` or `hasNodeProcess()`
  * instead of accessing `globalThis.process` directly.
  *
- * @returns `OptionalNodeProcess` — the process object, or `undefined`
+ * @returns {OptionalNodeProcess} `OptionalNodeProcess` — the process object, or `undefined`
  *          in non-Node environments (browser, Cloudflare Workers without
  *          `nodejs_compat`).
  *
@@ -68,7 +68,7 @@ export function getProcess(): OptionalNodeProcess {
  *
  * Single access point for `globalThis.window` and `globalThis.document`.
  *
- * @returns `Result<Bool>` — `true` when both `window` and `document` exist.
+ * @returns {Result<Bool>} `Result<Bool>` — `true` when both `window` and `document` exist.
  *
  * @example
  * ```typescript
@@ -92,7 +92,7 @@ export function hasBrowserGlobals(): Result<Bool> {
  * Centralised guard — all process-existence checks must use this function
  * instead of inline `typeof globalThis.process !== 'undefined'`.
  *
- * @returns `Result<Bool>` — `true` when `globalThis.process` exists (Node.js, Deno, Bun,
+ * @returns {Result<Bool>} `Result<Bool>` — `true` when `globalThis.process` exists (Node.js, Deno, Bun,
  *          CF Workers with `nodejs_compat`), `false` otherwise (browser).
  *
  * @example
@@ -131,7 +131,7 @@ export function hasNodeProcess(): Result<Bool> {
  * Safe to call in any environment — never accesses `process` without
  * checking `typeof` first.
  *
- * @returns `Result<RuntimeKind>` — detected runtime kind, or a validation error.
+ * @returns {Result<RuntimeKind>} `Result<RuntimeKind>` — detected runtime kind, or a validation error.
  *
  * @example
  * ```typescript
@@ -234,10 +234,10 @@ export function detectRuntime(): Result<RuntimeKind> {
  * 8. TTY → level 1
  * 9. Fallback → level 0
  *
- * @param env - Environment variable record (from `getEnvRecord()`).
- * @param tty - Whether stdout is a TTY (from `isTTY()`).
- * @param ci - Whether running in CI (`env.CI !== undefined`).
- * @returns `Result<ColorLevel>` — detected color support level.
+ * @param {EnvRecordWithUndefined} env - Environment variable record (from `getEnvRecord()`).
+ * @param {Bool} tty - Whether stdout is a TTY (from `isTTY()`).
+ * @param {Bool} ci - Whether running in CI (`env.CI !== undefined`).
+ * @returns {Result<ColorLevel>} `Result<ColorLevel>` — detected color support level.
  *
  * @example
  * ```typescript
@@ -342,7 +342,7 @@ export function detectColorLevel(
  * - **Bun**: `Bun.version`
  * - **Others**: `undefined`
  *
- * @returns `Result<RuntimeInfo>` — runtime kind and version.
+ * @returns {Result<RuntimeInfo>} `Result<RuntimeInfo>` — runtime kind and version.
  *
  * @example
  * ```typescript
@@ -413,7 +413,7 @@ export function detectRuntimeInfo(): Result<RuntimeInfo> {
  * Safe to call in any runtime — guards all `process` access with
  * `typeof` checks. Returns sensible defaults in non-Node environments.
  *
- * @returns `Result<EnvironmentConfig>` — detected environment configuration, or a validation error.
+ * @returns {Result<EnvironmentConfig>} `Result<EnvironmentConfig>` — detected environment configuration, or a validation error.
  *
  * @example
  * ```typescript
@@ -635,9 +635,9 @@ export function detectEnvironment(): Result<EnvironmentConfig> {
  * path.join(...segments); // TypeScript narrows path to NodePath
  * ```
  *
- * @param functionName - Name of the calling function (for error metadata). Validated via `StrSchema`.
- * @param runtime - Required runtime family. Validated via `RequiredRuntimeSchema`.
- * @returns `Result<never>` with `RUNTIME.UNSUPPORTED` error.
+ * @param {Str} functionName - Name of the calling function (for error metadata). Validated via `StrSchema`.
+ * @param {RequiredRuntime} runtime - Required runtime family. Validated via `RequiredRuntimeSchema`.
+ * @returns {Result<never>} `Result<never>` with `RUNTIME.UNSUPPORTED` error.
  *
  * @example
  * ```typescript

@@ -37,11 +37,11 @@ import {
  *
  * @typeParam TArgs - Tuple type of function parameters (preserved through the transform).
  * @typeParam TReturn - The validated return type.
- * @param schema - Schema to validate the return value against.
+ * @param {v.GenericSchema<TReturn>} schema - Schema to validate the return value against.
  *   For Result-returning functions, this validates the `.data` field.
- * @param options - Optional configuration.
+ * @param {CallTimeOptions} options - Optional configuration.
  * @param options.onError - Error behavior: `'throw'` (default) or `'result'`.
- * @returns A pipe action that transforms the function into a validated wrapper.
+ * @returns {v.TransformAction<FnType<TArgs, unknown>, FnType<TArgs, TReturn>>} A pipe action that transforms the function into a validated wrapper.
  *
  * @example
  * ```typescript

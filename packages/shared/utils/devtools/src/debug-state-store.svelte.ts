@@ -172,8 +172,8 @@ function setLogLevel(level: Str): Result<Void> {
  * Creates a new debug store, resetting module-level state to defaults
  * and loading any persisted state from localStorage.
  *
- * @param opts - Storage key, URL param prefix, and optional URL for param parsing
- * @returns `Result<DebugStore>` — always ok
+ * @param {CreateDebugStoreOptions} opts - Storage key, URL param prefix, and optional URL for param parsing
+ * @returns {Result<DebugStore>} `Result<DebugStore>` — always ok
  *
  * @example
  * ```typescript

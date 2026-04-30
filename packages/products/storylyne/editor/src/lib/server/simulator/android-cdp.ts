@@ -57,9 +57,9 @@ const CDP_LOCAL_PORT: Num = 9222 as Num;
  *
  * Forwards a local TCP port to Chrome's Unix domain socket on the device.
  *
- * @param serial - Emulator serial (e.g. 'emulator-5554')
- * @param localPort - Local TCP port (default: 9222)
- * @returns Array of adb forward arguments
+ * @param {Str} serial - Emulator serial (e.g. 'emulator-5554')
+ * @param {Num} localPort - Local TCP port (default: 9222)
+ * @returns {Str[]} Array of adb forward arguments
  *
  * @example
  * const args = buildAdbForwardArgs('emulator-5554');
@@ -78,9 +78,9 @@ export function buildAdbForwardArgs(serial: Str, localPort: Num = CDP_LOCAL_PORT
 /**
  * Set up ADB port forwarding for CDP access.
  *
- * @param adbPath - Path to `adb` binary
- * @param serial - Emulator serial
- * @param localPort - Local TCP port (default: 9222)
+ * @param {Str} adbPath - Path to `adb` binary
+ * @param {Str} serial - Emulator serial
+ * @param {Num} localPort - Local TCP port (default: 9222)
  *
  * @example
  * await setupCdpForward('/path/to/adb', 'emulator-5554');
@@ -101,8 +101,8 @@ export async function setupCdpForward(
 /**
  * Parse a raw CDP WebSocket message.
  *
- * @param raw - Raw JSON string from the WebSocket
- * @returns Parsed CDP message, or null if invalid
+ * @param {Str} raw - Raw JSON string from the WebSocket
+ * @returns {CdpMessage | null} Parsed CDP message, or null if invalid
  *
  * @example
  * const msg = parseCdpResponse('{"id":1,"result":{}}');
@@ -132,12 +132,13 @@ export function parseCdpResponse(raw: Str): CdpMessage | null {
  *
  * Sends `Log.enable` and collects `Log.entryAdded` events until timeout.
  *
- * @param localPort - Local TCP port with CDP forwarding (default: 9222)
- * @param timeoutMs - Capture duration in ms (default: 5000)
- * @returns Array of captured console entries
+ * @param {Num}alPort - Local TCP port with CDP forwarding (default: 9222)
+ * @param {Num} timeoutMs - Capture duration in ms (default: 5000)
+ * @returns {Promise<CdpConsoleEntry[]>} Array of captured console entries
  *
  * @example
  * const logs = await captureConsoleLogs(9222, 5000);
+  * @param {Num} localPort - Description
  */
 export async function captureConsoleLogs(
   localPort: Num = CDP_LOCAL_PORT,

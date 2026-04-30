@@ -23,7 +23,7 @@ const FEATURE_FLAG_KEYS = new Set<string>(Object.keys(FeatureFlagsSchema.entries
 /**
  * Returns the Storylyne editor devtools configuration.
  *
- * @returns DevtoolsConfig wired to editor-specific schemas and navigation
+ * @returns {DevtoolsConfig} DevtoolsConfig wired to editor-specific schemas and navigation
  */
 export function getDevtoolsConfig(): DevtoolsConfig {
   return {
