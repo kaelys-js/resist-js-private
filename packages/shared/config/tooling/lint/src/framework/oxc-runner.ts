@@ -469,41 +469,39 @@ export const EMBEDDED_CODE_EXTENSIONS: string[] = [
 ];
 
 // =============================================================================
-// Offset Translation (template AST ↔ extracted script)
+// Offset Translation (extracted script → original file)
 // =============================================================================
 
 /**
- * Translate a byte offset from original-file-space to extracted-script-space.
+ * Translate a byte offset from extracted-script-space to original-file-space.
  *
- * Template AST nodes carry offsets relative to the original `.svelte` file,
- * but the downstream `translateFixes()` in cli-helpers expects ALL fix offsets
- * in extracted-script-space (parseContent) so it can uniformly translate them
- * back to original-space.  This function performs the reverse mapping.
+ * Script AST nodes carry offsets relative to `parseContent` (where non-script
+ * lines are blanked to empty strings).  This maps those offsets to the
+ * corresponding positions in the original file so fix byte ranges land on the
+ * correct characters when applied to the on-disk content.
  *
- * @param {number} offset - Byte offset in original-file-space
- * @param {string[]} originalLines - Lines of the original file content
- * @param {string[]} extractedLines - Lines of the extracted/blanked content
- * @returns {number} Byte offset in extracted-script-space
+ * @param {number} offset - Byte offset in extracted-script-space (parseContent)
+ * @param {string} extracted - Script content with non-script lines blanked
+ * @param {string} original - Original file content
+ * @returns {number} Byte offset in original-file-space
  */
-function reverseTranslateOffset(
-  offset: number,
-  originalLines: string[],
-  extractedLines: string[],
-): number {
+function scriptToOriginalOffset(offset: number, extracted: string, original: string): number {
+  const extractedLines: string[] = extracted.split('\n');
+  const originalLines: string[] = original.split('\n');
   let adjustment: number = 0;
   let cursor: number = 0;
 
-  for (let i: number = 0; i < originalLines.length; i++) {
-    const oLine: string = originalLines[i] ?? '';
+  for (let i: number = 0; i < extractedLines.length; i++) {
     const eLine: string = extractedLines[i] ?? '';
-    const lineEnd: number = cursor + oLine.length;
+    const oLine: string = originalLines[i] ?? '';
+    const lineEnd: number = cursor + eLine.length;
 
     if (offset <= lineEnd) {
       return offset + adjustment;
     }
 
-    adjustment += eLine.length - oLine.length;
-    cursor = lineEnd + 1; // +1 for the newline character
+    adjustment += oLine.length - eLine.length;
+    cursor = lineEnd + 1;
   }
 
   return offset + adjustment;
@@ -742,25 +740,37 @@ export async function runTypeScriptRules(
     });
   }
 
-  // Walk Svelte template AST — invoke template-level visitors.
-  // Template AST node offsets reference the ORIGINAL file, not the extracted
-  // script content (parseContent).  Visitors that read `context.content` (e.g.
-  // `hasBlankLineBetween`) need the original text so byte-offset lookups resolve
-  // correctly.  We temporarily swap `context.content` to the original file
-  // content for the duration of the template walk, then reverse-translate any
-  // generated fix offsets back into parseContent-space so that the downstream
-  // `translateFixes()` in cli-helpers can uniformly translate ALL fixes forward.
+  // ── Translate script-origin fix offsets to original-file-space ──────────
+  // Script AST visitors produce fix offsets relative to parseContent (where
+  // non-script lines are blanked).  Translate them now so ALL results carry
+  // original-file-space offsets — cli-helpers can apply fixes directly.
+  if (parseContent !== content) {
+    for (const result of results) {
+      const fix = result.fix;
+
+      if (fix.range.start === 0 && fix.range.end === 0 && fix.text === '') {
+        continue; // no-op placeholder
+      }
+
+      fix.range.start = scriptToOriginalOffset(fix.range.start, parseContent, content);
+      fix.range.end = scriptToOriginalOffset(fix.range.end, parseContent, content);
+    }
+  }
+
+  // ── Walk Svelte template AST ───────────────────────────────────────────
+  // Template AST node offsets reference the ORIGINAL file, not parseContent.
+  // Swap context.content to original so visitors that read context.content
+  // (e.g. hasBlankLineBetween) resolve byte-offset lookups correctly.
+  // Template-origin fix offsets are already in original-file-space — no
+  // translation needed.
   if (templateAst) {
     const isEmbeddedFile: boolean = parseContent !== content;
 
-    // Swap context.content → original for template visitors
     if (isEmbeddedFile) {
       for (const ctx of contexts.values()) {
         (ctx as { content: string }).content = content;
       }
     }
-
-    const templateResultStart: number = results.length;
 
     walkSvelteNode(templateAst, (node: AstNode): void => {
       for (const rule of rules) {
@@ -798,25 +808,10 @@ export async function runTypeScriptRules(
       }
     });
 
-    // Restore context.content → parseContent and reverse-translate template
-    // fix offsets from original-space → parseContent-space.
+    // Restore context.content for any post-walk usage
     if (isEmbeddedFile) {
       for (const ctx of contexts.values()) {
         (ctx as { content: string }).content = parseContent;
-      }
-
-      const originalLines: string[] = content.split('\n');
-      const extractedLines: string[] = parseContent.split('\n');
-
-      for (let r: number = templateResultStart; r < results.length; r++) {
-        const fix = results[r]?.fix;
-
-        if (!fix || (fix.range.start === 0 && fix.range.end === 0 && fix.text === '')) {
-          continue; // no-op fix placeholder — skip
-        }
-
-        fix.range.start = reverseTranslateOffset(fix.range.start, originalLines, extractedLines);
-        fix.range.end = reverseTranslateOffset(fix.range.end, originalLines, extractedLines);
       }
     }
   }
