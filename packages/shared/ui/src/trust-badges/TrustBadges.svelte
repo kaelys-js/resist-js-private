@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script module lang="ts">
+  /**
+   * TrustBadges Svelte component — row of security /
+   * certification logos shown on checkout / pricing pages.
+   * Placeholder shell awaiting full implementation; ships
+   * with a class prop for root-level styling overrides.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { StrSchema } from '@/schemas/common';
 
