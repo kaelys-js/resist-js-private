@@ -79,25 +79,7 @@ case "$FILE" in
 esac
 
 if [[ -n "$BLOCKED_REASON" ]]; then
-  cat <<EOF >&2
-⛔ BLOCKED: Lint-rule disable detected ($BLOCKED_REASON) in $FILE.
-
-Per the approved-plan binding contract, you may NOT add lint-rule disables
-or scope extensions without explicit user approval at the moment of the edit.
-
-If this disable is genuinely justified:
-  1. STOP this edit.
-  2. Ask the user explicitly:
-     "May I add <rule-name> override to <file> for files matching <glob>?
-      Justification: <one sentence>."
-  3. Wait for the user to respond and create the marker:
-     touch .claude/approved-lint-disable
-  4. Then retry the edit. The marker will be consumed (removed) automatically.
-
-DO NOT rationalize this as "matches existing precedent." The user reads every
-disable as a weakening of assertions and they have explicitly forbidden it
-without per-instance approval.
-EOF
+  echo "⛔ Lint disable blocked ($BLOCKED_REASON) in $FILE. Override: user runs touch .claude/approved-lint-disable" >&2
   exit 2
 fi
 

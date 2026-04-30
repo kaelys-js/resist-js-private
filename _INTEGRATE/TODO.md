@@ -3,6 +3,8 @@
     - Duplicates
     - Grouping
     - Accuracy
+    - JSDoc
+      - Module/Param/Returns Descriptiveness
 
 - Review every directory in: packages/shared/ui/src
   - Only include directions that have a file that indicates its a placeholder

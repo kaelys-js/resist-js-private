@@ -178,12 +178,12 @@ export function createWatcher(
  * // ... later
  * logger.destroy();
  * ```
-  * @param {Array<{ name: Str; getter: () => Record<Str, unknown> }>} sections - Description
-  *{{ destroy(): Void }}y(): Void }} Description
-  * @param {Array<{ name: Str; getter: () => Record<Str, unknown> }>} sections - Description
-  * @param {Array<{ name: Str; getter: () => Record<Str, unknown> }>} sections - Description
-  * @returns {{ destroy(): Void }} Description
-  * @param {Array<{ name: Str; getter: () => Record<Str, unknown> }>} sections - Description
+ * @param {Array<{ name: Str; getter: () => Record<Str, unknown> }>} sections - Description
+ *{{ destroy(): Void }}y(): Void }} Description
+ * @param {Array<{ name: Str; getter: () => Record<Str, unknown> }>} sections - Description
+ * @param {Array<{ name: Str; getter: () => Record<Str, unknown> }>} sections - Description
+ * @returns {{ destroy(): Void }} Description
+ * @param {Array<{ name: Str; getter: () => Record<Str, unknown> }>} sections - Description
  */
 export function createStateLogger(
   sections: Array<{ name: Str; getter: () => Record<Str, unknown> }>,

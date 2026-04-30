@@ -156,8 +156,8 @@ const HELP_DESC = 'color:#888;font-size:11px';
  * @param {DebugStoreContract} debugStore - The debug state store (conforms to DebugStoreContract)
  * @param {DevtoolsConfig} config - Product-specific devtools configuration
  *{{ destroy(): Void }}y(): Void }} Object with `destroy()` method to unregister the global
-  *{{ destroy(): Void }}y(): Void }} Description
-  * @returns {{ destroy(): Void }} Description
+ *{{ destroy(): Void }}y(): Void }} Description
+ * @returns {{ destroy(): Void }} Description
  */
 export function createDevtoolsAPI(
   appStore: AppStoreContract,

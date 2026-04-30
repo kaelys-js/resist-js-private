@@ -46,7 +46,13 @@ esac
 # ── Phase 2: Auto-fix ───────────────────────────────────────────────────────
 case "$FILE_PATH" in
   *.ts|*.tsx|*.js|*.jsx|*.svelte)
+    # Snapshot file hash before autofix to detect if it changed anything
+    _PRE_FIX_HASH=$(shasum -a 256 "$FILE_PATH" 2>/dev/null | cut -c1-16)
     (cd "$PROJECT_DIR" && ./node_modules/.bin/resist-lint --fix "$FILE_PATH") >/dev/null 2>&1 || true
+    _POST_FIX_HASH=$(shasum -a 256 "$FILE_PATH" 2>/dev/null | cut -c1-16)
+    if [[ "$_PRE_FIX_HASH" != "$_POST_FIX_HASH" ]]; then
+      echo "post-edit-format-lint: autofix modified $FILE_PATH (hash changed)" >&2
+    fi
     ;;
 esac
 
@@ -64,13 +70,8 @@ case "$FILE_PATH" in
       node "$PROJECT_DIR/.claude/hooks/lib/baseline-compare.mjs" "$LINT_JSON" 2>&1)
 
     if [[ "$HOOK_RESULT" == BLOCK* ]]; then
-      BLOCK_MSG=$(echo "$HOOK_RESULT" | tail -n +2)
-      REASON="New lint findings in $FILE_PATH (not in baseline):
-
-$BLOCK_MSG
-
-Fix these before continuing. Auto-fix already ran — remaining findings require manual changes.
-Baseline auto-shrinks on successful edits — no manual refresh needed."
+      BLOCK_MSG=$(echo "$HOOK_RESULT" | tail -n +2 | head -5)
+      REASON="New lint in $FILE_PATH: $BLOCK_MSG"
       jq -n --arg reason "$REASON" '{decision: "block", reason: $reason}'
       exit 0
     fi

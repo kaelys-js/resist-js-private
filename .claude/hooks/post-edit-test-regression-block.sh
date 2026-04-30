@@ -64,6 +64,20 @@ if [[ -z "$HAS_QA_TEST" ]]; then
   exit 0
 fi
 
+# Debounce: skip if this package was tested less than 30s ago.
+# Prevents running tests 126 times during a multi-file edit grind.
+DEBOUNCE_DIR="$REPO_ROOT/.claude"
+DEBOUNCE_FILE="$DEBOUNCE_DIR/.test-debounce-$(echo "$PKG_NAME" | tr '/@' '__')"
+if [[ -f "$DEBOUNCE_FILE" ]]; then
+  LAST_RUN=$(cat "$DEBOUNCE_FILE" 2>/dev/null || echo 0)
+  NOW=$(date +%s)
+  ELAPSED=$(( NOW - LAST_RUN ))
+  if [[ "$ELAPSED" -lt 30 ]]; then
+    exit 0
+  fi
+fi
+date +%s > "$DEBOUNCE_FILE" 2>/dev/null || true
+
 # Run tests with a 60s wall-clock budget. We use --reporter=basic for speed.
 # Capture the "Tests  N passed" line.
 TEST_OUT=$(timeout 60 bash -c "cd '$REPO_ROOT' && pnpm --filter '$PKG_NAME' run qa:test 2>&1 | grep -E 'Tests +[0-9]+ passed' | tail -1" 2>/dev/null || true)
@@ -90,24 +104,7 @@ fi
 
 # Regression: current count is below baseline
 if [[ "$CURRENT" -lt "$BASELINE" ]]; then
-  cat <<EOF >&2
-⚠ TEST REGRESSION DETECTED on $PKG_NAME after edit to $FILE.
-
-Baseline pass count: $BASELINE
-Current pass count:  $CURRENT
-Delta: -$((BASELINE - CURRENT))
-
-This edit broke tests that were passing before. STOP your current work.
-Required next steps:
-  1. Run: pnpm --filter '$PKG_NAME' run qa:test
-  2. Identify which tests now fail.
-  3. EITHER revert the edit, OR fix the broken tests.
-  4. Do NOT continue making other edits while tests are red.
-
-If the regression is unrelated to your edit (e.g. flaky test, env issue):
-  Re-run tests to confirm. If still failing, present the evidence to the
-  user — DO NOT silently proceed.
-EOF
+  echo "⚠ TEST REGRESSION: $PKG_NAME dropped from $BASELINE to $CURRENT passing (-$((BASELINE - CURRENT))). Fix before continuing." >&2
   # Exit 2 = block (PostToolUse blocks emit a system-reminder back to Claude
   # without rolling back the edit — the edit already happened).
   exit 2

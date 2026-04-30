@@ -252,7 +252,7 @@ export function transformSvelteCheckOutput(output: string): LintResult[] {
  * @param {LintCache | null}} files - Optional absolute file paths to scope the run to
  * @param {LintCache | null} lintCache - Optional lint cache for per-package result memoization
  * @returns {Promise<LintResult[]>} Aggregated lint results from all packages
-  * @param {string[]} files - Description
+ * @param {string[]} files - Description
  */
 export async function runSvelteCheckAllPackages(
   cwd: string,

@@ -16,30 +16,18 @@
 INPUT=$(cat)
 
 # Extract tool input — check if this targets a plan file
-FILE_PATH=$(echo "$INPUT" | python3 -c "
-import sys, json
-try:
-    d = json.load(sys.stdin)
-    inp = d.get('tool_input', {})
-    # For Write tool: check file_path
-    fp = inp.get('file_path', '')
-    if fp:
-        print(fp)
-        sys.exit(0)
-    # For Bash tool: check if command writes to a plan file
-    cmd = inp.get('command', '')
-    if 'docs/plans/' in cmd and ('.md' in cmd) and ('>' in cmd or 'cat' in cmd or 'EOF' in cmd):
-        # Extract target file from command
-        import re
-        # Match patterns like: cat > path/file.md << 'EOF'  or  > path/file.md
-        m = re.search(r'>\s*(\S*docs/plans/\S+\.md)', cmd)
-        if m:
-            print(m.group(1))
-            sys.exit(0)
-    print('')
-except Exception:
-    print('')
-" 2>/dev/null)
+# Try file_path first (Write tool), then check command for bash heredoc writes
+_FP=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty' 2>/dev/null)
+if [[ -n "$_FP" ]]; then
+  FILE_PATH="$_FP"
+else
+  _CMD=$(echo "$INPUT" | jq -r '.tool_input.command // empty' 2>/dev/null)
+  if [[ "$_CMD" == *"docs/plans/"* ]] && [[ "$_CMD" == *".md"* ]] && { [[ "$_CMD" == *">"* ]] || [[ "$_CMD" == *"cat"* ]] || [[ "$_CMD" == *"EOF"* ]]; }; then
+    FILE_PATH=$(echo "$_CMD" | grep -oE '>\s*\S*docs/plans/\S+\.md' | sed 's/^>\s*//' | head -1)
+  else
+    FILE_PATH=""
+  fi
+fi
 
 # Only validate plan files
 if [[ -z "$FILE_PATH" ]] || [[ "$FILE_PATH" != *"docs/plans/"* ]] || [[ "$FILE_PATH" != *".md" ]]; then
@@ -48,22 +36,13 @@ if [[ -z "$FILE_PATH" ]] || [[ "$FILE_PATH" != *"docs/plans/"* ]] || [[ "$FILE_P
 fi
 
 # Extract the content being written
-CONTENT=$(echo "$INPUT" | python3 -c "
-import sys, json
-try:
-    d = json.load(sys.stdin)
-    inp = d.get('tool_input', {})
-    # For Write tool
-    c = inp.get('content', '')
-    if c:
-        print(c)
-        sys.exit(0)
-    # For Bash tool — the content is in the heredoc
-    cmd = inp.get('command', '')
-    print(cmd)
-except Exception:
-    print('')
-" 2>/dev/null)
+_WRITE_CONTENT=$(echo "$INPUT" | jq -r '.tool_input.content // empty' 2>/dev/null)
+if [[ -n "$_WRITE_CONTENT" ]]; then
+  CONTENT="$_WRITE_CONTENT"
+else
+  # For Bash tool — the content is in the heredoc (command itself)
+  CONTENT=$(echo "$INPUT" | jq -r '.tool_input.command // empty' 2>/dev/null)
+fi
 
 # If no content available (e.g., editing existing file), allow
 if [[ -z "$CONTENT" ]]; then

@@ -6,15 +6,29 @@
 # the trimmed stdout against `expected`. If mismatched → block. If matched →
 # delete the marker (plan complete) and allow stop.
 #
-# To abandon a plan explicitly: bash .claude/hooks/abandon-plan.sh
+# User-pause: if .claude/user-pause exists, the hook allows the stop
+# regardless of plan status. This lets the user freeze the plan without
+# abandoning it. Claude cannot create this file (blocked by
+# pre-bash-no-file-writes.sh's approval-marker rules).
+#
+# To pause:   touch .claude/user-pause
+# To resume:  rm .claude/user-pause
+# To abandon: bash .claude/hooks/abandon-plan.sh
 
 set -uo pipefail
 
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 MARKER="$REPO_ROOT/.claude/active-plan.json"
+PAUSE_MARKER="$REPO_ROOT/.claude/user-pause"
 
 # No active plan — allow stop
 if [[ ! -f "$MARKER" ]]; then
+  exit 0
+fi
+
+# User-pause — allow stop unconditionally, log it
+if [[ -f "$PAUSE_MARKER" ]]; then
+  echo "stop-active-plan-block.sh: user-pause marker found, allowing stop" >&2
   exit 0
 fi
 
@@ -41,25 +55,7 @@ if [[ "$ACTUAL" == "$EXPECTED_TRIMMED" ]]; then
 fi
 
 # Criterion not met — block the stop
-cat <<EOF >&2
-⛔ ACTIVE PLAN NOT COMPLETE.
-
-Plan: $LABEL
-Plan file: $PLAN_PATH
-Success check: $SUCCESS_CHECK
-Expected output: $EXPECTED_TRIMMED
-Actual output:   $ACTUAL
-
-You are not authorized to stop this turn. The approved plan's success
-criterion has not been met. Continue executing the approved plan
-per-task. Do NOT write a wrap-up / checkpoint / "stopping here" message.
-
-To abandon this plan explicitly, the USER (not Claude) must run:
-  bash .claude/hooks/abandon-plan.sh
-
-You (Claude) cannot delete the marker. If you believe the plan is wrong
-or impossible, your only legal action is to ask the user to abandon it.
-EOF
+echo "⛔ Plan incomplete ($LABEL). User's words override this hook. Pause: touch .claude/user-pause | Abandon: bash .claude/hooks/abandon-plan.sh" >&2
 
 # Exit code 2 = block in Stop hook
 exit 2

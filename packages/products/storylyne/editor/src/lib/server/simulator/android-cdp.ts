@@ -138,7 +138,7 @@ export function parseCdpResponse(raw: Str): CdpMessage | null {
  *
  * @example
  * const logs = await captureConsoleLogs(9222, 5000);
-  * @param {Num} localPort - Description
+ * @param {Num} localPort - Description
  */
 export async function captureConsoleLogs(
   localPort: Num = CDP_LOCAL_PORT,

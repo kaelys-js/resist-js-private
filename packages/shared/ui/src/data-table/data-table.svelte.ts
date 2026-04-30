@@ -115,8 +115,8 @@ function resolveThunk<T extends object>(src: MaybeThunk<T>): T | undefined {
  * @param {Sources} sources - One or more plain objects or thunks returning
  *   objects; later entries override earlier ones
  *{Intersection<{ [K in keyof Sources]: Sources[K] }>}ources[K] }>} A live object whose keys reflect the merged sources
-  *{Intersection<{ [K in keyof Sources]: Sources[K] }>}ources[K] }>} Description
-  * @returns {Intersection<{ [K in keyof Sources]: Sources[K] }>} Description
+ *{Intersection<{ [K in keyof Sources]: Sources[K] }>}ources[K] }>} Description
+ * @returns {Intersection<{ [K in keyof Sources]: Sources[K] }>} Description
  */
 export function mergeObjects<Sources extends readonly MaybeThunk<object>[]>(
   ...sources: Sources

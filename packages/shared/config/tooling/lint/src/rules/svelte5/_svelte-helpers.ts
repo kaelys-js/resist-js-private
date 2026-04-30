@@ -167,8 +167,8 @@ export function hasReturnStatement(body: AstNode): boolean {
  *
  * @param {AstNode} body - A BlockStatement node
  *{Array<{ name: string; node: AstNode }>}: AstNode }>} Assignment targets with their AST nodes
-  *{Array<{ name: string; node: AstNode }>}: AstNode }>} Description
-  *{Array<{ name: string; node: AstNode }>}: AstNode }>} Description
+ *{Array<{ name: string; node: AstNode }>}: AstNode }>} Description
+ *{Array<{ name: string; node: AstNode }>}: AstNode }>} Description
  */
 export function findAssignmentTargets(body: AstNode): Array<{ name: string; node: AstNode }> {
   const targets: Array<{ name: string; node: AstNode }> = [];
@@ -228,8 +228,8 @@ export function isInsideConditional(assignmentNode: AstNode, body: AstNode): boo
  *
  * @param {string} content - Full .svelte file content
  *{{ startLine: number; endLine: number } | null}e: number } | null} Module script line range
-  *{{ startLine: number; endLine: number } | null}e: number } | null} Description
-  *{{ startLine: number; endLine: number } | null}e: number } | null} Description
+ *{{ startLine: number; endLine: number } | null}e: number } | null} Description
+ *{{ startLine: number; endLine: number } | null}e: number } | null} Description
  */
 export function getModuleScriptRange(
   content: string,
