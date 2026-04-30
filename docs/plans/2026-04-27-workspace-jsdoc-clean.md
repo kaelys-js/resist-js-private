@@ -91,9 +91,9 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint --tools` after i
 - (Already done) 783 `<Component>.svelte` files in `packages/shared/ui/src/<comp>/` got `/** Public component props for <Name>. */` above their `XxxProps` type alias inside `<script module lang="ts">`. User approved bulk-script via `.claude/approved-bulk-script` (consumed). 856 `Exported type` diagnostics dropped to 73 (residual from non-XxxProps types in `types.ts` / `context.ts` / `chart-utils.ts` / etc. — these are addressed in TASK 6).
 
 **Files** (already committed in `bf8e8c28`):
-- `packages/shared/config/tooling/lint/src/rules/jsdoc/require-module.ts` — added `.md/.mdx/.html` skip
-- `packages/shared/config/tooling/lint/src/rules/jsdoc/jsdoc-rules.test.ts` — 3 fixture tests
-- 783 `packages/shared/ui/src/<comp>/<Component>.svelte` — bulk-add `/** Public component props for <Name>. */`
+- Edit: `packages/shared/config/tooling/lint/src/rules/jsdoc/require-module.ts`
+- Edit: `packages/shared/config/tooling/lint/src/rules/jsdoc/jsdoc-rules.test.ts`
+- Edit: `packages/shared/ui/src/<comp>/<Component>.svelte` (783 files)
 
 **Verification**:
 - `git log --oneline bf8e8c28 -1` shows the commit.
@@ -191,11 +191,11 @@ For each file:
 - The types fall into clusters: chart payloads, lens props, sidebar context, badge/button variants — all have an obvious one-line purpose visible in their declaration site.
 
 **Files**:
-- `packages/shared/ui/src/badge/types.ts` — JSDoc on `BadgeVariant`, `BadgeSize`, `BadgeRadius`
-- `packages/shared/ui/src/button/types.ts` — JSDoc on `ButtonVariant`, `ButtonSize`, `ButtonProps`
-- `packages/shared/ui/src/toggle/toggle.svelte` — JSDoc on `ToggleVariant`, `ToggleSize`, `ToggleVariants`
-- `packages/shared/ui/src/visually-hidden/VisuallyHidden.svelte` — JSDoc on `VisuallyHiddenVariant`
-- (README in-fence types handled in TASK 6.)
+- Edit: `packages/shared/ui/src/badge/types.ts`
+- Edit: `packages/shared/ui/src/button/types.ts`
+- Edit: `packages/shared/ui/src/toggle/toggle.svelte`
+- Edit: `packages/shared/ui/src/visually-hidden/VisuallyHidden.svelte`
+- Test: `pnpm --filter @/ui run qa:test`
 
 **Verification**:
 - `pnpm -w run qa:lint 2>&1 \| grep -cE 'jsdoc/require-jsdoc.*Exported type'` drops from 73 to 2 (the README code-fence types).
@@ -214,7 +214,7 @@ For each file:
   - `/** Built locale wrapping MyToolStrings (with format helpers). */`
 
 **Files**:
-- `packages/shared/locale/README.md` — 2 in-fence JSDoc lines added above `export type MyToolStrings` and `export type BuiltMyToolStrings`.
+- Edit: `packages/shared/locale/README.md`
 
 **Verification**:
 - `pnpm -w run qa:lint 2>&1 \| grep -cE 'jsdoc/require-jsdoc'` returns 0.
