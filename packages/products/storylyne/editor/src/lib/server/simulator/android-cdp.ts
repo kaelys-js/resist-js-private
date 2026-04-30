@@ -132,13 +132,12 @@ export function parseCdpResponse(raw: Str): CdpMessage | null {
  *
  * Sends `Log.enable` and collects `Log.entryAdded` events until timeout.
  *
- * @param {Num}alPort - Local TCP port with CDP forwarding (default: 9222)
+ * @param {Num} localPort - Local TCP port with CDP forwarding (default: 9222)
  * @param {Num} timeoutMs - Capture duration in ms (default: 5000)
  * @returns {Promise<CdpConsoleEntry[]>} Array of captured console entries
  *
  * @example
  * const logs = await captureConsoleLogs(9222, 5000);
- * @param {Num} localPort - Description
  */
 export async function captureConsoleLogs(
   localPort: Num = CDP_LOCAL_PORT,

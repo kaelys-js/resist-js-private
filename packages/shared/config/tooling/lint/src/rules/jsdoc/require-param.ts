@@ -113,14 +113,41 @@ function findParamInsertOffset(paramName: string, exportNode: AstNode, content: 
  */
 function extractParamEntries(jsDoc: string): ParamEntry[] {
   const entries: ParamEntry[] = [];
-  const regex: RegExp = /^\s*\*\s*@param\s+(?:(\{[^}]*\})\s+)?\[?([\w.]+)\]?/gm;
-  let match: RegExpExecArray | null = regex.exec(jsDoc);
-  while (match) {
-    entries.push({
-      name: match[2] ?? '',
-      hasType: match[1] !== null && match[1] !== undefined,
-    });
-    match = regex.exec(jsDoc);
+  const tagRegex: RegExp = /^\s*\*\s*@param\s+/gm;
+  let tagMatch: RegExpExecArray | null = tagRegex.exec(jsDoc);
+  while (tagMatch) {
+    const afterTag: number = tagMatch.index + tagMatch[0].length;
+    let hasType: boolean = false;
+    let nameStart: number = afterTag;
+
+    // If next char is `{`, extract brace-delimited type with depth counting
+    if (jsDoc[afterTag] === '{') {
+      let depth: number = 0;
+      let i: number = afterTag;
+      for (; i < jsDoc.length; i++) {
+        if (jsDoc[i] === '{') {
+          depth++;
+        } else if (jsDoc[i] === '}') {
+          depth--;
+          if (depth === 0) {
+            hasType = true;
+            nameStart = i + 1;
+            break;
+          }
+        }
+      }
+      // Skip whitespace after closing `}`
+      while (nameStart < jsDoc.length && /\s/.test(jsDoc[nameStart] ?? '')) {
+        nameStart++;
+      }
+    }
+
+    // Extract param name (optional brackets for [optionalParam])
+    const nameMatch: RegExpExecArray | null = /\[?([\w.]+)\]?/.exec(jsDoc.slice(nameStart));
+    if (nameMatch) {
+      entries.push({ name: nameMatch[1] ?? '', hasType });
+    }
+    tagMatch = tagRegex.exec(jsDoc);
   }
   return entries;
 }

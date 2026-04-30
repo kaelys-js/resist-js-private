@@ -111,18 +111,18 @@
   }
 
   /**
-  {Str} {Str} {Str} {Str} {Str}  * Set the table row density mode.
+   * Set the table row density mode.
    *
-   * @param density - One of 'compact', 'comfortable', or 'spacious'
+   * @param {Str} density - One of 'compact', 'comfortable', or 'spacious'
    */
   export function setDensity(density: Str): Void {
     tableDensity = density;
   }
 
   /**
-   * Get the{Str} {Str} {Str} {Str} {Str}  current table row density mode.
+   * Get the current table row density mode.
    *
-   * @returns Current density string
+   * @returns {Str} Current density string
    */
   export function getDensity(): Str {
     return tableDensity;
@@ -178,18 +178,18 @@
   );
 
   /**
-   * Returns whether any typ{Bool} {Bool} {Bool} {Bool} {Bool} e fields are currently expanded.
+   * Returns whether any type fields are currently expanded.
    *
-   * @returns True if any type fields are expanded
+   * @returns {Bool} True if any type fields are expanded
    */
   export function getHasAnyExpanded(): Bool {
     return hasAnyExpanded;
   }
 
   /**
-   * Returns whether any pr{Bool} {Bool} {Bool} {Bool} {Bool} ops have expandable type fields.
+   * Returns whether any props have expandable type fields.
    *
-   * @returns True if any props have expandable type fields
+   * @returns {Bool} True if any props have expandable type fields
    */
   export function getHasExpandableProps(): Bool {
     return hasExpandableProps;

@@ -166,51 +166,15 @@ function generateId(): Str {
  * Push a new notification.
  *
  * @param {{
-  type: NotificationType;
-  title: Str;
-  message?: Str;
-  actionLabel?: Str;
-  actionHref?: Str;
-  componentName?: Str;
-  category?: Str;
-}} opts - Notification options (type, title, message, etc.)
+ *   type: NotificationType;
+ *   title: Str;
+ *   message?: Str;
+ *   actionLabel?: Str;
+ *   actionHref?: Str;
+ *   componentName?: Str;
+ *   category?: Str;
+ * }} opts - Notification options (type, title, message, etc.)
  * @returns {LensNotification} The created notification
-  * @param {{
-  type: NotificationType;
-  title: Str;
-  message?: Str;
-  actionLabel?: Str;
-  actionHref?: Str;
-  componentName?: Str;
-  category?: Str;
-}} opts - Description
-  * @param {{
-  type: NotificationType;
-  title: Str;
-  message?: Str;
-  actionLabel?: Str;
-  actionHref?: Str;
-  componentName?: Str;
-  category?: Str;
-}} opts - Description
-  * @param {{
-  type: NotificationType;
-  title: Str;
-  message?: Str;
-  actionLabel?: Str;
-  actionHref?: Str;
-  componentName?: Str;
-  category?: Str;
-}} opts - Description
-  * @param {{
-  type: NotificationType;
-  title: Str;
-  message?: Str;
-  actionLabel?: Str;
-  actionHref?: Str;
-  componentName?: Str;
-  category?: Str;
-}} opts - Description
  */
 export function pushNotification(opts: {
   type: NotificationType;
@@ -243,51 +207,15 @@ export function pushNotification(opts: {
  * Use for batch operations to avoid N localStorage writes.
  *
  * @param {Array<{
-    type: NotificationType;
-    title: Str;
-    message?: Str;
-    actionLabel?: Str;
-    actionHref?: Str;
-    componentName?: Str;
-    category?: Str;
-  }>} items - Array of notification option objects
+ *   type: NotificationType;
+ *   title: Str;
+ *   message?: Str;
+ *   actionLabel?: Str;
+ *   actionHref?: Str;
+ *   componentName?: Str;
+ *   category?: Str;
+ * }>} items - Array of notification option objects
  * @returns {LensNotification[]} Array of created notifications
-  * @param {Array<{
-    type: NotificationType;
-    title: Str;
-    message?: Str;
-    actionLabel?: Str;
-    actionHref?: Str;
-    componentName?: Str;
-    category?: Str;
-  }>} items - Description
-  * @param {Array<{
-    type: NotificationType;
-    title: Str;
-    message?: Str;
-    actionLabel?: Str;
-    actionHref?: Str;
-    componentName?: Str;
-    category?: Str;
-  }>} items - Description
-  * @param {Array<{
-    type: NotificationType;
-    title: Str;
-    message?: Str;
-    actionLabel?: Str;
-    actionHref?: Str;
-    componentName?: Str;
-    category?: Str;
-  }>} items - Description
-  * @param {Array<{
-    type: NotificationType;
-    title: Str;
-    message?: Str;
-    actionLabel?: Str;
-    actionHref?: Str;
-    componentName?: Str;
-    category?: Str;
-  }>} items - Description
  */
 export function pushNotificationBatch(
   items: Array<{
@@ -429,23 +357,11 @@ export function getPreferences(): NotificationPreferences {
 /**
  * Get notifications grouped by time period.
  *
- *{{
+ * @returns {{
   today: LensNotification[];
   thisWeek: LensNotification[];
   older: LensNotification[];
-}}cation[];
 }} Object with today, thisWeek, and older notification arrays
-  *{{
-  today: LensNotification[];
-  thisWeek: LensNotification[];
-  older: LensNotification[];
-}}cation[];
-}} Description
-  * @returns {{
-  today: LensNotification[];
-  thisWeek: LensNotification[];
-  older: LensNotification[];
-}} Description
  */
 export function getGroupedNotifications(): {
   today: LensNotification[];

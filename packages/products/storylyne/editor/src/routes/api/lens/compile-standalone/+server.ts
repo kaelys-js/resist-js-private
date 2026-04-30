@@ -637,8 +637,8 @@ ${bundledJs}
  * }
  * ```
  *
- * @param event - SvelteKit request event
- * @param event.request - HTTP request with JSON body
+ * @param root0 - SvelteKit request event
+ * @param root0.request - HTTP request with JSON body
  * @returns HTML document as text/html response
  */
 export const POST: RequestHandler = async ({ request }) => {

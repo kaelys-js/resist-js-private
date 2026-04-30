@@ -165,23 +165,11 @@ export async function removeFromPool(udid: Str): Promise<void> {
 /**
  * Get the current pool status.
  *
- *{{
+ * @returns {{
   total: Num;
   inUse: Num;
   devices: Array<{ udid: Str; name: Str; inUse: Bool }>;
-}}Use: Bool }>;
 }} Pool status with total entries, in-use count, and device list
-  *{{
-  total: Num;
-  inUse: Num;
-  devices: Array<{ udid: Str; name: Str; inUse: Bool }>;
-}}Use: Bool }>;
-}} Description
-  * @returns {{
-  total: Num;
-  inUse: Num;
-  devices: Array<{ udid: Str; name: Str; inUse: Bool }>;
-}} Description
  */
 export function getPoolStatus(): {
   total: Num;

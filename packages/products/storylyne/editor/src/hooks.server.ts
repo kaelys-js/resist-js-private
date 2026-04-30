@@ -226,9 +226,9 @@ export function getWaitUntil(): ((promise: Promise<unknown>) => void) | null {
  * with user, data service, sidebar/theme preferences, and applies
  * security headers + cache-control.
  *
- * @param input - SvelteKit handle event
- * @param input.event - The current request event
- * @param input.resolve - Inner resolver invoked to render the page
+ * @param root0 - SvelteKit handle event
+ * @param root0.event - The current request event
+ * @param root0.resolve - Inner resolver invoked to render the page
  * @returns Response with security headers, locale, and cache rules
  */
 export const handle: Handle = async ({ event, resolve }) => {
@@ -348,11 +348,11 @@ export const handle: Handle = async ({ event, resolve }) => {
  *
  * Logs the full cause chain via `log.error()` for structured JSON output.
  *
- * @param params - Error event containing the error, status, and message
- * @param params.error - The thrown error object (may be an AppError or a plain Error)
- * @param params.event - The request event, used to set response headers
- * @param params.status - HTTP status code
- * @param params.message - User-safe error message from SvelteKit
+ * @param root0 - Error event containing the error, status, and message
+ * @param root0.error - The thrown error object (may be an AppError or a plain Error)
+ * @param root0.event - The request event, used to set response headers
+ * @param root0.status - HTTP status code
+ * @param root0.message - User-safe error message from SvelteKit
  * @returns App.Error with message and errorId for client display
  *
  * @example

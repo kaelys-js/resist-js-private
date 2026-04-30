@@ -20,10 +20,10 @@
 
   /**
    * Publishes the ToggleGroup's variant + spacing context so
-   * descendant ToggleGroupItem components {ToggleGroupContext} {ToggleGroupContext} {ToggleGroupContext} {ToggleGroupContext} {ToggleGroupContext} inherit consistent
+   * descendant ToggleGroupItem components inherit consistent
    * styling.
    *
-   * @param props - The variant + spacing context to publish
+   * @param {ToggleGroupContext} props - The variant + spacing context to publish
    */
   export function setToggleGroupCtx(props: ToggleGroupContext) {
     setContext('toggleGroup', props);

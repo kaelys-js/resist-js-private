@@ -72,23 +72,11 @@ export type FieldDescriptor = v.InferOutput<typeof FieldDescriptorSchema>;
  * Handles `v.optional(inner, default)` and `v.pipe(inner, ...)` wrappers.
  *
  * @param {Record<Str, unknown>} entry - A Valibot schema node
- *{{
+ * @returns {{
   type: 'boolean' | 'picklist' | 'string' | 'number';
   options?: Str[];
   default: unknown;
-}} unknown;
 }} Object with detected type, options array, and default value
-  *{{
-  type: 'boolean' | 'picklist' | 'string' | 'number';
-  options?: Str[];
-  default: unknown;
-}} unknown;
-}} Description
-  * @returns {{
-  type: 'boolean' | 'picklist' | 'string' | 'number';
-  options?: Str[];
-  default: unknown;
-}} Description
  */
 export function introspectEntry(entry: Record<Str, unknown>): {
   type: 'boolean' | 'picklist' | 'string' | 'number';
