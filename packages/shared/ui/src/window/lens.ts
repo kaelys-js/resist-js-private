@@ -1,3 +1,8 @@
+/**
+ * Lens manifest for the Window component (desktop category)
+ * — draggable resizable OS-style window. @module
+ */
+
 import type { LensMeta } from '../lens/types.js';
 
 export const meta: LensMeta = {
