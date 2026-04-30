@@ -162,7 +162,7 @@ export function createWatcher(
  * @param {Array<{ name: Str; getter: () => Record<Str, unknown> }>} sections - Array of `{ name, getter }` pairs to watch
  * @param {DebugStoreLike} debugStore - The debug store (for log level gating)
  * @param {Str} storeName - Display name for the store (defaults to 'Store')
- *{{ destroy(): Void }}y(): Void }} Object with `destroy()` method to stop all watchers
+ * @returns {{ destroy(): Void }} Object with `destroy()` method to stop all watchers
  *
  * @example
  * ```typescript
@@ -178,12 +178,6 @@ export function createWatcher(
  * // ... later
  * logger.destroy();
  * ```
- * @param {Array<{ name: Str; getter: () => Record<Str, unknown> }>} sections - Description
- *{{ destroy(): Void }}y(): Void }} Description
- * @param {Array<{ name: Str; getter: () => Record<Str, unknown> }>} sections - Description
- * @param {Array<{ name: Str; getter: () => Record<Str, unknown> }>} sections - Description
- * @returns {{ destroy(): Void }} Description
- * @param {Array<{ name: Str; getter: () => Record<Str, unknown> }>} sections - Description
  */
 export function createStateLogger(
   sections: Array<{ name: Str; getter: () => Record<Str, unknown> }>,

@@ -175,9 +175,7 @@ export async function getDeviceScaleFactor(udid: Str): Promise<Num> {
  * @param {Num} viewX - X coordinate in viewport pixels
  * @param {Num} viewY - Y coordinate in viewport pixels
  * @param {WindowBounds} bounds - Current Simulator window bounds
- *{{ screenX: Num; screenY: Num }}eenY: Num }} Absolute macOS screen coordinates
- *{{ screenX: Num; screenY: Num }}eenY: Num }} Description
- * @returns {{ screenX: Num; screenY: Num }} Description
+ * @returns {{ screenX: Num; screenY: Num }} Absolute macOS screen coordinates with screenX and screenY
  */
 export function mapViewportToScreen(
   viewX: Num,

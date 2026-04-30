@@ -353,18 +353,6 @@ export function parsePlan(content: string): ParsedPlan {
   filesByExtension(ext: string): Promise<readonly string[]>;
 }} ctx - Workspace context (must expose `filesByExtension`)
  * @returns {Promise<readonly string[]>} Absolute paths of plan files
-  * @param {{
-  filesByExtension(ext: string): Promise<readonly string[]>;
-}} ctx - Description
-  * @param {{
-  filesByExtension(ext: string): Promise<readonly string[]>;
-}} ctx - Description
-  * @param {{
-  filesByExtension(ext: string): Promise<readonly string[]>;
-}} ctx - Description
-  * @param {{
-  filesByExtension(ext: string): Promise<readonly string[]>;
-}} ctx - Description
  */
 export async function discoverPlanFiles(ctx: {
   filesByExtension(ext: string): Promise<readonly string[]>;

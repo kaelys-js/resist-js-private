@@ -96,14 +96,47 @@ function requiresReturnsTag(returnType: string): boolean {
 }
 
 /**
- * Extract the @returns type from JSDoc if present.
+ * Extract a brace-delimited type from a string starting at the opening brace.
  *
- * @param jsDoc - JSDoc comment text
- * @returns The type string from @returns {Type}, or null
+ * Counts brace depth so nested braces in object-literal types are handled
+ * correctly instead of terminating at the first closing brace.
+ *
+ * @param {string} text - Source text containing the braced type
+ * @param {number} openPos - Index of the opening brace in text
+ * @returns {object | null} Extracted type and end index, or null
+ */
+function extractBracedType(text: string, openPos: number): { type: string; end: number } | null {
+  let depth: number = 0;
+  for (let i: number = openPos; i < text.length; i++) {
+    if (text[i] === '{') {
+      depth++;
+    } else if (text[i] === '}') {
+      depth--;
+      if (depth === 0) {
+        return { type: text.slice(openPos + 1, i).trim(), end: i + 1 };
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * Extract the returns type from JSDoc if present.
+ *
+ * Uses brace-depth-aware parsing to handle types with nested braces
+ * (e.g. object literals with multiple fields).
+ *
+ * @param {string} jsDoc - JSDoc comment text
+ * @returns {string | null} The type string from the returns tag, or null
  */
 function extractReturnsType(jsDoc: string): string | null {
-  const match: RegExpMatchArray | null = jsDoc.match(/@returns\s+\{([^}]+)\}/);
-  return match ? (match[1] ?? '').trim() : null;
+  const returnsMatch: RegExpExecArray | null = /@returns\s+\{/.exec(jsDoc);
+  if (!returnsMatch) {
+    return null;
+  }
+  const openPos: number = returnsMatch.index + returnsMatch[0].length - 1;
+  const result = extractBracedType(jsDoc, openPos);
+  return result ? result.type : null;
 }
 
 /**

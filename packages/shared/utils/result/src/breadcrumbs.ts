@@ -44,10 +44,6 @@ let _breadcrumbs: Breadcrumb[] = [];
  *   timestamp: new Date().toISOString(),
  * });
  * ```
- * @param {Omit<Breadcrumb, 'timestamp'> & { timestamp?: string }} breadcrumb - Description
- * @param {Omit<Breadcrumb, 'timestamp'> & { timestamp?: string }} breadcrumb - Description
- * @param {Omit<Breadcrumb, 'timestamp'> & { timestamp?: string }} breadcrumb - Description
- * @param {Omit<Breadcrumb, 'timestamp'> & { timestamp?: string }} breadcrumb - Description
  */
 export function addBreadcrumb(
   breadcrumb: Omit<Breadcrumb, 'timestamp'> & { timestamp?: string },

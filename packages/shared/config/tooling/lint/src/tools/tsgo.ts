@@ -259,10 +259,9 @@ export function scopeTsconfigDirsToFiles(tsconfigDirs: string[], files: string[]
  * type-checked. When omitted or empty, every discovered package is checked.
  *
  * @param {string} cwd - Workspace root directory
- * @param {LintCache | null}} files - Optional absolute file paths to scope the run to
+ * @param {string[]} files - Optional absolute file paths to scope the run to
  * @param {LintCache | null} lintCache - Optional lint cache for per-package result memoization
  * @returns {Promise<LintResult[]>} Aggregated lint results from checked packages
- * @param {string[]} files - Description
  */
 export async function runTsgoAllPackages(
   cwd: string,

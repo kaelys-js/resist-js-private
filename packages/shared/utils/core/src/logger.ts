@@ -1437,7 +1437,7 @@ export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogg
  *
  * @param {Str} label - Operation label for the log message.
  * @param {{ level?: LogLevel }} options - Optional: level (default 'debug').
- *{Result<{ done: (message?: Str) => Result<Void> }>}ult<Void> }>} `Result<{ done: (message?: Str) => Result<Void> }>` — timer with `done()` method.
+ * @returns {Result<{ done: (message?: Str) => Result<Void> }>} Timer with `done()` method.
  *
  * @example
  * ```typescript
@@ -1446,12 +1446,6 @@ export function createChildLogger(options: ChildLoggerOptions): Result<ChildLogg
  * await db.query('SELECT * FROM users');
  * timer.data.done(); // logs: "database query completed in 42ms"
  * ```
- * @param {{ level?: LogLevel }} options - Description
- *{Result<{ done: (message?: Str) => Result<Void> }>}ult<Void> }>} Description
- * @param {{ level?: LogLevel }} options - Description
- * @param {{ level?: LogLevel }} options - Description
- * @returns {Result<{ done: (message?: Str) => Result<Void> }>} Description
- * @param {{ level?: LogLevel }} options - Description
  */
 export function startTimer(
   label: Str,

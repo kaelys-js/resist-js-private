@@ -677,10 +677,10 @@ async function logErrorToConsole(captured: CapturedError): Promise<Void> {
  * it is preserved as-is — its code, validation details, and cause chain remain intact.
  * Otherwise, the error is wrapped in a new `INTERNAL.UNEXPECTED` AppError.
  *
- * @param params - Error event containing the error, status, and message
- * @param params.error - The thrown error object (may be an AppError or a plain Error)
- * @param params.status - HTTP status code
- * @param params.message - User-safe error message from SvelteKit
+ * @param root0 - Error event containing the error, status, and message
+ * @param root0.error - The thrown error object (may be an AppError or a plain Error)
+ * @param root0.status - HTTP status code
+ * @param root0.message - User-safe error message from SvelteKit
  * @returns App.Error with message and errorId for client display
  *
  * @example
