@@ -1,4 +1,12 @@
 <script module lang="ts">
+  /**
+   * VisuallyHidden Svelte component — wraps content in a
+   * visually-clipped container that remains accessible to
+   * screen readers, with an optional `focusable` mode for
+   * skip-to-content links.
+   *
+   * @module
+   */
   import * as v from 'valibot';
   import { type VariantProps, tv } from 'tailwind-variants';
   import { type Bool, BoolSchema, type Str, StrSchema } from '@/schemas/common';
@@ -52,6 +60,7 @@
     },
   });
 
+  /** `focusable` prop type for the VisuallyHidden component. */
   export type VisuallyHiddenVariant = VariantProps<typeof visuallyHiddenVariants>['focusable'];
 
   export const VisuallyHiddenPropsSchema = v.strictObject({

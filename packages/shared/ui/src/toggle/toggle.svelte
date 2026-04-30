@@ -1,5 +1,13 @@
 <!-- @convert-to-lens -->
 <script lang="ts" module>
+  /**
+   * Toggle Svelte component — Bits UI `Toggle` wrapper that
+   * exposes `toggleVariants` (tailwind-variants) and the
+   * `ToggleVariant` / `ToggleSize` / `ToggleVariants` prop
+   * types.
+   *
+   * @module
+   */
   import { type VariantProps, tv } from 'tailwind-variants';
 
   export const toggleVariants = tv({
@@ -22,8 +30,11 @@
     },
   });
 
+  /** Visual variant prop type for the Toggle component. */
   export type ToggleVariant = VariantProps<typeof toggleVariants>['variant'];
+  /** Size prop type for the Toggle component. */
   export type ToggleSize = VariantProps<typeof toggleVariants>['size'];
+  /** All variant props (variant + size) for the Toggle component. */
   export type ToggleVariants = VariantProps<typeof toggleVariants>;
 </script>
 
