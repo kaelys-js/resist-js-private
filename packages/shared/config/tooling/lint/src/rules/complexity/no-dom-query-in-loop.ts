@@ -5,16 +5,24 @@
  * that should be cached outside loops to avoid redundant lookups on each
  * iteration.
  *
+ * The auto-fix hoists the DOM query call before the loop when the selector
+ * argument is a string literal (loop-invariant). Falls back to no-op when
+ * the argument is dynamic (depends on the loop variable).
+ *
  * @module
  */
 
 import type {
   TypeScriptRule,
   LintResult,
+  LintFix,
   AstNode,
   VisitorContext,
 } from '@/lint/framework/types.ts';
 import { findStaticMemberCallInBody } from './_utils.ts';
+
+/** No-op fix sentinel. */
+const NO_FIX: LintFix = { range: { start: 0, end: 0 }, text: '' };
 
 /** DOM query methods to check for. */
 const DOM_METHODS: readonly string[] = [
@@ -24,6 +32,95 @@ const DOM_METHODS: readonly string[] = [
   'getElementsByClassName',
   'getElementsByTagName',
 ];
+
+/**
+ * Extract source text for an AST node.
+ *
+ * @param {AstNode} astNode - Node with start/end byte offsets
+ * @param {string} source - Full source text
+ * @returns {string} The node's source text
+ */
+function nodeText(astNode: AstNode, source: string): string {
+  return source.slice(astNode.start as number, astNode.end as number);
+}
+
+/**
+ * Detect indentation at a byte offset.
+ *
+ * @param {number} offset - Byte offset
+ * @param {string} source - Full source text
+ * @returns {string} Whitespace prefix of the line
+ */
+function detectIndent(offset: number, source: string): string {
+  let lineStart: number = offset;
+
+  while (lineStart > 0 && source[lineStart - 1] !== '\n') {
+    lineStart--;
+  }
+
+  let end: number = lineStart;
+
+  while (end < source.length && (source[end] === ' ' || source[end] === '\t')) {
+    end++;
+  }
+
+  return source.slice(lineStart, end);
+}
+
+/**
+ * Build a fix that hoists a DOM query call before the loop.
+ *
+ * Only hoists when the first argument is a string literal (loop-invariant).
+ * Falls back to NO_FIX for dynamic selectors.
+ *
+ * @param {string} method - The DOM method name (e.g. 'querySelector')
+ * @param {AstNode} callNode - The CallExpression node
+ * @param {AstNode} loopNode - The enclosing loop node
+ * @param {VisitorContext} context - Visitor context
+ * @returns {LintFix} The fix or NO_FIX
+ */
+function buildDomQueryFix(
+  method: string,
+  callNode: AstNode,
+  loopNode: AstNode,
+  context: VisitorContext,
+): LintFix {
+  const src: string = context.content;
+  const args: AstNode[] = (callNode.arguments ?? []) as AstNode[];
+  const firstArg: AstNode | undefined = args[0];
+
+  /* Only hoist when the selector is a literal string (loop-invariant) */
+  if (!firstArg || (firstArg.type !== 'StringLiteral' && firstArg.type !== 'Literal')) {
+    return NO_FIX;
+  }
+
+  const callText: string = nodeText(callNode, src);
+  const loopStart: number = loopNode.start as number;
+  const loopEnd: number = loopNode.end as number;
+  const callStart: number = callNode.start as number;
+  const callEnd: number = callNode.end as number;
+  const indent: string = detectIndent(loopStart, src);
+
+  /* Generate a descriptive variable name from the method */
+  const varName: string =
+    method === 'querySelector'
+      ? '_cachedElement'
+      : method === 'querySelectorAll'
+        ? '_cachedElements'
+        : method === 'getElementById'
+          ? '_cachedElement'
+          : '_cachedElements';
+
+  const hoisted: string = `${indent}const ${varName} = ${callText};\n`;
+
+  const beforeCall: string = src.slice(loopStart, callStart);
+  const afterCall: string = src.slice(callEnd, loopEnd);
+
+  return {
+    range: { start: loopStart, end: loopEnd },
+    text: hoisted + beforeCall + varName + afterCall,
+  };
+}
 
 /**
  * Check a loop node for DOM query calls in its body.
@@ -47,7 +144,7 @@ const checkLoop = (node: AstNode, context: VisitorContext): LintResult[] => {
         message: 'DOM query inside loop — cache the result outside the loop',
         ruleId: 'complexity/no-dom-query-in-loop',
         tip: 'Move document.querySelector() before the loop and reuse the reference',
-        fix: { range: { start: 0, end: 0 }, text: '' },
+        fix: buildDomQueryFix(method, found, node, context),
       });
     }
   }
@@ -62,7 +159,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['complexity', 'performance'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     ForStatement: checkLoop,
