@@ -68,6 +68,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/svelte.config.*'],
   categories: ['svelte5-config'],
   stages: ['lint', 'ci'],
+  fixable: true,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
@@ -95,6 +96,29 @@ const rule: TypeScriptRule = {
       }
 
       if (!hasRoutesConfig(adapterValue)) {
+        /* Fix: insert routes config into adapter call args */
+        let fix = { range: { start: 0, end: 0 }, text: '' };
+
+        if (adapterValue.type === 'CallExpression') {
+          const args: AstNode[] | undefined = adapterValue.arguments as AstNode[] | undefined;
+          const routesSnippet = "routes: { include: ['/*'], exclude: ['<all>'] }";
+
+          if (args && args.length > 0 && args[0]?.type === 'ObjectExpression') {
+            /* Has existing options object — insert routes property */
+            const optObj = args[0];
+            fix = {
+              range: { start: optObj.end - 1, end: optObj.end - 1 },
+              text: `, ${routesSnippet} `,
+            };
+          } else if (!args || args.length === 0) {
+            /* No args — insert full options object */
+            fix = {
+              range: { start: adapterValue.end - 1, end: adapterValue.end - 1 },
+              text: `{ ${routesSnippet} }`,
+            };
+          }
+        }
+
         return [
           {
             file: context.file,
@@ -104,7 +128,7 @@ const rule: TypeScriptRule = {
             message: 'Cloudflare adapter should have explicit routes config for optimal deployment',
             ruleId: rule.id,
             tip: "Add routes: { include: ['/*'], exclude: ['<all>'] } to exclude static assets from Worker",
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix,
           },
         ];
       }

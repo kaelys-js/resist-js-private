@@ -26,6 +26,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/svelte.config.*'],
   categories: ['svelte5-config'],
   stages: ['lint', 'ci'],
+  fixable: true,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
@@ -44,6 +45,19 @@ const rule: TypeScriptRule = {
         return [];
       }
 
+      /* Fix: replace the adapter-node import source with adapter-cloudflare */
+      let fix = { range: { start: 0, end: 0 }, text: '' };
+      const importMatch: RegExpExecArray | null = /@sveltejs\/adapter-node/.exec(context.content);
+
+      if (importMatch) {
+        const matchStart: number = importMatch.index;
+        const matchEnd: number = matchStart + importMatch[0].length;
+        fix = {
+          range: { start: matchStart, end: matchEnd },
+          text: '@sveltejs/adapter-cloudflare',
+        };
+      }
+
       return [
         {
           file: context.file,
@@ -54,7 +68,7 @@ const rule: TypeScriptRule = {
             'Node.js adapter incompatible with Cloudflare Workers — use @sveltejs/adapter-cloudflare',
           ruleId: rule.id,
           tip: "Replace with: import adapter from '@sveltejs/adapter-cloudflare'",
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix,
         },
       ];
     },
