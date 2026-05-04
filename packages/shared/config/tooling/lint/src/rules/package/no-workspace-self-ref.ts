@@ -9,12 +9,7 @@
  */
 
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '@/lint/framework/types.ts';
-
-/** Dummy fix for package.json rules. */
-const NO_FIX: { range: { start: number; end: number }; text: string } = {
-  range: { start: 0, end: 0 },
-  text: '',
-};
+import { buildDeleteJsonEntryFix, readContent } from '@/lint/rules/package/_json-fix-helpers.ts';
 
 /** Rule definition. */
 const rule: PackageJsonRule = {
@@ -22,7 +17,7 @@ const rule: PackageJsonRule = {
   description: 'Sub-packages must not have workspace:* dependencies — use tsconfig paths',
   categories: ['package', 'dependencies'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
 
   /**
    * Check for workspace:* entries in dependencies or devDependencies.
@@ -38,6 +33,7 @@ const rule: PackageJsonRule = {
     }
 
     const name: string = context.pkg.name ?? '<unnamed>';
+    const content: string = readContent(context.file);
     const allDeps: Record<string, string> = {
       ...context.pkg.dependencies,
       ...context.pkg.devDependencies,
@@ -45,6 +41,10 @@ const rule: PackageJsonRule = {
 
     for (const [dep, version] of Object.entries(allDeps)) {
       if (version === 'workspace:*') {
+        const parentKey: string = context.pkg.devDependencies?.[dep]
+          ? 'devDependencies'
+          : 'dependencies';
+
         results.push({
           file: context.file,
           line: 1,
@@ -53,7 +53,7 @@ const rule: PackageJsonRule = {
           message: `'${dep}' uses workspace:* in '${name}' — remove it, @/ imports resolve via tsconfig paths`,
           ruleId: 'package/no-workspace-self-ref',
           tip: 'Remove the workspace:* dependency — vite-tsconfig-paths and tsgo resolve @/ imports',
-          fix: NO_FIX,
+          fix: buildDeleteJsonEntryFix(content, dep, parentKey),
         });
       }
     }

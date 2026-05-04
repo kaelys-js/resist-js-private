@@ -10,12 +10,7 @@
  */
 
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '@/lint/framework/types.ts';
-
-/** Dummy fix for package.json rules. */
-const NO_FIX: { range: { start: number; end: number }; text: string } = {
-  range: { start: 0, end: 0 },
-  text: '',
-};
+import { buildDeleteJsonBlockFix, readContent } from '@/lint/rules/package/_json-fix-helpers.ts';
 
 /** Rule definition. */
 const rule: PackageJsonRule = {
@@ -23,7 +18,7 @@ const rule: PackageJsonRule = {
   description: 'Private workspace packages must not have peerDependencies',
   categories: ['package', 'dependencies'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
 
   /**
    * Check for peerDependencies in private packages.
@@ -49,6 +44,7 @@ const rule: PackageJsonRule = {
     }
 
     const name: string = context.pkg.name ?? '<unnamed>';
+    const content: string = readContent(context.file);
     results.push({
       file: context.file,
       line: 1,
@@ -57,7 +53,7 @@ const rule: PackageJsonRule = {
       message: `Private package '${name}' has peerDependencies (${peerNames.join(', ')}) — remove them`,
       ruleId: 'package/no-peer-deps',
       tip: 'Private workspace packages are never published — peerDependencies are meaningless',
-      fix: NO_FIX,
+      fix: buildDeleteJsonBlockFix(content, 'peerDependencies'),
     });
 
     return results;

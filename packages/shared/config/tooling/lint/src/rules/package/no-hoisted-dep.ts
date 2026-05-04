@@ -9,12 +9,7 @@
  */
 
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '@/lint/framework/types.ts';
-
-/** Dummy fix for package.json rules. */
-const NO_FIX: { range: { start: number; end: number }; text: string } = {
-  range: { start: 0, end: 0 },
-  text: '',
-};
+import { buildDeleteJsonEntryFix, readContent } from '@/lint/rules/package/_json-fix-helpers.ts';
 
 /** Dependencies hoisted via public-hoist-pattern in .npmrc. */
 const HOISTED_DEPS: ReadonlySet<string> = new Set(['valibot']);
@@ -25,7 +20,7 @@ const rule: PackageJsonRule = {
   description: 'Hoisted dependencies must not appear in sub-package dependencies',
   categories: ['package', 'dependencies'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
 
   /**
    * Check for hoisted deps in sub-package dependencies or devDependencies.
@@ -41,6 +36,7 @@ const rule: PackageJsonRule = {
     }
 
     const name: string = context.pkg.name ?? '<unnamed>';
+    const content: string = readContent(context.file);
     const allDeps: Record<string, string> = {
       ...context.pkg.dependencies,
       ...context.pkg.devDependencies,
@@ -48,6 +44,11 @@ const rule: PackageJsonRule = {
 
     for (const dep of Object.keys(allDeps)) {
       if (HOISTED_DEPS.has(dep)) {
+        /* Try devDependencies first, then dependencies */
+        const parentKey: string = context.pkg.devDependencies?.[dep]
+          ? 'devDependencies'
+          : 'dependencies';
+
         results.push({
           file: context.file,
           line: 1,
@@ -56,7 +57,7 @@ const rule: PackageJsonRule = {
           message: `'${dep}' is hoisted to workspace root — remove from sub-package '${name}'`,
           ruleId: 'package/no-hoisted-dep',
           tip: `Remove '${dep}' — it is hoisted via public-hoist-pattern in .npmrc`,
-          fix: NO_FIX,
+          fix: buildDeleteJsonEntryFix(content, dep, parentKey),
         });
       }
     }
