@@ -169,6 +169,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['typescript', 'valibot'],
   stages: ['lint', 'ci'],
+  fixable: true,
 
   visitor: {
     TSInterfaceDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
@@ -291,7 +292,10 @@ const rule: TypeScriptRule = {
           message: `${name === '<destructured>' ? 'Destructured' : `Variable '${name}'`} uses inline object type — define a Valibot schema instead`,
           ruleId: 'typescript/no-bare-data-types',
           tip: 'Create a named schema: const XSchema = v.strictObject({ ... }); type X = v.InferOutput<typeof XSchema>',
-          fix: { range: { start: node.start, end: node.end }, text: '' },
+          fix: {
+            range: { start: annotation.start, end: annotation.end },
+            text: 'NamedType /* TODO: replace with Valibot-derived type */',
+          },
         });
       }
 
@@ -319,7 +323,10 @@ const rule: TypeScriptRule = {
           message: 'Cast uses inline object type — define a Valibot schema instead',
           ruleId: 'typescript/no-bare-data-types',
           tip: 'Create a named schema and use the inferred type for the cast',
-          fix: { range: { start: node.start, end: node.end }, text: '' },
+          fix: {
+            range: { start: typeAnnotation.start, end: typeAnnotation.end },
+            text: 'NamedType /* TODO: replace with Valibot-derived type */',
+          },
         },
       ];
     },
