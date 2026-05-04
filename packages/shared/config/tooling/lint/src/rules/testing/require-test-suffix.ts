@@ -7,9 +7,14 @@
  * @module
  */
 
-import { basename } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 
-import { createResult, type WorkspaceRule, type LintResult } from '@/lint/framework/types.ts';
+import {
+  createResult,
+  type FileOpFix,
+  type WorkspaceRule,
+  type LintResult,
+} from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
 /** Patterns matching non-standard test file suffixes. */
@@ -26,7 +31,7 @@ const rule: WorkspaceRule = {
   scope: 'workspace',
   categories: ['testing'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
 
   /**
    * Check all workspace files for non-standard test file suffixes.
@@ -57,6 +62,10 @@ const rule: WorkspaceRule = {
       }
 
       if (hasBadSuffix) {
+        const correctedName: string = name.replace(/\.(spec|-test|_test)\./, '.test.');
+        const correctedPath: string = join(dirname(file), correctedName);
+        const fix: FileOpFix = { type: 'rename', from: file, to: correctedPath };
+
         results.push(
           createResult(
             'testing/require-test-suffix',
@@ -66,7 +75,8 @@ const rule: WorkspaceRule = {
             'error',
             `Test file '${name}' must use *.test.ts naming convention`,
             {
-              tip: `Rename to ${name.replace(/\.(spec|-test|_test)\./, '.test.')}`,
+              tip: `Rename to ${correctedName}`,
+              fix,
             },
           ),
         );

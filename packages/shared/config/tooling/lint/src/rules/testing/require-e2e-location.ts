@@ -7,9 +7,14 @@
  * @module
  */
 
-import { basename } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 
-import { createResult, type WorkspaceRule, type LintResult } from '@/lint/framework/types.ts';
+import {
+  createResult,
+  type FileOpFix,
+  type WorkspaceRule,
+  type LintResult,
+} from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
 /** Pattern matching E2E test file names. */
@@ -32,7 +37,7 @@ const rule: WorkspaceRule = {
   scope: 'workspace',
   categories: ['testing'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
 
   /**
    * Check all workspace files for misplaced E2E tests.
@@ -54,6 +59,10 @@ const rule: WorkspaceRule = {
       const name: string = basename(file);
 
       if (E2E_PATTERN.test(name) && !isInE2eDir(file)) {
+        /* Compute destination: move to e2e/ directory at workspace root */
+        const destPath: string = join(ctx.rootDir, 'e2e', name);
+        const fix: FileOpFix = { type: 'move', from: file, to: destPath };
+
         results.push(
           createResult(
             'testing/require-e2e-location',
@@ -64,6 +73,7 @@ const rule: WorkspaceRule = {
             `E2E test '${name}' must be in an e2e/ or tests/e2e/ directory`,
             {
               tip: 'Move this file to an e2e/ or tests/e2e/ directory',
+              fix,
             },
           ),
         );

@@ -10,6 +10,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 import type {
+  FileOpFix,
   TypeScriptRule,
   LintResult,
   AstNode,
@@ -126,7 +127,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts'],
   categories: ['testing'],
   stages: ['lint'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
@@ -139,6 +140,28 @@ const rule: TypeScriptRule = {
       const testPath: string = getTestFilePath(context.file);
 
       if (!existsSync(testPath)) {
+        /* Generate test scaffold with imports and empty describe/it blocks */
+        const sourceBase: string = basename(context.file, '.ts');
+        const importNames: string = functionNames.join(', ');
+        const testCases: string = functionNames
+          .map(
+            (name: string): string =>
+              `  it('should handle ${name}', () => {\n    // TODO: implement test for ${name}\n    expect(${name}).toBeDefined();\n  });`,
+          )
+          .join('\n\n');
+        const scaffold: string = [
+          `import { describe, expect, it } from 'vitest';`,
+          ``,
+          `import { ${importNames} } from './${sourceBase}.ts';`,
+          ``,
+          `describe('${sourceBase}', () => {`,
+          testCases,
+          `});`,
+          ``,
+        ].join('\n');
+
+        const fix: FileOpFix = { type: 'create', path: testPath, content: scaffold };
+
         return [
           {
             file: context.file,
@@ -148,10 +171,7 @@ const rule: TypeScriptRule = {
             message: `File exports functions but has no colocated test file`,
             ruleId: 'testing/require-colocated-tests',
             tip: `Create ${basename(testPath)} in the same directory`,
-            fix: {
-              range: { start: 0, end: 0 },
-              text: '',
-            },
+            fix,
           },
         ];
       }
