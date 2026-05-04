@@ -44,7 +44,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     BinaryExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -72,6 +72,14 @@ const rule: TypeScriptRule = {
       const rightIsNumber = isNumberLiteral(right);
 
       if ((leftIsString && rightIsNumber) || (leftIsNumber && rightIsString)) {
+        /* Fix: wrap the string literal operand with Number(...) */
+        const strNode: AstNode = leftIsString ? left : right;
+        const strText: string = context.getNodeText(strNode);
+        const fix = {
+          range: { start: strNode.start, end: strNode.end },
+          text: `Number(${strText})`,
+        };
+
         results.push({
           file: context.file,
           line: node.loc.start.line,
@@ -80,7 +88,7 @@ const rule: TypeScriptRule = {
           message: 'Comparison between different types uses implicit coercion - convert explicitly',
           ruleId: 'primitives/no-compare-different-types',
           tip: 'Ensure both operands are the same type, or convert explicitly',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix,
         });
       }
 

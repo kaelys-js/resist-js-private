@@ -20,7 +20,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     AssignmentExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -40,6 +40,26 @@ const rule: TypeScriptRule = {
           propRaw !== null && typeof propRaw === 'object' ? (propRaw as AstNode) : undefined;
 
         if (propNode && propNode.type === 'Identifier' && (propNode.name as string) === 'length') {
+          /* Build fix for arr.length = 0 → arr.splice(0) */
+          const rightRaw: unknown = node.right;
+          const rightNode =
+            rightRaw !== null && typeof rightRaw === 'object' ? (rightRaw as AstNode) : undefined;
+          const isZero: boolean =
+            rightNode?.type === 'Literal' && (rightNode.value as unknown) === 0;
+
+          let fix = { range: { start: 0, end: 0 }, text: '' };
+
+          if (isZero) {
+            const objRaw: unknown = left.object;
+            const objNode =
+              objRaw !== null && typeof objRaw === 'object' ? (objRaw as AstNode) : undefined;
+
+            if (objNode) {
+              const objText: string = context.getNodeText(objNode);
+              fix = { range: { start: node.start, end: node.end }, text: `${objText}.splice(0)` };
+            }
+          }
+
           results.push({
             file: context.file,
             line: node.loc.start.line,
@@ -48,7 +68,7 @@ const rule: TypeScriptRule = {
             message: 'Direct .length mutation can lose data or create holes - use slice/splice',
             ruleId: 'primitives/no-array-length-mutation',
             tip: 'Use slice() for immutable truncation, splice() for in-place, or reassign for clear',
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix,
           });
         }
       }
