@@ -16,8 +16,14 @@ import type {
 } from '@/lint/framework/types.ts';
 import { walkBody, isCallTo } from './_utils.ts';
 
-/** Array methods that indicate O(n) scans when used inside loops. */
-const ARRAY_METHODS: readonly string[] = ['find', 'filter', 'includes', 'some', 'every'];
+/**
+ * Array methods that indicate O(n) scans when used inside loops.
+ *
+ * `.includes()` is excluded because it exists on both String and Array prototypes,
+ * and without type information we cannot distinguish string searches (O(n), acceptable)
+ * from array searches (O(n²), problematic). The remaining methods are array-only.
+ */
+const ARRAY_METHODS: readonly string[] = ['find', 'filter', 'some', 'every'];
 
 /**
  * Check a loop node for array method calls in its body.
@@ -36,23 +42,6 @@ const checkLoop = (node: AstNode, context: VisitorContext): LintResult[] => {
 
     for (const method of ARRAY_METHODS) {
       if (isCallTo(child, method)) {
-        /* Skip .includes() with a string-literal argument — that is String.prototype.includes,
-           not Array.prototype.includes, and is O(n) not O(n²). */
-        if (method === 'includes') {
-          const args: unknown = child.arguments;
-
-          if (Array.isArray(args) && args.length > 0) {
-            const firstArg: AstNode = args[0] as AstNode;
-
-            if (
-              firstArg.type === 'StringLiteral' ||
-              (firstArg.type === 'Literal' && typeof firstArg.value === 'string')
-            ) {
-              return;
-            }
-          }
-        }
-
         results.push({
           file: context.file,
           line: child.loc.start.line,
