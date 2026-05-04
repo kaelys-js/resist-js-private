@@ -8,9 +8,14 @@
  * @module
  */
 
-import { basename, dirname } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 
-import { createResult, type WorkspaceRule, type LintResult } from '@/lint/framework/types.ts';
+import {
+  createResult,
+  type FileOpFix,
+  type WorkspaceRule,
+  type LintResult,
+} from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
 /** Pattern matching integration test file names. */
@@ -26,7 +31,7 @@ const rule: WorkspaceRule = {
   scope: 'workspace',
   categories: ['testing'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
 
   /**
    * Check all workspace files for misplaced integration tests.
@@ -81,6 +86,10 @@ const rule: WorkspaceRule = {
         continue;
       }
 
+      /* Move to tests/integration/ at the workspace root */
+      const destPath: string = join(ctx.rootDir, 'tests', 'integration', name);
+      const fix: FileOpFix = { type: 'move', from: file, to: destPath };
+
       results.push(
         createResult(
           'testing/require-integration-location',
@@ -91,6 +100,7 @@ const rule: WorkspaceRule = {
           `Integration test '${name}' should be in tests/integration/ or colocated with source`,
           {
             tip: 'Move to tests/integration/ or place next to the source file it tests',
+            fix,
           },
         ),
       );
