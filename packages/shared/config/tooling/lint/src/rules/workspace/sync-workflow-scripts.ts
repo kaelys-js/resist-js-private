@@ -11,6 +11,7 @@ import { join } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
+import { findClosestMatch, lineStartOffset } from './_sync-helpers.ts';
 
 /** Known pnpm built-in commands that are NOT package.json scripts. */
 const PNPM_BUILTINS: ReadonlySet<string> = new Set([
@@ -98,7 +99,7 @@ const rule: WorkspaceRule = {
   scope: 'workspace',
   categories: ['sync', 'workspace'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
   /* Caching is opt-out: this rule depends on git/CI state via execSync. */
   async check(context: unknown): Promise<
     Array<{
@@ -164,6 +165,25 @@ const rule: WorkspaceRule = {
 
         for (const ref of pnpmRefs) {
           if (!validScripts.has(ref.script)) {
+            /* Fix: find closest matching script name and replace in workflow */
+            const closest: string | undefined = findClosestMatch(ref.script, validScripts);
+            let fix: { range: { start: number; end: number }; text: string } | undefined;
+
+            if (closest) {
+              const lineOffset: number = lineStartOffset(content, ref.line);
+              const lineText: string = content.slice(lineOffset, content.indexOf('\n', lineOffset));
+              const scriptIdx: number = lineText.indexOf(ref.script);
+
+              if (scriptIdx !== -1) {
+                const absStart: number = lineOffset + scriptIdx;
+
+                fix = {
+                  range: { start: absStart, end: absStart + ref.script.length },
+                  text: closest,
+                };
+              }
+            }
+
             results.push(
               createResult(
                 'sync/workflow-scripts',
@@ -173,7 +193,10 @@ const rule: WorkspaceRule = {
                 'error',
                 `Workflow references 'pnpm ${ref.script}' but script doesn't exist in package.json`,
                 {
-                  tip: `Add '${ref.script}' to package.json scripts or update the workflow command`,
+                  tip: closest
+                    ? `Did you mean '${closest}'?`
+                    : `Add '${ref.script}' to package.json scripts or update the workflow command`,
+                  fix,
                 },
               ),
             );

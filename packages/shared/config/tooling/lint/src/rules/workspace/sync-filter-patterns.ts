@@ -11,6 +11,7 @@ import { join } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
+import { findClosestPath } from './_sync-helpers.ts';
 
 /**
  * Extract filter patterns from a script command string.
@@ -78,7 +79,7 @@ const rule: WorkspaceRule = {
   scope: 'workspace',
   categories: ['sync', 'workspace'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
   /* Caching is opt-out: this rule depends on git/CI state via execSync. */
   async check(context: unknown): Promise<
     Array<{
@@ -172,6 +173,24 @@ const rule: WorkspaceRule = {
               }
             }
 
+            /* Fix: find closest matching path and replace the broken one */
+            const allFiles: readonly string[] = await ctx.allFiles();
+            const closestPath: string | undefined = findClosestPath(pathToCheck, allFiles);
+
+            let fix: { range: { start: number; end: number }; text: string } | undefined;
+
+            if (closestPath) {
+              /* Find the broken pattern in the raw JSON and replace with correct path */
+              const patternIdx: number = rawPkg.indexOf(check.pattern);
+
+              if (patternIdx !== -1) {
+                fix = {
+                  range: { start: patternIdx, end: patternIdx + check.pattern.length },
+                  text: closestPath,
+                };
+              }
+            }
+
             results.push(
               createResult(
                 'sync/filter-patterns',
@@ -181,7 +200,10 @@ const rule: WorkspaceRule = {
                 'error',
                 `Script '${check.scriptName}' uses --filter='${check.pattern}' but path doesn't exist`,
                 {
-                  tip: 'Create the missing package directory or correct the filter pattern',
+                  tip: closestPath
+                    ? `Did you mean '${closestPath}'?`
+                    : 'Create the missing package directory or correct the filter pattern',
+                  fix,
                 },
               ),
             );

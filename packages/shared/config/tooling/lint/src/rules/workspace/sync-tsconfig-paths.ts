@@ -11,6 +11,7 @@ import { join } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
+import { findClosestPath } from './_sync-helpers.ts';
 
 /** Validates tsconfig path alias targets exist on disk. */
 const rule: WorkspaceRule = {
@@ -19,7 +20,7 @@ const rule: WorkspaceRule = {
   scope: 'workspace',
   categories: ['sync', 'workspace'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
 
@@ -93,6 +94,8 @@ const rule: WorkspaceRule = {
       }
     }
 
+    const allFiles: readonly string[] = await ctx.allFiles();
+
     await Promise.all(
       checks.map(async (check: { alias: string; target: string }): Promise<void> => {
         const resolvedPath: string = join(ctx.rootDir, check.target);
@@ -110,6 +113,22 @@ const rule: WorkspaceRule = {
             }
           }
 
+          /* Fix: find closest matching path from known files */
+          const closest: string | undefined = findClosestPath(check.target, allFiles);
+          let fix: { range: { start: number; end: number }; text: string } | undefined;
+
+          if (closest) {
+            /* Find the target string in rawContent and replace it */
+            const targetIdx: number = rawContent.indexOf(check.target);
+
+            if (targetIdx !== -1) {
+              fix = {
+                range: { start: targetIdx, end: targetIdx + check.target.length },
+                text: closest,
+              };
+            }
+          }
+
           results.push(
             createResult(
               'sync/tsconfig-paths',
@@ -119,7 +138,10 @@ const rule: WorkspaceRule = {
               'error',
               `Path alias '${check.alias}' target '${check.target}' does not exist`,
               {
-                tip: 'Update the path alias to point to an existing file or create the missing file',
+                tip: closest
+                  ? `Did you mean '${closest}'?`
+                  : 'Update the path alias to point to an existing file or create the missing file',
+                fix,
               },
             ),
           );
