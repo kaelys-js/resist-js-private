@@ -130,7 +130,7 @@ for (const item of items) {
     expect(results[0]!.message).toContain('.filter()');
   });
 
-  it('reports .includes() inside while loop', async () => {
+  it('skips .includes() (ambiguous String vs Array without type info)', async () => {
     const code: string = `
 const arr = [1, 2, 3];
 let i = 0;
@@ -139,8 +139,7 @@ while (i < 10) {
   i++;
 }`;
     const results: LintResult[] = await lint(noArrayMethodInLoop, code);
-    expect(results.length).toBe(1);
-    expect(results[0]!.message).toContain('.includes()');
+    expect(results.length).toBe(0);
   });
 
   it('reports .some() inside loop', async () => {
