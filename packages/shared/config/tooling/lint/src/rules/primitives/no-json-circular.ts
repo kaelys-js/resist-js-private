@@ -21,7 +21,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -63,6 +63,21 @@ const rule: TypeScriptRule = {
         return results;
       }
 
+      /* Fix: add a self-contained WeakSet-based circular-reference replacer */
+      let fix = { range: { start: 0, end: 0 }, text: '' };
+
+      if (args && args.length === 1) {
+        const argText: string = context.getNodeText(args[0] as AstNode);
+        const replacer: string =
+          '(() => { const seen = new WeakSet(); return (_k, v) => { ' +
+          'if (typeof v === "object" && v !== null) { if (seen.has(v)) return "[Circular]"; seen.add(v); } ' +
+          'return v; }; })()';
+        fix = {
+          range: { start: node.start, end: node.end },
+          text: `JSON.stringify(${argText}, ${replacer})`,
+        };
+      }
+
       results.push({
         file: context.file,
         line: node.loc.start.line,
@@ -72,7 +87,7 @@ const rule: TypeScriptRule = {
           'JSON.stringify may throw on circular structure - use safe-stringify or handle cycles',
         ruleId: 'primitives/no-json-circular',
         tip: 'Use safe-stable-stringify library or implement circular reference handling',
-        fix: { range: { start: 0, end: 0 }, text: '' },
+        fix,
       });
 
       return results;

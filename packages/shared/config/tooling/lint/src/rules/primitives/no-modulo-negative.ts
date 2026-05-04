@@ -22,7 +22,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     BinaryExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -31,6 +31,25 @@ const rule: TypeScriptRule = {
       const operator = node.operator as string;
 
       if (operator === '%') {
+        /* Fix: a % b → ((a % b) + b) % b for true modulo behavior */
+        const leftRaw: unknown = node.left;
+        const rightRaw: unknown = node.right;
+        const leftNode =
+          leftRaw !== null && typeof leftRaw === 'object' ? (leftRaw as AstNode) : undefined;
+        const rightNode =
+          rightRaw !== null && typeof rightRaw === 'object' ? (rightRaw as AstNode) : undefined;
+
+        let fix = { range: { start: 0, end: 0 }, text: '' };
+
+        if (leftNode && rightNode) {
+          const leftText: string = context.getNodeText(leftNode);
+          const rightText: string = context.getNodeText(rightNode);
+          fix = {
+            range: { start: node.start, end: node.end },
+            text: `((${leftText} % ${rightText}) + ${rightText}) % ${rightText}`,
+          };
+        }
+
         results.push({
           file: context.file,
           line: node.loc.start.line,
@@ -40,7 +59,7 @@ const rule: TypeScriptRule = {
             '% operator with potentially negative number - JavaScript % is remainder, not modulo',
           ruleId: 'primitives/no-modulo-negative',
           tip: 'Use ((n % m) + m) % m for true modulo, or ensure non-negative input',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix,
         });
       }
 
