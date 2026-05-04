@@ -22,7 +22,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     MemberExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -45,6 +45,13 @@ const rule: TypeScriptRule = {
         objNode &&
         objNode.type === 'Identifier'
       ) {
+        /* Fix: str.length → [...str].length */
+        const objText: string = context.getNodeText(objNode);
+        const fix = {
+          range: { start: node.start, end: node.end },
+          text: `[...${objText}].length`,
+        };
+
         results.push({
           file: context.file,
           line: node.loc.start.line,
@@ -54,7 +61,7 @@ const rule: TypeScriptRule = {
             'String .length counts UTF-16 code units, not characters - use [...str].length for unicode',
           ruleId: 'primitives/no-string-length-unicode',
           tip: 'Use [...str].length for codepoints or Intl.Segmenter for grapheme clusters',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix,
         });
       }
 
