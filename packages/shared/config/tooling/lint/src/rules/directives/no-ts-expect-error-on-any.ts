@@ -34,7 +34,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts', '**/*.svelte', '**/*.js', '**/*.jsx'],
   categories: ['directives', 'safety'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     Program(_node: AstNode, context: VisitorContext): LintResult[] {

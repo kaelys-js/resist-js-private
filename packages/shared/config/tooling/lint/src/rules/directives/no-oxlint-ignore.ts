@@ -6,12 +6,15 @@
  * this codebase. Detection is AST-comment-based; the literal token
  * is built at runtime so the rule does not self-flag its own source.
  *
+ * The auto-fix deletes the entire comment line containing the directive.
+ *
  * @module
  */
 
 import type {
   TypeScriptRule,
   LintResult,
+  LintFix,
   AstNode,
   VisitorContext,
 } from '@/lint/framework/types.ts';
@@ -25,6 +28,46 @@ const PATTERN: RegExp = new RegExp(
   `${OX_PREFIX}(?:ignore|disable)(?:-next-line)?|${OX_PREFIX}enable`,
 );
 
+/**
+ * Compute a fix that deletes the comment line.
+ *
+ * @param {number} commentStart - Byte offset where comment starts
+ * @param {number} commentEnd - Byte offset where comment ends
+ * @param {number[]} lineStarts - Array of byte offsets for each line start
+ * @param {string} content - Full source text
+ * @returns {LintFix} Fix that removes the line
+ */
+function deleteCommentLineFix(
+  commentStart: number,
+  commentEnd: number,
+  lineStarts: number[],
+  content: string,
+): LintFix {
+  let lineIdx: number = 0;
+
+  for (let i: number = 0; i < lineStarts.length; i++) {
+    if ((lineStarts[i] ?? 0) <= commentStart) {
+      lineIdx = i;
+    } else {
+      break;
+    }
+  }
+
+  const lineStart: number = lineStarts[lineIdx] ?? 0;
+  const beforeComment: string = content.slice(lineStart, commentStart);
+
+  if (beforeComment.trim() === '') {
+    const lineEnd: number =
+      lineIdx + 1 < lineStarts.length
+        ? (lineStarts[lineIdx + 1] ?? content.length)
+        : content.length;
+
+    return { range: { start: lineStart, end: lineEnd }, text: '' };
+  }
+
+  return { range: { start: commentStart, end: commentEnd }, text: '' };
+}
+
 /** The lint rule definition (banning Oxlint directive comments). */
 const rule: TypeScriptRule = {
   id: 'directives/no-oxlint-ignore',
@@ -32,7 +75,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts', '**/*.svelte', '**/*.js', '**/*.jsx'],
   categories: ['directives', 'safety'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     Program(_node: AstNode, context: VisitorContext): LintResult[] {
@@ -50,7 +93,7 @@ const rule: TypeScriptRule = {
             message: 'Oxlint directives are not allowed - fix the code or adjust oxlint.json',
             ruleId: 'directives/no-oxlint-ignore',
             tip: 'Fix the code to satisfy Oxlint, or if the rule is wrong for this codebase, update oxlint.json',
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix: deleteCommentLineFix(comment.start, comment.end, lineStarts, context.content),
           });
         }
       }
