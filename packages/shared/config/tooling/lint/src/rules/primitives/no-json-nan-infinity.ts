@@ -20,7 +20,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -62,6 +62,19 @@ const rule: TypeScriptRule = {
         return results;
       }
 
+      /* Fix: add a replacer that converts NaN/Infinity to their string representations */
+      let fix = { range: { start: 0, end: 0 }, text: '' };
+
+      if (args && args.length === 1) {
+        const argText: string = context.getNodeText(args[0] as AstNode);
+        const replacer: string =
+          '(_, v) => typeof v === "number" && !Number.isFinite(v) ? String(v) : v';
+        fix = {
+          range: { start: node.start, end: node.end },
+          text: `JSON.stringify(${argText}, ${replacer})`,
+        };
+      }
+
       results.push({
         file: context.file,
         line: node.loc.start.line,
@@ -70,7 +83,7 @@ const rule: TypeScriptRule = {
         message: 'JSON.stringify converts NaN/Infinity to null - validate or use replacer',
         ruleId: 'primitives/no-json-nan-infinity',
         tip: 'Validate numbers before stringify or use replacer to handle special values',
-        fix: { range: { start: 0, end: 0 }, text: '' },
+        fix,
       });
 
       return results;

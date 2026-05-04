@@ -23,7 +23,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -51,6 +51,12 @@ const rule: TypeScriptRule = {
           (propertyNode.name as string) === 'random' &&
           SENSITIVE_PATTERNS.test(context.file)
         ) {
+          /* Fix: replace Math.random() with crypto.getRandomValues equivalent */
+          const fix = {
+            range: { start: node.start, end: node.end },
+            text: 'crypto.getRandomValues(new Uint32Array(1))[0]! / 0xffffffff',
+          };
+
           results.push({
             file: context.file,
             line: node.loc.start.line,
@@ -60,7 +66,7 @@ const rule: TypeScriptRule = {
               'Math.random() is not cryptographically secure - use crypto.randomUUID() or crypto.getRandomValues()',
             ruleId: 'primitives/no-math-random-crypto',
             tip: 'Use crypto.randomUUID() for IDs or crypto.getRandomValues() for random bytes',
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix,
           });
         }
       }

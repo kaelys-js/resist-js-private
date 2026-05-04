@@ -20,7 +20,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     BinaryExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -44,6 +44,24 @@ const rule: TypeScriptRule = {
         const valueType = typeof (right.value as unknown);
 
         if (valueType === 'string' || valueType === 'number' || valueType === 'boolean') {
+          /* Fix: when right is string literal, replace with .includes() */
+          let fix = { range: { start: 0, end: 0 }, text: '' };
+
+          if (valueType === 'string') {
+            const leftRaw: unknown = node.left;
+            const leftNode =
+              leftRaw !== null && typeof leftRaw === 'object' ? (leftRaw as AstNode) : undefined;
+
+            if (leftNode) {
+              const leftText: string = context.getNodeText(leftNode);
+              const rightText: string = context.getNodeText(right);
+              fix = {
+                range: { start: node.start, end: node.end },
+                text: `${rightText}.includes(${leftText})`,
+              };
+            }
+          }
+
           results.push({
             file: context.file,
             line: node.loc.start.line,
@@ -53,7 +71,7 @@ const rule: TypeScriptRule = {
               "'in' operator throws on primitives - check type first or use optional chaining",
             ruleId: 'primitives/no-in-operator-primitive',
             tip: 'Check typeof first: typeof obj === "object" && obj !== null && "key" in obj',
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix,
           });
         }
       }

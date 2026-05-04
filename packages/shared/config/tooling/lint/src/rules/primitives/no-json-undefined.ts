@@ -20,7 +20,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -62,6 +62,18 @@ const rule: TypeScriptRule = {
         return results;
       }
 
+      /* Fix: add a replacer that converts undefined to null */
+      let fix = { range: { start: 0, end: 0 }, text: '' };
+
+      if (args && args.length === 1) {
+        const argText: string = context.getNodeText(args[0] as AstNode);
+        const replacer: string = '(_, v) => v === undefined ? null : v';
+        fix = {
+          range: { start: node.start, end: node.end },
+          text: `JSON.stringify(${argText}, ${replacer})`,
+        };
+      }
+
       results.push({
         file: context.file,
         line: node.loc.start.line,
@@ -70,7 +82,7 @@ const rule: TypeScriptRule = {
         message: 'JSON.stringify omits undefined values - use null or replacer function',
         ruleId: 'primitives/no-json-undefined',
         tip: 'Use null instead of undefined, or provide replacer to convert undefined',
-        fix: { range: { start: 0, end: 0 }, text: '' },
+        fix,
       });
 
       return results;
