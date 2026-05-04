@@ -22,7 +22,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -53,6 +53,17 @@ const rule: TypeScriptRule = {
         calleePropNode &&
         calleePropName === 'floor'
       ) {
+        /* Fix: Math.floor(...) → Math.trunc(...) */
+        const nodeArgs = node.arguments as AstNode[] | undefined;
+        const argsText: string =
+          nodeArgs && nodeArgs.length > 0
+            ? nodeArgs.map((a: AstNode) => context.getNodeText(a)).join(', ')
+            : '';
+        const fix = {
+          range: { start: node.start, end: node.end },
+          text: `Math.trunc(${argsText})`,
+        };
+
         results.push({
           file: context.file,
           line: node.loc.start.line,
@@ -62,7 +73,7 @@ const rule: TypeScriptRule = {
             'Math.floor() on potentially negative value - use Math.trunc() for consistent truncation toward zero',
           ruleId: 'primitives/prefer-math-trunc',
           tip: 'Use Math.trunc(x) if you want integer part, Math.floor(x) if you want toward -∞',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix,
         });
       }
 

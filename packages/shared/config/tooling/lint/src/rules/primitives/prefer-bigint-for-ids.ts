@@ -22,7 +22,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     TSInterfaceDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
@@ -71,6 +71,12 @@ const rule: TypeScriptRule = {
             : undefined;
 
         if (innerTypeNode?.type === 'TSNumberKeyword') {
+          /* Fix: replace 'number' type annotation with 'string' */
+          const fix = {
+            range: { start: innerTypeNode.start, end: innerTypeNode.end },
+            text: 'string',
+          };
+
           results.push({
             file: context.file,
             line: member.loc.start.line,
@@ -79,7 +85,7 @@ const rule: TypeScriptRule = {
             message: `ID field '${keyName}' as number may lose precision - use string or bigint`,
             ruleId: 'primitives/prefer-bigint-for-ids',
             tip: 'Use string for IDs in JSON, or bigint if doing arithmetic',
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix,
           });
         }
       }

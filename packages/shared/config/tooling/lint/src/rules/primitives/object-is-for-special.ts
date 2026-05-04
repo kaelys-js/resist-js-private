@@ -52,7 +52,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     BinaryExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -80,6 +80,15 @@ const rule: TypeScriptRule = {
         isNegativeZero(left) ||
         isNegativeZero(right)
       ) {
+        /* Fix: a === NaN → Object.is(a, NaN), a !== -0 → !Object.is(a, -0) */
+        const leftText: string = context.getNodeText(left);
+        const rightText: string = context.getNodeText(right);
+        const objectIsCall: string = `Object.is(${leftText}, ${rightText})`;
+        const fix = {
+          range: { start: node.start, end: node.end },
+          text: operator === '!==' ? `!${objectIsCall}` : objectIsCall,
+        };
+
         results.push({
           file: context.file,
           line: node.loc.start.line,
@@ -88,7 +97,7 @@ const rule: TypeScriptRule = {
           message: 'Use Object.is() for -0 or NaN comparison, not ===',
           ruleId: 'primitives/object-is-for-special',
           tip: 'Use Object.is(a, b) for comparing special values, or Number.isNaN() for NaN',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix,
         });
       }
 
