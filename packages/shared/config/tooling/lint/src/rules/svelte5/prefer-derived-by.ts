@@ -51,6 +51,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.svelte'],
   categories: ['svelte5'],
   stages: ['lint', 'ci'],
+  fixable: true,
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -82,6 +83,13 @@ const rule: TypeScriptRule = {
         const chainDepth: number = countCallChainDepth(arg);
 
         if (chainDepth >= 3) {
+          /* Fix: replace $derived(expr) with $derived.by(() => expr) */
+          const argText: string = context.content.slice(arg.start, arg.end);
+          const fix = {
+            range: { start: node.start, end: node.end },
+            text: `$derived.by(() => ${argText})`,
+          };
+
           return [
             {
               file: context.file,
@@ -91,7 +99,7 @@ const rule: TypeScriptRule = {
               message: 'Complex derivation should use $derived.by() for clarity',
               ruleId: rule.id,
               tip: 'Use $derived.by(() => { ...intermediate steps...; return result; })',
-              fix: { range: { start: 0, end: 0 }, text: '' },
+              fix,
             },
           ];
         }

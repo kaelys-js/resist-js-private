@@ -24,6 +24,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.svelte'],
   categories: ['svelte5'],
   stages: ['lint', 'ci'],
+  fixable: true,
 
   visitor: {
     LabeledStatement(node: AstNode, context: VisitorContext): LintResult[] {
@@ -31,6 +32,46 @@ const rule: TypeScriptRule = {
 
       if (!label || (label as { name?: string }).name !== '$') {
         return [];
+      }
+
+      /* Fix: convert $: to $derived or $effect based on body structure */
+      const body: AstNode | undefined = node.body as AstNode | undefined;
+      let fix = { range: { start: 0, end: 0 }, text: '' };
+
+      if (body?.type === 'ExpressionStatement') {
+        const expr: AstNode | undefined = (body as { expression?: AstNode }).expression;
+
+        if (expr?.type === 'AssignmentExpression') {
+          /* $: x = expr → let x = $derived(expr) */
+          const left: AstNode | undefined = expr.left as AstNode | undefined;
+          const right: AstNode | undefined = expr.right as AstNode | undefined;
+
+          if (left && right) {
+            const varName: string = context.content.slice(left.start, left.end);
+            const exprText: string = context.content.slice(right.start, right.end);
+
+            fix = {
+              range: { start: node.start, end: node.end },
+              text: `let ${varName} = $derived(${exprText})`,
+            };
+          }
+        } else if (expr) {
+          /* $: sideEffect → $effect(() => { sideEffect; }) */
+          const exprText: string = context.content.slice(expr.start, expr.end);
+
+          fix = {
+            range: { start: node.start, end: node.end },
+            text: `$effect(() => { ${exprText}; })`,
+          };
+        }
+      } else if (body?.type === 'BlockStatement') {
+        /* $: { ... } → $effect(() => { ... }) */
+        const blockText: string = context.content.slice(body.start, body.end);
+
+        fix = {
+          range: { start: node.start, end: node.end },
+          text: `$effect(() => ${blockText})`,
+        };
       }
 
       return [
@@ -42,7 +83,7 @@ const rule: TypeScriptRule = {
           message: "Legacy reactive statement '$:' - use $derived or $effect instead",
           ruleId: rule.id,
           tip: 'For computed values use $derived(), for side effects use $effect()',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix,
         },
       ];
     },

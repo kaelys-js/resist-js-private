@@ -108,6 +108,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.svelte'],
   categories: ['svelte5'],
   stages: ['lint', 'ci'],
+  fixable: true,
 
   visitor: {
     Program(_node: AstNode, context: VisitorContext): LintResult[] {
@@ -187,6 +188,10 @@ const rule: TypeScriptRule = {
 
         const exprText: string = getExpressionText(returnExpr);
 
+        /* Fix: replace untrack(() => expr) with just expr */
+        const exprSource: string = context.content.slice(returnExpr.start, returnExpr.end);
+        const fix = { range: { start: node.start, end: node.end }, text: exprSource };
+
         results.push({
           file: context.file,
           line: node.loc.start.line,
@@ -195,7 +200,7 @@ const rule: TypeScriptRule = {
           message: `untrack() used on non-reactive value '${exprText}' - untrack is only needed for $state/$derived`,
           ruleId: rule.id,
           tip: 'Remove untrack() wrapper - the value is not reactive',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix,
         });
       });
 
