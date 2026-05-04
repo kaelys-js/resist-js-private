@@ -229,6 +229,63 @@ function extractFunctionParamNames(params: AstNode[]): string[] {
   return names;
 }
 
+/** No-op fix sentinel. */
+const NO_FIX = { range: { start: 0, end: 0 }, text: '' };
+
+/**
+ * Build a fix that deletes a stale @param line from the JSDoc comment.
+ *
+ * Locates the `@param staleParamName` line in the JSDoc and removes
+ * the entire line (including the leading ` * ` and trailing newline).
+ *
+ * @param {string} paramName - The stale parameter name to remove
+ * @param {AstNode} exportNode - The export node (for JSDoc location)
+ * @param {string} content - Full file source text
+ * @returns {{ range: { start: number; end: number }; text: string }} Fix that deletes the @param line
+ */
+function buildDeleteParamLineFix(
+  paramName: string,
+  exportNode: AstNode,
+  content: string,
+): { range: { start: number; end: number }; text: string } {
+  const before: string = content.slice(0, exportNode.start);
+  const trimmed: string = before.trimEnd();
+
+  if (!trimmed.endsWith('*/')) {
+    return NO_FIX;
+  }
+
+  const docStart: number = trimmed.lastIndexOf('/**');
+
+  if (docStart === -1) {
+    return NO_FIX;
+  }
+
+  const jsDocText: string = content.slice(docStart, trimmed.length);
+
+  /* Find the @param line for this specific param name */
+  const pattern = new RegExp(
+    `^\\s*\\*\\s*@param\\s+(?:\\{[^}]*\\}\\s+)?\\[?${paramName}\\]?\\b.*$`,
+    'gm',
+  );
+  const match: RegExpExecArray | null = pattern.exec(jsDocText);
+
+  if (!match) {
+    return NO_FIX;
+  }
+
+  /* Compute absolute byte offset of the line */
+  const lineStart: number = docStart + match.index;
+  let lineEnd: number = lineStart + match[0].length;
+
+  /* Include the trailing newline */
+  if (lineEnd < content.length && content[lineEnd] === '\n') {
+    lineEnd++;
+  }
+
+  return { range: { start: lineStart, end: lineEnd }, text: '' };
+}
+
 /**
  * Check a function node for missing @param tags.
  *
@@ -342,7 +399,7 @@ function checkFunction(
         message: `@param '${docName}' does not match any function parameter`,
         ruleId: 'jsdoc/require-param',
         tip: 'Remove the stale @param tag or fix the parameter name',
-        fix: { range: { start: exportNode.start, end: exportNode.start }, text: '' },
+        fix: buildDeleteParamLineFix(docName, exportNode, context.content),
       });
     }
   }
@@ -356,6 +413,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['jsdoc'],
   stages: ['lint', 'ci'],
+  fixable: true,
 
   visitor: {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

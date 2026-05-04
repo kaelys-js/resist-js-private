@@ -56,6 +56,51 @@ function getJsDocEndOffset(node: AstNode, content: string): number {
   return trimmed.length - 2;
 }
 
+/** No-op fix sentinel. */
+const NO_FIX = { range: { start: 0, end: 0 }, text: '' };
+
+/**
+ * Build a fix that replaces a bare ``` fence with ```typescript after @example.
+ *
+ * Finds the first ``` fence in the JSDoc that is NOT followed by `typescript`
+ * and replaces it with ```typescript.
+ *
+ * @param {AstNode} exportNode - The export node (for JSDoc location)
+ * @param {string} content - Full file source text
+ * @returns {{ range: { start: number; end: number }; text: string }} Fix replacing fence
+ */
+function buildFenceFix(
+  exportNode: AstNode,
+  content: string,
+): { range: { start: number; end: number }; text: string } {
+  const before: string = content.slice(0, exportNode.start);
+  const trimmed: string = before.trimEnd();
+
+  if (!trimmed.endsWith('*/')) {
+    return NO_FIX;
+  }
+
+  const docStart: number = trimmed.lastIndexOf('/**');
+
+  if (docStart === -1) {
+    return NO_FIX;
+  }
+
+  const jsDocText: string = content.slice(docStart, trimmed.length);
+
+  /* Find a ``` that is NOT followed by `typescript` */
+  const fencePattern: RegExp = /```(?!typescript)/g;
+  const match: RegExpExecArray | null = fencePattern.exec(jsDocText);
+
+  if (!match) {
+    return NO_FIX;
+  }
+
+  const absStart: number = docStart + match.index;
+
+  return { range: { start: absStart, end: absStart + 3 }, text: '```typescript' };
+}
+
 /**
  * Check a function node for a missing @example tag or missing typescript fence.
  *
@@ -110,7 +155,7 @@ function checkFunction(
       message: `@example in '${funcName}' must use a \`\`\`typescript\`\`\` code fence`,
       ruleId: 'jsdoc/require-example',
       tip: 'Wrap example code in ```typescript``` ... ``` fence',
-      fix: { range: { start: exportNode.start, end: exportNode.start }, text: '' },
+      fix: buildFenceFix(exportNode, context.content),
     });
   }
 
@@ -123,6 +168,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['jsdoc'],
   stages: ['lint'],
+  fixable: true,
 
   visitor: {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
