@@ -15,8 +15,8 @@
 import type { WorkspaceContext, WorkspacePackage } from '@/lint/framework/rule-context.ts';
 import { createResult, type LintResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 
-/** npm package name pattern: optional @scope/ followed by lowercase name. */
-const VALID_NAME_PATTERN: RegExp = /^(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/;
+/** npm package name pattern: optional @scope/ followed by lowercase name with nested paths. */
+const VALID_NAME_PATTERN: RegExp = /^(@([a-z0-9-~{][a-z0-9-._~}]*)?\/)?[a-z0-9-~][a-z0-9-._~\/]*$/;
 
 /** Rule ID constant. */
 const RULE_ID: string = 'package/names-valid';
