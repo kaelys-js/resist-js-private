@@ -39,7 +39,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['comments', 'hygiene'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
   optionsSchema: {
     allowedTargets: {
       type: 'array',
@@ -60,8 +60,8 @@ const rule: TypeScriptRule = {
           if (!pattern.test(comment.value)) {
             continue;
           }
-          
-let isAllowed: boolean = false;
+
+          let isAllowed: boolean = false;
 
           for (const target of allowedTargets) {
             if (comment.value.includes(target)) {
@@ -75,6 +75,15 @@ let isAllowed: boolean = false;
           }
 
           const lineNumber: number = offsetToLineNumber(comment.start, lineStarts);
+
+          /* Compute byte range covering the full line (including trailing newline).
+           * lineStarts[lineNumber - 1] is the byte offset of the line's first char.
+           * lineStarts[lineNumber] is the byte offset of the NEXT line's first char.
+           * If this is the last line, use content.length. */
+          const lineIdx: number = lineNumber - 1;
+          const lineStart: number = lineStarts[lineIdx] ?? comment.start;
+          const lineEnd: number = lineStarts[lineIdx + 1] ?? context.content.length;
+
           results.push({
             file: context.file,
             line: lineNumber,
@@ -83,7 +92,7 @@ let isAllowed: boolean = false;
             message: `Lint-suppression comment '${label}' is forbidden — fix the code instead`,
             ruleId: 'comments/no-lint-disable',
             tip: 'Fix the underlying issue. Add missing globals to .oxlintrc.json instead.',
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix: { range: { start: lineStart, end: lineEnd }, text: '' },
           });
           break;
         }
