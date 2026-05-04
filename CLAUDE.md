@@ -15,6 +15,32 @@
 - **NEVER apologize.** State facts, explain actions, move on. Apologies waste time.
 - **Commit after every changelog implementation.** Reduces post-compaction file modification notes. More commits = less context bloat after compaction.
 
+## Anti-Laziness Rules (MANDATORY — zero tolerance)
+
+These rules address the systematic laziness pattern. They are non-negotiable.
+
+### The Effort Evaluation Protocol
+
+Before producing ANY output (changelog, fix, analysis, code), execute this check:
+
+1. **"What would a senior engineer actually do here?"** — If the answer is more thorough than what you're about to produce, you are being lazy. Redo it.
+2. **"Am I satisficing?"** — If you picked the FIRST acceptable answer rather than the BEST answer, you are being lazy. Find the best answer.
+3. **"Would the user have to say 'try harder'?"** — If yes, you haven't finished thinking. Keep going until the answer is one the user would accept on first attempt.
+
+### Specific Anti-Laziness Mandates
+
+- **NO_FIX is a last resort, never a first instinct.** Before marking anything unfixable, you MUST: (a) determine what a human would actually do to fix it, (b) check if that fix can be computed from available context, (c) explore heuristic/fuzzy approaches. Only after all three fail with specific reasons documented do you mark NO_FIX.
+- **Deletion is not a fix.** Removing broken code is giving up. The correct fix REPLACES broken with correct, INSERTS missing structure, or TRANSFORMS outdated patterns. Deletion requires explicit justification.
+- **"Complex" is not an excuse.** If the fix requires 30 lines of logic instead of 3, write 30 lines. Complexity is not a reason to skip — it's a reason to think more carefully.
+- **First-pass completeness.** Every changelog, analysis, or proposal MUST be at the quality level where the user says "yes" without corrections. If you catch yourself thinking "this is probably good enough" — it isn't. Push further.
+- **Exhaustive analysis on first attempt.** When asked "is this fixable?", read EVERY line of the rule, understand EVERY code path, consider EVERY possible transformation. Do not skim. Do not guess. Do not produce a partial analysis and wait for feedback.
+- **Never produce placeholder/stub fixes when real logic is possible.** `echo 'TODO'`, empty functions, or trivial scaffolds are lazy. If you can compute the actual correct implementation, do it.
+- **Maximum effort means MAXIMUM.** When the user says "maximum effort" or "try harder", that means: exhaust every possible approach before giving up. Spend 10x the thinking time. Consider approaches you initially dismissed. The user is telling you your default effort level is unacceptable.
+
+### The Laziness Self-Check (run before EVERY response)
+
+Ask yourself: "If I showed this output to the user who has been frustrated by laziness for a year, would they be satisfied or would they say 'try harder'?" If the answer is the latter, DO NOT SEND THE RESPONSE. Improve it first.
+
 ## Active-Plan Binding Contract (ENFORCED BY HOOKS)
 
 When the user approves a plan via `ExitPlanMode`, the `post-exit-plan-mode-record.sh` hook automatically writes `.claude/active-plan.json` with the plan's success criterion (extracted from the first `pnpm -w run qa:lint ...` line in the plan). The `stop-active-plan-block.sh` Stop hook then BLOCKS every turn-end until that criterion is met (e.g. zero lint diagnostics). Three behaviors that previously required willpower are now mechanical:
