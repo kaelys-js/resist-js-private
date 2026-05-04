@@ -10,7 +10,7 @@
 
 import { execSync } from 'node:child_process';
 import { type Dirent, readdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { readdir, readFile, stat } from 'node:fs/promises';
+import { mkdir, readdir, readFile, rename as fsRename, stat, writeFile } from 'node:fs/promises';
 import { extname, join, relative, resolve } from 'node:path';
 
 import * as v from 'valibot';
@@ -35,16 +35,18 @@ import {
   ToolRegistry,
   type WorkspaceTool,
 } from '@/lint/framework/tool-orchestrator.ts';
-import type {
-  LintFix,
-  LintResult,
-  OptionsSchema,
-  PackageJson,
-  PackageJsonContext,
-  PackageJsonRule,
-  Stage,
-  TypeScriptRule,
-  WorkspaceRule,
+import {
+  isFileOpFix,
+  type FileOpFix,
+  type LintFix,
+  type LintResult,
+  type OptionsSchema,
+  type PackageJson,
+  type PackageJsonContext,
+  type PackageJsonRule,
+  type Stage,
+  type TypeScriptRule,
+  type WorkspaceRule,
 } from '@/lint/framework/types.ts';
 import { WorkerPool, type WorkerResult, type WorkerTask } from '@/lint/framework/worker-pool.ts';
 import { format, type LintStrings } from '@/lint/locale/schema.ts';
@@ -848,6 +850,59 @@ export function applyFixes(content: string, fixes: LintFix[]): string {
     result = result.slice(0, fix.range.start) + fix.text + result.slice(fix.range.end);
   }
   return result;
+}
+
+/**
+ * Apply file operation fixes (rename, move, create).
+ *
+ * Operations are applied sequentially. Each operation is independent —
+ * if one fails, the rest still proceed. Returns the count of successful ops.
+ *
+ * @param {FileOpFix[]} ops - Array of file operations to execute
+ * @param {{ stderr: (msg: string) => void }} output - Output channel for errors
+ * @returns {Promise<number>} Number of successfully applied operations
+ */
+export async function applyFileOps(
+  ops: FileOpFix[],
+  output: { stderr: (msg: string) => void },
+): Promise<number> {
+  let applied: number = 0;
+
+  for (const op of ops) {
+    try {
+      switch (op.type) {
+        case 'rename':
+        case 'move': {
+          /* Ensure destination directory exists */
+          const destDir: string = op.to.slice(0, op.to.lastIndexOf('/'));
+
+          if (destDir.length > 0) {
+            await mkdir(destDir, { recursive: true });
+          }
+          await fsRename(op.from, op.to);
+          applied++;
+          break;
+        }
+        case 'create': {
+          /* Ensure parent directory exists */
+          const parentDir: string = op.path.slice(0, op.path.lastIndexOf('/'));
+
+          if (parentDir.length > 0) {
+            await mkdir(parentDir, { recursive: true });
+          }
+          await writeFile(op.path, op.content, 'utf8');
+          applied++;
+          break;
+        }
+      }
+    } catch {
+      output.stderr(
+        `File operation failed: ${op.type} ${op.type === 'create' ? op.path : op.from}\n`,
+      );
+    }
+  }
+
+  return applied;
 }
 
 // =============================================================================
@@ -1945,17 +2000,24 @@ export async function _runLintCore(
 
   if (cliArgs.fix && allResults.length > 0) {
     const fixesByFile: Map<string, LintFix[]> = new Map();
+    const fileOps: FileOpFix[] = [];
 
     for (const result of allResults) {
       if (!result.fix) {
         continue;
       }
 
-      const existing: LintFix[] = fixesByFile.get(result.file) ?? [];
-      existing.push(result.fix);
-      fixesByFile.set(result.file, existing);
+      /* Separate file operations from text replacements */
+      if (isFileOpFix(result.fix)) {
+        fileOps.push(result.fix);
+      } else {
+        const existing: LintFix[] = fixesByFile.get(result.file) ?? [];
+        existing.push(result.fix);
+        fixesByFile.set(result.file, existing);
+      }
     }
 
+    /* Apply text fixes first (before file ops, in case a file is both edited and renamed) */
     const fixEntries: Array<[string, LintFix[]]> = [...fixesByFile.entries()];
     const fixReads: Array<PromiseSettledResult<string>> = await Promise.allSettled(
       fixEntries.map(([fp]: [string, LintFix[]]): Promise<string> => readFile(fp, 'utf8')),
@@ -1983,6 +2045,12 @@ export async function _runLintCore(
         /* File write failed — skip */
         output.stderr(`${format(strings.errors.fixFailed, { filePath })}\n`);
       }
+    }
+
+    /* Apply file operations (rename, move, create) after text fixes */
+    if (fileOps.length > 0) {
+      const fileOpsApplied: number = await applyFileOps(fileOps, output);
+      fixesApplied += fileOpsApplied;
     }
 
     if (!cliArgs.json) {

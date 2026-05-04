@@ -8,7 +8,10 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { resolve } from 'node:path';
+import { existsSync } from 'node:fs';
+import { mkdtemp, rm, readFile as fsReadFile, writeFile as fsWriteFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
 
 import {
   shouldLint,
@@ -18,6 +21,7 @@ import {
   shouldExcludeDir,
   runPkgRules,
   applyFixes,
+  applyFileOps,
   buildHelpText,
   parseCliArgs,
   pathsIntersectDomain,
@@ -25,7 +29,15 @@ import {
   type CliArgs,
 } from './cli-helpers.ts';
 import type { LintConfig } from './config/schema.ts';
-import type { LintFix, LintResult, PackageJsonRule, PackageJson } from './framework/types.ts';
+import {
+  isFileOpFix,
+  isTextFix,
+  type FileOpFix,
+  type LintFix,
+  type LintResult,
+  type PackageJsonRule,
+  type PackageJson,
+} from './framework/types.ts';
 import { en } from '@/lint/locale/locales/en.ts';
 
 // =============================================================================
@@ -526,6 +538,173 @@ describe('applyFixes', () => {
     const content: string = 'line1\nline2\nline3';
     const fixes: LintFix[] = [{ range: { start: 6, end: 11 }, text: 'REPLACED' }];
     expect(applyFixes(content, fixes)).toBe('line1\nREPLACED\nline3');
+  });
+});
+
+// =============================================================================
+// applyFileOps
+// =============================================================================
+
+describe('applyFileOps', () => {
+  /**
+   * Create a temp directory for each test.
+   */
+  async function makeTmpDir(): Promise<string> {
+    return mkdtemp(join(tmpdir(), 'lint-fileop-'));
+  }
+
+  const stderr: string[] = [];
+  const output = {
+    stderr: (msg: string): void => {
+      stderr.push(msg);
+    },
+  };
+
+  it('renames a file successfully', async () => {
+    const dir: string = await makeTmpDir();
+    const src: string = join(dir, 'old.ts');
+    const dest: string = join(dir, 'new.ts');
+    await fsWriteFile(src, 'content', 'utf8');
+
+    const ops: FileOpFix[] = [{ type: 'rename', from: src, to: dest }];
+    const count: number = await applyFileOps(ops, output);
+
+    expect(count).toBe(1);
+    expect(existsSync(dest)).toBe(true);
+    expect(existsSync(src)).toBe(false);
+    expect(await fsReadFile(dest, 'utf8')).toBe('content');
+    await rm(dir, { recursive: true });
+  });
+
+  it('moves a file to a new directory (creates parent dirs)', async () => {
+    const dir: string = await makeTmpDir();
+    const src: string = join(dir, 'file.ts');
+    const dest: string = join(dir, 'sub', 'deep', 'file.ts');
+    await fsWriteFile(src, 'moved-content', 'utf8');
+
+    const ops: FileOpFix[] = [{ type: 'move', from: src, to: dest }];
+    const count: number = await applyFileOps(ops, output);
+
+    expect(count).toBe(1);
+    expect(existsSync(dest)).toBe(true);
+    expect(existsSync(src)).toBe(false);
+    expect(await fsReadFile(dest, 'utf8')).toBe('moved-content');
+    await rm(dir, { recursive: true });
+  });
+
+  it('creates a new file with content (creates parent dirs)', async () => {
+    const dir: string = await makeTmpDir();
+    const target: string = join(dir, 'new-dir', 'created.ts');
+
+    const ops: FileOpFix[] = [{ type: 'create', path: target, content: '// test file\n' }];
+    const count: number = await applyFileOps(ops, output);
+
+    expect(count).toBe(1);
+    expect(existsSync(target)).toBe(true);
+    expect(await fsReadFile(target, 'utf8')).toBe('// test file\n');
+    await rm(dir, { recursive: true });
+  });
+
+  it('handles multiple operations sequentially', async () => {
+    const dir: string = await makeTmpDir();
+    const file1: string = join(dir, 'a.ts');
+    const file2: string = join(dir, 'b.ts');
+    await fsWriteFile(file1, 'aaa', 'utf8');
+    await fsWriteFile(file2, 'bbb', 'utf8');
+
+    const ops: FileOpFix[] = [
+      { type: 'rename', from: file1, to: join(dir, 'a-renamed.ts') },
+      { type: 'rename', from: file2, to: join(dir, 'b-renamed.ts') },
+      { type: 'create', path: join(dir, 'c.ts'), content: 'ccc' },
+    ];
+    const count: number = await applyFileOps(ops, output);
+
+    expect(count).toBe(3);
+    expect(existsSync(join(dir, 'a-renamed.ts'))).toBe(true);
+    expect(existsSync(join(dir, 'b-renamed.ts'))).toBe(true);
+    expect(existsSync(join(dir, 'c.ts'))).toBe(true);
+    await rm(dir, { recursive: true });
+  });
+
+  it('reports errors for failed operations but continues with remaining', async () => {
+    const dir: string = await makeTmpDir();
+    const target: string = join(dir, 'created.ts');
+    const errOutput: string[] = [];
+    const errSink = {
+      stderr: (msg: string): void => {
+        errOutput.push(msg);
+      },
+    };
+
+    const ops: FileOpFix[] = [
+      /* This will fail — source doesn't exist */
+      { type: 'rename', from: join(dir, 'nonexistent.ts'), to: join(dir, 'dest.ts') },
+      /* This should succeed */
+      { type: 'create', path: target, content: 'ok' },
+    ];
+    const count: number = await applyFileOps(ops, errSink);
+
+    expect(count).toBe(1);
+    expect(errOutput.length).toBe(1);
+    expect(errOutput[0]).toContain('nonexistent.ts');
+    expect(existsSync(target)).toBe(true);
+    await rm(dir, { recursive: true });
+  });
+
+  it('returns 0 for empty ops array', async () => {
+    const count: number = await applyFileOps([], output);
+    expect(count).toBe(0);
+  });
+});
+
+// =============================================================================
+// isFileOpFix / isTextFix type guards
+// =============================================================================
+
+describe('isFileOpFix', () => {
+  it('returns true for rename operations', () => {
+    expect(isFileOpFix({ type: 'rename', from: '/a.ts', to: '/b.ts' })).toBe(true);
+  });
+
+  it('returns true for move operations', () => {
+    expect(isFileOpFix({ type: 'move', from: '/a.ts', to: '/dir/a.ts' })).toBe(true);
+  });
+
+  it('returns true for create operations', () => {
+    expect(isFileOpFix({ type: 'create', path: '/a.ts', content: '' })).toBe(true);
+  });
+
+  it('returns false for text replacement fixes', () => {
+    expect(isFileOpFix({ range: { start: 0, end: 5 }, text: 'hello' })).toBe(false);
+  });
+
+  it('returns false for null/undefined', () => {
+    expect(isFileOpFix(null)).toBe(false);
+    expect(isFileOpFix(undefined)).toBe(false);
+  });
+
+  it('returns false for objects with unknown type values', () => {
+    expect(isFileOpFix({ type: 'delete', path: '/x' })).toBe(false);
+    expect(isFileOpFix({ type: 'unknown' })).toBe(false);
+  });
+});
+
+describe('isTextFix', () => {
+  it('returns true for standard text replacement fixes', () => {
+    expect(isTextFix({ range: { start: 0, end: 5 }, text: 'hello' })).toBe(true);
+  });
+
+  it('returns true for NO_OP_FIX shape', () => {
+    expect(isTextFix({ range: { start: 0, end: 0 }, text: '' })).toBe(true);
+  });
+
+  it('returns false for file op fixes', () => {
+    expect(isTextFix({ type: 'rename', from: '/a.ts', to: '/b.ts' })).toBe(false);
+  });
+
+  it('returns false for null/undefined', () => {
+    expect(isTextFix(null)).toBe(false);
+    expect(isTextFix(undefined)).toBe(false);
   });
 });
 
