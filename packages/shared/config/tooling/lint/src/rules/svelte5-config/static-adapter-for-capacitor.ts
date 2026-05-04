@@ -25,6 +25,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/svelte.config.*'],
   categories: ['svelte5-config'],
   stages: ['lint', 'ci'],
+  fixable: true,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
@@ -44,6 +45,19 @@ const rule: TypeScriptRule = {
         return [];
       }
 
+      /* Fix: replace adapter import source with adapter-static */
+      let fix = { range: { start: 0, end: 0 }, text: '' };
+      const importMatch: RegExpExecArray | null = new RegExp(
+        adapterPkg.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+      ).exec(context.content);
+
+      if (importMatch) {
+        fix = {
+          range: { start: importMatch.index, end: importMatch.index + importMatch[0].length },
+          text: '@sveltejs/adapter-static',
+        };
+      }
+
       return [
         {
           file: context.file,
@@ -53,7 +67,7 @@ const rule: TypeScriptRule = {
           message: `Capacitor project requires @sveltejs/adapter-static — current adapter '${adapterPkg}' won't work`,
           ruleId: rule.id,
           tip: "Install and use: import adapter from '@sveltejs/adapter-static'; with fallback: 'index.html'",
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix,
         },
       ];
     },

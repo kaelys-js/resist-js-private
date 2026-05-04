@@ -29,6 +29,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/vite.config.*'],
   categories: ['svelte5-config'],
   stages: ['lint', 'ci'],
+  fixable: true,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
@@ -60,6 +61,11 @@ const rule: TypeScriptRule = {
         const pkg: string | undefined = getStringValue(el);
 
         if (pkg && SVELTE_PACKAGES.has(pkg)) {
+          /* Fix: remove the element from the exclude array */
+          const afterEl: string = context.content.slice(el.end, el.end + 20);
+          const commaMatch: RegExpExecArray | null = /^\s*,/.exec(afterEl);
+          const endOffset: number = commaMatch ? el.end + commaMatch[0].length : el.end;
+
           results.push({
             file: context.file,
             line: el.loc.start.line,
@@ -68,7 +74,7 @@ const rule: TypeScriptRule = {
             message: `Package '${pkg}' should not be excluded from optimizeDeps`,
             ruleId: rule.id,
             tip: `Move '${pkg}' from optimizeDeps.exclude to optimizeDeps.include`,
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix: { range: { start: el.start, end: endOffset }, text: '' },
           });
         }
       }
