@@ -10,14 +10,13 @@
  */
 
 import { existsSync, readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '@/lint/framework/types.ts';
-
-/** Dummy fix for package.json rules. */
-const NO_FIX: { range: { start: number; end: number }; text: string } = {
-  range: { start: 0, end: 0 },
-  text: '',
-};
+import {
+  NO_FIX,
+  buildDeleteJsonEntryFix,
+  buildSetJsonFieldFix,
+} from '@/lint/rules/package/_json-fix-helpers.ts';
 
 /** Compiler options that must NOT be overridden in sub-packages. */
 const PROTECTED_OPTIONS: readonly string[] = ['strict', 'target', 'module', 'moduleResolution'];
@@ -28,7 +27,7 @@ const rule: PackageJsonRule = {
   description: 'Sub-package tsconfig.json must extend root and include src',
   categories: ['package', 'typescript'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
 
   /**
    * Check tsconfig.json in the package directory.
@@ -74,9 +73,11 @@ const rule: PackageJsonRule = {
     }
 
     let tsconfig: Record<string, unknown>;
+    let tsconfigContent: string;
 
     try {
-      tsconfig = JSON.parse(readFileSync(tsconfigPath, 'utf8')) as Record<string, unknown>;
+      tsconfigContent = readFileSync(tsconfigPath, 'utf8');
+      tsconfig = JSON.parse(tsconfigContent) as Record<string, unknown>;
     } catch {
       results.push({
         file: tsconfigPath,
@@ -101,6 +102,10 @@ const rule: PackageJsonRule = {
 
     // Must extend root tsconfig
     if (!extendsStr.endsWith('tsconfig.json') || !extendsStr.includes('..')) {
+      const relPath: string = relative(dir, process.cwd()).replace(/\\/g, '/');
+      const correctExtends: string = `${relPath}/tsconfig.json`;
+      const fix = buildSetJsonFieldFix(tsconfigContent, 'extends', `"${correctExtends}"`);
+
       results.push({
         file: tsconfigPath,
         line: 1,
@@ -109,7 +114,7 @@ const rule: PackageJsonRule = {
         message: `tsconfig.json in '${name}' does not extend root tsconfig`,
         ruleId: 'package/valid-tsconfig',
         tip: 'Add "extends": "<relative-path>/tsconfig.json" pointing to workspace root',
-        fix: NO_FIX,
+        fix,
       });
     }
 
@@ -120,6 +125,11 @@ const rule: PackageJsonRule = {
       !Array.isArray(include) ||
       !include.some((entry: unknown): boolean => typeof entry === 'string' && entry.includes('src'))
     ) {
+      /* Only fix when include is entirely missing — modifying existing arrays is fragile */
+      const fix = !Array.isArray(include)
+        ? buildSetJsonFieldFix(tsconfigContent, 'include', '["src"]')
+        : NO_FIX;
+
       results.push({
         file: tsconfigPath,
         line: 1,
@@ -128,7 +138,7 @@ const rule: PackageJsonRule = {
         message: `tsconfig.json in '${name}' missing "include" with "src"`,
         ruleId: 'package/valid-tsconfig',
         tip: 'Add "include": ["src"] to scope type-checking to source files',
-        fix: NO_FIX,
+        fix,
       });
     }
 
@@ -148,7 +158,7 @@ const rule: PackageJsonRule = {
           message: `tsconfig.json in '${name}' overrides protected option '${opt}' — remove it, use root value`,
           ruleId: 'package/valid-tsconfig',
           tip: `Remove '${opt}' from compilerOptions — it is set in the root tsconfig`,
-          fix: NO_FIX,
+          fix: buildDeleteJsonEntryFix(tsconfigContent, opt, 'compilerOptions'),
         });
       }
     }

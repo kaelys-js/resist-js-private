@@ -11,12 +11,12 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '@/lint/framework/types.ts';
-
-/** Dummy fix for package.json rules. */
-const NO_FIX: { range: { start: number; end: number }; text: string } = {
-  range: { start: 0, end: 0 },
-  text: '',
-};
+import {
+  NO_FIX,
+  readContent,
+  buildReplaceInJsonValueFix,
+  deriveVitestProjectName,
+} from '@/lint/rules/package/_json-fix-helpers.ts';
 
 /** Cached set of valid vitest project names. */
 let validProjects: ReadonlySet<string> | null = null;
@@ -64,7 +64,7 @@ const rule: PackageJsonRule = {
   description: 'Scripts with --project must reference a valid vitest project name',
   categories: ['package', 'testing'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
 
   /**
    * Check --project references in test scripts.
@@ -87,6 +87,8 @@ const rule: PackageJsonRule = {
     }
 
     const name: string = context.pkg.name ?? '<unnamed>';
+    const derivedName: string = deriveVitestProjectName(context.file);
+    let content: string | undefined;
 
     for (const key of PROJECT_SCRIPTS) {
       const script: string | undefined = scripts[key];
@@ -104,6 +106,16 @@ const rule: PackageJsonRule = {
       const projectName: string = projectMatch[1] ?? '';
 
       if (!projects.has(projectName)) {
+        let fix = NO_FIX;
+
+        if (derivedName && projects.has(derivedName)) {
+          if (content === undefined) {
+            content = readContent(context.file);
+          }
+
+          fix = buildReplaceInJsonValueFix(content, key, projectName, derivedName, 'scripts');
+        }
+
         results.push({
           file: context.file,
           line: 1,
@@ -112,7 +124,7 @@ const rule: PackageJsonRule = {
           message: `'${key}' references unknown vitest project '${projectName}' in package '${name}'`,
           ruleId: 'package/valid-project-ref',
           tip: `Valid projects: ${[...projects].join(', ')}`,
-          fix: NO_FIX,
+          fix,
         });
       }
     }

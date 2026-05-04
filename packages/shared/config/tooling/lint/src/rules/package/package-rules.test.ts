@@ -671,7 +671,7 @@ describe('package/require-scope', () => {
 
   it('has correct rule metadata', () => {
     expect(requireScope.id).toBe('package/require-scope');
-    expect(requireScope.fixable).toBe(false);
+    expect(requireScope.fixable).toBe(true);
   });
 });
 

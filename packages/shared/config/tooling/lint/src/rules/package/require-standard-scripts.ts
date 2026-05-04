@@ -7,12 +7,13 @@
  * @module
  */
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '@/lint/framework/types.ts';
+import {
+  NO_FIX,
+  readContent,
+  buildInsertJsonEntryFix,
+  deriveVitestProjectName,
+} from '@/lint/rules/package/_json-fix-helpers.ts';
 
-/** Dummy fix for package.json rules (no byte offsets). */
-const NO_FIX: { range: { start: number; end: number }; text: string } = {
-  range: { start: 0, end: 0 },
-  text: '',
-};
 /** Scripts every sub-package must define. */
 const REQUIRED_SCRIPTS: readonly string[] = [
   'clean',
@@ -27,7 +28,7 @@ const rule: PackageJsonRule = {
   description: 'Sub-packages must have all standard scripts',
   categories: ['package', 'scripts'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
 
@@ -51,9 +52,32 @@ const rule: PackageJsonRule = {
     } // VS Code extensions
 
     const scripts: Record<string, string> = context.pkg.scripts ?? {};
+    const projectName: string = deriveVitestProjectName(context.file);
+    let content: string | undefined;
+
+    /** Default values for each required script, keyed by script name. */
+    const defaults: Record<string, string> = {
+      clean: 'rm -rf dist',
+      'qa:test': projectName ? `pnpm -w exec vitest run --project ${projectName}` : '',
+      'qa:test:coverage': projectName
+        ? `pnpm -w exec vitest run --project ${projectName} --coverage`
+        : '',
+      'qa:benchmark': projectName ? `pnpm -w exec vitest bench --project ${projectName}` : '',
+    };
 
     for (const required of REQUIRED_SCRIPTS) {
       if (!scripts[required]) {
+        let fix = NO_FIX;
+        const defaultValue: string = defaults[required] ?? '';
+
+        if (defaultValue && context.pkg.scripts !== undefined) {
+          if (content === undefined) {
+            content = readContent(context.file);
+          }
+
+          fix = buildInsertJsonEntryFix(content, required, defaultValue, 'scripts');
+        }
+
         results.push({
           file: context.file,
           line: 1,
@@ -62,7 +86,7 @@ const rule: PackageJsonRule = {
           message: `Missing required script '${required}' in package '${name}'`,
           ruleId: 'package/require-standard-scripts',
           tip: `Add "${required}" to scripts in package.json`,
-          fix: NO_FIX,
+          fix,
         });
       }
     }
