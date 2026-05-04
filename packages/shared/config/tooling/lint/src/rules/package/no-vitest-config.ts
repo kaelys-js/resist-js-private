@@ -23,7 +23,7 @@ const rule: PackageJsonRule = {
   description: 'Sub-packages must not have vitest.config.ts — use root config with --project',
   categories: ['package', 'testing'],
   stages: ['lint'],
-  fixable: false,
+  fixable: true,
 
   /**
    * Check for vitest.config.ts in the package directory.

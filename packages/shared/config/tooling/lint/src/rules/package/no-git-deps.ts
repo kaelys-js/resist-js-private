@@ -7,12 +7,7 @@
  * @module
  */
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '@/lint/framework/types.ts';
-
-/** Dummy fix for package.json rules (no byte offsets). */
-const NO_FIX: { range: { start: number; end: number }; text: string } = {
-  range: { start: 0, end: 0 },
-  text: '',
-};
+import { buildDeleteJsonEntryFix, readContent } from '@/lint/rules/package/_json-fix-helpers.ts';
 
 /** Dependency field names to check. */
 const DEP_FIELDS = [
@@ -28,9 +23,10 @@ const rule: PackageJsonRule = {
   description: 'Disallow git+https:// dependencies',
   categories: ['package', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
+    let content: string | undefined;
 
     for (const field of DEP_FIELDS) {
       const deps: Record<string, string> | undefined = context.pkg[field];
@@ -40,6 +36,10 @@ const rule: PackageJsonRule = {
       }
       for (const [key, value] of Object.entries(deps)) {
         if (value.startsWith('git+https://')) {
+          if (content === undefined) {
+            content = readContent(context.file);
+          }
+
           results.push({
             file: context.file,
             line: 1,
@@ -48,7 +48,7 @@ const rule: PackageJsonRule = {
             message: `Disallowed git+https dependency: ${key}: ${value}`,
             ruleId: 'package/no-git-deps',
             tip: 'Replace git+https dependencies with pinned tarballs or published versions',
-            fix: NO_FIX,
+            fix: buildDeleteJsonEntryFix(content, key, field),
           });
         }
       }

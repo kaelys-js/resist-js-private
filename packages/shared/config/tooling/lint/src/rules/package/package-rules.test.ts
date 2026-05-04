@@ -748,7 +748,7 @@ describe('package/no-git-deps', () => {
 
   it('has correct rule metadata', () => {
     expect(noGitDeps.id).toBe('package/no-git-deps');
-    expect(noGitDeps.fixable).toBe(false);
+    expect(noGitDeps.fixable).toBe(true);
   });
 });
 
@@ -813,6 +813,6 @@ describe('package/no-ts-node', () => {
 
   it('has correct rule metadata', () => {
     expect(noTsNode.id).toBe('package/no-ts-node');
-    expect(noTsNode.fixable).toBe(false);
+    expect(noTsNode.fixable).toBe(true);
   });
 });

@@ -202,6 +202,7 @@ const rule: WorkspaceRule = {
   description: 'Package names must be valid npm names and unique across workspace.',
   id: RULE_ID,
   scope: 'workspace',
+  fixable: true,
   stages: ['lint', 'check', 'build'],
 };
 

@@ -9,12 +9,7 @@
  */
 
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '@/lint/framework/types.ts';
-
-/** Dummy fix for package.json rules. */
-const NO_FIX: { range: { start: number; end: number }; text: string } = {
-  range: { start: 0, end: 0 },
-  text: '',
-};
+import { buildDeleteJsonEntryFix, readContent } from '@/lint/rules/package/_json-fix-helpers.ts';
 
 /** Dependencies that belong in workspace root only, not in sub-packages. */
 const WORKSPACE_ROOT_DEPS: ReadonlySet<string> = new Set([
@@ -37,7 +32,7 @@ const rule: PackageJsonRule = {
   description: 'Workspace-root-level deps must not appear in sub-package devDependencies',
   categories: ['package', 'dependencies'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
 
   /**
    * Check for workspace-root deps in sub-package devDependencies.
@@ -62,6 +57,7 @@ const rule: PackageJsonRule = {
       return results;
     }
 
+    const content: string = readContent(context.file);
     const devDeps: Record<string, string> = context.pkg.devDependencies ?? {};
 
     for (const dep of Object.keys(devDeps)) {
@@ -74,7 +70,7 @@ const rule: PackageJsonRule = {
           message: `'${dep}' is a workspace-root dependency — remove from sub-package '${name}'`,
           ruleId: 'package/no-workspace-dep',
           tip: `Remove '${dep}' from devDependencies — it is resolved from the workspace root`,
-          fix: NO_FIX,
+          fix: buildDeleteJsonEntryFix(content, dep, 'devDependencies'),
         });
       }
     }

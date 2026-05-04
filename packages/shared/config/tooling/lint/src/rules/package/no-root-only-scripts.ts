@@ -7,12 +7,8 @@
  * @module
  */
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '@/lint/framework/types.ts';
+import { buildDeleteJsonEntryFix, readContent } from '@/lint/rules/package/_json-fix-helpers.ts';
 
-/** Dummy fix for package.json rules (no byte offsets). */
-const NO_FIX: { range: { start: number; end: number }; text: string } = {
-  range: { start: 0, end: 0 },
-  text: '',
-};
 /** Scripts that belong only in the workspace root. */
 const ROOT_ONLY_SCRIPTS: readonly string[] = ['qa:format', 'qa:format:check', 'qa:lint'];
 
@@ -22,7 +18,7 @@ const rule: PackageJsonRule = {
   description: 'qa:format, qa:format:check, qa:lint belong only in workspace root',
   categories: ['package', 'scripts'],
   stages: ['lint'],
-  fixable: false,
+  fixable: true,
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
 
@@ -31,9 +27,14 @@ const rule: PackageJsonRule = {
     }
 
     const scripts: Record<string, string> = context.pkg.scripts ?? {};
+    let content: string | undefined;
 
     for (const forbidden of ROOT_ONLY_SCRIPTS) {
       if (scripts[forbidden]) {
+        if (content === undefined) {
+          content = readContent(context.file);
+        }
+
         results.push({
           file: context.file,
           line: 1,
@@ -42,7 +43,7 @@ const rule: PackageJsonRule = {
           message: `Script '${forbidden}' should only be in workspace root, not sub-package '${context.pkg.name ?? ''}'`,
           ruleId: 'package/no-root-only-scripts',
           tip: 'Remove this script — formatting and linting run workspace-wide from root',
-          fix: NO_FIX,
+          fix: buildDeleteJsonEntryFix(content, forbidden, 'scripts'),
         });
       }
     }
