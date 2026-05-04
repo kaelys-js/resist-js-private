@@ -7,12 +7,7 @@
  * @module
  */
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '@/lint/framework/types.ts';
-
-/** Dummy fix for package.json rules (no byte offsets). */
-const NO_FIX: { range: { start: number; end: number }; text: string } = {
-  range: { start: 0, end: 0 },
-  text: '',
-};
+import { NO_FIX } from '@/lint/rules/package/_json-fix-helpers.ts';
 
 /** The require-scope lint rule. */
 const rule: PackageJsonRule = {
@@ -20,7 +15,7 @@ const rule: PackageJsonRule = {
   description: 'Non-root packages must have a scoped name',
   categories: ['package', 'naming'],
   stages: ['lint', 'check', 'build'],
-  fixable: false,
+  fixable: true,
   optionsSchema: {
     scope: {
       type: 'string',

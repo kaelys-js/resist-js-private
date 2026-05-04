@@ -207,6 +207,227 @@ export function buildDeleteJsonBlockFix(content: string, key: string): LintFix {
 }
 
 /**
+ * Derive the vitest project name from a package.json file path.
+ *
+ * Convention: take path segments after `packages/(shared|products)/`,
+ * join with `-`.  E.g. `packages/shared/schemas/common/package.json` → `schemas-common`.
+ *
+ * @param {string} filePath - Absolute path to package.json
+ * @returns {string} Derived vitest project name, or empty string on failure
+ */
+export function deriveVitestProjectName(filePath: string): string {
+  const normalized: string = filePath.replace(/\\/g, '/');
+  const markers: readonly string[] = ['packages/shared/', 'packages/products/'];
+
+  for (const marker of markers) {
+    const idx: number = normalized.indexOf(marker);
+
+    if (idx !== -1) {
+      const rest: string = normalized.slice(idx + marker.length);
+      const segments: string[] = [];
+
+      for (const s of rest.split('/')) {
+        if (s !== '' && s !== 'package.json' && s !== 'tsconfig.json') {
+          segments.push(s);
+        }
+      }
+
+      if (segments.length > 0) {
+        return segments.join('-');
+      }
+    }
+  }
+
+  return '';
+}
+
+/**
+ * Build a fix that inserts a new JSON key-value entry into an existing parent block.
+ *
+ * Finds the last entry in the parent block and inserts the new entry after it
+ * (adding a trailing comma to the previous last entry).
+ *
+ * @param {string} content - Raw file content
+ * @param {string} key - New key to insert
+ * @param {string} value - Value string (will be JSON-quoted)
+ * @param {string} parentKey - Parent block key (e.g., "scripts")
+ * @returns {LintFix} Fix that inserts the entry or NO_FIX
+ */
+export function buildInsertJsonEntryFix(
+  content: string,
+  key: string,
+  value: string,
+  parentKey: string,
+): LintFix {
+  const parentIdx: number = content.indexOf(`"${parentKey}"`);
+
+  if (parentIdx === -1) {
+    return NO_FIX;
+  }
+
+  /* Find the opening brace of the parent block */
+  const braceIdx: number = content.indexOf('{', parentIdx);
+
+  if (braceIdx === -1) {
+    return NO_FIX;
+  }
+
+  /* Find the matching closing brace */
+  let depth: number = 0;
+  let closingBrace: number = -1;
+
+  for (let i: number = braceIdx; i < content.length; i++) {
+    if (content[i] === '{') {
+      depth++;
+    } else if (content[i] === '}') {
+      depth--;
+
+      if (depth === 0) {
+        closingBrace = i;
+        break;
+      }
+    }
+  }
+
+  if (closingBrace === -1) {
+    return NO_FIX;
+  }
+
+  /* Detect indentation: find the line containing the closing brace */
+  let closingLineStart: number = closingBrace;
+
+  while (closingLineStart > 0 && content[closingLineStart - 1] !== '\n') {
+    closingLineStart--;
+  }
+
+  const closingIndent: string =
+    content.slice(closingLineStart, closingBrace).match(/^(\s*)/)?.[1] ?? '  ';
+  const entryIndent: string = closingIndent + '  ';
+
+  /* Check if block is empty (only whitespace between braces) */
+  const blockContent: string = content.slice(braceIdx + 1, closingBrace).trim();
+  const newEntry: string = `${entryIndent}"${key}": "${value}"`;
+
+  if (blockContent === '') {
+    /* Empty block: insert between braces */
+    return {
+      range: { start: braceIdx + 1, end: closingBrace },
+      text: `\n${newEntry}\n${closingIndent}`,
+    };
+  }
+
+  /* Non-empty block: find the last non-whitespace char before closing brace */
+  let lastContentIdx: number = closingBrace - 1;
+
+  while (lastContentIdx > braceIdx && /\s/.test(content[lastContentIdx] ?? '')) {
+    lastContentIdx--;
+  }
+
+  /* Insert after last content with comma */
+  const insertPoint: number = lastContentIdx + 1;
+
+  return {
+    range: { start: insertPoint, end: closingBrace },
+    text: `,\n${newEntry}\n${closingIndent}`,
+  };
+}
+
+/**
+ * Build a fix that sets a top-level JSON field (insert or replace).
+ *
+ * If the field exists, replaces its value. If not, inserts after the opening `{`.
+ *
+ * @param {string} content - Raw file content (JSON)
+ * @param {string} key - JSON key to set
+ * @param {string} rawValue - Raw JSON value text (e.g., `"../tsconfig.json"` or `["src"]`)
+ * @returns {LintFix} Fix or NO_FIX
+ */
+export function buildSetJsonFieldFix(content: string, key: string, rawValue: string): LintFix {
+  const keyPattern: string = `"${key}"`;
+  const keyIdx: number = content.indexOf(keyPattern);
+
+  if (keyIdx !== -1) {
+    /* Key exists — replace the value */
+    const colonIdx: number = content.indexOf(':', keyIdx + keyPattern.length);
+
+    if (colonIdx === -1) {
+      return NO_FIX;
+    }
+
+    /* Find the start of the value (skip whitespace) */
+    let valueStart: number = colonIdx + 1;
+
+    while (valueStart < content.length && content[valueStart] === ' ') {
+      valueStart++;
+    }
+
+    /* Determine value end based on type */
+    if (content[valueStart] === '"') {
+      /* String value — find closing quote */
+      let valueEnd: number = valueStart + 1;
+
+      while (valueEnd < content.length && content[valueEnd] !== '"') {
+        if (content[valueEnd] === '\\') {
+          valueEnd++;
+        }
+
+        valueEnd++;
+      }
+
+      if (valueEnd < content.length) {
+        valueEnd++; /* include closing quote */
+      }
+
+      return { range: { start: valueStart, end: valueEnd }, text: rawValue };
+    } else if (content[valueStart] === '[') {
+      /* Array value — find matching ] */
+      let bracketDepth: number = 0;
+      let valueEnd: number = valueStart;
+
+      for (let i: number = valueStart; i < content.length; i++) {
+        if (content[i] === '[') {
+          bracketDepth++;
+        } else if (content[i] === ']') {
+          bracketDepth--;
+
+          if (bracketDepth === 0) {
+            valueEnd = i + 1;
+            break;
+          }
+        }
+      }
+
+      return { range: { start: valueStart, end: valueEnd }, text: rawValue };
+    }
+
+    return NO_FIX;
+  }
+
+  /* Key does not exist — insert after opening { */
+  const openBrace: number = content.indexOf('{');
+
+  if (openBrace === -1) {
+    return NO_FIX;
+  }
+
+  /* Find what's after the opening brace to determine if we need a comma */
+  let afterBrace: number = openBrace + 1;
+
+  while (afterBrace < content.length && /\s/.test(content[afterBrace] ?? '')) {
+    afterBrace++;
+  }
+
+  const needsComma: boolean = afterBrace < content.length && content[afterBrace] !== '}';
+  const comma: string = needsComma ? ',' : '';
+  const insertion: string = `\n  "${key}": ${rawValue}${comma}`;
+
+  return {
+    range: { start: openBrace + 1, end: openBrace + 1 },
+    text: insertion,
+  };
+}
+
+/**
  * Build a fix that replaces text within a JSON string value.
  *
  * Finds the value for `key` under `parentKey` and replaces `search` with `replacement`.

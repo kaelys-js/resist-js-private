@@ -9,12 +9,13 @@
 import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '@/lint/framework/types.ts';
+import {
+  NO_FIX,
+  readContent,
+  buildReplaceInJsonValueFix,
+  deriveVitestProjectName,
+} from '@/lint/rules/package/_json-fix-helpers.ts';
 
-/** Dummy fix for package.json rules (no byte offsets). */
-const NO_FIX: { range: { start: number; end: number }; text: string } = {
-  range: { start: 0, end: 0 },
-  text: '',
-};
 /** Known test-related script names. */
 const TEST_SCRIPTS: readonly string[] = [
   'qa:test',
@@ -29,7 +30,7 @@ const rule: PackageJsonRule = {
   description: 'Test scripts must use pnpm -w exec vitest run --project <name>',
   categories: ['package', 'testing'],
   stages: ['lint'],
-  fixable: false,
+  fixable: true,
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
 
@@ -44,6 +45,8 @@ const rule: PackageJsonRule = {
     }
 
     const scripts: Record<string, string> = context.pkg.scripts ?? {};
+    const projectName: string = deriveVitestProjectName(context.file);
+    let content: string | undefined;
 
     for (const key of TEST_SCRIPTS) {
       const script: string | undefined = scripts[key];
@@ -52,6 +55,21 @@ const rule: PackageJsonRule = {
         continue;
       }
       if (script === 'vitest run' || script === 'vitest bench' || script.includes('cd ..')) {
+        let fix = NO_FIX;
+
+        if (projectName && !script.includes('cd ..')) {
+          if (content === undefined) {
+            content = readContent(context.file);
+          }
+
+          const bare: string = script === 'vitest bench' ? 'vitest bench' : 'vitest run';
+          const replacement: string =
+            script === 'vitest bench'
+              ? `pnpm -w exec vitest bench --project ${projectName}`
+              : `pnpm -w exec vitest run --project ${projectName}`;
+          fix = buildReplaceInJsonValueFix(content, key, bare, replacement, 'scripts');
+        }
+
         results.push({
           file: context.file,
           line: 1,
@@ -60,7 +78,7 @@ const rule: PackageJsonRule = {
           message: `'${key}' uses bare vitest — use 'pnpm -w exec vitest run --project <name>'`,
           ruleId: 'package/require-project-test',
           tip: 'Use pnpm -w exec to run from workspace root with the correct project filter',
-          fix: NO_FIX,
+          fix,
         });
       }
     }

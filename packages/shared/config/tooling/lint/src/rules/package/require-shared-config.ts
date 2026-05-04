@@ -12,12 +12,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import type { PackageJsonRule, PackageJsonContext, LintResult } from '@/lint/framework/types.ts';
-
-/** Dummy fix for package.json rules. */
-const NO_FIX: { range: { start: number; end: number }; text: string } = {
-  range: { start: 0, end: 0 },
-  text: '',
-};
+import { NO_FIX } from '@/lint/rules/package/_json-fix-helpers.ts';
 
 /** Config files to check and their required import patterns. */
 const CONFIG_CHECKS: ReadonlyArray<{
@@ -52,7 +47,7 @@ const rule: PackageJsonRule = {
   description: 'Config files must use shared config tooling',
   categories: ['package', 'architecture'],
   stages: ['lint'],
-  fixable: false,
+  fixable: true,
 
   /**
    * Check config files in the package directory.

@@ -14,13 +14,13 @@
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import type { PackageJsonRule, PackageJsonContext, LintResult } from '@/lint/framework/types.ts';
-
-/** Dummy fix for package.json rules (no byte offsets). */
-const NO_FIX: { range: { start: number; end: number }; text: string } = {
-  range: { start: 0, end: 0 },
-  text: '',
-};
+import type {
+  PackageJsonRule,
+  PackageJsonContext,
+  LintResult,
+  LintFix,
+} from '@/lint/framework/types.ts';
+import { NO_FIX } from '@/lint/rules/package/_json-fix-helpers.ts';
 
 /** Required README sections (heading text patterns). */
 const REQUIRED_SECTIONS: ReadonlyArray<{ pattern: RegExp; label: string }> = [
@@ -137,13 +137,58 @@ function extractReadmeApiFunctions(readme: string): string[] {
   }
   return [...new Set(names)];
 }
+
+/**
+ * Build a fix that deletes a stale API table row from README content.
+ *
+ * Finds `| <name> |` or `| \`<name>\` |` and removes the entire line.
+ *
+ * @param {string} readme - README content
+ * @param {string} name - Function name to remove
+ * @returns {LintFix} Fix that deletes the row or NO_FIX
+ */
+function buildDeleteApiRowFix(readme: string, name: string): LintFix {
+  /* Try both backtick-wrapped and plain formats */
+  const patterns: string[] = [`| \`${name}\` |`, `| ${name} |`];
+
+  for (const pattern of patterns) {
+    const idx: number = readme.indexOf(pattern);
+
+    if (idx === -1) {
+      continue;
+    }
+
+    /* Find line boundaries */
+    let lineStart: number = idx;
+
+    while (lineStart > 0 && readme[lineStart - 1] !== '\n') {
+      lineStart--;
+    }
+
+    let lineEnd: number = idx + pattern.length;
+
+    while (lineEnd < readme.length && readme[lineEnd] !== '\n') {
+      lineEnd++;
+    }
+
+    /* Include the newline */
+    if (lineEnd < readme.length) {
+      lineEnd++;
+    }
+
+    return { range: { start: lineStart, end: lineEnd }, text: '' };
+  }
+
+  return NO_FIX;
+}
+
 /** The require-readme lint rule. */
 const rule: PackageJsonRule = {
   id: 'package/require-readme',
   description: 'Every sub-package must have a validated README.md',
   categories: ['package', 'jsdoc'],
   stages: ['lint'],
-  fixable: false,
+  fixable: true,
   check(context: PackageJsonContext): LintResult[] {
     const results: LintResult[] = [];
 
@@ -154,7 +199,7 @@ const rule: PackageJsonRule = {
     const pkgDir: string = dirname(context.file);
     const readmePath: string = join(pkgDir, 'README.md');
 
-    // Check 1: README exists
+    // Check 1: README exists — NO_FIX (file creation outside LintFix model)
     if (!existsSync(readmePath)) {
       results.push({
         file: context.file,
@@ -172,10 +217,12 @@ const rule: PackageJsonRule = {
     const readme: string = readFileSync(readmePath, 'utf8');
     const pkgName: string = context.pkg.name ?? '';
 
-    // Check 2: Title matches package name
+    // Check 2: Title matches package name — REAL FIX
     const titleMatch: RegExpMatchArray | null = readme.match(/^#\s+(.+)$/m);
 
     if (!titleMatch) {
+      /* Missing title: prepend at start of file */
+      const titleText: string = `# ${pkgName}\n\n`;
       results.push({
         file: readmePath,
         line: 1,
@@ -184,9 +231,12 @@ const rule: PackageJsonRule = {
         message: 'README.md is missing a title heading',
         ruleId: 'package/require-readme',
         tip: `Add '# ${pkgName}' as the first line`,
-        fix: NO_FIX,
+        fix: { range: { start: 0, end: 0 }, text: titleText },
       });
     } else if ((titleMatch[1] ?? '').trim() !== pkgName) {
+      /* Wrong title: replace the title line */
+      const titleStart: number = titleMatch.index ?? 0;
+      const titleEnd: number = titleStart + titleMatch[0].length;
       results.push({
         file: readmePath,
         line: 1,
@@ -195,13 +245,14 @@ const rule: PackageJsonRule = {
         message: `README title '${(titleMatch[1] ?? '').trim()}' does not match package name '${pkgName}'`,
         ruleId: 'package/require-readme',
         tip: `Change title to '# ${pkgName}'`,
-        fix: NO_FIX,
+        fix: { range: { start: titleStart, end: titleEnd }, text: `# ${pkgName}` },
       });
     }
 
-    // Check 3: Required sections exist
+    // Check 3: Required sections exist — REAL FIX (append stub)
     for (const section of REQUIRED_SECTIONS) {
       if (!section.pattern.test(readme)) {
+        const stub: string = `\n\n## ${section.label}\n\n<!-- TODO: document -->\n`;
         results.push({
           file: readmePath,
           line: 1,
@@ -210,7 +261,7 @@ const rule: PackageJsonRule = {
           message: `README.md is missing required section: ${section.label}`,
           ruleId: 'package/require-readme',
           tip: `Add a '## ${section.label}' section`,
-          fix: NO_FIX,
+          fix: { range: { start: readme.length, end: readme.length }, text: stub },
         });
       }
     }
@@ -219,7 +270,7 @@ const rule: PackageJsonRule = {
     const sourceExports: string[] = getAllExports(pkgDir);
     const readmeFunctions: string[] = extractReadmeApiFunctions(readme);
 
-    // Functions in source but not documented
+    // Functions in source but not documented — NO_FIX (table format unknown)
     for (const name of sourceExports) {
       if (!readmeFunctions.includes(name) && !readme.includes(name)) {
         results.push({
@@ -235,9 +286,10 @@ const rule: PackageJsonRule = {
       }
     }
 
-    // Functions documented but not in source (stale)
+    // Functions documented but not in source (stale) — REAL FIX (delete row)
     for (const name of readmeFunctions) {
       if (sourceExports.length > 0 && !sourceExports.includes(name) && !name.endsWith('Schema')) {
+        const fix: LintFix = buildDeleteApiRowFix(readme, name);
         results.push({
           file: readmePath,
           line: 1,
@@ -246,7 +298,7 @@ const rule: PackageJsonRule = {
           message: `README documents '${name}' but it no longer exists in source`,
           ruleId: 'package/require-readme',
           tip: `Remove '${name}' from the API reference — it was deleted from source`,
-          fix: NO_FIX,
+          fix,
         });
       }
     }
