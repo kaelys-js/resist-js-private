@@ -22,6 +22,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/svelte.config.*'],
   categories: ['svelte5-config'],
   stages: ['lint', 'ci'],
+  fixable: true,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
@@ -41,6 +42,12 @@ const rule: TypeScriptRule = {
         return [];
       }
 
+      /* Fix: insert trailingSlash: 'never' into kit object */
+      const fix = {
+        range: { start: kitObj.end - 1, end: kitObj.end - 1 },
+        text: ",\n    trailingSlash: 'never'\n  ",
+      };
+
       return [
         {
           file: context.file,
@@ -50,7 +57,7 @@ const rule: TypeScriptRule = {
           message: 'Trailing slash handling not explicitly configured',
           ruleId: rule.id,
           tip: "Add trailingSlash: 'never' | 'always' | 'ignore' for consistent URL handling",
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix,
         },
       ];
     },
