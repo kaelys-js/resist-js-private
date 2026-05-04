@@ -40,6 +40,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.svelte'],
   categories: ['svelte5'],
   stages: ['lint', 'ci'],
+  fixable: true,
 
   visitor: {
     Program(_node: AstNode, context: VisitorContext): LintResult[] {

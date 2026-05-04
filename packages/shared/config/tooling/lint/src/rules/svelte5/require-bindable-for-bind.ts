@@ -92,6 +92,57 @@ function collectBindableProps(ast: AstNode): Set<string> {
   return bindableProps;
 }
 
+/**
+ * Find the AST node for a prop name inside the $props() ObjectPattern.
+ * Returns the Property node if found (shorthand, no default).
+ */
+function findPropPropertyNode(ast: AstNode, propName: string): AstNode | undefined {
+  let found: AstNode | undefined;
+
+  walkNode(ast, (node: AstNode): void => {
+    if (node.type !== 'VariableDeclarator') {
+      return;
+    }
+
+    const init: AstNode | undefined = node.init as AstNode | undefined;
+
+    if (!init || !isRuneCall(init, '$props')) {
+      return;
+    }
+
+    const id: AstNode | undefined = node.id as AstNode | undefined;
+
+    if (!id || id.type !== 'ObjectPattern') {
+      return;
+    }
+
+    const properties: AstNode[] | undefined = id.properties as AstNode[] | undefined;
+
+    if (!properties) {
+      return;
+    }
+
+    for (const prop of properties) {
+      if (prop.type !== 'Property') {
+        continue;
+      }
+
+      const key: AstNode | undefined = prop.key as AstNode | undefined;
+
+      if (key?.type === 'Identifier' && (key as unknown as { name: string }).name === propName) {
+        /* Only fix shorthand properties without defaults */
+        const value: AstNode | undefined = prop.value as AstNode | undefined;
+
+        if (value?.type === 'Identifier') {
+          found = prop;
+        }
+      }
+    }
+  });
+
+  return found;
+}
+
 /** The require-bindable-for-bind lint rule. */
 const rule: TypeScriptRule = {
   id: 'svelte5/require-bindable-for-bind',
@@ -99,6 +150,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.svelte'],
   categories: ['svelte5'],
   stages: ['lint', 'ci'],
+  fixable: true,
 
   visitor: {
     BindDirective(node: AstNode, context: VisitorContext): LintResult[] {
@@ -116,6 +168,22 @@ const rule: TypeScriptRule = {
         return [];
       }
 
+      /* Fix: add = $bindable() to the prop in the $props() destructuring */
+      let fix = { range: { start: 0, end: 0 }, text: '' };
+      const propNode: AstNode | undefined = findPropPropertyNode(context.ast, bindName);
+
+      if (propNode) {
+        const valueNode: AstNode | undefined = propNode.value as AstNode | undefined;
+
+        if (valueNode?.type === 'Identifier') {
+          /* Shorthand { value } → { value = $bindable() } */
+          fix = {
+            range: { start: valueNode.end, end: valueNode.end },
+            text: ' = $bindable()',
+          };
+        }
+      }
+
       return [
         {
           file: context.file,
@@ -125,7 +193,7 @@ const rule: TypeScriptRule = {
           message: `Prop '${bindName}' used with bind: but not declared as $bindable()`,
           ruleId: rule.id,
           tip: `Declare as: let { ${bindName} = $bindable() } = $props();`,
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix,
         },
       ];
     },

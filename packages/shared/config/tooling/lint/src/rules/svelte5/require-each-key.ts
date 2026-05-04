@@ -24,6 +24,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.svelte'],
   categories: ['svelte5'],
   stages: ['lint', 'ci'],
+  fixable: true,
 
   visitor: {
     EachBlock(node: AstNode, context: VisitorContext): LintResult[] {
@@ -31,6 +32,19 @@ const rule: TypeScriptRule = {
 
       if (key !== null && key !== undefined) {
         return [];
+      }
+
+      /* Fix: insert (iterVar) as key for simple Identifier context */
+      let fix = { range: { start: 0, end: 0 }, text: '' };
+      const contextNode: AstNode | undefined = node.context as AstNode | undefined;
+
+      if (contextNode?.type === 'Identifier') {
+        const iterName: string = (contextNode as unknown as { name: string }).name;
+
+        fix = {
+          range: { start: contextNode.end, end: contextNode.end },
+          text: ` (${iterName})`,
+        };
       }
 
       return [
@@ -42,7 +56,7 @@ const rule: TypeScriptRule = {
           message: '{#each} block should have a key expression for stable identity',
           ruleId: rule.id,
           tip: 'Add key: {#each items as item (item.id)}',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix,
         },
       ];
     },

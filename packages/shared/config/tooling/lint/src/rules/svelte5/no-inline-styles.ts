@@ -24,6 +24,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.svelte'],
   categories: ['svelte5'],
   stages: ['lint', 'ci'],
+  fixable: true,
 
   visitor: {
     Attribute(node: AstNode, context: VisitorContext): LintResult[] {
@@ -49,6 +50,38 @@ const rule: TypeScriptRule = {
         return [];
       }
 
+      /* Fix: convert style="prop: value; ..." to style:prop="value" directives */
+      let fix = { range: { start: 0, end: 0 }, text: '' };
+      const styleText: string = (value as AstNode[])
+        .map((v: AstNode): string => (v as { data?: string }).data ?? '')
+        .join('');
+      const declarations: string[] = styleText
+        .split(';')
+        .map((s: string): string => s.trim())
+        .filter(Boolean);
+
+      if (declarations.length > 0) {
+        const directives: string = declarations
+          .map((decl: string): string => {
+            const colonIdx: number = decl.indexOf(':');
+
+            if (colonIdx === -1) {
+              return '';
+            }
+
+            const prop: string = decl.slice(0, colonIdx).trim();
+            const val: string = decl.slice(colonIdx + 1).trim();
+
+            return `style:${prop}="${val}"`;
+          })
+          .filter(Boolean)
+          .join(' ');
+
+        if (directives) {
+          fix = { range: { start: node.start, end: node.end }, text: directives };
+        }
+      }
+
       return [
         {
           file: context.file,
@@ -58,7 +91,7 @@ const rule: TypeScriptRule = {
           message: 'Avoid inline styles - use CSS classes or style: directives',
           ruleId: rule.id,
           tip: 'Extract to CSS class or use style:property={value} for dynamic values',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix,
         },
       ];
     },

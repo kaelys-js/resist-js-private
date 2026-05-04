@@ -30,6 +30,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.svelte'],
   categories: ['svelte5'],
   stages: ['lint', 'ci'],
+  fixable: true,
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -53,6 +54,12 @@ const rule: TypeScriptRule = {
         return [];
       }
 
+      /* Fix: insert return () => {}; before the closing brace of the callback body */
+      const fix = {
+        range: { start: body.end - 1, end: body.end - 1 },
+        text: '  return () => {};\n  ',
+      };
+
       const results: LintResult[] = [];
 
       for (const pattern of subscriptions) {
@@ -64,7 +71,7 @@ const rule: TypeScriptRule = {
           message: `$effect contains '${pattern}' but no cleanup function returned`,
           ruleId: rule.id,
           tip: 'Return a cleanup function: $effect(() => { ... return () => cleanup(); });',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix,
         });
       }
 
