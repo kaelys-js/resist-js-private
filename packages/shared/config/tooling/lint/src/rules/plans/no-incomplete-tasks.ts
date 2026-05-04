@@ -28,7 +28,7 @@ const rule: WorkspaceRule = {
   scope: 'workspace',
   categories: ['plans'],
   stages: ['ci'],
-  fixable: false,
+  fixable: true,
   optionsSchema: {
     maxAgeDays: {
       type: 'number',

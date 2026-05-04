@@ -305,11 +305,11 @@ function parseDependencies(lines: string[]): TaskDependency[] {
     /* Parse table row: | 1 | description | 2-3 | */
     const rawCells: string[] = line.split('|');
     const cells: string[] = [];
-    
-for (const raw of rawCells) {
+
+    for (const raw of rawCells) {
       const trimmed: string = raw.trim();
-      
-if (trimmed.length > 0) {
+
+      if (trimmed.length > 0) {
         cells.push(trimmed);
       }
     }

@@ -103,8 +103,8 @@ const rule: WorkspaceRule = {
               break;
             }
           }
-          
-const filePath: string = matchingPkg?.path ?? entry.packageName;
+
+          const filePath: string = matchingPkg?.path ?? entry.packageName;
           results.push(
             createResult(
               'workspace/enforce-peer-dependency-consistency',

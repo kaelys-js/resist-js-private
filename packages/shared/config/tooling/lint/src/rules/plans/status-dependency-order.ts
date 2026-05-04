@@ -7,7 +7,12 @@
  * @module
  */
 
-import { createResult, type LintResult, type WorkspaceRule } from '@/lint/framework/types.ts';
+import {
+  createResult,
+  type LintFix,
+  type LintResult,
+  type WorkspaceRule,
+} from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 import {
   discoverPlanFiles,
@@ -19,6 +24,42 @@ import {
 /** Rule ID constant. */
 const RULE_ID: string = 'plans/status-dependency-order';
 
+/** No-op fix sentinel. */
+const NO_FIX: LintFix = { range: { start: 0, end: 0 }, text: '' };
+
+/**
+ * Build a fix that changes `[x]` to `[ ]` on the task's status line,
+ * reverting the task since its dependency isn't complete.
+ *
+ * @param {string} content - Full plan file content
+ * @param {number} taskLine - 1-based line number of the task header
+ * @returns {LintFix} Fix that reverts status or NO_FIX
+ */
+function buildRevertStatusFix(content: string, taskLine: number): LintFix {
+  const lines: string[] = content.split('\n');
+
+  /* Search the task header and a few lines below for **Status**: [x] */
+  for (let i: number = taskLine - 1; i < Math.min(taskLine + 5, lines.length); i++) {
+    const line: string = lines[i] ?? '';
+    const idx: number = line.indexOf('[x]');
+
+    if (idx !== -1 && /\*\*Status\*\*/.test(line)) {
+      /* Compute byte offset */
+      let byteOffset: number = 0;
+
+      for (let li: number = 0; li < i; li++) {
+        byteOffset += (lines[li] ?? '').length + 1; /* +1 for \n */
+      }
+
+      const matchStart: number = byteOffset + idx;
+
+      return { range: { start: matchStart, end: matchStart + 3 }, text: '[ ]' };
+    }
+  }
+
+  return NO_FIX;
+}
+
 /** The status-dependency-order lint rule. */
 const rule: WorkspaceRule = {
   id: RULE_ID,
@@ -27,7 +68,7 @@ const rule: WorkspaceRule = {
   scope: 'workspace',
   categories: ['plans'],
   stages: ['ci'],
-  fixable: false,
+  fixable: true,
 
   async inputs(context: unknown): Promise<readonly string[]> {
     return discoverPlanFiles(context as WorkspaceContext);
@@ -86,6 +127,7 @@ const rule: WorkspaceRule = {
                 `TASK ${String(dep.task)} (${task.name}) is [x] but depends on TASK ${String(depNum)} (${depName}) which is ${depStatus}.`,
                 {
                   tip: `Either complete TASK ${String(depNum)} first or update the dependency in the Execution Order table.`,
+                  fix: buildRevertStatusFix(content, task.line),
                 },
               ),
             );

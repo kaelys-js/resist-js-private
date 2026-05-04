@@ -382,8 +382,8 @@ function parseFields(body: Str): FieldInfo[] {
         if (before) {
           jsdocBuf.push(before);
         }
-        
-const truthyBuf: Str[] = [];
+
+        const truthyBuf: Str[] = [];
 
         for (const item of jsdocBuf) {
           if (item) {

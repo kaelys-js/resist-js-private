@@ -1266,8 +1266,8 @@ describe('Lens lint', () => {
         const args: string = match[1] ?? '';
         const snippetProps: string[] = ['children', 'icon', 'footer', 'child', 'header', 'trigger'];
         const found: string[] = [];
-        
-for (const p of snippetProps) {
+
+        for (const p of snippetProps) {
           if (new RegExp(`\\b${p}\\b`).test(args)) {
             found.push(p);
           }
