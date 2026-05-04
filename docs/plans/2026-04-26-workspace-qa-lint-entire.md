@@ -92,7 +92,7 @@ The 19 non-`@/lint` errors are addressed in TASK 5 / 6 / 7.
 
 ## TASK 1 — `@/lint` Group A: 5 high-density files (87 errors)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: Five files account for 87 of 254 `@/lint` errors. Fixing these in isolation is the cheapest first cut and de-risks the bulk-Edit pattern library before fanning out.
 
@@ -122,7 +122,7 @@ The 19 non-`@/lint` errors are addressed in TASK 5 / 6 / 7.
 
 ## TASK 2 — `@/lint` Group B: medium-density files (40 errors)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: Eight files with 7–8 errors each: tools (`tsgo.ts` 7), workspace rules (`vscode-brand-sync.test.ts` 8), plan rules (`plan-parser.ts` 5), api (`api.ts` 5), and four others. Same pattern library as TASK 1.
 
@@ -150,7 +150,7 @@ The 19 non-`@/lint` errors are addressed in TASK 5 / 6 / 7.
 
 ## TASK 3 — `@/lint` Group C: low-density files (~127 errors across ~92 files)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: ~92 files in `@/lint` with 1–4 errors each. Roughly half are workspace rules (`rules/workspace/*.ts`), the rest scattered across `tools/`, `rules/{plans,vscode,hygiene,jsdoc,primitives,svelte5,testing}/`, `framework/`, `config/`. Mechanical application of the pattern library.
 
@@ -240,7 +240,7 @@ The 19 non-`@/lint` errors are addressed in TASK 5 / 6 / 7.
 
 ## TASK 4 — Plan-file structural fixes (10 errors across 4 files)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: Older plan files in `docs/plans/` were written before the current `plans/*` lint rules existed. They violate `plans/no-empty-plan-sections`, `plans/require-concrete-verification`, and `plans/require-test-files`.
 
@@ -263,7 +263,7 @@ The 19 non-`@/lint` errors are addressed in TASK 5 / 6 / 7.
 
 ## TASK 5 — Delete dead `button.svelte.d.ts` shim (4 svelte-check errors)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: `packages/shared/ui/src/button/button.svelte.d.ts` was committed in commit `6e0dba96` as a hand-rolled type shim that duplicates the new `types.ts` export surface. It is dead code, and downstream consumers (`packages/products-template/app`) get spurious "Module '*.svelte' has no exported member 'ButtonProps'" errors because svelte-check resolves the .d.ts shim instead of `types.ts`.
 
@@ -284,7 +284,7 @@ The 19 non-`@/lint` errors are addressed in TASK 5 / 6 / 7.
 
 ## TASK 6 — `badge/types.ts` duplicate-import fix (1 error)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: `packages/shared/ui/src/badge/types.ts` line 18 imports `Bool` from `@/schemas/common` after already importing `StrSchema`/`BoolSchema` from the same module on a prior line. `oxlint/no-duplicate-imports` flags this.
 
@@ -304,7 +304,7 @@ The 19 non-`@/lint` errors are addressed in TASK 5 / 6 / 7.
 
 ## TASK 7 — Lens test JSDoc on new helpers (4 errors)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: The `readSvelteWithTypes` and `readComponentSource` helpers I added to `lint-lens.test.ts` and `extract-props.test.ts` in commit `6e0dba96` already have JSDoc but the lint runner says they're missing `@param` and `@returns`. Likely the JSDoc block isn't directly attached or the parameter name doesn't match.
 
@@ -324,7 +324,7 @@ The 19 non-`@/lint` errors are addressed in TASK 5 / 6 / 7.
 
 ## TASK 8 — Register Rules + Config
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - This phase only fixes existing source/JSDoc/import issues; no new rules added.
@@ -345,7 +345,7 @@ The 19 non-`@/lint` errors are addressed in TASK 5 / 6 / 7.
 
 ## TASK 9 — Integration Verification
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Command registration check: lint package has no slash-commands; `grep -rc 'registerCommand' packages/shared/config/tooling/lint/src` is unchanged from baseline (likely 0).
@@ -366,7 +366,7 @@ The 19 non-`@/lint` errors are addressed in TASK 5 / 6 / 7.
 
 ## TASK 10 — Full QA + Coverage
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Run: `pnpm -w run qa:format` — exits 0.
@@ -387,7 +387,7 @@ The 19 non-`@/lint` errors are addressed in TASK 5 / 6 / 7.
 
 ## TASK 11 — Final Verification + Commit
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Verify all touched files match the spec from TASKS 1–7.

@@ -39,7 +39,7 @@ Each task is atomic: implement → verify (`qa:lint`) → update plan → next.
 
 ## TASK 1 — Move historical plans to `docs/plans-archive/`
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: Twelve plan files in `docs/plans/` document already-completed cleanup work but trip 183 diagnostics under the current `plans/*` workspace rules. The historical record should be preserved verbatim (no post-hoc edits to bullets/verifications) but moved out of the rule's scope.
 
@@ -72,7 +72,7 @@ Each task is atomic: implement → verify (`qa:lint`) → update plan → next.
 
 ## TASK 2 — Register Rules + Config
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - No rule code changes — `discoverPlanFiles` filter at `plan-parser.ts:360` already scopes correctly.
@@ -94,7 +94,7 @@ Each task is atomic: implement → verify (`qa:lint`) → update plan → next.
 
 ## TASK 3 — Integration Verification
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Command registration check: `grep -rc 'registerCommand' packages/shared/config/tooling/lint/src` is unchanged from baseline (no runtime code touched).
@@ -111,7 +111,7 @@ Each task is atomic: implement → verify (`qa:lint`) → update plan → next.
 
 ## TASK 4 — Full QA + Coverage
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Run: `pnpm -w run qa:format` (formats any whitespace adjustments from rename).
@@ -127,7 +127,7 @@ Each task is atomic: implement → verify (`qa:lint`) → update plan → next.
 
 ## TASK 5 — Final Verification + Commit
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Verify `git status --short` lists exactly: 12 `R` (renames into plans-archive) + 1 `A` (new active plan file). No other entries.

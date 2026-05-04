@@ -81,7 +81,7 @@ Each task is atomic: implement -> verify -> update plan -> next.
 
 ## TASK 3 — Archive stale plan docs (resolve 129 `plans/*` errors)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: 129 of 132 lint failures are stale-plan validation rule violations: `plans/no-incomplete-tasks` (110), `plans/files-exist` (8), `plans/require-concrete-verification` (5), `plans/require-test-files` (3), `plans/no-empty-plan-sections` (3). These are spread across plan docs older than 7 days that were never finished or never satisfied current rule shapes. Per the rule (`packages/shared/config/tooling/lint/src/rules/plans/no-incomplete-tasks.ts:49-50`), only files matching `/docs/plans/` are scanned, so archiving requires moving files OUT of `docs/plans/` entirely.
 
@@ -105,7 +105,7 @@ Each task is atomic: implement -> verify -> update plan -> next.
 
 ## TASK 4 — Register Rules + Config
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - TASK 1 introduces `findWorkspaceRoot` as a non-exported helper inside `tool-orchestrator.ts` — verify it is NOT added to any barrel file. Confirm via `grep -n "findWorkspaceRoot" packages/shared/config/tooling/lint/src/index.ts` returns nothing.
@@ -125,7 +125,7 @@ Each task is atomic: implement -> verify -> update plan -> next.
 
 ## TASK 5 — Integration Verification
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Command registration check: this plan registers no CLI commands. Capture baseline `registerCommand` count: `grep -rE "registerCommand" packages/shared/config/tooling/lint/src | wc -l` — must equal post-change count.
@@ -143,7 +143,7 @@ Each task is atomic: implement -> verify -> update plan -> next.
 
 ## TASK 6 — Full QA + Coverage
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Run: `pnpm -w run qa:format`
@@ -162,7 +162,7 @@ Each task is atomic: implement -> verify -> update plan -> next.
 
 ## TASK 7 — Final Verification + Commit
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Verify `tool-orchestrator.ts` resolver change exists and the new test file lines compile.

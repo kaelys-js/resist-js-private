@@ -41,7 +41,7 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint --tools` for the
 
 ## TASK 1 — Convert 5 detection rules from line-text to AST comment-only scanning
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: `comments/no-lint-disable.ts:46-77`, `directives/require-ts-expect-error-reason.ts:34-58`, `directives/no-ts-ignore.ts`, `directives/no-ts-nocheck.ts`, `directives/no-oxlint-ignore.ts`, `directives/no-eslint-disable.ts`, `directives/no-ts-expect-error-on-any.ts`, `directives/max-suppressions-per-file.ts`, `directives/no-suppression-in-new-code.ts` all use `context.content.split('\n')` line-text scanning. They flag any line whose text matches the detection RegExp — including (a) rule source files where the RegExp is declared as a constant, (b) rule unit-test fixture strings, (c) rule docstrings, (d) string literals containing the pattern as documentation. ~140 of the 290 errors trace to this self-flagging.
 
@@ -78,7 +78,7 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint --tools` for the
 
 ## TASK 2 — Migrate type-test `@ts-expect-error` directives to runtime `expectTypeError<T>()` helper
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: `packages/shared/schemas/template-literal/src/infer.ts` (34 errors), `packages/shared/schemas/template-literal/src/template-literal.test.ts` (22 errors), and similar type-test patterns use `// @ts-expect-error -- conditional branch: …` to assert that a generic constraint correctly errors when violated. Once TASK 1's AST scan lands, these still fail `comments/no-lint-disable` because they ARE actual comments. They cannot simply be removed (that defeats the test). They must be replaced with a non-comment-based type-assertion mechanism.
 
@@ -110,7 +110,7 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint --tools` for the
 
 ## TASK 3 — Configure underlying linters via `.oxlintrc.json` to eliminate real `oxlint-disable` directives
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: `packages/products/storylyne/editor/e2e/{error-pages,head-meta,layout}.test.ts` contain `// oxlint-disable-next-line text-encoding-identifier-case -- HTML charset attribute uses "utf-8" per spec` (4×) and `/* oxlint-disable no-undef -- page.evaluate callbacks run in browser context where getComputedStyle is a global */` (1× block). `@/cli` and several other source files contain `eslint-disable` survivors from pre-oxlint era.
 
@@ -138,7 +138,7 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint --tools` for the
 
 ## TASK 4 — Convert remaining real `@ts-ignore` / `@ts-nocheck` / `/* global */` to proper TypeScript narrowing or oxlintrc globals
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: After TASKs 1–3 and Mass-removal of `@ts-expect-error` from type-tests, residual real suppressions remain: ~19 `@ts-ignore` (legacy escape hatches that pre-date strict TS), ~15 `@ts-nocheck` (whole-file disables), ~4 `/* global */` declarations. CLAUDE.md mandates "Add missing globals to `.oxlintrc.json` instead of `/* global */` comments."
 
@@ -162,7 +162,7 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint --tools` for the
 
 ## TASK 5 — Fix the lone jsdoc/param-type-match diagnostic
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: `packages/shared/secrets/infisical/src/cloudflare.ts:315` has `@param {readonly (keyof ProductSecrets)[]} keys - …` but the actual parameter type at line 326 is `ReadonlyArray<keyof ProductSecrets>`. The `jsdoc/param-type-match` rule (added in commit 0020a194) compares the JSDoc form against the TS signature and rejects the syntactic mismatch.
 
@@ -184,7 +184,7 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint --tools` for the
 
 ## TASK 6 — Register Rules + Config
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - This phase doesn't add new rules; it modifies five existing ones. Nothing to register in `.resist-lint.jsonc` — the activations are already there from commit 0020a194.
@@ -202,7 +202,7 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint --tools` for the
 
 ## TASK 7 — Integration Verification
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - **Command registration check**: `grep -cE 'registerCommand\|command\.register' packages/shared/config/tooling/lint/src/` is unchanged from baseline (this phase adds no CLI commands).
@@ -221,7 +221,7 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint --tools` for the
 
 ## TASK 8 — Full QA + Coverage
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Run: `pnpm -w run qa:format`
@@ -243,7 +243,7 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint --tools` for the
 
 ## TASK 9 — Final Verification + Commit
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Verify TASK 1 lint output drop ≥140 errors (rule self-flagging eliminated).

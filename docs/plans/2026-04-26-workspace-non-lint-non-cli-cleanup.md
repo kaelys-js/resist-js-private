@@ -47,7 +47,7 @@ Each task is atomic: implement → verify per-file (`pnpm exec svelte-check` on 
 
 ## TASK 1 — Sample top-density files to characterize patterns
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: Cannot fix per-site without knowing the specific failure shapes. Prior storylyne-editor cleanup this session resolved similar errors via 5 patterns (Svelte-5 snippet typing, `Result<T>` unwrap, `LoadEvent` shape, bits-ui prop API drift, `InferOutput`→`InferInput` for component props). Need to confirm the same 5 patterns dominate the 268 remaining errors before grinding.
 
@@ -71,7 +71,7 @@ Each task is atomic: implement → verify per-file (`pnpm exec svelte-check` on 
 
 ## TASK 2 — Group A: per-site fixes for `(testing)/components/[name]/+page.svelte` (61 errors)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: This single file has 61 svelte-check errors — 23% of the total. Almost certainly a small set of repeating patterns (Snippet param shapes, prop-type mismatches, etc.) replicated across many lens-demo-page sections. Fixing this one file will cut the error count by nearly a quarter.
 
@@ -92,7 +92,7 @@ Each task is atomic: implement → verify per-file (`pnpm exec svelte-check` on 
 
 ## TASK 3 — Group B: per-site fixes for `(testing)/+layout.svelte` (53 errors)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: Second-largest error file. This is the (testing) layout — likely shares the snippet/prop-typing patterns with TASK 2's [name] page. After TASK 2's pattern library is established, TASK 3 should mostly be applying the same fixes.
 
@@ -113,7 +113,7 @@ Each task is atomic: implement → verify per-file (`pnpm exec svelte-check` on 
 
 ## TASK 4 — Group C: medium-density files (icons, changelog, components/category, tokens, components/tags, DevToolbar, components/all, accessibility) — 75 errors total
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: 8 files with 7–21 errors each. Same patterns as TASKS 2–3.
 
@@ -140,7 +140,7 @@ Each task is atomic: implement → verify per-file (`pnpm exec svelte-check` on 
 
 ## TASK 5 — Group D: low-density files (~27 files, 1–7 errors each)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: ~72 errors spread thinly across 27 `.svelte` files. Mechanical application of the pattern library.
 
@@ -176,7 +176,7 @@ Each task is atomic: implement → verify per-file (`pnpm exec svelte-check` on 
 
 ## TASK 6 — Group E: 5 trivial oxlint fixes
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: 2 `oxlint/require-await`, 2 `oxlint/no-unused-vars`, 1 `oxlint/consistent-indexed-object-style`. All mechanical.
 
@@ -196,7 +196,7 @@ Each task is atomic: implement → verify per-file (`pnpm exec svelte-check` on 
 
 ## TASK 7 — Register Rules + Config
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - This is type-error / per-site cleanup; no rule extensions or config edits expected.
@@ -215,7 +215,7 @@ Each task is atomic: implement → verify per-file (`pnpm exec svelte-check` on 
 
 ## TASK 8 — Integration Verification
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Command registration check: `grep -rc 'registerCommand' packages/products/storylyne/editor/src` is unchanged from baseline (no commands added/removed by type-error fixes).
@@ -233,7 +233,7 @@ Each task is atomic: implement → verify per-file (`pnpm exec svelte-check` on 
 
 ## TASK 9 — Full QA + Coverage
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Run: `pnpm -w run qa:format`.
@@ -251,7 +251,7 @@ Each task is atomic: implement → verify per-file (`pnpm exec svelte-check` on 
 
 ## TASK 10 — Final Verification + Commit
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Verify all touched files match the spec from TASKS 2–6.
