@@ -10,9 +10,34 @@
 import type {
   TypeScriptRule,
   LintResult,
+  LintFix,
   AstNode,
   VisitorContext,
 } from '@/lint/framework/types.ts';
+
+/**
+ * Build a fix that deletes the entire re-export statement including trailing newline.
+ *
+ * @param {AstNode} node - The re-export AST node
+ * @param {string} content - Full source text
+ * @returns {LintFix} Fix that removes the statement line
+ */
+function buildDeleteStatementFix(node: AstNode, content: string): LintFix {
+  let end: number = node.end as number;
+
+  /* Extend past trailing semicolons and whitespace to the next newline */
+  while (end < content.length && content[end] !== '\n') {
+    end++;
+  }
+
+  /* Include the newline itself */
+  if (end < content.length && content[end] === '\n') {
+    end++;
+  }
+
+  return { range: { start: node.start as number, end }, text: '' };
+}
+
 /** The no-reexport lint rule. */
 const rule: TypeScriptRule = {
   id: 'imports/no-reexport',
@@ -20,7 +45,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['imports', 'architecture'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     ExportAllDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
@@ -37,7 +62,7 @@ const rule: TypeScriptRule = {
         message: `Re-export 'export * from "${value}"' is forbidden — import from canonical source`,
         ruleId: 'imports/no-reexport',
         tip: 'Import directly from the canonical source instead of re-exporting',
-        fix: { range: { start: node.start, end: node.end }, text: '' },
+        fix: buildDeleteStatementFix(node, context.content),
       });
 
       return results;
@@ -62,7 +87,7 @@ const rule: TypeScriptRule = {
         message: `Re-export from "${value}" is forbidden — import from canonical source`,
         ruleId: 'imports/no-reexport',
         tip: 'Import directly from the canonical source instead of re-exporting',
-        fix: { range: { start: node.start, end: node.end }, text: '' },
+        fix: buildDeleteStatementFix(node, context.content),
       });
 
       return results;
