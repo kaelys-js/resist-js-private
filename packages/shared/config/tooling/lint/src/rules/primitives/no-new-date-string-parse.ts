@@ -20,7 +20,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     NewExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -50,6 +50,36 @@ const rule: TypeScriptRule = {
         return results;
       }
 
+      /* Fix: parse common date string formats into explicit numeric constructor */
+      let fix = { range: { start: 0, end: 0 }, text: '' };
+      const dateStr = firstArg.value as string;
+
+      /* Match YYYY-MM-DD or YYYY/MM/DD optionally followed by T or space then HH:MM:SS */
+      const dateTimeMatch = /^(\d{4})[-/](\d{2})[-/](\d{2})(?:[T ](\d{2}):(\d{2}):(\d{2}))?$/.exec(
+        dateStr,
+      );
+
+      if (dateTimeMatch) {
+        const year = dateTimeMatch[1];
+        const month = Number(dateTimeMatch[2]) - 1;
+        const day = dateTimeMatch[3];
+
+        if (dateTimeMatch[4]) {
+          const hour = dateTimeMatch[4];
+          const minute = dateTimeMatch[5];
+          const second = dateTimeMatch[6];
+          fix = {
+            range: { start: node.start, end: node.end },
+            text: `new Date(${year}, ${month}, ${day}, ${hour}, ${minute}, ${second})`,
+          };
+        } else {
+          fix = {
+            range: { start: node.start, end: node.end },
+            text: `new Date(${year}, ${month}, ${day})`,
+          };
+        }
+      }
+
       results.push({
         file: context.file,
         line: node.loc.start.line,
@@ -58,7 +88,7 @@ const rule: TypeScriptRule = {
         message: 'Date string parsing is inconsistent - use explicit constructor or date library',
         ruleId: 'primitives/no-new-date-string-parse',
         tip: 'Use new Date(year, month, day) or ISO 8601 with timezone, or use date-fns',
-        fix: { range: { start: 0, end: 0 }, text: '' },
+        fix,
       });
 
       return results;

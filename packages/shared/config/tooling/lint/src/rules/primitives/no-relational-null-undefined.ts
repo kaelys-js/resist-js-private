@@ -34,7 +34,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     BinaryExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -57,6 +57,22 @@ const rule: TypeScriptRule = {
       const right = rightRaw as AstNode;
 
       if (isNullOrUndefined(left) || isNullOrUndefined(right)) {
+        /* Fix: add explicit nullish guard before the relational comparison */
+        let fix = { range: { start: 0, end: 0 }, text: '' };
+        const leftIsNullish = isNullOrUndefined(left);
+        const valueNode = leftIsNullish ? right : left;
+        const nullishNode = leftIsNullish ? left : right;
+        const valueText: string = context.getNodeText(valueNode);
+        const nullishText: string = context.getNodeText(nullishNode);
+        const isUndefined =
+          nullishNode.type === 'Identifier' && (nullishNode.name as string) === 'undefined';
+        const guard: string = isUndefined ? `${valueText} !== undefined` : `${valueText} != null`;
+
+        fix = {
+          range: { start: node.start, end: node.end },
+          text: `${guard} && ${valueText} ${operator} 0`,
+        };
+
         results.push({
           file: context.file,
           line: node.loc.start.line,
@@ -65,7 +81,7 @@ const rule: TypeScriptRule = {
           message: 'Relational comparison with null/undefined has counterintuitive results',
           ruleId: 'primitives/no-relational-null-undefined',
           tip: 'Check for null/undefined separately before relational comparison',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix,
         });
       }
 

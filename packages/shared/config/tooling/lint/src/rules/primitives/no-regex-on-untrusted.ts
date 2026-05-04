@@ -20,7 +20,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     NewExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -50,6 +50,25 @@ const rule: TypeScriptRule = {
         return results;
       }
 
+      /* Fix: wrap the pattern argument with inline regex escaping */
+      const patternText: string = context.getNodeText(firstArg);
+      /* The output regex escapes all special regex chars in the user input */
+      const escapeCall: string =
+        patternText + '.replace(/[.*+?^${}()|[\\]' + '\\\\' + ']/g, ' + "'\\\\$&'" + ')';
+      let fixText: string;
+
+      if (args.length > 1) {
+        const flagsText: string = context.getNodeText(args[1] as AstNode);
+        fixText = 'new RegExp(' + escapeCall + ', ' + flagsText + ')';
+      } else {
+        fixText = 'new RegExp(' + escapeCall + ')';
+      }
+
+      const fix = {
+        range: { start: node.start, end: node.end },
+        text: fixText,
+      };
+
       results.push({
         file: context.file,
         line: node.loc.start.line,
@@ -59,7 +78,7 @@ const rule: TypeScriptRule = {
           'RegExp with user input is ReDoS vulnerability - escape input or use string methods',
         ruleId: 'primitives/no-regex-on-untrusted',
         tip: 'Use escapeRegExp(input) or string methods like includes(), startsWith()',
-        fix: { range: { start: 0, end: 0 }, text: '' },
+        fix,
       });
 
       return results;

@@ -20,7 +20,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -42,6 +42,23 @@ const rule: TypeScriptRule = {
         calleePropNode &&
         calleePropName === 'charAt'
       ) {
+        /* Fix: str.charAt(i) → [...str][i] */
+        let fix = { range: { start: 0, end: 0 }, text: '' };
+        const objRaw: unknown = calleeNode.object;
+        const objNode =
+          objRaw !== null && typeof objRaw === 'object' ? (objRaw as AstNode) : undefined;
+
+        if (objNode) {
+          const objText: string = context.getNodeText(objNode);
+          const nodeArgs = node.arguments as AstNode[] | undefined;
+          const idxText: string =
+            nodeArgs && nodeArgs.length > 0 ? context.getNodeText(nodeArgs[0] as AstNode) : '0';
+          fix = {
+            range: { start: node.start, end: node.end },
+            text: `[...${objText}][${idxText}]`,
+          };
+        }
+
         results.push({
           file: context.file,
           line: node.loc.start.line,
@@ -50,7 +67,7 @@ const rule: TypeScriptRule = {
           message: 'String indexing may split unicode characters - use [...str] or for...of',
           ruleId: 'primitives/no-string-index-unicode',
           tip: 'Use [...str][i] for character access or for...of for iteration',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix,
         });
       }
 

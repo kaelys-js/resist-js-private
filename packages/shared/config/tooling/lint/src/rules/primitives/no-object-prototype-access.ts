@@ -23,7 +23,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -45,6 +45,34 @@ const rule: TypeScriptRule = {
           const propName = propNode.name as string;
 
           if (propNode.type === 'Identifier' && PROTOTYPE_METHODS.has(propName)) {
+            /* Fix: rewrite to safe static call */
+            let fix = { range: { start: 0, end: 0 }, text: '' };
+            const objRaw: unknown = callee.object;
+            const objNode =
+              objRaw !== null && typeof objRaw === 'object' ? (objRaw as AstNode) : undefined;
+            const nodeArgs = node.arguments as AstNode[] | undefined;
+
+            if (objNode && nodeArgs && nodeArgs.length > 0) {
+              const objText: string = context.getNodeText(objNode);
+              const argsText: string = nodeArgs
+                .map((a: AstNode) => context.getNodeText(a))
+                .join(', ');
+
+              if (propName === 'hasOwnProperty') {
+                /* obj.hasOwnProperty(key) → Object.hasOwn(obj, key) */
+                fix = {
+                  range: { start: node.start, end: node.end },
+                  text: `Object.hasOwn(${objText}, ${argsText})`,
+                };
+              } else {
+                /* propertyIsEnumerable / isPrototypeOf → Object.prototype.<method>.call(obj, args) */
+                fix = {
+                  range: { start: node.start, end: node.end },
+                  text: `Object.prototype.${propName}.call(${objText}, ${argsText})`,
+                };
+              }
+            }
+
             results.push({
               file: context.file,
               line: node.loc.start.line,
@@ -53,7 +81,7 @@ const rule: TypeScriptRule = {
               message: `Use Object.hasOwn() instead of obj.${propName}()`,
               ruleId: 'primitives/no-object-prototype-access',
               tip: 'Use Object.hasOwn(obj, key) - works for all objects',
-              fix: { range: { start: 0, end: 0 }, text: '' },
+              fix,
             });
           }
         }

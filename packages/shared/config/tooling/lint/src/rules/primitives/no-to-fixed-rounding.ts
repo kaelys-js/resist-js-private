@@ -22,7 +22,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -50,6 +50,45 @@ const rule: TypeScriptRule = {
         }
 
         if (propertyName === 'toFixed') {
+          /* Fix: expr.toFixed(n) → (Math.round(expr * 10**n) / 10**n).toString() */
+          let fix = { range: { start: 0, end: 0 }, text: '' };
+          const objRaw: unknown = calleeNode.object;
+          const objNode =
+            objRaw !== null && typeof objRaw === 'object' ? (objRaw as AstNode) : undefined;
+
+          if (objNode) {
+            const objText: string = context.getNodeText(objNode);
+            const nodeArgs = node.arguments as AstNode[] | undefined;
+
+            if (!nodeArgs || nodeArgs.length === 0) {
+              /* .toFixed() with no args = .toFixed(0) */
+              fix = {
+                range: { start: node.start, end: node.end },
+                text: `Math.round(${objText}).toString()`,
+              };
+            } else {
+              const digitsArg = nodeArgs[0] as AstNode;
+
+              if (
+                digitsArg.type === 'Literal' &&
+                typeof (digitsArg.value as unknown) === 'number'
+              ) {
+                const digits = digitsArg.value as number;
+                const multiplier = 10 ** digits;
+                fix = {
+                  range: { start: node.start, end: node.end },
+                  text: `(Math.round(${objText} * ${multiplier}) / ${multiplier}).toString()`,
+                };
+              } else {
+                const digitsText: string = context.getNodeText(digitsArg);
+                fix = {
+                  range: { start: node.start, end: node.end },
+                  text: `(Math.round(${objText} * 10 ** ${digitsText}) / 10 ** ${digitsText}).toString()`,
+                };
+              }
+            }
+          }
+
           results.push({
             file: context.file,
             line: node.loc.start.line,
@@ -59,7 +98,7 @@ const rule: TypeScriptRule = {
               'toFixed() has inconsistent rounding - use decimal library for precision or integers for currency',
             ruleId: 'primitives/no-toFixed-rounding',
             tip: 'For currency, use integers (cents). For display, round explicitly first.',
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix,
           });
         }
       }
