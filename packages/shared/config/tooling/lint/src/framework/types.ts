@@ -49,6 +49,85 @@ export const LintFixSchema = v.strictObject({
 /** A structured code fix that can be auto-applied. See {@link LintFixSchema}. */
 export type LintFix = v.InferOutput<typeof LintFixSchema>;
 
+// =============================================================================
+// File Operation Fixes (extended fix architecture)
+// =============================================================================
+
+/**
+ * A file-level fix operation: rename, move, or create.
+ *
+ * These complement the byte-range text replacement ({@link LintFix}) for rules
+ * that detect file naming/location issues. Each operation is a single-file
+ * action — no multi-file atomic transactions.
+ *
+ * Backward compatibility: The existing `{ range, text }` shape remains the
+ * primary fix type. File ops are distinguished by the `type` discriminant.
+ */
+export type FileOpFix =
+  | { type: 'rename'; from: string; to: string }
+  | { type: 'move'; from: string; to: string }
+  | { type: 'create'; path: string; content: string };
+
+/** Schema for file rename operations. */
+export const FileOpRenameSchema = v.strictObject({
+  /** Discriminant — always 'rename' for rename operations */
+  type: v.literal('rename'),
+  /** Absolute path of the source file */
+  from: v.string(),
+  /** Absolute path of the destination file (new name, same directory) */
+  to: v.string(),
+});
+
+/** Schema for file move operations. */
+export const FileOpMoveSchema = v.strictObject({
+  /** Discriminant — always 'move' for move operations */
+  type: v.literal('move'),
+  /** Absolute path of the source file */
+  from: v.string(),
+  /** Absolute path of the destination file (new directory) */
+  to: v.string(),
+});
+
+/** Schema for file create operations. */
+export const FileOpCreateSchema = v.strictObject({
+  /** Discriminant — always 'create' for create operations */
+  type: v.literal('create'),
+  /** Absolute path of the file to create */
+  path: v.string(),
+  /** File content to write */
+  content: v.string(),
+});
+
+/** Unified schema for all file operation fix types. */
+export const FileOpFixSchema = v.union([FileOpRenameSchema, FileOpMoveSchema, FileOpCreateSchema]);
+
+/**
+ * Type guard: checks whether a fix is a file operation (has `type` discriminant).
+ *
+ * @param {unknown} fix - The fix object to check
+ * @returns {fix is FileOpFix} Whether the fix is a FileOpFix
+ */
+export function isFileOpFix(fix: unknown): fix is FileOpFix {
+  return (
+    typeof fix === 'object' &&
+    fix !== null &&
+    'type' in fix &&
+    (fix.type === 'rename' || fix.type === 'move' || fix.type === 'create')
+  );
+}
+
+/**
+ * Type guard: checks whether a fix is a text replacement (has `range` and `text`).
+ *
+ * @param {unknown} fix - The fix object to check
+ * @returns {fix is LintFix} Whether the fix is a LintFix (text replacement)
+ */
+export function isTextFix(fix: unknown): fix is LintFix {
+  return (
+    typeof fix === 'object' && fix !== null && 'range' in fix && 'text' in fix && !('type' in fix)
+  );
+}
+
 /** Schema for a single lint diagnostic produced by a rule. */
 export const LintResultSchema = v.strictObject({
   /** Absolute file path */
@@ -77,8 +156,8 @@ export const LintResultSchema = v.strictObject({
   url: v.optional(v.string()),
   /** Human-readable description of the rule that produced this diagnostic */
   description: v.optional(v.string()),
-  /** Structured auto-fix — every result MUST include a fix */
-  fix: LintFixSchema,
+  /** Structured auto-fix — every result MUST include a fix (text replacement or file op) */
+  fix: v.union([LintFixSchema, FileOpFixSchema]),
 });
 
 /** A single lint diagnostic produced by a rule. See {@link LintResultSchema}. */
@@ -97,8 +176,8 @@ type CreateResultOpts = {
   source?: string;
   /** Link to documentation for the rule. */
   url?: string;
-  /** Structured auto-fix (defaults to no-op if omitted). */
-  fix?: LintFix;
+  /** Structured auto-fix (defaults to no-op if omitted). Text replacement or file op. */
+  fix?: LintFix | FileOpFix;
   /** End line for range highlighting. */
   endLine?: number;
   /** End column for range highlighting. */
