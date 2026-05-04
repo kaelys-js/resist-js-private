@@ -382,7 +382,15 @@ function parseFields(body: Str): FieldInfo[] {
         if (before) {
           jsdocBuf.push(before);
         }
-        pendingJSDoc = jsdocBuf.filter(Boolean).join(' ') as Str;
+        
+const truthyBuf: Str[] = [];
+
+        for (const item of jsdocBuf) {
+          if (item) {
+            truthyBuf.push(item);
+          }
+        }
+        pendingJSDoc = truthyBuf.join(' ') as Str;
         inJSDoc = false;
         jsdocBuf = [];
       } else {
@@ -872,9 +880,13 @@ export function computeLensCompatibility(input: LensCompatibilityInput): LensCom
       while (stripMatch) {
         const args: Str = (stripMatch[1] ?? '') as string as Str;
         const snippetNames: string[] = ['children', 'icon', 'footer', 'child', 'header', 'trigger'];
-        const found: string[] = snippetNames.filter((p: string): boolean =>
-          new RegExp(`\\b${p}\\b`).test(args as string),
-        );
+        const found: string[] = [];
+
+        for (const p of snippetNames) {
+          if (new RegExp(`\\b${p}\\b`).test(args as string)) {
+            found.push(p);
+          }
+        }
 
         if (found.length > 0) {
           violations.push({

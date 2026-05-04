@@ -146,9 +146,13 @@ const rule: WorkspaceRule = {
       }
 
       /** Check stage order. */
-      const filteredDeclared: string[] = declaredStages.filter((s: string): boolean =>
-        approvedSet.has(s),
-      );
+      const filteredDeclared: string[] = [];
+
+      for (const s of declaredStages) {
+        if (approvedSet.has(s)) {
+          filteredDeclared.push(s);
+        }
+      }
 
       for (const [i, actual] of filteredDeclared.entries()) {
         const expected: string | undefined = APPROVED_STAGES[i];

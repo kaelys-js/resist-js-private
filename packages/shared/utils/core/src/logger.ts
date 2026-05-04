@@ -462,11 +462,16 @@ function redactObject(obj: unknown): unknown {
   const result: Record<string, unknown> = {};
 
   for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
-    const shouldRedact: boolean = _redactionConfig.paths.some((path) => {
+    let shouldRedact: boolean = false;
+
+    for (const path of _redactionConfig.paths) {
       const pathParts: string[] = path.split('.');
 
-      return pathParts.at(-1) === key;
-    });
+      if (pathParts.at(-1) === key) {
+        shouldRedact = true;
+        break;
+      }
+    }
 
     if (shouldRedact && (typeof value === 'string' || typeof value === 'number')) {
       result[key] = _redactionConfig.censor ?? '[REDACTED]';

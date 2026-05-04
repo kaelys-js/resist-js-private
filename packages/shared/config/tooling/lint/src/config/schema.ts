@@ -194,9 +194,14 @@ export function resolveRuleSeverity(
       continue;
     }
 
-    const matches: boolean = override.files.some((pattern: string): boolean =>
-      fileMatchesPattern(filePath, pattern),
-    );
+    let matches: boolean = false;
+
+    for (const pattern of override.files) {
+      if (fileMatchesPattern(filePath, pattern)) {
+        matches = true;
+        break;
+      }
+    }
 
     if (matches && ruleId in override.rules) {
       return override.rules[ruleId] ?? 'error';

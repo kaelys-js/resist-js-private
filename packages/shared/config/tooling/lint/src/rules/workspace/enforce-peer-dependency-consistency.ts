@@ -95,10 +95,16 @@ const rule: WorkspaceRule = {
 
       if (uniqueVersions.size > 1) {
         for (const entry of entries) {
-          const matchingPkg: WorkspacePackage | undefined = packages.find(
-            (p: WorkspacePackage): boolean => (p.name ?? p.dir) === entry.packageName,
-          );
-          const filePath: string = matchingPkg?.path ?? entry.packageName;
+          let matchingPkg: WorkspacePackage | undefined;
+
+          for (const p of packages) {
+            if ((p.name ?? p.dir) === entry.packageName) {
+              matchingPkg = p;
+              break;
+            }
+          }
+          
+const filePath: string = matchingPkg?.path ?? entry.packageName;
           results.push(
             createResult(
               'workspace/enforce-peer-dependency-consistency',

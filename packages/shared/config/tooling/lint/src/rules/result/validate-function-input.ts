@@ -342,8 +342,19 @@ const rule: TypeScriptRule = {
         if (init.type === 'ArrowFunctionExpression' || init.type === 'FunctionExpression') {
           const name: string = ((declarator.id as AstNode)?.name as string) ?? '';
 
-          if (name && HANDLER_PATTERNS.some((p: RegExp): boolean => p.test(name))) {
-            results.push(...checkFunction(init, name, context, false));
+          if (name) {
+            let isHandler: boolean = false;
+
+            for (const p of HANDLER_PATTERNS) {
+              if (p.test(name)) {
+                isHandler = true;
+                break;
+              }
+            }
+
+            if (isHandler) {
+              results.push(...checkFunction(init, name, context, false));
+            }
           }
         }
       }

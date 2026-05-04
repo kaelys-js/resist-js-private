@@ -58,9 +58,14 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     for (const filePath of await ctx.allFiles()) {
-      const hasScanExt: boolean = [...SCANNABLE_EXTENSIONS].some((ext: string): boolean =>
-        filePath.endsWith(ext),
-      );
+      let hasScanExt: boolean = false;
+
+      for (const ext of SCANNABLE_EXTENSIONS) {
+        if (filePath.endsWith(ext)) {
+          hasScanExt = true;
+          break;
+        }
+      }
 
       if (!hasScanExt) {
         continue;

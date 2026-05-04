@@ -93,9 +93,15 @@ const rule: WorkspaceRule = {
 
     /* Check each package for corresponding documentation. */
     for (const packagePath of packageDirs) {
-      const hasDoc: boolean = [...docsPaths].some((docPath: string): boolean =>
-        docPath.includes(packagePath.replace('packages/', '')),
-      );
+      const packageSuffix: string = packagePath.replace('packages/', '');
+      let hasDoc: boolean = false;
+
+      for (const docPath of docsPaths) {
+        if (docPath.includes(packageSuffix)) {
+          hasDoc = true;
+          break;
+        }
+      }
 
       if (!hasDoc) {
         results.push(

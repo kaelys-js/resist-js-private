@@ -80,9 +80,14 @@ export function transformLsLintOutput(output: string, strings: LintStrings): Lin
      */
     if (lineStr.includes('/') || lineStr.includes('.')) {
       const summaryIndicators: string[] = ['ls-lint', 'error', 'warning', 'total', 'passed'];
-      const isSummary: boolean = summaryIndicators.some((indicator: string): boolean =>
-        lineStr.toLowerCase().startsWith(indicator),
-      );
+      let isSummary: boolean = false;
+
+      for (const indicator of summaryIndicators) {
+        if (lineStr.toLowerCase().startsWith(indicator)) {
+          isSummary = true;
+          break;
+        }
+      }
 
       if (!isSummary) {
         results.push(

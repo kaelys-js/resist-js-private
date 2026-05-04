@@ -44,7 +44,15 @@ test.describe('icon assets — HTTP responses', () => {
       if (asset.path.endsWith('.ico')) {
         // .ico MIME type varies by server — accept known types or empty
         // (Vite preview with adapter-cloudflare omits Content-Type for .ico)
-        const hasKnownType = ICO_TYPES.some((t) => contentType.includes(t));
+        let hasKnownType = false;
+
+        for (const t of ICO_TYPES) {
+          if (contentType.includes(t)) {
+            hasKnownType = true;
+            break;
+          }
+        }
+
         const isEmpty = contentType === '';
         expect(hasKnownType || isEmpty).toBe(true);
       } else {

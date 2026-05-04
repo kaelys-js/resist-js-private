@@ -63,9 +63,14 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       /* Only check store-related files. */
-      const hasStoreExt: boolean = [...STORE_EXTENSIONS].some((ext: string): boolean =>
-        filePath.endsWith(ext),
-      );
+      let hasStoreExt: boolean = false;
+
+      for (const ext of STORE_EXTENSIONS) {
+        if (filePath.endsWith(ext)) {
+          hasStoreExt = true;
+          break;
+        }
+      }
 
       if (!hasStoreExt) {
         continue;

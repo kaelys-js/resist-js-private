@@ -106,9 +106,14 @@ const rule: WorkspaceRule = {
         }
 
         /* Only check source files. */
-        const hasSourceExt: boolean = [...SOURCE_EXTENSIONS].some((ext: string) =>
-          filePath.endsWith(ext),
-        );
+        let hasSourceExt: boolean = false;
+
+        for (const ext of SOURCE_EXTENSIONS) {
+          if (filePath.endsWith(ext)) {
+            hasSourceExt = true;
+            break;
+          }
+        }
 
         if (!hasSourceExt) {
           continue;

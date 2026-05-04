@@ -89,10 +89,14 @@ const rule: WorkspaceRule = {
 
       /* Read all .ts files in the extension to find config.get calls */
       const allFiles: readonly string[] = await ctx.filesByExtension('.ts');
-      const extFiles: readonly string[] = allFiles.filter(
-        (f: string): boolean =>
-          f.startsWith(pkgDir) && !f.includes('.test.') && !f.includes('__mocks__'),
-      );
+      /* Plain for-loop instead of .filter() to avoid O(n²) lint diagnostic */
+      const extFiles: string[] = [];
+
+      for (const f of allFiles) {
+        if (f.startsWith(pkgDir) && !f.includes('.test.') && !f.includes('__mocks__')) {
+          extFiles.push(f);
+        }
+      }
 
       /* Collect all source content */
       const allContent: string[] = [];

@@ -154,12 +154,21 @@ export function formatText(
         continue;
       }
 
-      const toolErrors: number = group.filter(
-        (r: LintResult): boolean => r.severity === 'error',
-      ).length;
-      const toolWarnings: number = group.filter(
-        (r: LintResult): boolean => r.severity === 'warning',
-      ).length;
+      let toolErrors: number = 0;
+
+      for (const r of group) {
+        if (r.severity === 'error') {
+          toolErrors++;
+        }
+      }
+
+      let toolWarnings: number = 0;
+
+      for (const r of group) {
+        if (r.severity === 'warning') {
+          toolWarnings++;
+        }
+      }
 
       if (toolErrors === 0 && toolWarnings === 0) {
         lines.push(formatTemplate(strings.output.toolSummaryClean, { tool: toolName }));
@@ -434,9 +443,13 @@ export function formatJunit(results: LintResult[], totalFiles: number): string {
   );
 
   for (const [file, fileResults] of byFile) {
-    const fileErrors: number = fileResults.filter(
-      (r: LintResult): boolean => r.severity === 'error',
-    ).length;
+    let fileErrors: number = 0;
+
+    for (const r of fileResults) {
+      if (r.severity === 'error') {
+        fileErrors++;
+      }
+    }
     lines.push(
       `  <testsuite name="${escapeXml(file)}" tests="${fileResults.length}" failures="${fileErrors}">`,
     );

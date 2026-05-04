@@ -565,9 +565,17 @@ export function copyChainCsv(nodes: ChainExportNode[]): Promise<Bool> {
   const lines: Str[] = ['Name,Kind,Category,Parent'];
 
   for (const node of nodes) {
-    const parent: Str =
-      node.parentId === '' ? '' : (nodes.find((n) => n.id === node.parentId)?.label ?? '');
-    lines.push(`"${node.label}","${node.kind}","${node.category}","${parent}"`);
+    let parentLabel: Str = '' as Str;
+
+    if (node.parentId !== '') {
+      for (const n of nodes) {
+        if (n.id === node.parentId) {
+          parentLabel = n.label;
+          break;
+        }
+      }
+    }
+    lines.push(`"${node.label}","${node.kind}","${node.category}","${parentLabel}"`);
   }
   return clipboardCopy(lines.join('\n'));
 }

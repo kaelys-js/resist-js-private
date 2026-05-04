@@ -423,7 +423,14 @@
     const groups: Array<{ category: Str; entries: BrowserEntry[] }> = [];
 
     for (const entry of filteredEntries) {
-      const existing = groups.find((g) => g.category === entry.category);
+      let existing: { category: Str; entries: BrowserEntry[] } | undefined;
+
+      for (const g of groups) {
+        if (g.category === entry.category) {
+          existing = g;
+          break;
+        }
+      }
 
       if (existing) {
         existing.entries.push(entry);
@@ -587,14 +594,26 @@
     );
 
     if (cssFeatures.length > 0) {
-      const cRows: Str[] = cssFeatures.map((e) => {
-        const feat = supportResult.features.find((f) => f.name === e.name);
+      const cRows: Str[] = [];
+
+      for (const e of cssFeatures) {
+        let feat: DetectedFeature | undefined;
+
+        for (const f of supportResult.features) {
+          if (f.name === e.name) {
+            feat = f;
+            break;
+          }
+        }
+
         const support: Str = feat
           ? (`Chrome ${feat.support.chrome}+ · Firefox ${feat.support.firefox}+ · Safari ${feat.support.safari}+` as Str)
           : ('' as Str);
 
-        return `| ${e.name} | ${feat?.usageCount ?? ''} | ${feat?.files.length ?? ''} | ${feat?.description ?? ''} | ${support} |` as Str;
-      });
+        cRows.push(
+          `| ${e.name} | ${feat?.usageCount ?? ''} | ${feat?.files.length ?? ''} | ${feat?.description ?? ''} | ${support} |` as Str,
+        );
+      }
       sections.push(
         `## CSS Features Detected\n\n| Feature | Uses | Files | Description | Browser Minimums |\n|---------|------|-------|-------------|------------------|\n${cRows.join('\n')}` as Str,
       );

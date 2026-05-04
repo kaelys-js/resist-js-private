@@ -63,12 +63,21 @@ const rule: WorkspaceRule = {
         continue;
       }
 
-      const includeEntries: string[] = includeRaw.filter(
-        (entry: unknown): entry is string => typeof entry === 'string',
-      );
-      const excludeEntries: string[] = excludeRaw.filter(
-        (entry: unknown): entry is string => typeof entry === 'string',
-      );
+      const includeEntries: string[] = [];
+
+      for (const entry of includeRaw) {
+        if (typeof entry === 'string') {
+          includeEntries.push(entry);
+        }
+      }
+
+      const excludeEntries: string[] = [];
+
+      for (const entry of excludeRaw) {
+        if (typeof entry === 'string') {
+          excludeEntries.push(entry);
+        }
+      }
 
       const excludeSet: Set<string> = new Set<string>(excludeEntries);
 

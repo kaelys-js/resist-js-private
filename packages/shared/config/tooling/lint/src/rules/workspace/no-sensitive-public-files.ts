@@ -56,9 +56,14 @@ const rule: WorkspaceRule = {
 
       const fileName: string = basename(filePath);
 
-      const isSensitive: boolean = SENSITIVE_EXTENSIONS.some((ext: string): boolean =>
-        fileName.endsWith(ext),
-      );
+      let isSensitive: boolean = false;
+
+      for (const ext of SENSITIVE_EXTENSIONS) {
+        if (fileName.endsWith(ext)) {
+          isSensitive = true;
+          break;
+        }
+      }
 
       if (isSensitive) {
         const relativePath: string = relative(ctx.rootDir, filePath);

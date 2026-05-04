@@ -67,9 +67,14 @@ const rule: WorkspaceRule = {
       while (match !== null) {
         const href: string = match[2] ?? '';
 
-        const isExternal: boolean = EXTERNAL_PREFIXES.some((prefix: string): boolean =>
-          href.startsWith(prefix),
-        );
+        let isExternal: boolean = false;
+
+        for (const prefix of EXTERNAL_PREFIXES) {
+          if (href.startsWith(prefix)) {
+            isExternal = true;
+            break;
+          }
+        }
 
         if (!isExternal && href.length > 0) {
           const targetPath: string = join(fileDir, href);

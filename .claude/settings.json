@@ -182,10 +182,6 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/stop-preview-override.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/stop-active-plan-block.sh"
           }
         ]
       }

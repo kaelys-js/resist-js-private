@@ -264,11 +264,18 @@
     const baseHref: Str = `/components/${n}`;
 
     // Component-level keywords (tags, category, descriptions)
-    const componentKeywords: Str[] = [
+    const componentKeywordSource: Str[] = [
       ...(m?.tags ?? []),
       m?.category ?? '',
       m?.description ?? '',
-    ].filter((k: Str): boolean => k.length > 0);
+    ];
+    const componentKeywords: Str[] = [];
+
+    for (const k of componentKeywordSource) {
+      if (k.length > 0) {
+        componentKeywords.push(k);
+      }
+    }
 
     // — Component group: "Go to Component" link —
     const sourceKey: Str | undefined = findPrimaryKey(n, rawSources);
@@ -296,18 +303,26 @@
       const deps: DepTree = extractDeps(src);
 
       // — Lens compatibility check —
-      const compHasLensTs: boolean = Object.keys(lensMetaModules).some(
-        (k: Str): boolean => extractDir(k) === n,
-      );
+      let compHasLensTs: boolean = false;
+
+      for (const k of Object.keys(lensMetaModules)) {
+        if (extractDir(k) === n) {
+          compHasLensTs = true;
+          break;
+        }
+      }
+
       const compExamples: LensExample[] | undefined = examplesByName.get(n);
       const compDeclaredNames: Str[] = (compExamples ?? []).map((ex: LensExample): Str => ex.name);
-      const compExistingFiles: Str[] = Object.keys(exampleSvelteModules)
-        .filter((k: Str): boolean => k.includes(`/${n}/examples/`))
-        .map((k: Str): Str => {
-          const parts: Str[] = k.split('/');
+      const compExistingFiles: Str[] = [];
 
-          return parts.at(-1) ?? '';
-        });
+      for (const k of Object.keys(exampleSvelteModules)) {
+        if (k.includes(`/${n}/examples/`)) {
+          const parts: Str[] = k.split('/');
+          compExistingFiles.push(parts.at(-1) ?? '');
+        }
+      }
+
       const compUsesTv: boolean = /\btv\s*\(\s*\{/.test(src);
       compatByName.set(
         n,
@@ -507,9 +522,15 @@
 
       // No primary source — compute compatibility with hasPrimary=false
       if (!compatByName.has(n)) {
-        const hasLensTs: boolean = Object.keys(lensMetaModules).some(
-          (k: Str): boolean => extractDir(k) === n,
-        );
+        let hasLensTs: boolean = false;
+
+        for (const k of Object.keys(lensMetaModules)) {
+          if (extractDir(k) === n) {
+            hasLensTs = true;
+            break;
+          }
+        }
+
         compatByName.set(
           n,
           computeLensCompatibility({
@@ -530,9 +551,14 @@
     }
 
     // — Documentation group (from docs.md) —
-    const docsKey: Str | undefined = Object.keys(docsModules).find(
-      (k: Str): boolean => extractDir(k) === n,
-    );
+    let docsKey: Str | undefined;
+
+    for (const k of Object.keys(docsModules)) {
+      if (extractDir(k) === n) {
+        docsKey = k as Str;
+        break;
+      }
+    }
 
     if (docsKey) {
       globalSearchItems.push({
@@ -571,9 +597,14 @@
   ].toSorted();
 
   for (const tag of allUniqueTags) {
-    const tagCount: Num = [...metaByName.values()].filter((m: LensMeta): boolean =>
-      m.tags.includes(tag),
-    ).length as Num;
+    let tagCount: Num = 0 as Num;
+
+    for (const m of metaByName.values()) {
+      if (m.tags.includes(tag)) {
+        tagCount = ((tagCount as number) + 1) as Num;
+      }
+    }
+
     globalSearchItems.push({
       value: `tag/${tag}`,
       label: `${tag} — ${tagCount} component${tagCount === 1 ? '' : 's'}`,
@@ -660,14 +691,20 @@
         keywords: ['tokens', 'css', 'variables', 'theme', 'colors', 'design system'],
       });
       for (const token of rootSet.tokens) {
+        const tokenKeywords: Str[] = [];
+
+        for (const k of ['token', token.name, token.value, token.tailwindClass] as Str[]) {
+          if (k.length > 0) {
+            tokenKeywords.push(k);
+          }
+        }
+
         globalSearchItems.push({
           value: `tokens/${token.name}`,
           label: token.variable,
           href: `/tokens#${token.category}`,
           group: 'Design Tokens',
-          keywords: ['token', token.name, token.value, token.tailwindClass].filter(
-            (k: Str): boolean => k.length > 0,
-          ),
+          keywords: tokenKeywords,
         });
       }
     }

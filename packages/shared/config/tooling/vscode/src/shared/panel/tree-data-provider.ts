@@ -233,27 +233,35 @@ export class ResistTreeDataProvider implements vscode.TreeDataProvider<vscode.Tr
       }
 
       // Apply filter: match filename, message, or rule ID
-      const filtered: vscode.Diagnostic[] = filter
-        ? diagnostics.filter((diag) => {
-            const filename = uri.fsPath.toLowerCase();
-            const message = diag.message.toLowerCase();
-            const { code } = diag;
+      const filtered: vscode.Diagnostic[] = [];
 
-            let ruleId: string;
+      if (filter) {
+        for (const diag of diagnostics) {
+          const filename = uri.fsPath.toLowerCase();
+          const message = diag.message.toLowerCase();
+          const { code } = diag;
 
-            if (typeof code === 'string') {
-              ruleId = code.toLowerCase();
-            } else if (typeof code === 'number') {
-              ruleId = String(code);
-            } else if (code && typeof code === 'object' && 'value' in code) {
-              ruleId = String(code.value).toLowerCase();
-            } else {
-              ruleId = '';
-            }
+          let ruleId: string;
 
-            return filename.includes(filter) || message.includes(filter) || ruleId.includes(filter);
-          })
-        : [...diagnostics];
+          if (typeof code === 'string') {
+            ruleId = code.toLowerCase();
+          } else if (typeof code === 'number') {
+            ruleId = String(code);
+          } else if (code && typeof code === 'object' && 'value' in code) {
+            ruleId = String(code.value).toLowerCase();
+          } else {
+            ruleId = '';
+          }
+
+          if (filename.includes(filter) || message.includes(filter) || ruleId.includes(filter)) {
+            filtered.push(diag);
+          }
+        }
+      } else {
+        for (const diag of diagnostics) {
+          filtered.push(diag);
+        }
+      }
 
       if (filtered.length === 0) {
         continue;

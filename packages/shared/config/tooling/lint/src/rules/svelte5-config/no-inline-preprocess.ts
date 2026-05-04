@@ -53,9 +53,14 @@ const rule: TypeScriptRule = {
 
         for (const el of elements) {
           if (el?.type === 'ObjectExpression') {
-            const hasHook: boolean = [...PREPROCESS_HOOKS].some((hook: string): boolean =>
-              hasProperty(el, hook),
-            );
+            let hasHook: boolean = false;
+
+            for (const hook of PREPROCESS_HOOKS) {
+              if (hasProperty(el, hook)) {
+                hasHook = true;
+                break;
+              }
+            }
 
             if (hasHook) {
               results.push({

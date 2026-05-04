@@ -51,9 +51,14 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const name: string = basename(filePath);
-      const isArtifact: boolean = ARTIFACT_PATTERNS.some((pattern: RegExp): boolean =>
-        pattern.test(name),
-      );
+      let isArtifact: boolean = false;
+
+      for (const pattern of ARTIFACT_PATTERNS) {
+        if (pattern.test(name)) {
+          isArtifact = true;
+          break;
+        }
+      }
 
       if (isArtifact) {
         results.push(

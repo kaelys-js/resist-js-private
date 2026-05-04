@@ -47,7 +47,16 @@ const rule: WorkspaceRule = {
     for (const file of await ctx.allFiles()) {
       const name: string = basename(file);
 
-      if (BAD_SUFFIX_PATTERNS.some((p: RegExp): boolean => p.test(name))) {
+      let hasBadSuffix: boolean = false;
+
+      for (const p of BAD_SUFFIX_PATTERNS) {
+        if (p.test(name)) {
+          hasBadSuffix = true;
+          break;
+        }
+      }
+
+      if (hasBadSuffix) {
         results.push(
           createResult(
             'testing/require-test-suffix',

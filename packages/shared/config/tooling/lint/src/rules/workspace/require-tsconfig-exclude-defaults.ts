@@ -66,9 +66,15 @@ const rule: WorkspaceRule = {
       const relativePath: string = relative(ctx.rootDir, filePath);
 
       const excludeRaw: unknown = parsed.exclude;
-      const excludeEntries: string[] = Array.isArray(excludeRaw)
-        ? excludeRaw.filter((entry: unknown): entry is string => typeof entry === 'string')
-        : [];
+      const excludeEntries: string[] = [];
+
+      if (Array.isArray(excludeRaw)) {
+        for (const entry of excludeRaw) {
+          if (typeof entry === 'string') {
+            excludeEntries.push(entry);
+          }
+        }
+      }
 
       const excludeSet: Set<string> = new Set<string>(excludeEntries);
 

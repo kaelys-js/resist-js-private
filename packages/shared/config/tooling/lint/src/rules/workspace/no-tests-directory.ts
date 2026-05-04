@@ -51,9 +51,14 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     for (const filePath of await ctx.allFiles()) {
-      const isInTestDir: boolean = TEST_DIR_PATTERNS.some((pattern: string): boolean =>
-        filePath.includes(pattern),
-      );
+      let isInTestDir: boolean = false;
+
+      for (const pattern of TEST_DIR_PATTERNS) {
+        if (filePath.includes(pattern)) {
+          isInTestDir = true;
+          break;
+        }
+      }
 
       if (isInTestDir) {
         const relativePath: string = relative(ctx.rootDir, filePath);

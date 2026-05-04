@@ -352,7 +352,16 @@ async function collectRuleFiles(dir: string): Promise<string[]> {
     }
 
     /* Skip test/spec/declaration files */
-    if (SKIP_SUFFIXES.some((suffix: string): boolean => name.endsWith(suffix))) {
+    let skipSuffix: boolean = false;
+
+    for (const suffix of SKIP_SUFFIXES) {
+      if (name.endsWith(suffix)) {
+        skipSuffix = true;
+        break;
+      }
+    }
+
+    if (skipSuffix) {
       continue;
     }
 

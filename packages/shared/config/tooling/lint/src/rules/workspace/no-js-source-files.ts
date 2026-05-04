@@ -50,7 +50,16 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     for (const filePath of await ctx.allFiles()) {
-      if (!JS_EXTENSIONS.some((ext: string): boolean => filePath.endsWith(ext))) {
+      let hasJsExt: boolean = false;
+
+      for (const ext of JS_EXTENSIONS) {
+        if (filePath.endsWith(ext)) {
+          hasJsExt = true;
+          break;
+        }
+      }
+
+      if (!hasJsExt) {
         continue;
       }
 

@@ -2316,16 +2316,21 @@ function parseValibotObjectFields(body: string, source?: string): TypeField[] {
       }
 
       const commentBody: string = body.slice(pos + 3, closeIdx);
-      const rawDoc: string = commentBody
-        .split('\n')
-        .map((l: string): string =>
-          l
-            .trim()
-            .replace(/^\*\s*/, '')
-            .trim(),
-        )
-        .filter(Boolean)
-        .join(' ');
+      const rawDocLines: string[] = commentBody.split('\n').map((l: string): string =>
+        l
+          .trim()
+          .replace(/^\*\s*/, '')
+          .trim(),
+      );
+      const filteredDocLines: string[] = [];
+
+      for (const line of rawDocLines) {
+        if (line) {
+          filteredDocLines.push(line);
+        }
+      }
+
+      const rawDoc: string = filteredDocLines.join(' ');
       // Strip @values tag and propagate mock values to TypeField
       const parsedDoc: ValuesTagResult = extractValuesTag(rawDoc);
       pendingDescription = parsedDoc.description;

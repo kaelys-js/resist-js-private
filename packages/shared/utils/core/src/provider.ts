@@ -18,7 +18,6 @@ import {
   type Bool,
   type EnvRecordWithUndefined,
   type ProviderDefinition,
-  type ProviderEnvCheck,
   type ProviderInfo,
   type Str,
 } from '@/schemas/common';
@@ -341,20 +340,30 @@ const PROVIDERS: readonly ProviderDefinition[] = Object.freeze([
  */
 export function detectProvider(env: EnvRecordWithUndefined): Result<ProviderInfo | undefined> {
   for (const provider of PROVIDERS) {
-    const allMatch: Bool = provider.checks.every((check: ProviderEnvCheck): Bool => {
+    let allMatch: Bool = true;
+
+    for (const check of provider.checks) {
       const val: Str | undefined = env[check.key];
 
       if (val === undefined) {
-        return false;
+        allMatch = false;
+        break;
       }
       if (check.value !== undefined) {
-        return val === check.value;
+        if (val !== check.value) {
+          allMatch = false;
+          break;
+        }
+        continue;
       }
       if (check.includes !== undefined) {
-        return val.includes(check.includes);
+        if (!val.includes(check.includes)) {
+          allMatch = false;
+          break;
+        }
+        continue;
       }
-      return true;
-    });
+    }
 
     if (!allMatch) {
       continue;

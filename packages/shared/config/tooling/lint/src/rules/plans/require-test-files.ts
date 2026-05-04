@@ -77,22 +77,33 @@ const rule: WorkspaceRule = {
         }
 
         /* Check if task has any non-exempt source files */
-        const hasSourceFiles: boolean = task.files.some(
-          (f): boolean =>
+        let hasSourceFiles: boolean = false;
+
+        for (const f of task.files) {
+          if (
             (f.action === 'create' || f.action === 'edit') &&
             f.path.endsWith('.ts') &&
             !isExempt(f.path) &&
-            !isTestPath(f.path),
-        );
+            !isTestPath(f.path)
+          ) {
+            hasSourceFiles = true;
+            break;
+          }
+        }
 
         if (!hasSourceFiles) {
           continue;
         }
 
         /* Check if task declares any test files */
-        const hasTestFiles: boolean = task.files.some(
-          (f): boolean => f.action === 'test' || isTestPath(f.path),
-        );
+        let hasTestFiles: boolean = false;
+
+        for (const f of task.files) {
+          if (f.action === 'test' || isTestPath(f.path)) {
+            hasTestFiles = true;
+            break;
+          }
+        }
 
         if (!hasTestFiles) {
           results.push(

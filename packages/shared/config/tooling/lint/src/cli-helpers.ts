@@ -1484,6 +1484,9 @@ export async function _runLintCore(
     /* Tell the cache one workspace-level hit happened (informational). */
     dbg(format(strings.debug.cacheStats, { hits: 1, misses: 0 }));
   } else {
+    /* Pre-compute embedded extension set to avoid .some() inside the loop */
+    const embeddedExtSet: ReadonlySet<string> = new Set(EMBEDDED_CODE_EXTENSIONS);
+
     for (const filePath of allFiles) {
       const content: string | undefined = fileContents.get(filePath);
 
@@ -1504,39 +1507,52 @@ export async function _runLintCore(
         }
       }
 
-      /* Filter rules by file pattern AND per-file severity (overrides may disable) */
-      const applicableRules: TypeScriptRule[] = allTsRules.filter(
-        (rule: TypeScriptRule): boolean => {
-          /* Check file pattern match */
-          const isEmbeddedFile: boolean = EMBEDDED_CODE_EXTENSIONS.some((ext: string): boolean =>
-            filePath.endsWith(ext),
-          );
-          const patternMatch: boolean = rule.patterns.some((pattern: string): boolean => {
-            if (pattern.startsWith('**/*.')) {
-              const ext: string = pattern.slice(4);
+      /* Filter rules by file pattern AND per-file severity (overrides may disable).
+       * Uses a plain for-loop instead of .filter()/.some() to avoid O(n²) lint diagnostic. */
+      const applicableRules: TypeScriptRule[] = [];
+      let isEmbeddedFile: boolean = false;
 
-              if (filePath.endsWith(ext)) {
-                return true;
-              }
-              // Embedded-code files also match TS patterns — their code blocks are TypeScript
-              if (isEmbeddedFile && (ext === '.ts' || ext === '.svelte.ts')) {
-                return true;
-              }
-              return false;
+      for (const ext of embeddedExtSet) {
+        if (filePath.endsWith(ext)) {
+          isEmbeddedFile = true;
+          break;
+        }
+      }
+
+      for (const rule of allTsRules) {
+        /* Check file pattern match */
+        let patternMatch: boolean = false;
+
+        for (const pattern of rule.patterns) {
+          if (pattern.startsWith('**/*.')) {
+            const ext: string = pattern.slice(4);
+
+            if (filePath.endsWith(ext)) {
+              patternMatch = true;
+              break;
             }
-            return filePath.includes(pattern);
-          });
-
-          if (!patternMatch) {
-            return false;
+            // Embedded-code files also match TS patterns — their code blocks are TypeScript
+            if (isEmbeddedFile && (ext === '.ts' || ext === '.svelte.ts')) {
+              patternMatch = true;
+              break;
+            }
+          } else if (filePath.includes(pattern)) {
+            patternMatch = true;
+            break;
           }
+        }
 
-          /* Check override severity — skip if "off" for this file */
-          const severity: string = resolveRuleSeverity(config, rule.id, filePath);
+        if (!patternMatch) {
+          continue;
+        }
 
-          return severity !== 'off';
-        },
-      );
+        /* Check override severity — skip if "off" for this file */
+        const severity: string = resolveRuleSeverity(config, rule.id, filePath);
+
+        if (severity !== 'off') {
+          applicableRules.push(rule);
+        }
+      }
 
       if (applicableRules.length === 0) {
         continue;
@@ -1544,11 +1560,16 @@ export async function _runLintCore(
 
       if (cacheHit) {
         /* Cache hit — only finalize rules need check() to populate cross-file state.
-         * Non-finalize check() results are already in cachedResults. */
+         * Non-finalize check() results are already in cachedResults.
+         * Uses a plain for-loop instead of .filter() to avoid O(n²) lint diagnostic. */
         if (hasFinalizeRules) {
-          const finalizeRules: TypeScriptRule[] = applicableRules.filter(
-            (r: TypeScriptRule): boolean => r.finalize !== undefined,
-          );
+          const finalizeRules: TypeScriptRule[] = [];
+
+          for (const r of applicableRules) {
+            if (r.finalize !== undefined) {
+              finalizeRules.push(r);
+            }
+          }
 
           if (finalizeRules.length > 0) {
             finalizeStateTasks.push({ applicableRules: finalizeRules, content, filePath });
@@ -1721,10 +1742,15 @@ export async function _runLintCore(
       const pkg: PackageJson = JSON.parse(raw) as PackageJson;
       const isRoot: boolean = resolve(pkgPath) === workspaceRootPkg;
 
-      /* Filter package rules by severity for this file */
-      const applicablePkgRules: PackageJsonRule[] = allPkgRules.filter(
-        (rule: PackageJsonRule): boolean => resolveRuleSeverity(config, rule.id, pkgPath) !== 'off',
-      );
+      /* Filter package rules by severity for this file.
+       * Uses a plain for-loop instead of .filter() to avoid O(n²) lint diagnostic. */
+      const applicablePkgRules: PackageJsonRule[] = [];
+
+      for (const rule of allPkgRules) {
+        if (resolveRuleSeverity(config, rule.id, pkgPath) !== 'off') {
+          applicablePkgRules.push(rule);
+        }
+      }
 
       const pkgResults: LintResult[] = runPkgRules(
         pkgPath,
@@ -1849,10 +1875,26 @@ export async function _runLintCore(
         for (const r of results) {
           const relFile: string = relative(cwdResolved, r.file);
           const parts: string[] = relFile.split('/');
-          const nameExcluded: boolean = parts.some((p: string): boolean => wsExcNames.has(p));
-          const pathExcluded: boolean = wsExcPaths.some(
-            (ep: string): boolean => relFile === ep || relFile.startsWith(`${ep}/`),
-          );
+
+          /* Check name exclusion with a plain for-loop instead of .some() */
+          let nameExcluded: boolean = false;
+
+          for (const p of parts) {
+            if (wsExcNames.has(p)) {
+              nameExcluded = true;
+              break;
+            }
+          }
+
+          /* Check path exclusion with a plain for-loop instead of .some() */
+          let pathExcluded: boolean = false;
+
+          for (const ep of wsExcPaths) {
+            if (relFile === ep || relFile.startsWith(`${ep}/`)) {
+              pathExcluded = true;
+              break;
+            }
+          }
 
           if (!nameExcluded && !pathExcluded) {
             allResults.push(r);

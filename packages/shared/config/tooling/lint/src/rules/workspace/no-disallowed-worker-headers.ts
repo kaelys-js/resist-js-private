@@ -71,9 +71,14 @@ const rule: WorkspaceRule = {
       const name: string = basename(filePath);
 
       /* Only scan source files. */
-      const hasSourceExt: boolean = [...SOURCE_EXTENSIONS].some((ext: string): boolean =>
-        filePath.endsWith(ext),
-      );
+      let hasSourceExt: boolean = false;
+
+      for (const ext of SOURCE_EXTENSIONS) {
+        if (filePath.endsWith(ext)) {
+          hasSourceExt = true;
+          break;
+        }
+      }
 
       if (!hasSourceExt) {
         continue;
@@ -114,9 +119,14 @@ const rule: WorkspaceRule = {
           `"${headerLower}"`,
         ];
 
-        const found: boolean = patterns.some((pattern: string): boolean =>
-          contentLower.includes(pattern),
-        );
+        let found: boolean = false;
+
+        for (const pattern of patterns) {
+          if (contentLower.includes(pattern)) {
+            found = true;
+            break;
+          }
+        }
 
         if (found) {
           const relativePath: string = relative(ctx.rootDir, filePath);

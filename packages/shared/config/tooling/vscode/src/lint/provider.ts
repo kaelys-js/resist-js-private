@@ -421,10 +421,16 @@ export async function lintWorkspace(
   for (const [filePath, entries] of byFile) {
     const uri: vscode.Uri = vscode.Uri.file(filePath);
     // We need the document to map positions; for files not open, use basic range
-    const doc: vscode.TextDocument | undefined = vscode.workspace.textDocuments.find(
-      (d) => d.uri.fsPath === filePath,
-    );
-    const diagnostics: vscode.Diagnostic[] = [];
+    let doc: vscode.TextDocument | undefined;
+
+    for (const d of vscode.workspace.textDocuments) {
+      if (d.uri.fsPath === filePath) {
+        doc = d;
+        break;
+      }
+    }
+    
+const diagnostics: vscode.Diagnostic[] = [];
     let skipped = 0;
 
     for (const entry of entries) {

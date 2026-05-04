@@ -125,9 +125,14 @@ const rule: TypeScriptRule = {
 
         // Check if the union text matches an exempt pattern
         const unionText: string = context.content.slice(typeNode.start, typeNode.end);
-        const isExemptUnion: boolean = EXEMPT_UNION_PATTERNS.some((p: RegExp): boolean =>
-          p.test(unionText),
-        );
+        let isExemptUnion: boolean = false;
+
+        for (const p of EXEMPT_UNION_PATTERNS) {
+          if (p.test(unionText)) {
+            isExemptUnion = true;
+            break;
+          }
+        }
 
         if (isExemptUnion) {
           continue;

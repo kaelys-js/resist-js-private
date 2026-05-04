@@ -66,11 +66,16 @@ const rule: WorkspaceRule = {
 
       const dir: string = dirname(file);
       const siblings: string[] = dirFiles.get(dir) ?? [];
-      const hasSource: boolean = siblings.some((sibling: string): boolean => {
+      let hasSource: boolean = false;
+
+      for (const sibling of siblings) {
         const sibName: string = basename(sibling);
 
-        return sibName.endsWith('.ts') && !TEST_FILE_PATTERN.test(sibName) && sibling !== file;
-      });
+        if (sibName.endsWith('.ts') && !TEST_FILE_PATTERN.test(sibName) && sibling !== file) {
+          hasSource = true;
+          break;
+        }
+      }
 
       if (hasSource) {
         continue;

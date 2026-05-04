@@ -87,18 +87,28 @@ const rule: WorkspaceRule = {
     /* Second pass: scan source files in worker directories. */
     for (const filePath of await ctx.allFiles()) {
       /* Check if file is in a worker directory. */
-      const isInWorkerDir: boolean = [...workerDirs].some(
-        (dir: string): boolean => filePath.startsWith(`${dir}/`) || filePath === dir,
-      );
+      let isInWorkerDir: boolean = false;
+
+      for (const dir of workerDirs) {
+        if (filePath.startsWith(`${dir}/`) || filePath === dir) {
+          isInWorkerDir = true;
+          break;
+        }
+      }
 
       if (!isInWorkerDir) {
         continue;
       }
 
       /* Only scan source files. */
-      const hasSourceExt: boolean = [...SOURCE_EXTENSIONS].some((ext: string): boolean =>
-        filePath.endsWith(ext),
-      );
+      let hasSourceExt: boolean = false;
+
+      for (const ext of SOURCE_EXTENSIONS) {
+        if (filePath.endsWith(ext)) {
+          hasSourceExt = true;
+          break;
+        }
+      }
 
       if (!hasSourceExt) {
         continue;

@@ -78,9 +78,14 @@ const rule: WorkspaceRule = {
         }
 
         /* Check for merge conflict markers */
-        const hasMergeConflict: boolean = MERGE_CONFLICT_MARKERS.some((marker: string): boolean =>
-          line.startsWith(marker),
-        );
+        let hasMergeConflict: boolean = false;
+
+        for (const marker of MERGE_CONFLICT_MARKERS) {
+          if (line.startsWith(marker)) {
+            hasMergeConflict = true;
+            break;
+          }
+        }
 
         if (hasMergeConflict) {
           results.push(

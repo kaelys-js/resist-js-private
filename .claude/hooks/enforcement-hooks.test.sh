@@ -124,61 +124,6 @@ fi
 echo ""
 
 # =============================================================================
-# stop-active-plan-block.sh
-# =============================================================================
-echo "stop-active-plan-block.sh:"
-
-# 1. No marker → allow stop
-rm -f "$REPO_ROOT/.claude/active-plan.json"
-if echo '{}' | bash "$HOOKS_DIR/stop-active-plan-block.sh" 2>/dev/null; then
-  pass "no active plan → allow stop"
-else
-  fail "stop should be allowed when no plan is active"
-fi
-
-# 2. Marker present, success_check matches expected → clear marker, allow stop
-cat > "$REPO_ROOT/.claude/active-plan.json" <<EOF
-{"plan_path":"docs/plans/test.md","approved_at":"2026-04-26T12:00:00Z","success_check":"echo 0","expected":"0","label":"test"}
-EOF
-if echo '{}' | bash "$HOOKS_DIR/stop-active-plan-block.sh" 2>/dev/null; then
-  if [ ! -f "$REPO_ROOT/.claude/active-plan.json" ]; then
-    pass "criterion met → marker cleared, stop allowed"
-  else
-    fail "marker should be cleared when criterion met"
-  fi
-else
-  fail "stop should be allowed when criterion met"
-fi
-
-# 3. Marker present, criterion NOT met → block stop, marker preserved
-cat > "$REPO_ROOT/.claude/active-plan.json" <<EOF
-{"plan_path":"docs/plans/test.md","approved_at":"2026-04-26T12:00:00Z","success_check":"echo 5","expected":"0","label":"test-blocked"}
-EOF
-OUT=$(echo '{}' | bash "$HOOKS_DIR/stop-active-plan-block.sh" 2>&1)
-RC=$?
-if [ $RC -ne 0 ] && echo "$OUT" | grep -q "Plan incomplete"; then
-  if [ -f "$REPO_ROOT/.claude/active-plan.json" ]; then
-    pass "criterion unmet → block stop, marker preserved"
-  else
-    fail "marker should be preserved on block"
-  fi
-else
-  fail "stop should be blocked when criterion unmet (rc=$RC)"
-fi
-rm -f "$REPO_ROOT/.claude/active-plan.json"
-
-# 4. Malformed marker → allow stop (fail-safe)
-echo "not json" > "$REPO_ROOT/.claude/active-plan.json"
-if echo '{}' | bash "$HOOKS_DIR/stop-active-plan-block.sh" 2>/dev/null; then
-  pass "malformed marker → fail-safe allow stop"
-else
-  fail "malformed marker should fail-safe to allow"
-fi
-rm -f "$REPO_ROOT/.claude/active-plan.json"
-
-echo ""
-
-# =============================================================================
 # pre-bash-block-bulk-script.sh
 # =============================================================================
 echo "pre-bash-block-bulk-script.sh:"

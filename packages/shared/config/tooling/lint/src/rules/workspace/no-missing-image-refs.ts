@@ -62,9 +62,14 @@ const rule: WorkspaceRule = {
 
     for (const filePath of allFiles) {
       const lowerPath: string = filePath.toLowerCase();
-      const isImage: boolean = IMAGE_EXTENSIONS.some((ext: string): boolean =>
-        lowerPath.endsWith(ext),
-      );
+      let isImage: boolean = false;
+
+      for (const ext of IMAGE_EXTENSIONS) {
+        if (lowerPath.endsWith(ext)) {
+          isImage = true;
+          break;
+        }
+      }
 
       if (isImage) {
         imageBasenames.add(basename(filePath));
@@ -74,9 +79,14 @@ const rule: WorkspaceRule = {
     /* Scan source files for image references. */
     for (const filePath of allFiles) {
       const lowerPath: string = filePath.toLowerCase();
-      const isSource: boolean = SOURCE_EXTENSIONS.some((ext: string): boolean =>
-        lowerPath.endsWith(ext),
-      );
+      let isSource: boolean = false;
+
+      for (const ext of SOURCE_EXTENSIONS) {
+        if (lowerPath.endsWith(ext)) {
+          isSource = true;
+          break;
+        }
+      }
 
       if (!isSource) {
         continue;

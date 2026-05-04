@@ -59,14 +59,25 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       const lowerPath: string = filePath.toLowerCase();
-      const isBlocked: boolean = [...BLOCKED_EXTENSIONS].some((ext: string): boolean =>
-        lowerPath.endsWith(ext),
-      );
+      let isBlocked: boolean = false;
+
+      for (const blockedExt of BLOCKED_EXTENSIONS) {
+        if (lowerPath.endsWith(blockedExt)) {
+          isBlocked = true;
+          break;
+        }
+      }
 
       if (isBlocked) {
         const relativePath: string = relative(ctx.rootDir, filePath);
-        const ext: string =
-          [...BLOCKED_EXTENSIONS].find((e: string): boolean => lowerPath.endsWith(e)) ?? '';
+        let ext: string = '';
+
+        for (const e of BLOCKED_EXTENSIONS) {
+          if (lowerPath.endsWith(e)) {
+            ext = e;
+            break;
+          }
+        }
         results.push(
           createResult(
             'workspace/no-nonpreferred-image-formats',

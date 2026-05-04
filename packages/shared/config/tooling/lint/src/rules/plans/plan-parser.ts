@@ -303,10 +303,16 @@ function parseDependencies(lines: string[]): TaskDependency[] {
     }
 
     /* Parse table row: | 1 | description | 2-3 | */
-    const cells: string[] = line
-      .split('|')
-      .map((c: string): string => c.trim())
-      .filter((c: string): boolean => c.length > 0);
+    const rawCells: string[] = line.split('|');
+    const cells: string[] = [];
+    
+for (const raw of rawCells) {
+      const trimmed: string = raw.trim();
+      
+if (trimmed.length > 0) {
+        cells.push(trimmed);
+      }
+    }
 
     if (cells.length >= 3) {
       const taskNum: number = Number.parseInt(cells[0] ?? '', 10);

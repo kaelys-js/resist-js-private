@@ -116,9 +116,14 @@ const rule: WorkspaceRule = {
       }
 
       const absolutePrefix: string = join(ctx.rootDir, prefix);
-      const hasMatch: boolean = packages.some((pkg: WorkspacePackage): boolean =>
-        pkg.dir.startsWith(absolutePrefix),
-      );
+      let hasMatch: boolean = false;
+
+      for (const pkg of packages) {
+        if (pkg.dir.startsWith(absolutePrefix)) {
+          hasMatch = true;
+          break;
+        }
+      }
 
       if (!hasMatch) {
         results.push(

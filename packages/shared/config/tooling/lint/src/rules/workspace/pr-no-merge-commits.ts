@@ -50,7 +50,14 @@ const rule: WorkspaceRule = {
     const commitMessages: string[] = commits.split('\n').filter(Boolean);
 
     for (const message of commitMessages) {
-      const isMergeCommit: boolean = MERGE_PATTERNS.some((p: RegExp) => p.test(message));
+      let isMergeCommit: boolean = false;
+
+      for (const p of MERGE_PATTERNS) {
+        if (p.test(message)) {
+          isMergeCommit = true;
+          break;
+        }
+      }
 
       if (isMergeCommit) {
         results.push(

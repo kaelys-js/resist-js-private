@@ -677,9 +677,14 @@ const validated = $derived.by(() => {
 
     for (const dir of dirs) {
       const dirPath: string = join(uiDir, dir);
-      const svelteFiles: string[] = readdirSync(dirPath).filter((f: string): boolean =>
-        f.endsWith('.svelte'),
-      );
+      const allFiles: string[] = readdirSync(dirPath);
+      const svelteFiles: string[] = [];
+
+      for (const f of allFiles) {
+        if (f.endsWith('.svelte')) {
+          svelteFiles.push(f);
+        }
+      }
 
       for (const file of svelteFiles) {
         const filePath: string = join(dirPath, file);
