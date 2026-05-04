@@ -9,12 +9,16 @@
  * The literal directive token is built at runtime to avoid the rule
  * self-flagging its own JSDoc/source.
  *
+ * The auto-fix appends a TODO reason placeholder after the directive
+ * so the comment satisfies the 10-character minimum.
+ *
  * @module
  */
 
 import type {
   TypeScriptRule,
   LintResult,
+  LintFix,
   AstNode,
   VisitorContext,
 } from '@/lint/framework/types.ts';
@@ -29,6 +33,23 @@ const DIRECTIVE_PATTERN: RegExp = new RegExp(DIRECTIVE);
 /** Pattern to detect the directive with a valid reason (dash separator + 10+ chars). */
 const DIRECTIVE_WITH_REASON: RegExp = new RegExp(`${DIRECTIVE}\\s+-{1,2}\\s+.{10,}`);
 
+/**
+ * Build a fix that appends a TODO reason after the directive.
+ *
+ * @param {object} comment - The comment with start/end offsets
+ * @param {string} content - Full source text
+ * @returns {LintFix} Fix that appends the reason placeholder
+ */
+function buildReasonFix(comment: { start: number; end: number }, content: string): LintFix {
+  const commentText: string = content.slice(comment.start, comment.end);
+  const replaced: string = commentText.replace(
+    DIRECTIVE_PATTERN,
+    DIRECTIVE + ' — TODO: add reason for suppression',
+  );
+
+  return { range: { start: comment.start, end: comment.end }, text: replaced };
+}
+
 /** The require-ts-expect-error-reason lint rule. */
 const rule: TypeScriptRule = {
   id: 'directives/require-ts-expect-error-reason',
@@ -37,7 +58,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts', '**/*.svelte', '**/*.js', '**/*.jsx'],
   categories: ['directives', 'safety'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     Program(_node: AstNode, context: VisitorContext): LintResult[] {
@@ -55,7 +76,7 @@ const rule: TypeScriptRule = {
             message: `${DIRECTIVE} requires explanation: // ${DIRECTIVE} - [reason]`,
             ruleId: 'directives/require-ts-expect-error-reason',
             tip: `Add explanation: // ${DIRECTIVE} - [why this suppression is needed]`,
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix: buildReasonFix(comment, context.content),
           });
         }
       }

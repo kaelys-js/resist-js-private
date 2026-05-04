@@ -29,7 +29,7 @@ const rule: WorkspaceRule = {
   scope: 'workspace',
   categories: ['hygiene'],
   stages: ['ci'],
-  fixable: false,
+  fixable: true,
   optionsSchema: {
     allowedNames: {
       type: 'array',

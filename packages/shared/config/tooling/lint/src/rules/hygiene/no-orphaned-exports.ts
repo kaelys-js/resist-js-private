@@ -9,7 +9,12 @@
  */
 
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
-import { createResult, type LintResult, type WorkspaceRule } from '@/lint/framework/types.ts';
+import {
+  createResult,
+  type LintFix,
+  type LintResult,
+  type WorkspaceRule,
+} from '@/lint/framework/types.ts';
 
 /** Rule ID constant. */
 const RULE_ID: string = 'hygiene/no-orphaned-exports';
@@ -169,6 +174,30 @@ const rule: WorkspaceRule = {
         }
 
         if (!found) {
+          /* Build a fix that strips the `export ` keyword from the line.
+           * Compute the byte offset of this line and find `export ` within it. */
+          let exportFix: LintFix = { range: { start: 0, end: 0 }, text: '' };
+          const exportIdx: number = line.indexOf('export ');
+
+          if (exportIdx !== -1) {
+            /* Compute byte offset of this line */
+            let lineByteStart: number = 0;
+
+            for (let li: number = 0; li < i; li++) {
+              lineByteStart += (lines[li] ?? '').length + 1; /* +1 for \n */
+            }
+
+            const exportStart: number = lineByteStart + exportIdx;
+            /* `export ` is 7 chars; for `export type ` keep `type ` */
+            const isTypeExport: boolean = trimmed.startsWith('export type ');
+            const exportLen: number = isTypeExport ? 7 : 7; /* always strip `export ` (7 chars) */
+
+            exportFix = {
+              range: { start: exportStart, end: exportStart + exportLen },
+              text: '',
+            };
+          }
+
           results.push(
             createResult(
               RULE_ID,
@@ -179,6 +208,7 @@ const rule: WorkspaceRule = {
               `Exported symbol '${symbolName}' has no non-test consumer — remove it or wire it up.`,
               {
                 tip: 'Remove unused exports or add an import in a non-test file.',
+                fix: exportFix,
               },
             ),
           );
@@ -190,7 +220,7 @@ const rule: WorkspaceRule = {
   },
   description:
     'Exported symbols must have at least one non-test consumer \u2014 remove unused exports or wire them up.',
-  fixable: false,
+  fixable: true,
   id: RULE_ID,
   scope: 'workspace',
   stages: ['ci'],
