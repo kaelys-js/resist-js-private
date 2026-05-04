@@ -21,7 +21,6 @@ import {
   type AgentKind,
   type Bool,
   type EnvRecordWithUndefined,
-  type ProviderEnvCheck,
   type Str,
 } from '@/schemas/common';
 import { ok, okUnchecked, type Result } from '@/schemas/result/result';
@@ -103,20 +102,31 @@ export function detectAgent(env: EnvRecordWithUndefined): Result<AgentInfo | und
 
   // 2. Auto-detect from env vars (ANY check passing = match)
   for (const agent of AGENTS) {
-    const anyMatch: Bool = agent.checks.some((check: ProviderEnvCheck): Bool => {
+    let anyMatch: Bool = false;
+
+    for (const check of agent.checks) {
       const val: Str | undefined = env[check.key];
 
       if (val === undefined) {
-        return false;
+        continue;
       }
       if (check.value !== undefined) {
-        return val === check.value;
+        if (val === check.value) {
+          anyMatch = true;
+          break;
+        }
+        continue;
       }
       if (check.includes !== undefined) {
-        return val.includes(check.includes);
+        if (val.includes(check.includes)) {
+          anyMatch = true;
+          break;
+        }
+        continue;
       }
-      return true;
-    });
+      anyMatch = true;
+      break;
+    }
 
     if (anyMatch) {
       return ok(AgentInfoSchema, { name: agent.name, id: agent.id });

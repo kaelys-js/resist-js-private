@@ -97,9 +97,14 @@ const rule: WorkspaceRule = {
     }
 
     for (const entry of aliasEntries) {
-      const isUsed: boolean = sourceContents.some((content: string) =>
-        content.includes(entry.aliasPrefix),
-      );
+      let isUsed: boolean = false;
+
+      for (const content of sourceContents) {
+        if (content.includes(entry.aliasPrefix)) {
+          isUsed = true;
+          break;
+        }
+      }
 
       if (!isUsed) {
         const relativePath: string = relative(ctx.rootDir, entry.filePath);

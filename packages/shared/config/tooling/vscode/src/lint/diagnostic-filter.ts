@@ -138,9 +138,12 @@ export class DiagnosticFilter implements vscode.Disposable {
     const activeCats: Set<string> = this.activeCategories;
 
     for (const [uriStr, diagnostics] of originals) {
-      const filtered: vscode.Diagnostic[] = diagnostics.filter((diag) => {
+      const filtered: vscode.Diagnostic[] = [];
+
+      for (const diag of diagnostics) {
         if (diag.source !== DIAGNOSTIC_SOURCE) {
-          return true; // Keep non-resist diagnostics
+          filtered.push(diag); // Keep non-resist diagnostics
+          continue;
         }
 
         const ruleId: string =
@@ -150,8 +153,10 @@ export class DiagnosticFilter implements vscode.Disposable {
         const slashIndex: number = ruleId.indexOf('/');
         const category: string = slashIndex > 0 ? ruleId.slice(0, slashIndex) : '';
 
-        return activeCats.has(category);
-      });
+        if (activeCats.has(category)) {
+          filtered.push(diag);
+        }
+      }
 
       const uri: vscode.Uri = vscode.Uri.file(uriStr);
       collection.set(uri, filtered);

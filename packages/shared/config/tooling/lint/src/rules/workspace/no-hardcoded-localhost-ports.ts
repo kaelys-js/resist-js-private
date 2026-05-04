@@ -62,9 +62,14 @@ const rule: WorkspaceRule = {
 
     for (const filePath of await ctx.allFiles()) {
       /* Only scan source files. */
-      const hasSourceExt: boolean = [...SOURCE_EXTENSIONS].some((ext: string): boolean =>
-        filePath.endsWith(ext),
-      );
+      let hasSourceExt: boolean = false;
+
+      for (const ext of SOURCE_EXTENSIONS) {
+        if (filePath.endsWith(ext)) {
+          hasSourceExt = true;
+          break;
+        }
+      }
 
       if (!hasSourceExt) {
         continue;
@@ -72,9 +77,14 @@ const rule: WorkspaceRule = {
 
       /* Exclude test/config files. */
       const name: string = basename(filePath);
-      const isExcluded: boolean = EXCLUDED_PATTERNS.some(
-        (pattern: string): boolean => name.includes(pattern) || filePath.includes(pattern),
-      );
+      let isExcluded: boolean = false;
+
+      for (const pattern of EXCLUDED_PATTERNS) {
+        if (name.includes(pattern) || filePath.includes(pattern)) {
+          isExcluded = true;
+          break;
+        }
+      }
 
       if (isExcluded) {
         continue;

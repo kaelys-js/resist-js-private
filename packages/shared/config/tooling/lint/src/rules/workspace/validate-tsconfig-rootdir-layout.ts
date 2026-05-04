@@ -100,9 +100,14 @@ const rule: WorkspaceRule = {
         continue;
       }
 
-      const isStandard: boolean = STANDARD_ROOTDIRS.some(
-        (standard: string): boolean => rootDir === standard,
-      );
+      let isStandard: boolean = false;
+
+      for (const standard of STANDARD_ROOTDIRS) {
+        if (rootDir === standard) {
+          isStandard = true;
+          break;
+        }
+      }
 
       if (!isStandard) {
         const relativePath: string = relative(ctx.rootDir, filePath);

@@ -105,9 +105,14 @@ const rule: WorkspaceRule = {
 
     /* Check each critical path for coverage. */
     for (const criticalPath of CRITICAL_PATHS) {
-      const isCovered: boolean = ruleLines.some((ruleLine: string): boolean =>
-        ruleLine.includes(criticalPath),
-      );
+      let isCovered: boolean = false;
+
+      for (const ruleLine of ruleLines) {
+        if (ruleLine.includes(criticalPath)) {
+          isCovered = true;
+          break;
+        }
+      }
 
       if (!isCovered) {
         results.push(

@@ -196,7 +196,13 @@
     };
 
     for (const group of groups) {
-      const filteredEntries = group.entries.filter(matchesFilter);
+      const filteredEntries: typeof group.entries = [];
+
+      for (const entry of group.entries) {
+        if (matchesFilter(entry)) {
+          filteredEntries.push(entry);
+        }
+      }
 
       if (filteredEntries.length > 0) {
         result.push({ date: group.date, entries: filteredEntries });

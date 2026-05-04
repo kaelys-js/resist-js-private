@@ -247,7 +247,15 @@ function parseFields(body: string): FieldInfo[] {
         if (before) {
           jsdocBuf.push(before);
         }
-        pendingJSDoc = jsdocBuf.filter(Boolean).join(' ');
+
+        const filteredBuf: string[] = [];
+
+        for (const b of jsdocBuf) {
+          if (b) {
+            filteredBuf.push(b);
+          }
+        }
+        pendingJSDoc = filteredBuf.join(' ');
         inJSDoc = false;
         jsdocBuf = [];
       } else {
@@ -525,10 +533,16 @@ describe('Lens lint', () => {
         }
 
         // Build object from parsed fields and validate against schema
-        const tagStrings: string[] = (tagsMatch[1] ?? '')
+        const rawTags: string[] = (tagsMatch[1] ?? '')
           .split(',')
-          .map((t: string): string => t.trim().replaceAll(/^'|'$/g, ''))
-          .filter((t: string): boolean => t.length > 0);
+          .map((t: string): string => t.trim().replaceAll(/^'|'$/g, ''));
+        const tagStrings: string[] = [];
+
+        for (const t of rawTags) {
+          if (t.length > 0) {
+            tagStrings.push(t);
+          }
+        }
 
         const metaObj: unknown = {
           category: catMatch[1],
@@ -623,9 +637,14 @@ describe('Lens lint', () => {
       const files: string[] = readdirSync(dirPath);
 
       // Find primary .svelte file (name matches directory)
-      const primaryFile: string | undefined = files.find(
-        (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
-      );
+      let primaryFile: string | undefined;
+
+      for (const f of files) {
+        if (f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`) {
+          primaryFile = f;
+          break;
+        }
+      }
 
       if (!primaryFile) {
         continue;
@@ -640,9 +659,16 @@ describe('Lens lint', () => {
 
       const props: PropMeta[] = extractProps(source);
       const variants: VariantMeta | null = extractVariants(source);
-      const hasExamples: boolean =
-        existsSync(join(dirPath, 'examples')) &&
-        readdirSync(join(dirPath, 'examples')).some((f: string) => f.endsWith('.svelte'));
+      let hasExamples: boolean = false;
+
+      if (existsSync(join(dirPath, 'examples'))) {
+        for (const f of readdirSync(join(dirPath, 'examples'))) {
+          if (f.endsWith('.svelte')) {
+            hasExamples = true;
+            break;
+          }
+        }
+      }
 
       const hasProps: boolean = props.length > 0;
       const hasVariants: boolean = variants !== null && variants.variants.length > 0;
@@ -698,9 +724,14 @@ describe('Lens lint', () => {
 
     for (const dir of dirs) {
       const files: string[] = readdirSync(join(UI_SRC, dir));
-      const hasPrimary: boolean = files.some(
-        (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
-      );
+      let hasPrimary: boolean = false;
+
+      for (const f of files) {
+        if (f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`) {
+          hasPrimary = true;
+          break;
+        }
+      }
 
       if (!hasPrimary) {
         missing.push(dir);
@@ -723,9 +754,14 @@ describe('Lens lint', () => {
     for (const dir of dirs) {
       const dirPath: string = join(UI_SRC, dir);
       const files: string[] = readdirSync(dirPath);
-      const primaryFile: string | undefined = files.find(
-        (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
-      );
+      let primaryFile: string | undefined;
+
+      for (const f of files) {
+        if (f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`) {
+          primaryFile = f;
+          break;
+        }
+      }
 
       if (!primaryFile) {
         continue;
@@ -784,9 +820,14 @@ describe('Lens lint', () => {
     for (const dir of dirs) {
       const dirPath: string = join(UI_SRC, dir);
       const files: string[] = readdirSync(dirPath);
-      const primaryFile: string | undefined = files.find(
-        (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
-      );
+      let primaryFile: string | undefined;
+
+      for (const f of files) {
+        if (f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`) {
+          primaryFile = f;
+          break;
+        }
+      }
 
       if (!primaryFile) {
         continue;
@@ -887,9 +928,15 @@ describe('Lens lint', () => {
       }
 
       const examplesDir: string = join(UI_SRC, dir, 'examples');
-      const exampleFiles: string[] = existsSync(examplesDir)
-        ? readdirSync(examplesDir).filter((f: string) => f.endsWith('.svelte'))
-        : [];
+      const exampleFiles: string[] = [];
+
+      if (existsSync(examplesDir)) {
+        for (const f of readdirSync(examplesDir)) {
+          if (f.endsWith('.svelte')) {
+            exampleFiles.push(f);
+          }
+        }
+      }
 
       for (const m of nameMatches) {
         const exampleName: string = m[1] ?? '';
@@ -920,13 +967,18 @@ describe('Lens lint', () => {
       const files: string[] = readdirSync(dirPath);
 
       // Check if any .svelte file in the dir uses tv(
-      const usesTv: boolean = files
-        .filter((f: string) => f.endsWith('.svelte'))
-        .some((f: string): boolean => {
+      let usesTv: boolean = false;
+
+      for (const f of files) {
+        if (f.endsWith('.svelte')) {
           const source: string = readFileSync(join(dirPath, f), 'utf8');
 
-          return /\btv\s*\(\s*\{/.test(source);
-        });
+          if (/\btv\s*\(\s*\{/.test(source)) {
+            usesTv = true;
+            break;
+          }
+        }
+      }
 
       if (!usesTv) {
         continue;
@@ -999,9 +1051,14 @@ describe('Lens lint', () => {
     for (const dir of dirs) {
       const dirPath: string = join(UI_SRC, dir);
       const files: string[] = readdirSync(dirPath);
-      const primaryFile: string | undefined = files.find(
-        (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
-      );
+      let primaryFile: string | undefined;
+
+      for (const f of files) {
+        if (f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`) {
+          primaryFile = f;
+          break;
+        }
+      }
 
       if (!primaryFile) {
         continue;
@@ -1065,9 +1122,14 @@ describe('Lens lint', () => {
     for (const dir of dirs) {
       const dirPath: string = join(UI_SRC, dir);
       const files: string[] = readdirSync(dirPath);
-      const primaryFile: string | undefined = files.find(
-        (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
-      );
+      let primaryFile: string | undefined;
+
+      for (const f of files) {
+        if (f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`) {
+          primaryFile = f;
+          break;
+        }
+      }
 
       if (!primaryFile) {
         continue;
@@ -1106,9 +1168,14 @@ describe('Lens lint', () => {
     for (const dir of dirs) {
       const dirPath: string = join(UI_SRC, dir);
       const files: string[] = readdirSync(dirPath);
-      const primaryFile: string | undefined = files.find(
-        (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
-      );
+      let primaryFile: string | undefined;
+
+      for (const f of files) {
+        if (f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`) {
+          primaryFile = f;
+          break;
+        }
+      }
 
       if (!primaryFile) {
         continue;
@@ -1161,9 +1228,14 @@ describe('Lens lint', () => {
     for (const dir of dirs) {
       const dirPath: string = join(UI_SRC, dir);
       const files: string[] = readdirSync(dirPath);
-      const primaryFile: string | undefined = files.find(
-        (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
-      );
+      let primaryFile: string | undefined;
+
+      for (const f of files) {
+        if (f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`) {
+          primaryFile = f;
+          break;
+        }
+      }
 
       if (!primaryFile) {
         continue;
@@ -1193,9 +1265,13 @@ describe('Lens lint', () => {
       while (match) {
         const args: string = match[1] ?? '';
         const snippetProps: string[] = ['children', 'icon', 'footer', 'child', 'header', 'trigger'];
-        const found: string[] = snippetProps.filter((p: string): boolean =>
-          new RegExp(`\\b${p}\\b`).test(args),
-        );
+        const found: string[] = [];
+        
+for (const p of snippetProps) {
+          if (new RegExp(`\\b${p}\\b`).test(args)) {
+            found.push(p);
+          }
+        }
 
         if (found.length > 0) {
           violations.push(
@@ -1228,9 +1304,14 @@ describe('Lens lint', () => {
     for (const dir of dirs) {
       const dirPath: string = join(UI_SRC, dir);
       const files: string[] = readdirSync(dirPath);
-      const primaryFile: string | undefined = files.find(
-        (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
-      );
+      let primaryFile: string | undefined;
+
+      for (const f of files) {
+        if (f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`) {
+          primaryFile = f;
+          break;
+        }
+      }
 
       if (!primaryFile) {
         continue;
@@ -1295,9 +1376,14 @@ describe('Lens lint', () => {
     for (const dir of dirs) {
       const dirPath: string = join(UI_SRC, dir);
       const files: string[] = readdirSync(dirPath);
-      const primaryFile: string | undefined = files.find(
-        (f: string): boolean => f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`,
-      );
+      let primaryFile: string | undefined;
+
+      for (const f of files) {
+        if (f === `${dir}.svelte` || f === `${toPascal(dir)}.svelte`) {
+          primaryFile = f;
+          break;
+        }
+      }
 
       if (!primaryFile) {
         continue;

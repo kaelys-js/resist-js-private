@@ -106,7 +106,14 @@ const rule: WorkspaceRule = {
       const taskNames: string[] = plan.tasks.map((t) => t.name);
 
       for (const req of REQUIRED_TAIL_TASKS) {
-        const found: boolean = taskNames.some((name: string): boolean => req.pattern.test(name));
+        let found: boolean = false;
+
+        for (const name of taskNames) {
+          if (req.pattern.test(name)) {
+            found = true;
+            break;
+          }
+        }
 
         if (!found) {
           results.push(
@@ -126,7 +133,14 @@ const rule: WorkspaceRule = {
       }
 
       /* Check Integration Verification task content */
-      const integrationTask = plan.tasks.find((t) => /integration\s+verification/i.test(t.name));
+      let integrationTask: (typeof plan.tasks)[number] | undefined;
+
+      for (const t of plan.tasks) {
+        if (/integration\s+verification/i.test(t.name)) {
+          integrationTask = t;
+          break;
+        }
+      }
 
       if (integrationTask !== undefined) {
         const taskContent: string = [
@@ -161,13 +175,25 @@ const rule: WorkspaceRule = {
       }
 
       /* Check Final Verification + Commit has >=3 verify bullets */
-      const finalTask = plan.tasks.find((t) => /final\s+verification.*commit/i.test(t.name));
+      let finalTask: (typeof plan.tasks)[number] | undefined;
+
+      for (const t of plan.tasks) {
+        if (/final\s+verification.*commit/i.test(t.name)) {
+          finalTask = t;
+          break;
+        }
+      }
 
       if (finalTask !== undefined) {
         const verifyCount: number = (finalTask.verification.match(/[Vv]erify/g) ?? []).length;
-        const planVerifyCount: number = finalTask.planBullets.filter((b: string): boolean =>
-          /[Vv]erify/i.test(b),
-        ).length;
+        let planVerifyCount: number = 0;
+
+        for (const b of finalTask.planBullets) {
+          if (/[Vv]erify/i.test(b)) {
+            planVerifyCount++;
+          }
+        }
+
         const totalVerify: number = verifyCount + planVerifyCount;
 
         if (totalVerify < 3) {
@@ -188,7 +214,14 @@ const rule: WorkspaceRule = {
       }
 
       /* Check Full QA task has pnpm commands */
-      const qaTask = plan.tasks.find((t) => /full\s+qa|qa.*coverage/i.test(t.name));
+      let qaTask: (typeof plan.tasks)[number] | undefined;
+
+      for (const t of plan.tasks) {
+        if (/full\s+qa|qa.*coverage/i.test(t.name)) {
+          qaTask = t;
+          break;
+        }
+      }
 
       if (qaTask !== undefined) {
         const qaContent: string = [...qaTask.planBullets, qaTask.verification].join('\n');

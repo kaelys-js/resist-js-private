@@ -97,10 +97,26 @@
     for (const name of themeNames) {
       const displayName: Str = `${name.charAt(0).toUpperCase()}${name.slice(1)}` as Str;
       // Find the primary color from the theme's token set to use as the dot
-      const themeSet: ThemeTokenSet | undefined = allSets.find(
-        (s: ThemeTokenSet): boolean => s.selector === name,
-      );
-      const primaryToken = themeSet?.tokens.find((t) => t.name === 'primary');
+      let themeSet: ThemeTokenSet | undefined;
+
+      for (const s of allSets) {
+        if (s.selector === name) {
+          themeSet = s;
+          break;
+        }
+      }
+
+      let primaryToken: ThemeTokenSet['tokens'][number] | undefined;
+
+      if (themeSet) {
+        for (const t of themeSet.tokens) {
+          if (t.name === 'primary') {
+            primaryToken = t;
+            break;
+          }
+        }
+      }
+
       const dot: Str = primaryToken?.value ?? 'oklch(0.5 0.15 260)';
       presets.push(
         { value: name, label: `${displayName} (Light)`, dot, group: displayName },

@@ -57,7 +57,16 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     for (const filePath of await ctx.allFiles()) {
-      if (!SOURCE_EXTENSIONS.some((ext: string): boolean => filePath.endsWith(ext))) {
+      let hasSourceExt: boolean = false;
+
+      for (const ext of SOURCE_EXTENSIONS) {
+        if (filePath.endsWith(ext)) {
+          hasSourceExt = true;
+          break;
+        }
+      }
+
+      if (!hasSourceExt) {
         continue;
       }
 
@@ -75,9 +84,14 @@ const rule: WorkspaceRule = {
 
       while (idx !== -1) {
         const substr: string = content.slice(idx);
-        const isAllowed: boolean = ALLOWED_PREFIXES.some((prefix: string): boolean =>
-          substr.startsWith(prefix),
-        );
+        let isAllowed: boolean = false;
+
+        for (const prefix of ALLOWED_PREFIXES) {
+          if (substr.startsWith(prefix)) {
+            isAllowed = true;
+            break;
+          }
+        }
 
         if (!isAllowed) {
           found = true;

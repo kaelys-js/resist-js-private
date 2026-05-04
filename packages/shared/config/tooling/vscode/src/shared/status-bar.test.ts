@@ -140,7 +140,14 @@ describe('Status Bar', () => {
     if (styleValues) {
       for (const attr of styleValues) {
         const value: string = attr.replace('style="', '').replace('"', '');
-        const props: string[] = value.split(';').filter(Boolean);
+        const splitParts: string[] = value.split(';');
+        const props: string[] = [];
+
+        for (const part of splitParts) {
+          if (part) {
+            props.push(part);
+          }
+        }
 
         for (const prop of props) {
           // No spaces around colon
@@ -153,7 +160,14 @@ describe('Status Bar', () => {
         // Order check: if multiple props, color < background-color < border-radius
         const order: string[] = props.map((p) => p.split(':')[0] ?? '');
         const expected: string[] = ['color', 'background-color', 'border-radius'];
-        const filtered: string[] = expected.filter((p) => order.includes(p));
+        const filtered: string[] = [];
+
+        for (const p of expected) {
+          if (order.includes(p)) {
+            filtered.push(p);
+          }
+        }
+
         expect(order).toEqual(filtered);
       }
     }

@@ -224,9 +224,22 @@ export class ToolRegistry {
     const toolFiles: Map<ExternalTool, string[]> = new Map();
 
     for (const tool of this.tools) {
-      const matching: string[] = files.filter((f: string): boolean =>
-        tool.filePatterns.some((pattern: string): boolean => matchesPattern(f, pattern)),
-      );
+      const matching: string[] = [];
+
+      for (const f of files) {
+        let fileMatches: boolean = false;
+
+        for (const pattern of tool.filePatterns) {
+          if (matchesPattern(f, pattern)) {
+            fileMatches = true;
+            break;
+          }
+        }
+
+        if (fileMatches) {
+          matching.push(f);
+        }
+      }
 
       if (matching.length > 0) {
         toolFiles.set(tool, matching);

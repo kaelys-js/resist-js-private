@@ -54,10 +54,16 @@ const rule: WorkspaceRule = {
     for (const filePath of await ctx.allFiles()) {
       const fileName: string = basename(filePath);
       const relativePath: string = relative(ctx.rootDir, filePath);
-      const isBenchmarkName: boolean = BENCHMARK_EXTENSIONS.some((ext: string): boolean =>
-        fileName.endsWith(ext),
-      );
-      const isInBenchmarksDir: boolean = filePath.includes('/__benchmarks__/');
+      let isBenchmarkName: boolean = false;
+
+      for (const ext of BENCHMARK_EXTENSIONS) {
+        if (fileName.endsWith(ext)) {
+          isBenchmarkName = true;
+          break;
+        }
+      }
+      
+const isInBenchmarksDir: boolean = filePath.includes('/__benchmarks__/');
       const isTsFile: boolean = fileName.endsWith('.ts') || fileName.endsWith('.tsx');
 
       /* Check 1: Benchmark-named file not in __benchmarks__ directory. */

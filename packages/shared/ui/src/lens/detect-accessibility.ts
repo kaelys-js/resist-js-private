@@ -2489,7 +2489,14 @@ const A11Y_RULES: A11yRule[] = [
           continue;
         }
 
-        const allPresent: boolean = requiredPatterns.every((p) => p.test(content as string));
+        let allPresent: boolean = true;
+
+        for (const p of requiredPatterns) {
+          if (!p.test(content as string)) {
+            allPresent = false;
+            break;
+          }
+        }
 
         if (allPresent) {
           pass = ((pass as number) + 1) as Num;
@@ -3933,7 +3940,15 @@ const A11Y_RULES: A11yRule[] = [
           /* Group [1] is the link text content */
           const linkText: Str = ((match[1] ?? '') as string).trim().toLowerCase() as Str;
 
-          if (BAD_LINK_TEXT_PATTERNS.some((p) => (linkText as string) === (p as string))) {
+          let isBadLink: boolean = false;
+
+          for (const p of BAD_LINK_TEXT_PATTERNS) {
+            if ((linkText as string) === (p as string)) {
+              isBadLink = true;
+              break;
+            }
+          }
+          if (isBadLink) {
             hasBadLink = true;
           }
           match = linkPattern.exec(content as string);
@@ -5729,9 +5744,14 @@ const A11Y_RULES: A11yRule[] = [
             fix: ariaFix,
           });
         } else {
-          const hasParent: boolean = parentChildMap.some(([p]) =>
-            (content as string).includes(p as string),
-          );
+          let hasParent: boolean = false;
+
+          for (const [p] of parentChildMap) {
+            if ((content as string).includes(p as string)) {
+              hasParent = true;
+              break;
+            }
+          }
 
           if (hasParent) {
             pass = ((pass as number) + 1) as Num;
@@ -5790,9 +5810,14 @@ const A11Y_RULES: A11yRule[] = [
 
         for (const [child, parents] of childParentMap) {
           if ((content as string).includes(child as string)) {
-            const hasParent: boolean = parents.some((p: Str) =>
-              (content as string).includes(p as string),
-            );
+            let hasParent: boolean = false;
+
+            for (const p of parents) {
+              if ((content as string).includes(p as string)) {
+                hasParent = true;
+                break;
+              }
+            }
 
             if (!hasParent) {
               fileFailed = true;
@@ -5815,9 +5840,14 @@ const A11Y_RULES: A11yRule[] = [
             fix: '<ul role="list">\n  <li role="listitem">...</li>\n</ul>' as Str,
           });
         } else {
-          const hasChild: boolean = childParentMap.some(([c]) =>
-            (content as string).includes(c as string),
-          );
+          let hasChild: boolean = false;
+
+          for (const [c] of childParentMap) {
+            if ((content as string).includes(c as string)) {
+              hasChild = true;
+              break;
+            }
+          }
 
           if (hasChild) {
             pass = ((pass as number) + 1) as Num;

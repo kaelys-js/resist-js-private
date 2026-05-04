@@ -5829,9 +5829,14 @@
         continue;
       }
 
-      const isPrefix: Bool = INSPECT_ATTR_PREFIXES.some((p) =>
-        (name as string).startsWith(p as string),
-      ) as Bool;
+      let isPrefix: Bool = false as Bool;
+
+      for (const p of INSPECT_ATTR_PREFIXES) {
+        if ((name as string).startsWith(p as string)) {
+          isPrefix = true as Bool;
+          break;
+        }
+      }
 
       if (isPrefix || INSPECT_ATTR_NAMES.has(name)) {
         attrs[name] = (attr.value || 'true') as Str;
@@ -6161,7 +6166,14 @@
       const val: Str = getMediaPref(key, group.pref);
 
       if (val !== group.defaultValue) {
-        const opt = group.options.find((o) => o.value === val);
+        let opt: (typeof group.options)[number] | undefined;
+
+        for (const o of group.options) {
+          if (o.value === val) {
+            opt = o;
+            break;
+          }
+        }
         settings.push({ label: group.label, value: opt?.label ?? val });
       }
     }

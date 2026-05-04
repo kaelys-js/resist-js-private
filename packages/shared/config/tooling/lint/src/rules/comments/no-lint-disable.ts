@@ -60,7 +60,17 @@ const rule: TypeScriptRule = {
           if (!pattern.test(comment.value)) {
             continue;
           }
-          if (allowedTargets.some((target: string): boolean => comment.value.includes(target))) {
+          
+let isAllowed: boolean = false;
+
+          for (const target of allowedTargets) {
+            if (comment.value.includes(target)) {
+              isAllowed = true;
+              break;
+            }
+          }
+
+          if (isAllowed) {
             continue;
           }
 

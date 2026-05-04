@@ -314,7 +314,14 @@ export function activate(context: vscode.ExtensionContext): void {
       sourcePatterns,
       (uris) => {
         for (const uri of uris) {
-          const doc = vscode.workspace.textDocuments.find((d) => d.uri.fsPath === uri.fsPath);
+          let doc: vscode.TextDocument | undefined;
+
+          for (const d of vscode.workspace.textDocuments) {
+            if (d.uri.fsPath === uri.fsPath) {
+              doc = d;
+              break;
+            }
+          }
 
           if (doc) {
             lintDoc(doc);
@@ -455,7 +462,14 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // Lint saved files with progress bar
     withFileProgress(outputChannel, en.progress.activation, openUris, (uri) => {
-      const doc = vscode.workspace.textDocuments.find((d) => d.uri.fsPath === uri.fsPath);
+      let doc: vscode.TextDocument | undefined;
+
+      for (const d of vscode.workspace.textDocuments) {
+        if (d.uri.fsPath === uri.fsPath) {
+          doc = d;
+          break;
+        }
+      }
 
       if (doc) {
         lintDoc(doc);

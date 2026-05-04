@@ -76,10 +76,15 @@ const rule: WorkspaceRule = {
       if (files.length > 1) {
         for (const filePath of files) {
           const relativePath: string = relative(ctx.rootDir, filePath);
-          const otherFiles: string = files
-            .filter((f: string) => f !== filePath)
-            .map((f: string) => relative(ctx.rootDir, f))
-            .join(', ');
+          const otherFilePaths: string[] = [];
+
+          for (const f of files) {
+            if (f !== filePath) {
+              otherFilePaths.push(relative(ctx.rootDir, f));
+            }
+          }
+
+          const otherFiles: string = otherFilePaths.join(', ');
           results.push(
             createResult(
               'workspace/no-duplicate-package-names',

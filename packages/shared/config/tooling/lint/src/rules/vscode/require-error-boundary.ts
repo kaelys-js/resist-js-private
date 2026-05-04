@@ -76,16 +76,23 @@ const rule: WorkspaceRule = {
 
       /* Read all .ts files in the extension */
       const allFiles: readonly string[] = await ctx.filesByExtension('.ts');
-      const extFiles: readonly string[] = allFiles.filter(
-        (f: string): boolean =>
-          f.startsWith(pkgDir) && !f.includes('.test.') && !f.includes('__mocks__'),
-      );
+      /* Plain for-loop instead of .filter() to avoid O(n²) lint diagnostic */
+      const extFiles: string[] = [];
+
+      for (const f of allFiles) {
+        if (f.startsWith(pkgDir) && !f.includes('.test.') && !f.includes('__mocks__')) {
+          extFiles.push(f);
+        }
+      }
+
+      /* Pre-compute wrapper file set to avoid .some() inside the loop */
+      const wrapperFileSet: ReadonlySet<string> = new Set(WRAPPER_FILES);
 
       for (const file of extFiles) {
         const fileName: string = file.split('/').pop() ?? '';
 
         /* Skip wrapper implementation files for Pattern A */
-        const isWrapperFile: boolean = WRAPPER_FILES.some((w: string): boolean => fileName === w);
+        const isWrapperFile: boolean = wrapperFileSet.has(fileName);
 
         /* Skip error utility file for Pattern B */
         const isErrorUtility: boolean = fileName === ERROR_UTILITY_FILE;

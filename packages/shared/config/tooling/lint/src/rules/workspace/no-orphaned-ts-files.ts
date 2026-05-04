@@ -81,9 +81,14 @@ const rule: WorkspaceRule = {
       }
 
       /** Check if the file is under at least one tsconfig directory. */
-      const isCovered: boolean = tsconfigDirs.some(
-        (dir: string): boolean => filePath.startsWith(`${dir}/`) || filePath === dir,
-      );
+      let isCovered: boolean = false;
+
+      for (const dir of tsconfigDirs) {
+        if (filePath.startsWith(`${dir}/`) || filePath === dir) {
+          isCovered = true;
+          break;
+        }
+      }
 
       if (!isCovered) {
         const relativePath: string = relative(ctx.rootDir, filePath);

@@ -132,14 +132,24 @@ const rule: WorkspaceRule = {
         const comparisonRelative: string = relative(ctx.rootDir, comparisonFile);
 
         /** Find missing keys (in reference but not in comparison). */
-        const missingKeys: string[] = referenceKeys.filter(
-          (key: string): boolean => !comparisonKeys.includes(key),
-        );
+        const comparisonKeySet: Set<string> = new Set<string>(comparisonKeys);
+        const missingKeys: string[] = [];
+
+        for (const key of referenceKeys) {
+          if (!comparisonKeySet.has(key)) {
+            missingKeys.push(key);
+          }
+        }
 
         /** Find extra keys (in comparison but not in reference). */
-        const extraKeys: string[] = comparisonKeys.filter(
-          (key: string): boolean => !referenceKeys.includes(key),
-        );
+        const referenceKeySet: Set<string> = new Set<string>(referenceKeys);
+        const extraKeys: string[] = [];
+
+        for (const key of comparisonKeys) {
+          if (!referenceKeySet.has(key)) {
+            extraKeys.push(key);
+          }
+        }
 
         if (missingKeys.length > 0) {
           results.push(

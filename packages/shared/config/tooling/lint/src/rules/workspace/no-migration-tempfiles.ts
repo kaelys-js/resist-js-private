@@ -57,9 +57,14 @@ const rule: WorkspaceRule = {
       const name: string = basename(filePath);
 
       /* Check for temp extensions. */
-      const hasTempExt: boolean = TEMP_EXTENSIONS.some((ext: string): boolean =>
-        name.endsWith(ext),
-      );
+      let hasTempExt: boolean = false;
+
+      for (const ext of TEMP_EXTENSIONS) {
+        if (name.endsWith(ext)) {
+          hasTempExt = true;
+          break;
+        }
+      }
 
       /* Check for ~ suffix (vim backup). */
       const hasTildeSuffix: boolean = name.endsWith('~');

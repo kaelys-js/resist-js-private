@@ -66,7 +66,14 @@ const rule: WorkspaceRule = {
       }
 
       for (const currentPath of paths) {
-        const otherPath: string = paths.find((p: string): boolean => p !== currentPath) ?? '';
+        let otherPath: string = '';
+
+        for (const p of paths) {
+          if (p !== currentPath) {
+            otherPath = p;
+            break;
+          }
+        }
 
         results.push(
           createResult(

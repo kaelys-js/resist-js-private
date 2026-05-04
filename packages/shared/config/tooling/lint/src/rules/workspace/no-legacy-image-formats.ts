@@ -53,9 +53,14 @@ const rule: WorkspaceRule = {
       }
 
       const lowerPath: string = filePath.toLowerCase();
-      const isLegacy: boolean = LEGACY_EXTENSIONS.some((ext: string): boolean =>
-        lowerPath.endsWith(ext),
-      );
+      let isLegacy: boolean = false;
+
+      for (const ext of LEGACY_EXTENSIONS) {
+        if (lowerPath.endsWith(ext)) {
+          isLegacy = true;
+          break;
+        }
+      }
 
       if (isLegacy) {
         results.push(

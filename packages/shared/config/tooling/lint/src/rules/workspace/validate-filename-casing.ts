@@ -57,9 +57,14 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     for (const filePath of await ctx.allFiles()) {
-      const shouldCheck: boolean = CHECKED_SEGMENTS.some((segment: string): boolean =>
-        filePath.includes(segment),
-      );
+      let shouldCheck: boolean = false;
+
+      for (const segment of CHECKED_SEGMENTS) {
+        if (filePath.includes(segment)) {
+          shouldCheck = true;
+          break;
+        }
+      }
 
       if (!shouldCheck) {
         continue;

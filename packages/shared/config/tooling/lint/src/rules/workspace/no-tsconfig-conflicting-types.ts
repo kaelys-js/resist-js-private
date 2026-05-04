@@ -65,11 +65,22 @@ const rule: WorkspaceRule = {
         continue;
       }
 
-      const typeStrings: string[] = types.filter(
-        (t: unknown): t is string => typeof t === 'string',
-      );
+      const typeStrings: string[] = [];
+
+      for (const t of types) {
+        if (typeof t === 'string') {
+          typeStrings.push(t);
+        }
+      }
+
       const hasNode: boolean = typeStrings.includes('node');
-      const otherTypes: string[] = typeStrings.filter((t: string) => t !== 'node');
+      const otherTypes: string[] = [];
+
+      for (const t of typeStrings) {
+        if (t !== 'node') {
+          otherTypes.push(t);
+        }
+      }
 
       if (hasNode && otherTypes.length > 0) {
         results.push(

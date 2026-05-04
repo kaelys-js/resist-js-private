@@ -793,9 +793,14 @@
         });
 
         // Find parent position for connector
-        const parent: LayoutNode | undefined = nodes.find(
-          (n: LayoutNode): boolean => n.id === parentId,
-        );
+        let parent: LayoutNode | undefined;
+
+        for (const n of nodes) {
+          if (n.id === parentId) {
+            parent = n;
+            break;
+          }
+        }
 
         if (parent) {
           connectors.push({
@@ -1011,9 +1016,14 @@
           parentId: entry.parentId,
         });
 
-        const parent: LayoutNode | undefined = nodes.find(
-          (n: LayoutNode): boolean => n.id === entry.parentId,
-        );
+        let parent: LayoutNode | undefined;
+
+        for (const n of nodes) {
+          if (n.id === entry.parentId) {
+            parent = n;
+            break;
+          }
+        }
 
         if (parent) {
           const clipped = clipLineToEdge(parent.x, parent.y, x, y, NODE_W, NODE_H);
@@ -1328,12 +1338,23 @@
     const layoutConnectors: Connector[] = [];
 
     for (const edge of edges) {
-      const from: LayoutNode | undefined = layoutNodes.find(
-        (n: LayoutNode): boolean => n.id === edge.from,
-      );
-      const to: LayoutNode | undefined = layoutNodes.find(
-        (n: LayoutNode): boolean => n.id === edge.to,
-      );
+      let from: LayoutNode | undefined;
+
+      for (const n of layoutNodes) {
+        if (n.id === edge.from) {
+          from = n;
+          break;
+        }
+      }
+
+      let to: LayoutNode | undefined;
+
+      for (const n of layoutNodes) {
+        if (n.id === edge.to) {
+          to = n;
+          break;
+        }
+      }
 
       if (!from || !to) {
         continue;
@@ -1856,9 +1877,22 @@
     }
 
     const layout = graphLayout;
-    const expandable: LayoutNode[] = layout.nodes.filter((n: LayoutNode): boolean => {
-      return layout.nodes.some((c: LayoutNode): boolean => c.parentId === n.id);
-    });
+    const expandable: LayoutNode[] = [];
+
+    for (const n of layout.nodes) {
+      let isExpandable = false;
+
+      for (const c of layout.nodes) {
+        if (c.parentId === n.id) {
+          isExpandable = true;
+          break;
+        }
+      }
+
+      if (isExpandable) {
+        expandable.push(n);
+      }
+    }
 
     if (expandable.length === 0) {
       return false;
@@ -1878,9 +1912,14 @@
     const next: Record<Str, Bool> = {};
 
     for (const node of graphLayout.nodes) {
-      const hasChildren: Bool = graphLayout.nodes.some(
-        (c: LayoutNode): boolean => c.parentId === node.id,
-      );
+      let hasChildren: Bool = false as Bool;
+
+      for (const c of graphLayout.nodes) {
+        if (c.parentId === node.id) {
+          hasChildren = true as Bool;
+          break;
+        }
+      }
 
       if (hasChildren) {
         next[node.id] = shouldCollapse;

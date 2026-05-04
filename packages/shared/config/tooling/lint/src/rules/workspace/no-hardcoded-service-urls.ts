@@ -59,17 +59,27 @@ const rule: WorkspaceRule = {
     const results: Array<ReturnType<typeof createResult>> = [];
 
     for (const filePath of await ctx.allFiles()) {
-      const hasSrcExt: boolean = [...SOURCE_EXTENSIONS].some((ext: string): boolean =>
-        filePath.endsWith(ext),
-      );
+      let hasSrcExt: boolean = false;
+
+      for (const ext of SOURCE_EXTENSIONS) {
+        if (filePath.endsWith(ext)) {
+          hasSrcExt = true;
+          break;
+        }
+      }
 
       if (!hasSrcExt) {
         continue;
       }
 
-      const isExcluded: boolean = EXCLUDED_PATTERNS.some((p: string): boolean =>
-        filePath.includes(p),
-      );
+      let isExcluded: boolean = false;
+
+      for (const p of EXCLUDED_PATTERNS) {
+        if (filePath.includes(p)) {
+          isExcluded = true;
+          break;
+        }
+      }
 
       if (isExcluded) {
         continue;
