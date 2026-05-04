@@ -23,7 +23,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.svelte'],
   categories: ['naming'],
   stages: ['lint', 'pre-commit'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {

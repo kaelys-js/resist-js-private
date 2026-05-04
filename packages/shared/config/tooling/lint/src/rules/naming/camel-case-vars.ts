@@ -23,6 +23,46 @@ const SCREAMING_SNAKE_RE: RegExp = /^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$/;
 
 /** Names to always allow (common conventions). */
 const ALLOWED_NAMES: ReadonlySet<string> = new Set(['_', '__', '$']);
+
+/**
+ * Convert an identifier to camelCase.
+ *
+ * Handles snake_case, PascalCase, SCREAMING_SNAKE_CASE, and mixed patterns.
+ * Preserves a leading underscore if present.
+ *
+ * @param {string} name - The identifier to convert
+ * @returns {string} The camelCase version
+ */
+function toCamelCase(name: string): string {
+  /* Preserve leading underscore */
+  const hasLeadingUnderscore: boolean = name.startsWith('_');
+  const raw: string = hasLeadingUnderscore ? name.slice(1) : name;
+
+  /* Split on underscores or camelCase/PascalCase boundaries */
+  const parts: string[] = raw
+    .replace(/([a-z])([A-Z])/g, '$1_$2')
+    .split('_')
+    .filter((p: string): boolean => p.length > 0);
+
+  if (parts.length === 0) {
+    return name;
+  }
+
+  const result: string = parts
+    .map((part: string, i: number): string => {
+      const lower: string = part.toLowerCase();
+
+      if (i === 0) {
+        return lower;
+      }
+
+      return lower.charAt(0).toUpperCase() + lower.slice(1);
+    })
+    .join('');
+
+  return hasLeadingUnderscore ? '_' + result : result;
+}
+
 /** The camel-case-vars lint rule. */
 const rule: TypeScriptRule = {
   id: 'naming/camel-case-vars',
@@ -30,6 +70,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['naming'],
   stages: ['lint', 'pre-commit'],
+  fixable: true,
 
   visitor: {
     VariableDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
@@ -96,7 +137,7 @@ const rule: TypeScriptRule = {
             tip: 'Rename to camelCase (e.g., myVariable, itemCount)',
             fix: {
               range: { start: id.start, end: id.end },
-              text: name,
+              text: toCamelCase(name),
             },
           });
         }
@@ -130,7 +171,7 @@ const rule: TypeScriptRule = {
           tip: 'Rename to camelCase (e.g., loadScene, processData)',
           fix: {
             range: { start: id.start, end: id.end },
-            text: name,
+            text: toCamelCase(name),
           },
         });
       }
