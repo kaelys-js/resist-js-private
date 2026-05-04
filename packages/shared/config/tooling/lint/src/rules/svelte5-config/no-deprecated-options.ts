@@ -12,7 +12,7 @@ import type {
   AstNode,
   VisitorContext,
 } from '@/lint/framework/types.ts';
-import { getDefaultExportObject, collectPropertyPaths } from './_config-ast.ts';
+import { getDefaultExportObject, collectPropertyPaths, getNestedValue } from './_config-ast.ts';
 
 /** Map of deprecated option paths to migration messages. */
 const DEPRECATED_OPTIONS: ReadonlyMap<string, string> = new Map([
@@ -36,6 +36,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/svelte.config.*'],
   categories: ['svelte5-config'],
   stages: ['lint', 'ci'],
+  fixable: true,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
@@ -52,6 +53,39 @@ const rule: TypeScriptRule = {
         const reason: string | undefined = DEPRECATED_OPTIONS.get(path);
 
         if (reason) {
+          /* Fix: locate the deprecated property node and delete it */
+          let fix = { range: { start: 0, end: 0 }, text: '' };
+          const segments: string[] = path.split('.');
+          const propName: string = segments[segments.length - 1] ?? '';
+          const parentPath: string = segments.slice(0, -1).join('.');
+          const parentObj: AstNode | undefined = parentPath
+            ? getNestedValue(configObj, parentPath)
+            : configObj;
+
+          if (parentObj && parentObj.type === 'ObjectExpression') {
+            const props: AstNode[] | undefined = parentObj.properties as AstNode[] | undefined;
+
+            if (props) {
+              for (const prop of props) {
+                const keyRaw: unknown = prop.key;
+                const keyNode =
+                  keyRaw && typeof keyRaw === 'object' ? (keyRaw as AstNode) : undefined;
+                const keyName: string =
+                  (keyNode?.name as string) ?? (keyNode?.value as string) ?? '';
+
+                if (keyName === propName) {
+                  /* Delete the property including trailing comma/whitespace */
+                  const afterProp: string = context.content.slice(prop.end, prop.end + 10);
+                  const commaOffset: number = afterProp.indexOf(',');
+                  const endOffset: number =
+                    commaOffset >= 0 ? prop.end + commaOffset + 1 : prop.end;
+                  fix = { range: { start: prop.start, end: endOffset }, text: '' };
+                  break;
+                }
+              }
+            }
+          }
+
           results.push({
             file: context.file,
             line: node.loc.start.line,
@@ -60,7 +94,7 @@ const rule: TypeScriptRule = {
             message: `Deprecated config option '${path}' — ${reason}`,
             ruleId: rule.id,
             tip: `Remove '${path}': ${reason}`,
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix,
           });
         }
       }

@@ -27,6 +27,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/svelte.config.*'],
   categories: ['svelte5-config'],
   stages: ['lint', 'ci'],
+  fixable: true,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
@@ -45,6 +46,12 @@ const rule: TypeScriptRule = {
       const adapterValue: AstNode | undefined = getNestedValue(kitObj, 'adapter');
 
       if (!hasProperty(kitObj, 'adapter') || !adapterValue || isUndefinedValue(adapterValue)) {
+        /* Fix: insert adapter property into kit object */
+        const fix = {
+          range: { start: kitObj.end - 1, end: kitObj.end - 1 },
+          text: ',\n    adapter: adapter()\n  ',
+        };
+
         return [
           {
             file: context.file,
@@ -54,7 +61,7 @@ const rule: TypeScriptRule = {
             message: 'SvelteKit config missing adapter — build will fail without one',
             ruleId: rule.id,
             tip: "Add adapter: import adapter from '@sveltejs/adapter-cloudflare'; then adapter: adapter()",
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix,
           },
         ];
       }

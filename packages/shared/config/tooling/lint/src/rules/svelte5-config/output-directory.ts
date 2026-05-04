@@ -24,6 +24,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/svelte.config.*'],
   categories: ['svelte5-config'],
   stages: ['lint', 'ci'],
+  fixable: true,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
@@ -50,7 +51,10 @@ const rule: TypeScriptRule = {
             message: `Output directory '${outDir}' conflicts with source directory`,
             ruleId: rule.id,
             tip: "Use 'build' or '.svelte-kit' for output directories",
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix: {
+              range: { start: outDirValue.start, end: outDirValue.end },
+              text: "'build'",
+            },
           });
         }
       }
@@ -79,7 +83,10 @@ const rule: TypeScriptRule = {
                   message: `Adapter ${prop} directory '${dir}' conflicts with source directory`,
                   ruleId: rule.id,
                   tip: "Use 'build' for adapter output directories",
-                  fix: { range: { start: 0, end: 0 }, text: '' },
+                  fix: {
+                    range: { start: propValue.start, end: propValue.end },
+                    text: "'build'",
+                  },
                 });
               }
             }

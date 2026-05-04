@@ -35,6 +35,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/svelte.config.*'],
   categories: ['svelte5-config'],
   stages: ['lint', 'ci'],
+  fixable: true,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
@@ -64,7 +65,10 @@ const rule: TypeScriptRule = {
           message: 'Empty publicPrefix exposes all environment variables to the client',
           ruleId: rule.id,
           tip: 'Use the default PUBLIC_ prefix or set a non-empty publicPrefix',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix: {
+            range: { start: publicPrefixValue.start, end: publicPrefixValue.end },
+            text: "'PUBLIC_'",
+          },
         });
       }
 
@@ -81,7 +85,10 @@ const rule: TypeScriptRule = {
             message: `Non-standard publicPrefix '${prefixStr}' — SvelteKit uses 'PUBLIC_' by default`,
             ruleId: rule.id,
             tip: "Use 'PUBLIC_' prefix or a custom prefix matching your project's convention",
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix: {
+              range: { start: publicPrefixValue.start, end: publicPrefixValue.end },
+              text: "'PUBLIC_'",
+            },
           });
         }
       }

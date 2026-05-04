@@ -26,6 +26,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/svelte.config.*'],
   categories: ['svelte5-config'],
   stages: ['lint', 'ci'],
+  fixable: true,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
@@ -47,6 +48,17 @@ const rule: TypeScriptRule = {
         return [];
       }
 
+      /* Fix: insert prerender config into kit object */
+      let fix = { range: { start: 0, end: 0 }, text: '' };
+      const kitObj: AstNode | undefined = getNestedValue(configObj, 'kit');
+
+      if (kitObj && kitObj.type === 'ObjectExpression') {
+        fix = {
+          range: { start: kitObj.end - 1, end: kitObj.end - 1 },
+          text: ",\n    prerender: { entries: ['*'], handleHttpError: 'warn' }\n  ",
+        };
+      }
+
       return [
         {
           file: context.file,
@@ -56,7 +68,7 @@ const rule: TypeScriptRule = {
           message: 'Static adapter requires prerender configuration',
           ruleId: rule.id,
           tip: "Add prerender: { entries: ['*'], handleHttpError: 'warn' }",
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix,
         },
       ];
     },
