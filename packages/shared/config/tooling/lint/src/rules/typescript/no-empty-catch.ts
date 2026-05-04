@@ -60,7 +60,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['typescript', 'safety'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     CatchClause(node: AstNode, context: VisitorContext): LintResult[] {
@@ -205,7 +205,7 @@ const rule: TypeScriptRule = {
               'err() in catch block should include { cause: fromUnknownError(error) } in meta',
             ruleId: 'typescript/no-empty-catch',
             tip: 'Pass the converted error as cause: err(ERRORS.X.Y, { cause: appError })',
-            fix: { range: { start: node.start, end: node.end }, text: '' },
+            fix: { range: { start: 0, end: 0 }, text: '' },
           });
         }
 
@@ -219,7 +219,7 @@ const rule: TypeScriptRule = {
             message: 'Use a specific error code in catch block, not ERRORS.INTERNAL.UNEXPECTED',
             ruleId: 'typescript/no-empty-catch',
             tip: 'Use a domain-specific code: ERRORS.IO.READ_FAILED, ERRORS.NETWORK.PORT_UNAVAILABLE, etc.',
-            fix: { range: { start: node.start, end: node.end }, text: '' },
+            fix: { range: { start: 0, end: 0 }, text: '' },
           });
         }
       }

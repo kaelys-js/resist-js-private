@@ -59,6 +59,12 @@ function checkParams(
     // Check for optional marker (param?: Type)
     if (param.optional === true) {
       const paramName: string = getParamName(param);
+      /* Find the '?' character in the param source to strip it */
+      const paramText: string = context.content.slice(param.start, param.end);
+      const qIdx: number = paramText.indexOf('?');
+      const fixStart: number = qIdx !== -1 ? param.start + qIdx : param.start;
+      const fixEnd: number = qIdx !== -1 ? param.start + qIdx + 1 : param.start;
+
       results.push({
         file: context.file,
         line: param.loc.start.line,
@@ -67,7 +73,7 @@ function checkParams(
         message: `Parameter '${paramName}' is optional (?) — optionality belongs in Valibot schemas via v.optional()`,
         ruleId: 'typescript/no-default-params',
         tip: 'Use v.optional() in the schema instead of ? on the parameter',
-        fix: { range: { start: param.start, end: param.end }, text: '' },
+        fix: { range: { start: fixStart, end: fixEnd }, text: '' },
       });
     }
 
@@ -82,6 +88,10 @@ function checkParams(
           if (value?.type === 'AssignmentPattern') {
             const key = prop.key as AstNode | undefined;
             const propName: string = (key?.name as string) ?? '<unknown>';
+            /* Fix: strip the `= defaultValue` part, keeping just the key */
+            const left = value.left as AstNode | undefined;
+            const keyText: string = left ? context.content.slice(left.start, left.end) : propName;
+
             results.push({
               file: context.file,
               line: prop.loc.start.line,
@@ -90,7 +100,7 @@ function checkParams(
               message: `Destructured parameter '${propName}' has a default value — defaults belong in Valibot schemas`,
               ruleId: 'typescript/no-default-params',
               tip: 'Move the default into v.optional(schema, default) in the schema',
-              fix: { range: { start: prop.start, end: prop.end }, text: '' },
+              fix: { range: { start: prop.start, end: prop.end }, text: keyText },
             });
           }
         }
@@ -128,7 +138,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['typescript', 'valibot'],
   stages: ['lint'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     FunctionDeclaration(node: AstNode, context: VisitorContext): LintResult[] {

@@ -46,6 +46,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['typescript', 'valibot'],
   stages: ['lint'],
+  fixable: true,
 
   visitor: {
     TSTypeAnnotation(node: AstNode, context: VisitorContext): LintResult[] {

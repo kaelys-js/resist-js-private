@@ -77,6 +77,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['typescript', 'quality'],
   stages: ['lint', 'ci'],
+  fixable: true,
 
   visitor: {
     TemplateLiteral(node: AstNode, context: VisitorContext): LintResult[] {
@@ -130,7 +131,7 @@ function checkNode(node: AstNode, context: VisitorContext): LintResult[] {
       severity: 'warning',
       message: `String literal contains embedded <script> block with ${codeLines} line${codeLines === 1 ? '' : 's'} of code — consider extracting to a separate module`,
       ruleId: rule.id,
-      fix: { range: { start: node.start, end: node.end }, text: '' },
+      fix: { range: { start: 0, end: 0 }, text: '' },
     },
   ];
 }
