@@ -11,6 +11,7 @@ import { join } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
+import { findClosestMatch } from './_sync-helpers.ts';
 
 /**
  * Extract turbo task names from a script command string.
@@ -57,7 +58,7 @@ const rule: WorkspaceRule = {
   scope: 'workspace',
   categories: ['sync', 'workspace'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
   /* Caching is opt-out: this rule depends on git/CI state via execSync. */
   async check(context: unknown): Promise<
     Array<{
@@ -144,6 +145,24 @@ const rule: WorkspaceRule = {
             }
           }
 
+          /* Fix: find closest matching task name and replace in the script */
+          const closest: string | undefined = findClosestMatch(lookupTask, validTasks);
+          let fix: { range: { start: number; end: number }; text: string } | undefined;
+
+          if (closest) {
+            /* Find the task name in rawPkg and replace */
+            const taskIdx: number = rawPkg.indexOf(task);
+
+            if (taskIdx !== -1) {
+              const replacement: string = task.startsWith('//#') ? `//#${closest}` : closest;
+
+              fix = {
+                range: { start: taskIdx, end: taskIdx + task.length },
+                text: replacement,
+              };
+            }
+          }
+
           results.push(
             createResult(
               'sync/turbo-tasks',
@@ -153,7 +172,10 @@ const rule: WorkspaceRule = {
               'error',
               `Script '${scriptName}' references turbo task '${task}' which doesn't exist in turbo.json`,
               {
-                tip: `Add '${task}' to turbo.json tasks or correct the script`,
+                tip: closest
+                  ? `Did you mean '${closest}'?`
+                  : `Add '${task}' to turbo.json tasks or correct the script`,
+                fix,
               },
             ),
           );

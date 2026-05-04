@@ -13,6 +13,7 @@ import { join } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
+import { findClosestMatch, lineStartOffset } from './_sync-helpers.ts';
 
 /** Known resist config file locations to check. */
 const CONFIG_PATHS: string[] = ['resist.config.ts', 'resist.config.js', 'resist.config.mjs'];
@@ -104,7 +105,7 @@ const rule: WorkspaceRule = {
   scope: 'workspace',
   categories: ['sync', 'workspace'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
   /* Caching is opt-out: this rule depends on git/CI state via execSync. */
   async check(context: unknown): Promise<
     Array<{
@@ -164,6 +165,25 @@ const rule: WorkspaceRule = {
 
     for (const ref of stepRefs) {
       if (!validScripts.has(ref.step)) {
+        /* Fix: find closest matching script name and replace the step string */
+        const closest: string | undefined = findClosestMatch(ref.step, validScripts);
+        let fix: { range: { start: number; end: number }; text: string } | undefined;
+
+        if (closest) {
+          const lineOffset: number = lineStartOffset(content, ref.line);
+          const lineText: string = content.slice(lineOffset, content.indexOf('\n', lineOffset));
+          const stepIdx: number = lineText.indexOf(ref.step);
+
+          if (stepIdx !== -1) {
+            const absStart: number = lineOffset + stepIdx;
+
+            fix = {
+              range: { start: absStart, end: absStart + ref.step.length },
+              text: closest,
+            };
+          }
+        }
+
         results.push(
           createResult(
             'sync/onboarding-steps',
@@ -173,7 +193,10 @@ const rule: WorkspaceRule = {
             'error',
             `Onboarding step '${ref.step}' doesn't exist in package.json scripts`,
             {
-              tip: `Add '${ref.step}' to package.json scripts or remove from onboarding steps`,
+              tip: closest
+                ? `Did you mean '${closest}'?`
+                : `Add '${ref.step}' to package.json scripts or remove from onboarding steps`,
+              fix,
             },
           ),
         );

@@ -11,6 +11,7 @@ import { join } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
+import { findClosestMatch, lineStartOffset } from './_sync-helpers.ts';
 
 /** Known lefthook config file locations to check. */
 const LEFTHOOK_PATHS: string[] = [
@@ -94,7 +95,7 @@ const rule: WorkspaceRule = {
   scope: 'workspace',
   categories: ['sync', 'workspace'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
   /* Caching is opt-out: this rule depends on git/CI state via execSync. */
   async check(context: unknown): Promise<
     Array<{
@@ -157,6 +158,26 @@ const rule: WorkspaceRule = {
       const scriptName: string = ref.script.split(/\s/)[0] ?? ref.script;
 
       if (!validScripts.has(scriptName)) {
+        /* Fix: find closest matching script name and replace in the lefthook file */
+        const closest: string | undefined = findClosestMatch(scriptName, validScripts);
+        let fix: { range: { start: number; end: number }; text: string } | undefined;
+
+        if (closest) {
+          /* Find the script name in the specific line and replace it */
+          const lineOffset: number = lineStartOffset(content, ref.line);
+          const lineText: string = content.slice(lineOffset, content.indexOf('\n', lineOffset));
+          const nameIdx: number = lineText.indexOf(scriptName);
+
+          if (nameIdx !== -1) {
+            const absStart: number = lineOffset + nameIdx;
+
+            fix = {
+              range: { start: absStart, end: absStart + scriptName.length },
+              text: closest,
+            };
+          }
+        }
+
         results.push(
           createResult(
             'sync/lefthook-scripts',
@@ -166,7 +187,10 @@ const rule: WorkspaceRule = {
             'error',
             `Lefthook references 'pnpm ${scriptName}' but script doesn't exist in package.json`,
             {
-              tip: `Add '${scriptName}' to package.json scripts or remove from lefthook config`,
+              tip: closest
+                ? `Did you mean '${closest}'?`
+                : `Add '${scriptName}' to package.json scripts or remove from lefthook config`,
+              fix,
             },
           ),
         );

@@ -10,6 +10,7 @@ import { join } from 'node:path';
 
 import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
+import { findClosestPath, lineStartOffset } from './_sync-helpers.ts';
 
 /**
  * Parse pnpm-workspace.yaml to extract package patterns with line numbers.
@@ -66,7 +67,7 @@ const rule: WorkspaceRule = {
   scope: 'workspace',
   categories: ['sync', 'workspace'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
   async inputs(context: unknown): Promise<readonly string[]> {
     const ctx = context as WorkspaceContext;
 
@@ -109,6 +110,8 @@ const rule: WorkspaceRule = {
 
     const patterns: Array<{ pattern: string; line: number }> = parseWorkspacePatterns(content);
 
+    const allFiles: readonly string[] = await ctx.allFiles();
+
     await Promise.all(
       patterns.map(async (entry: { pattern: string; line: number }): Promise<void> => {
         if (isGlobPattern(entry.pattern)) {
@@ -121,6 +124,29 @@ const rule: WorkspaceRule = {
             const baseDirExists: boolean = await ctx.dirExists(resolvedBase);
 
             if (!baseDirExists) {
+              /* Fix: find closest matching directory for the base */
+              const closest: string | undefined = findClosestPath(baseDir, allFiles);
+              let fix: { range: { start: number; end: number }; text: string } | undefined;
+
+              if (closest) {
+                const lineOffset: number = lineStartOffset(content, entry.line);
+                const lineText: string = content.slice(
+                  lineOffset,
+                  content.indexOf('\n', lineOffset),
+                );
+                const patternIdx: number = lineText.indexOf(entry.pattern);
+
+                if (patternIdx !== -1) {
+                  const absStart: number = lineOffset + patternIdx;
+                  const globSuffix: string = entry.pattern.slice(baseDir.length);
+
+                  fix = {
+                    range: { start: absStart, end: absStart + entry.pattern.length },
+                    text: closest + globSuffix,
+                  };
+                }
+              }
+
               results.push(
                 createResult(
                   'sync/pnpm-workspace',
@@ -130,7 +156,10 @@ const rule: WorkspaceRule = {
                   'warning',
                   `Workspace pattern '${entry.pattern}' base directory '${baseDir}' doesn't exist`,
                   {
-                    tip: `Create the '${baseDir}' directory or remove the pattern`,
+                    tip: closest
+                      ? `Did you mean '${closest}'?`
+                      : `Create the '${baseDir}' directory or remove the pattern`,
+                    fix,
                   },
                 ),
               );
@@ -142,6 +171,25 @@ const rule: WorkspaceRule = {
           const dirOk: boolean = await ctx.dirExists(resolvedPath);
 
           if (!dirOk) {
+            /* Fix: find closest matching directory */
+            const closest: string | undefined = findClosestPath(entry.pattern, allFiles);
+            let fix: { range: { start: number; end: number }; text: string } | undefined;
+
+            if (closest) {
+              const lineOffset: number = lineStartOffset(content, entry.line);
+              const lineText: string = content.slice(lineOffset, content.indexOf('\n', lineOffset));
+              const patternIdx: number = lineText.indexOf(entry.pattern);
+
+              if (patternIdx !== -1) {
+                const absStart: number = lineOffset + patternIdx;
+
+                fix = {
+                  range: { start: absStart, end: absStart + entry.pattern.length },
+                  text: closest,
+                };
+              }
+            }
+
             results.push(
               createResult(
                 'sync/pnpm-workspace',
@@ -151,7 +199,10 @@ const rule: WorkspaceRule = {
                 'warning',
                 `Workspace pattern '${entry.pattern}' doesn't match any directory`,
                 {
-                  tip: `Create the directory at '${entry.pattern}' or remove the pattern`,
+                  tip: closest
+                    ? `Did you mean '${closest}'?`
+                    : `Create the directory at '${entry.pattern}' or remove the pattern`,
+                  fix,
                 },
               ),
             );
