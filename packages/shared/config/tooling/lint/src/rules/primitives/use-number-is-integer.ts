@@ -58,7 +58,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     BinaryExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -83,6 +83,23 @@ const rule: TypeScriptRule = {
         ((isModOneCheck(leftNode) && isZeroLiteral(rightNode)) ||
           (isModOneCheck(rightNode) && isZeroLiteral(leftNode)))
       ) {
+        /* Fix: x % 1 === 0 → Number.isInteger(x) */
+        let fix = { range: { start: 0, end: 0 }, text: '' };
+        const modNode = isModOneCheck(leftNode) ? leftNode : rightNode;
+        const modLeftRaw: unknown = modNode.left;
+        const modLeftNode =
+          modLeftRaw !== null && typeof modLeftRaw === 'object'
+            ? (modLeftRaw as AstNode)
+            : undefined;
+
+        if (modLeftNode) {
+          const xText: string = context.getNodeText(modLeftNode);
+          fix = {
+            range: { start: node.start, end: node.end },
+            text: `Number.isInteger(${xText})`,
+          };
+        }
+
         results.push({
           file: context.file,
           line: node.loc.start.line,
@@ -91,7 +108,7 @@ const rule: TypeScriptRule = {
           message: 'Use Number.isInteger() instead of manual integer check',
           ruleId: 'primitives/use-number-is-integer',
           tip: 'Replace with Number.isInteger(x)',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix,
         });
       }
 

@@ -22,7 +22,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     BinaryExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -43,6 +43,14 @@ const rule: TypeScriptRule = {
         rightNode &&
         rightNode.type === 'Identifier'
       ) {
+        /* Fix: a === b → a.normalize() === b.normalize() */
+        const leftText: string = context.getNodeText(leftNode);
+        const rightText: string = context.getNodeText(rightNode);
+        const fix = {
+          range: { start: node.start, end: node.end },
+          text: `${leftText}.normalize() ${operator} ${rightText}.normalize()`,
+        };
+
         results.push({
           file: context.file,
           line: node.loc.start.line,
@@ -52,7 +60,7 @@ const rule: TypeScriptRule = {
             'String comparison without normalize() - visually identical strings may have different encodings',
           ruleId: 'primitives/prefer-normalize-comparison',
           tip: 'Use str.normalize() before comparison or localeCompare() with options',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix,
         });
       }
 

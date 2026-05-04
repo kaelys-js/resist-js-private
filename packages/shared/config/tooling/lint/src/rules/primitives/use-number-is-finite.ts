@@ -21,7 +21,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     CallExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -33,6 +33,17 @@ const rule: TypeScriptRule = {
       const calleeName = calleeNode?.name as string | undefined;
 
       if (calleeNode && calleeNode.type === 'Identifier' && calleeName === 'isFinite') {
+        /* Fix: isFinite(x) → Number.isFinite(x) */
+        const nodeArgs = node.arguments as AstNode[] | undefined;
+        const argsText: string =
+          nodeArgs && nodeArgs.length > 0
+            ? nodeArgs.map((a: AstNode) => context.getNodeText(a)).join(', ')
+            : '';
+        const fix = {
+          range: { start: node.start, end: node.end },
+          text: `Number.isFinite(${argsText})`,
+        };
+
         results.push({
           file: context.file,
           line: node.loc.start.line,
@@ -41,7 +52,7 @@ const rule: TypeScriptRule = {
           message: 'Use Number.isFinite() instead of isFinite() to avoid type coercion',
           ruleId: 'primitives/use-number-is-finite',
           tip: 'Replace isFinite(x) with Number.isFinite(x)',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix,
         });
       }
 

@@ -21,7 +21,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     Literal(node: AstNode, context: VisitorContext): LintResult[] {
@@ -34,6 +34,13 @@ const rule: TypeScriptRule = {
         Number.isInteger(value) &&
         Math.abs(value) > Number.MAX_SAFE_INTEGER
       ) {
+        /* Fix: append n to make it a BigInt literal */
+        const nodeText: string = context.getNodeText(node);
+        const fix = {
+          range: { start: node.start, end: node.end },
+          text: nodeText + 'n',
+        };
+
         results.push({
           file: context.file,
           line: node.loc.start.line,
@@ -42,7 +49,7 @@ const rule: TypeScriptRule = {
           message: `Number ${String(value)} exceeds MAX_SAFE_INTEGER - use BigInt or string`,
           ruleId: 'primitives/no-unsafe-integer',
           tip: `Use BigInt (${String(value)}n) or keep as string to preserve precision`,
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix,
         });
       }
 
