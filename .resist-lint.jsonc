@@ -21,7 +21,7 @@
     "comments/require-section-marker-style": "off",
     "comments/require-section-order": "off",
     "complexity/array-size-warning": "error",
-    "complexity/no-array-method-in-loop": "off",
+    "complexity/no-array-method-in-loop": "error",
     "complexity/no-await-in-loop": "off",
     "complexity/no-concat-in-loop": "off",
     "complexity/no-dom-query-in-loop": "off",
