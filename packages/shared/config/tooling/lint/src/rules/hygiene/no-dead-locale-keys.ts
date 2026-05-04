@@ -7,7 +7,7 @@
  * @module
  */
 
-import { createResult, type WorkspaceRule } from '@/lint/framework/types.ts';
+import { createResult, type LintFix, type WorkspaceRule } from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
 /**
@@ -124,7 +124,7 @@ const rule: WorkspaceRule = {
   scope: 'workspace',
   categories: ['hygiene'],
   stages: ['ci'],
-  fixable: false,
+  fixable: true,
   optionsSchema: {
     localeFile: {
       type: 'string',
@@ -208,6 +208,15 @@ const rule: WorkspaceRule = {
       endColumn?: number;
     }> = [];
 
+    /* Pre-compute line start offsets for building delete-line fixes */
+    const localeLineStarts: number[] = [0];
+
+    for (let li: number = 0; li < localeContent.length; li++) {
+      if (localeContent[li] === '\n') {
+        localeLineStarts.push(li + 1);
+      }
+    }
+
     for (const { key, line } of localeKeys) {
       const referencePattern: string = `${localePrefix}.${key}`;
       let found: boolean = false;
@@ -220,6 +229,15 @@ const rule: WorkspaceRule = {
       }
 
       if (!found) {
+        /* Build a fix that deletes the line containing the dead key */
+        const lineIdx: number = line - 1;
+        const lineStart: number = localeLineStarts[lineIdx] ?? 0;
+        const lineEnd: number =
+          lineIdx + 1 < localeLineStarts.length
+            ? (localeLineStarts[lineIdx + 1] ?? localeContent.length)
+            : localeContent.length;
+        const deleteFix: LintFix = { range: { start: lineStart, end: lineEnd }, text: '' };
+
         results.push(
           createResult(
             'hygiene/no-dead-locale-keys',
@@ -230,6 +248,7 @@ const rule: WorkspaceRule = {
             `Locale key '${key}' has no non-test references — remove it to prevent locale bloat.`,
             {
               tip: `Search for '${referencePattern}' — if no production code uses it, delete the key.`,
+              fix: deleteFix,
             },
           ),
         );
