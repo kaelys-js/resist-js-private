@@ -1876,12 +1876,15 @@ export async function _runLintCore(
     allResults.push(...toolPhaseResults);
   }
 
-  /* Apply per-file severity from overrides (convert error to warning based on config) */
+  /* Apply per-file severity from config (bidirectional: error↔warning) */
   allResults = allResults.map((result: LintResult): LintResult => {
     const severity: string = resolveRuleSeverity(config, result.ruleId, result.file);
 
     if (severity === 'warn' && result.severity === 'error') {
       return { ...result, severity: 'warning' };
+    }
+    if (severity === 'error' && result.severity === 'warning') {
+      return { ...result, severity: 'error' };
     }
     return result;
   });
