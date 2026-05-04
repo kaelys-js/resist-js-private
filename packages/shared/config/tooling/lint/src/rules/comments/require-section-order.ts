@@ -30,7 +30,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['comments', 'style'],
   stages: ['lint'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
@@ -125,6 +125,7 @@ const rule: TypeScriptRule = {
         return results;
       }
 
+      let isOutOfOrder: boolean = false;
       let maxOrder: number = firstSection.orderIndex;
 
       for (let i: number = 1; i < sections.length; i++) {
@@ -134,6 +135,7 @@ const rule: TypeScriptRule = {
           continue;
         }
         if (sect.orderIndex < maxOrder) {
+          isOutOfOrder = true;
           const current: string = sect.name;
           // Find which earlier section is out of order
           const targetOrder: number = maxOrder;
@@ -158,6 +160,69 @@ const rule: TypeScriptRule = {
         }
         if (sect.orderIndex > maxOrder) {
           maxOrder = sect.orderIndex;
+        }
+      }
+
+      /* Build a reorder fix that covers the entire sectioned region.
+       * Each section spans from its // === header line to the line before
+       * the next section's header (or EOF). We sort the blocks by canonical
+       * orderIndex and replace the full range. */
+      if (isOutOfOrder && results.length > 0) {
+        /* Compute byte offsets for each line (cumulative line lengths + 1 for \n) */
+        const lineOffsets: number[] = [0];
+
+        for (let li: number = 0; li < lines.length; li++) {
+          lineOffsets.push(lineOffsets[li]! + (lines[li]?.length ?? 0) + 1);
+        }
+
+        /* Build section blocks with byte ranges.
+         * A section starts at the // === header line (sections[i].line is 1-based,
+         * and that points to the === line; the header is 3 lines: ===, title, ===).
+         * A section ends at the byte before the next section's header starts, or
+         * at content.length for the last section. */
+        interface SectionBlock {
+          orderIndex: number;
+          startByte: number;
+          endByte: number;
+        }
+        const blocks: SectionBlock[] = [];
+
+        for (let si: number = 0; si < sections.length; si++) {
+          const sect: { line: number; name: string; orderIndex: number } = sections[si]!;
+          const startLine: number = sect.line - 1; // 0-based
+          const startByte: number = lineOffsets[startLine] ?? 0;
+          const nextSect: { line: number; name: string; orderIndex: number } | undefined =
+            sections[si + 1];
+          /* Next section's header line (0-based) — section content ends just before it */
+          const endByte: number = nextSect
+            ? (lineOffsets[nextSect.line - 1] ?? context.content.length)
+            : context.content.length;
+
+          blocks.push({ orderIndex: sect.orderIndex, startByte, endByte });
+        }
+
+        if (blocks.length >= 2) {
+          const firstBlock: SectionBlock = blocks[0]!;
+          const lastBlock: SectionBlock = blocks[blocks.length - 1]!;
+          const regionStart: number = firstBlock.startByte;
+          const regionEnd: number = lastBlock.endByte;
+
+          /* Extract each block's text and sort by canonical order */
+          const sortedTexts: string[] = [...blocks]
+            .sort((a: SectionBlock, b: SectionBlock): number => a.orderIndex - b.orderIndex)
+            .map((blk: SectionBlock): string => context.content.slice(blk.startByte, blk.endByte));
+
+          const reorderedText: string = sortedTexts.join('');
+
+          /* Attach fix to the first result only (all results share the same fix) */
+          const firstResult: LintResult | undefined = results[0];
+
+          if (firstResult) {
+            firstResult.fix = {
+              range: { start: regionStart, end: regionEnd },
+              text: reorderedText,
+            };
+          }
         }
       }
 

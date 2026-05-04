@@ -119,6 +119,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['comments', 'style'],
   stages: ['lint'],
+  fixable: true,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
