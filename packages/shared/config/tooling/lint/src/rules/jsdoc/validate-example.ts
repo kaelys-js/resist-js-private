@@ -301,7 +301,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['jsdoc'],
   stages: ['lint'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     ExportNamedDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
