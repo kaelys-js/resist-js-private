@@ -59,7 +59,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['imports', 'safety'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     ImportDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
@@ -91,6 +91,15 @@ const rule: TypeScriptRule = {
 
       const alternative: string = ALTERNATIVES[value] ?? '@/utils/core';
 
+      /* Build fix: replace the import source string with the alternative path.
+       * Only fix when we have a concrete alternative (not the fallback). */
+      const sourceStart: number = (source?.start ?? 0) + 1; /* skip opening quote */
+      const sourceEnd: number = (source?.end ?? 0) - 1; /* skip closing quote */
+      const hasConcreteAlt: boolean = value in ALTERNATIVES && !alternative.includes('(');
+      const fix = hasConcreteAlt
+        ? { range: { start: sourceStart, end: sourceEnd }, text: alternative }
+        : { range: { start: 0, end: 0 }, text: '' };
+
       results.push({
         file: context.file,
         line: node.loc.start.line,
@@ -99,7 +108,7 @@ const rule: TypeScriptRule = {
         message: `Direct '${value}' import — use shared utilities instead`,
         ruleId: 'imports/no-raw-node-imports',
         tip: `Use ${alternative} which provides type-safe, Result-returning alternatives`,
-        fix: { range: { start: node.start, end: node.end }, text: '' },
+        fix,
       });
 
       return results;

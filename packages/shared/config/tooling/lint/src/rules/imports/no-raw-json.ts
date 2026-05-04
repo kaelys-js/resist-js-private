@@ -19,10 +19,16 @@ import type {
   VisitorContext,
 } from '@/lint/framework/types.ts';
 
-/** Map of JSON methods to their safe alternatives. */
+/** Map of JSON methods to their safe alternatives (descriptive). */
 const ALTERNATIVES: Record<string, string> = {
   stringify: 'safeStringify from @/utils/core/object',
   parse: 'parseJsonWithComments from @/utils/core/fs',
+};
+
+/** Map of JSON methods to their replacement function names. */
+const REPLACEMENTS: Record<string, string> = {
+  stringify: 'safeStringify',
+  parse: 'parseJsonWithComments',
 };
 
 /**
@@ -53,6 +59,7 @@ function checkJsonAccess(node: AstNode, context: VisitorContext): LintResult[] {
   }
 
   const alternative: string = ALTERNATIVES[propertyName] ?? '';
+  const replacement: string = REPLACEMENTS[propertyName] ?? '';
 
   results.push({
     file: context.file,
@@ -62,7 +69,7 @@ function checkJsonAccess(node: AstNode, context: VisitorContext): LintResult[] {
     message: `Direct JSON.${propertyName}() — use ${alternative} instead`,
     ruleId: 'imports/no-raw-json',
     tip: `JSON.${propertyName} can throw on invalid input. Use the type-safe, Result-returning alternative`,
-    fix: { range: { start: node.start, end: node.end }, text: '' },
+    fix: { range: { start: node.start, end: node.end }, text: replacement },
   });
 
   return results;
@@ -74,7 +81,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['imports', 'safety'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     MemberExpression(node: AstNode, context: VisitorContext): LintResult[] {

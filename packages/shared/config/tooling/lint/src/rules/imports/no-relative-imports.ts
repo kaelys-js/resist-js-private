@@ -40,7 +40,7 @@ function checkRelativeSource(node: AstNode, context: VisitorContext): LintResult
       message: `Relative import '${value}' — use workspace alias instead`,
       ruleId: 'imports/no-relative-imports',
       tip: 'Replace with an @/ workspace alias (e.g. @/schemas/common)',
-      fix: { range: { start: (source?.start ?? 0) + 1, end: (source?.end ?? 0) - 1 }, text: value },
+      fix: { range: { start: 0, end: 0 }, text: '' },
     });
   }
 
@@ -53,6 +53,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['imports'],
   stages: ['lint'],
+  fixable: true,
 
   visitor: {
     ImportDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
