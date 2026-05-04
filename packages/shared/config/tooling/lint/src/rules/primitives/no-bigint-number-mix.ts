@@ -47,7 +47,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     BinaryExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -75,6 +75,16 @@ const rule: TypeScriptRule = {
       const rightIsNumber = isNumberLiteral(rightNode);
 
       if ((leftIsBigInt && rightIsNumber) || (leftIsNumber && rightIsBigInt)) {
+        /* Fix: convert the number literal to BigInt by appending 'n' (integers only) */
+        let fix = { range: { start: 0, end: 0 }, text: '' };
+        const numNode: AstNode | undefined = leftIsNumber ? leftNode : rightNode;
+        const numVal: unknown = numNode.value;
+
+        if (typeof numVal === 'number' && numVal % 1 === 0) {
+          const numText: string = context.getNodeText(numNode);
+          fix = { range: { start: numNode.start, end: numNode.end }, text: `${numText}n` };
+        }
+
         results.push({
           file: context.file,
           line: node.loc.start.line,
@@ -83,7 +93,7 @@ const rule: TypeScriptRule = {
           message: 'Cannot mix bigint and number in operation - explicitly convert types',
           ruleId: 'primitives/no-bigint-number-mix',
           tip: 'Use BigInt(number) or Number(bigint) for explicit conversion',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix,
         });
       }
 

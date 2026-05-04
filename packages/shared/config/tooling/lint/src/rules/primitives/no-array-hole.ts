@@ -22,7 +22,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     ArrayExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -75,6 +75,8 @@ const rule: TypeScriptRule = {
         const firstArg = args[0] as AstNode;
 
         if (firstArg.type === 'Literal' && typeof (firstArg.value as unknown) === 'number') {
+          const argText: string = context.getNodeText(firstArg);
+          const replacement: string = `Array.from({ length: ${argText} }, () => undefined)`;
           results.push({
             file: context.file,
             line: node.loc.start.line,
@@ -83,7 +85,7 @@ const rule: TypeScriptRule = {
             message: 'new Array(n) creates sparse array with holes - use Array.from or fill',
             ruleId: 'primitives/no-array-hole',
             tip: 'Use explicit undefined values or Array.from/fill to avoid holes',
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix: { range: { start: node.start, end: node.end }, text: replacement },
           });
         }
       }

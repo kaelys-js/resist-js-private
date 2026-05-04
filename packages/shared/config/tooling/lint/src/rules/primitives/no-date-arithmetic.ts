@@ -36,7 +36,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     BinaryExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -55,12 +55,28 @@ const rule: TypeScriptRule = {
       const rightNode =
         rightRaw !== null && typeof rightRaw === 'object' ? (rightRaw as AstNode) : undefined;
 
-      if (
-        (!leftNode || !isNewDateExpression(leftNode)) &&
-        (!rightNode || !isNewDateExpression(rightNode))
-      ) {
+      const leftIsDate: boolean = leftNode !== undefined && isNewDateExpression(leftNode);
+      const rightIsDate: boolean = rightNode !== undefined && isNewDateExpression(rightNode);
+
+      if (!leftIsDate && !rightIsDate) {
         return results;
       }
+
+      /* Fix: append .getTime() to each new Date(...) operand */
+      let leftText: string = leftNode ? context.getNodeText(leftNode) : '';
+      let rightText: string = rightNode ? context.getNodeText(rightNode) : '';
+
+      if (leftIsDate) {
+        leftText = `${leftText}.getTime()`;
+      }
+      if (rightIsDate) {
+        rightText = `${rightText}.getTime()`;
+      }
+
+      const fix = {
+        range: { start: node.start, end: node.end },
+        text: `${leftText} - ${rightText}`,
+      };
 
       results.push({
         file: context.file,
@@ -70,7 +86,7 @@ const rule: TypeScriptRule = {
         message: 'Date arithmetic returns milliseconds - use date-fns or explicit getTime()',
         ruleId: 'primitives/no-date-arithmetic',
         tip: 'Use differenceInDays/Hours/etc from date-fns, or explicitly use getTime()',
-        fix: { range: { start: 0, end: 0 }, text: '' },
+        fix,
       });
 
       return results;

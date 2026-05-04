@@ -34,7 +34,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts', '**/*.mjs'],
   categories: ['primitives', 'safety'],
   stages: ['lint', 'check'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     BinaryExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -52,6 +52,14 @@ const rule: TypeScriptRule = {
         (operator === '===' || operator === '!==') &&
         ((leftNode && isFloatLiteral(leftNode)) || (rightNode && isFloatLiteral(rightNode)))
       ) {
+        /* Fix: a === 0.1 → Math.abs(a - 0.1) < Number.EPSILON
+         *      a !== 0.1 → Math.abs(a - 0.1) >= Number.EPSILON */
+        const leftText: string = leftNode ? context.getNodeText(leftNode) : '';
+        const rightText: string = rightNode ? context.getNodeText(rightNode) : '';
+        const comp: string = operator === '===' ? '<' : '>=';
+        const replacement: string = `Math.abs(${leftText} - ${rightText}) ${comp} Number.EPSILON`;
+        const fix = { range: { start: node.start, end: node.end }, text: replacement };
+
         results.push({
           file: context.file,
           line: node.loc.start.line,
@@ -61,7 +69,7 @@ const rule: TypeScriptRule = {
             'Avoid direct equality comparison of floats - use epsilon comparison or integers',
           ruleId: 'primitives/no-float-equality',
           tip: 'Use Math.abs(a - b) < Number.EPSILON or work with integers',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix,
         });
       }
 
