@@ -65,7 +65,7 @@ The plan execute under the active-plan binding contract: the Stop hook will refu
 
 ## TASK 1 — Cover `@/lint` cli-helpers.ts (19 functions)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: `cli-helpers.ts` has 19 uncovered functions (80/99 = 80.8%). All 19 are anonymous arrow callbacks inside conditional branches (line numbers: 1086, 1270, 1374, 1375, 1378, 1381, 1395, 1482, 1557, 1649, 1694, 1695, 1702, 1768, 1770, …). Highest single-file leverage in the workspace.
 
@@ -95,7 +95,7 @@ The plan execute under the active-plan binding contract: the Stop hook will refu
 
 ## TASK 2 — Cover `@/lint` framework + config + api (13 functions)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: Three core files in `@/lint` have 10 combined uncovered functions: `config/schema.ts` (4: validateConfig error paths, JSON-Schema-edge-case helpers), `api.ts` (3: `lintSource()` empty-rules path, programmatic-API error pathway, `_runLintCore` rule-filter no-match branch), `framework/types.ts` (3: callable utilities like `createResult` overloads, `NO_OP_FIX` consumer, `isFixable` predicate). `framework/cache.ts` (2) and `framework/worker-pool.ts` (2) round out the cluster.
 
@@ -124,7 +124,7 @@ The plan execute under the active-plan binding contract: the Stop hook will refu
 
 ## TASK 3 — Cover `@/lint` workspace rule branches (200+ functions across ~80 files)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: ~440 of `@/lint`'s 462 uncovered functions are anonymous callbacks inside `rule.check(ctx)` bodies — the `.filter()`, `.map()`, `.find()`, `.some()` callbacks that fire only on rare paths. Average ~2 per rule across ~80 rule files (`rules/workspace/*.ts`, `rules/svelte5/*.ts`, `rules/plans/*.ts`, etc.). To reach 91% workspace-wide, ~185 of these need tests.
 
@@ -158,7 +158,7 @@ The plan execute under the active-plan binding contract: the Stop hook will refu
 
 ## TASK 4 — Cover `@storylyne/editor` (37 functions)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: 37 missing functions in `packages/products/storylyne/editor/src/`, mostly callbacks in route `+page.svelte`/`+layout.svelte` files and lib utilities. Function coverage 92.6%.
 
@@ -180,7 +180,7 @@ The plan execute under the active-plan binding contract: the Stop hook will refu
 
 ## TASK 5 — Cover `@/config/tooling/vscode` (32 functions)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: 32 missing functions in `packages/shared/config/tooling/vscode/src/` — VS Code extension scaffolding callbacks not exercised by the existing scripts test suite.
 
@@ -201,7 +201,7 @@ The plan execute under the active-plan binding contract: the Stop hook will refu
 
 ## TASK 6 — Cover `@/utils/core` + `@/ui` + `@/utils/devtools` + `@/schemas/function` + `@/locale` (35 functions)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: Five smaller packages each have 1–20 uncovered functions:
 - `@/utils/core`: 20 missing (93.7%)
@@ -236,7 +236,7 @@ The plan execute under the active-plan binding contract: the Stop hook will refu
 
 ## TASK 7 — Register Rules + Config
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - This is a coverage-fill phase; no new lint rules or config rules are added.
@@ -254,7 +254,7 @@ The plan execute under the active-plan binding contract: the Stop hook will refu
 
 ## TASK 8 — Integration Verification
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Command registration check: workspace has no slash-commands; `grep -rc 'registerCommand' packages/products/storylyne/editor/src` count is unchanged from baseline.
@@ -275,7 +275,7 @@ The plan execute under the active-plan binding contract: the Stop hook will refu
 
 ## TASK 9 — Full QA + Coverage
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Run: `pnpm -w run qa:format`
@@ -295,7 +295,7 @@ The plan execute under the active-plan binding contract: the Stop hook will refu
 
 ## TASK 10 — Final Verification + Commit
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Verify coverage thresholds: `pnpm -w run qa:test:coverage` exit 0, no `does not meet global threshold` lines.

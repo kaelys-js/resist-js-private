@@ -41,7 +41,7 @@ Each task is atomic: implement -> verify (`qa:lint <path>`) -> update plan -> ne
 
 ## TASK 1 — Relax `max-classes-per-file` for test files in oxlint config
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: `direction.test.ts` mocks `Intl.Locale` 9 times (one fake class per branch under test). `template.test.ts` mocks `Intl.DateTimeFormat` 3 times. `og.test.ts` mocks `Intl.Locale` 2 times. The rule's `max: 1` is correct for production code but fights the per-test mock pattern. Test files already have a dedicated override block at `.oxlintrc.json:540-564`.
 
@@ -59,7 +59,7 @@ Each task is atomic: implement -> verify (`qa:lint <path>`) -> update plan -> ne
 
 ## TASK 2 — Fix `template.test.ts` (28 diagnostics)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: 22 single-line `if (!result.ok) return;` and `if (!buildResult.ok) return;` (curly), 3 split value+type imports (no-duplicate-imports), 1 `value.split('').reverse().join('')` (prefer-spread + no-array-reverse), 1 `50000` (numeric-separators-style).
 
@@ -83,7 +83,7 @@ Each task is atomic: implement -> verify (`qa:lint <path>`) -> update plan -> ne
 
 ## TASK 3 — Fix `svelte.svelte.test.ts` (7 diagnostics)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: 1 split value+type import for `./registry` (no-duplicate-imports). 3 helper functions (`wrapRegistry`, `fakeErr`, `fakeOk`) missing `@param`/`@returns` JSDoc tags.
 
@@ -103,7 +103,7 @@ Each task is atomic: implement -> verify (`qa:lint <path>`) -> update plan -> ne
 
 ## TASK 4 — Fix `direction.test.ts` (2 diagnostics)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: Lines 297 and 414 — `class { constructor() { throw new Error(...) } }` flagged by `no-extraneous-class` ("only a constructor"). Cannot replace with a function: the class is cast to `typeof Intl.Locale` (a constructor type) and instantiated with `new`. Refactor approach: add a no-op method so the class has more than just a constructor.
 
@@ -121,7 +121,7 @@ Each task is atomic: implement -> verify (`qa:lint <path>`) -> update plan -> ne
 
 ## TASK 5 — Fix `format.test.ts` (2 diagnostics)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: Line 919 — `of: () => undefined` (no-useless-undefined). Line 1146 — `3.14159` (numeric-separators-style).
 
@@ -139,7 +139,7 @@ Each task is atomic: implement -> verify (`qa:lint <path>`) -> update plan -> ne
 
 ## TASK 6 — Register Rules + Config
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - TASK 1 modifies `.oxlintrc.json` (already part of the test-files override array — no separate registration needed).
@@ -155,7 +155,7 @@ Each task is atomic: implement -> verify (`qa:lint <path>`) -> update plan -> ne
 
 ## TASK 7 — Integration Verification
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Command registration check: `grep -c registerCommand packages/shared/locale/src` is unchanged (no new commands).
@@ -171,7 +171,7 @@ Each task is atomic: implement -> verify (`qa:lint <path>`) -> update plan -> ne
 
 ## TASK 8 — Full QA + Coverage
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Run: `pnpm -w run qa:format`
@@ -187,7 +187,7 @@ Each task is atomic: implement -> verify (`qa:lint <path>`) -> update plan -> ne
 
 ## TASK 9 — Final Verification + Commit
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Verify all five edited files match the spec above.

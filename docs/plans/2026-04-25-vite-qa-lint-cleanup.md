@@ -48,7 +48,7 @@ Each task is atomic: implement → verify (`qa:lint <file>`) → update plan →
 
 ## TASK 1 — Fix `vite-plugin-template-html.test.ts` (45 of 47 diagnostics)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: 20 `as Function` casts (40 diagnostics from two rules), 2 imports below `vi.mock`, 2 `arr[0]`-style accesses, 1 useless string concat, 1 numeric-separator violation.
 
@@ -100,7 +100,7 @@ Each task is atomic: implement → verify (`qa:lint <file>`) → update plan →
 
 ## TASK 2 — Fix `vite-plugin-template-html-edge.test.ts` (1 diagnostic)
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: `await importOriginal<typeof import('@/schemas/result/result')>()` at line 30 uses `import()` in type position.
 
@@ -119,7 +119,7 @@ Each task is atomic: implement → verify (`qa:lint <file>`) → update plan →
 
 ## TASK 3 — Register Rules + Config
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - No oxlint config changes (no rule disables this round).
@@ -133,7 +133,7 @@ Each task is atomic: implement → verify (`qa:lint <file>`) → update plan →
 
 ## TASK 4 — Integration Verification
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Command registration check: `grep -rc 'registerCommand' packages/shared/config/tooling/vite/src` is unchanged (no commands).
@@ -151,7 +151,7 @@ Each task is atomic: implement → verify (`qa:lint <file>`) → update plan →
 
 ## TASK 5 — Full QA + Coverage
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Run: `pnpm -w run qa:format`
@@ -166,7 +166,7 @@ Each task is atomic: implement → verify (`qa:lint <file>`) → update plan →
 
 ## TASK 6 — Final Verification + Commit
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Verify both edited source files match the spec above.

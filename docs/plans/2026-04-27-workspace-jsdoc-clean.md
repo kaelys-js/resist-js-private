@@ -51,7 +51,7 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint --tools` after i
 
 ## TASK 1 — Fix cache-invalidation bug in `@/lint`
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: `computeRuleHash(allRuleIds)` (`packages/shared/config/tooling/lint/src/framework/cache.ts:377`) hashes only the loaded rule IDs, not the resolved severities from `.resist-lint.jsonc`. When a rule flips from `"off"` to `"error"` (or any severity transition), the rule hash is unchanged, the cache is marked current, and stale cached entries are reused — silently hiding any diagnostics the newly-activated rule would produce. This is the bug that hid ~2,900 jsdoc diagnostics across the prior turn.
 
@@ -104,7 +104,7 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint --tools` after i
 
 ## TASK 3 — Author `/** … @module */` per-file for the 3,107 flagged source files
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: 3,107 source files lack `/** … @module */` at the top. Per-file authored descriptions, no bulk-script-with-placeholders. Realistic time: a few focused hours; most files' purpose is obvious in the first 20 lines.
 
@@ -151,7 +151,7 @@ For each file:
 
 ## TASK 4 — Add JSDoc to 13 exported functions
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: 13 exported functions in production source files lack JSDoc:
 - `packages/products/storylyne/editor/src/hooks.server.ts` — `handle`
@@ -182,7 +182,7 @@ For each file:
 
 ## TASK 5 — Add JSDoc to remaining 71 non-Svelte exported types
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: 73 `Exported type` diagnostics remain after TASK 2's bulk Props JSDoc — 71 are in non-Svelte `.ts` files (carousel/context.ts, lens-utils.ts, types.ts, etc.) and 2 are in README code fences (handled in TASK 7). The 71 are real types that need authored JSDoc.
 
@@ -204,7 +204,7 @@ For each file:
 
 ## TASK 6 — Add JSDoc to 2 README in-fence exported types
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: `packages/shared/locale/README.md:752,753` declares `MyToolStrings` and `BuiltMyToolStrings` inside a ```ts fence as documented examples. The rule extracts the fence and runs `require-jsdoc` against its content; the in-fence types lack JSDoc.
 
@@ -223,7 +223,7 @@ For each file:
 
 ## TASK 7 — Register Rules + Config
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - This phase doesn't add new rules; it modifies one existing rule (TASK 1's cache fix touches `framework/cache.ts`, not a rule) and adds JSDoc to source files (TASKs 3–6). Nothing to register in `.resist-lint.jsonc`.
@@ -239,7 +239,7 @@ For each file:
 
 ## TASK 8 — Integration Verification
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - **Command registration check**: `grep -cE 'registerCommand\|command\.register' packages/shared/config/tooling/lint/src/` is unchanged from baseline.
@@ -257,7 +257,7 @@ For each file:
 
 ## TASK 9 — Full QA + Coverage
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Run: `pnpm -w run qa:format`
@@ -279,7 +279,7 @@ For each file:
 
 ## TASK 10 — Final Verification + Commit
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Verify TASK 1 cache fix: rule severity flips invalidate cache.

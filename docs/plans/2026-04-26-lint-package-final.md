@@ -59,7 +59,7 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint`) → run `@/lin
 
 ## TASK 1 — Group A: bulk Python regex sweeps for mechanical rules
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: 13+ rules trigger across 30+ files in repetitive, mechanical patterns suitable for bulk regex transformation (same approach used successfully in earlier @/utils/core, @/products, and @/ui cleanups in this session).
 
@@ -93,7 +93,7 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint`) → run `@/lin
 
 ## TASK 2 — Group B: per-site judgement Edits
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: 4 rules require context-specific guard/structure choices that cannot be safely bulk-replaced:
 - `oxlint/no-non-null-assertion` (44 sites): each `x!` needs to become either an explicit `if (x === undefined) throw …` guard, a `?? fallback`, or `assertNotNull(x)` depending on local invariants.
@@ -118,7 +118,7 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint`) → run `@/lin
 
 ## TASK 3 — Group C: JSDoc `@param` and `@returns` additions
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: 13 `require-param` + 20 `require-returns` errors on functions whose JSDoc is missing those tags. All are in production rule code or framework code — accurate JSDoc is required for documentation generation.
 
@@ -138,7 +138,7 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint`) → run `@/lin
 
 ## TASK 4 — Group D: smaller mechanical rules
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: ~12 rules with <5 occurrences each, all mechanical:
 - `oxlint/no-await-in-loop` (5): `Promise.all` map or per-file override matching the `core/network.ts` precedent.
@@ -169,7 +169,7 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint`) → run `@/lin
 
 ## TASK 5 — Group E: expand the active plan file's tail-task structure
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: My own plan file `docs/plans/2026-04-26-workspace-qa-lint.md` (committed at 4f3da7e2 alongside the archive moves) trips ~10 plan-rule errors because TASKS 2–5 (Register Rules + Config / Integration Verification / Full QA + Coverage / Final Verification + Commit) have shorter plan-bullet sets and verification lines that the strict `plans/*` rules flag.
 
@@ -187,7 +187,7 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint`) → run `@/lin
 
 ## TASK 6 — Group F: investigate plans/* rule false-positives in lint-source files
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: Three errors in `packages/shared/config/tooling/lint/src/rules/plans/require-plan-structure.ts`, three in `…/require-concrete-verification.ts`, and three more in similar files. These appear to be the `plans/*` rules tripping on FIXTURE STRINGS embedded in the rule's TypeScript source code (the rule contains literal markdown plan content as test data). Need to confirm whether this is a real defect (the rules should not lint their own source's fixture strings) or whether the diagnostics point to legitimate issues in the rule's documentation comments.
 
@@ -212,7 +212,7 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint`) → run `@/lin
 
 ## TASK 7 — Register Rules + Config
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - TASKS 1–4 touch only source code and one possible `.oxlintrc.json` override (TASK 4 sub-bullet); confirm via `git diff --name-only HEAD packages/`.
@@ -231,7 +231,7 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint`) → run `@/lin
 
 ## TASK 8 — Integration Verification
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Command registration check: `grep -rc 'registerCommand' packages/shared/config/tooling/lint/src` is unchanged from baseline (this is a lint package; no registerCommand expected).
@@ -247,7 +247,7 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint`) → run `@/lin
 
 ## TASK 9 — Full QA + Coverage
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Run: `pnpm -w run qa:format` (formats whitespace from regex sweeps).
@@ -265,7 +265,7 @@ Each task is atomic: implement → verify (`pnpm -w run qa:lint`) → run `@/lin
 
 ## TASK 10 — Final Verification + Commit
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Verify all touched files match the spec from TASKS 1–6.

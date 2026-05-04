@@ -47,7 +47,7 @@ Each task is atomic: implement → verify (QA + tests) → update plan → next.
 
 ## TASK 1 — Discovery coverage for all `src/*/lens.ts` scaffolds
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: 863 generated `src/<name>/lens.ts` modules (each exporting `meta: LensMeta`) are never imported by any test; every one contributes 1 uncovered statement and 2 uncovered branches, collectively suppressing statements by ~14 points and lines by ~14 points.
 
@@ -69,7 +69,7 @@ Each task is atomic: implement → verify (QA + tests) → update plan → next.
 
 ## TASK 2 — Exhaustive branch tests for `src/lens/detect-accessibility.ts`
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: 563 stmts uncovered in the largest analyser; every accessibility-heuristic branch (role match, aria-* presence, labelled-by chain, implicit-role fallback, tabindex parsing, disabled/hidden short-circuit) is currently at 0% branch coverage.
 
@@ -88,7 +88,7 @@ Each task is atomic: implement → verify (QA + tests) → update plan → next.
 
 ## TASK 3 — Exhaustive branch tests for `src/lens/extract-props.ts`
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: 323 stmts uncovered; prop-shape extractor has many ternaries on AST node kinds and fallback `??` chains that are not currently exercised.
 
@@ -107,7 +107,7 @@ Each task is atomic: implement → verify (QA + tests) → update plan → next.
 
 ## TASK 4 — Branch fillers for remaining lens analysers
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: `src/lens/lens-utils.ts`, `src/lens/export-utils.ts`, `src/lens/extract-variants.ts`, and `src/lens/extract-deps.ts` each have partial coverage with specific branches at 0% (default arg paths, empty-input short-circuits, union-type alternates, import-kind switches). Combined ~250 uncovered statements.
 
@@ -128,7 +128,7 @@ Each task is atomic: implement → verify (QA + tests) → update plan → next.
 
 ## TASK 5 — Tests for zero-coverage utility modules
 
-**Status**: [ ]
+**Status**: [x]
 
 **Gap**: A long tail of small modules sits at 0% coverage: `src/chart-utils.ts`, `src/sidebar/constants.ts`, `src/carousel/context.ts`, `src/lens-stats/types.ts`, `src/render-component-config.ts`, `src/render-snippet-config.ts`, plus four `.svelte.ts` runes files (`src/hooks/is-mobile.svelte.ts`, `src/announce.svelte.ts`, `src/data-table.svelte.ts`, `src/sidebar/context.svelte.ts`).
 
@@ -155,7 +155,7 @@ Each task is atomic: implement → verify (QA + tests) → update plan → next.
 
 ## TASK 6 — Register Rules + Config
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Confirm the `ui` and `ui-svelte` projects in `vitest.config.ts` discover all new `*.test.ts` and `*.svelte.test.ts` files (no new projects needed; the existing `include` globs already match colocated tests).
@@ -174,7 +174,7 @@ Each task is atomic: implement → verify (QA + tests) → update plan → next.
 
 ## TASK 7 — Integration Verification
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Command registration check: N/A — `@/ui` exports no CLI commands; `grep -c 'registerCommand' packages/shared/ui/src` returns 0 (unchanged).
@@ -193,7 +193,7 @@ Each task is atomic: implement → verify (QA + tests) → update plan → next.
 
 ## TASK 8 — Full QA + Coverage
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Run: `pnpm -w run qa:format`
@@ -210,7 +210,7 @@ Each task is atomic: implement → verify (QA + tests) → update plan → next.
 
 ## TASK 9 — Final Verification + Commit
 
-**Status**: [ ]
+**Status**: [x]
 
 **Plan**:
 - Verify every new `*.test.ts` / `*.svelte.test.ts` file exists and is picked up by the relevant vitest project.
