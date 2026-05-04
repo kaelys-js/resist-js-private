@@ -46,6 +46,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['result', 'hygiene'],
   stages: ['lint'],
+  fixable: true,
 
   visitor: {
     IfStatement(node: AstNode, context: VisitorContext): LintResult[] {

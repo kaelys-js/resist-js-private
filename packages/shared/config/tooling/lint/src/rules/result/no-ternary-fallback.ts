@@ -129,6 +129,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['result', 'safety'],
   stages: ['lint', 'ci'],
+  fixable: true,
 
   visitor: {
     ConditionalExpression(node: AstNode, context: VisitorContext): LintResult[] {
@@ -171,7 +172,10 @@ const rule: TypeScriptRule = {
         message: `Ternary fallback '${objectName}.ok ? ${objectName}.data : ...' silently swallows errors`,
         ruleId: 'result/no-ternary-fallback',
         tip: `Use 'if (!${objectName}.ok) return ${objectName};' to propagate errors`,
-        fix: { range: { start: node.start, end: node.start }, text: '' },
+        fix: {
+          range: { start: node.start, end: node.end },
+          text: `${objectName}.data`,
+        },
       });
 
       return results;
