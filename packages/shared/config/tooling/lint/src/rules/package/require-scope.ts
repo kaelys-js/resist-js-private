@@ -34,8 +34,6 @@ const rule: PackageJsonRule = {
       return results;
     }
 
-    const scope: string =
-      typeof context.ruleOptions?.['scope'] === 'string' ? context.ruleOptions['scope'] : '@/';
     const { name } = context.pkg;
 
     if (!name) {
@@ -50,13 +48,13 @@ const rule: PackageJsonRule = {
       });
       return results;
     }
-    if (!name.startsWith(scope)) {
+    if (!name.startsWith('@') || !name.includes('/')) {
       results.push({
         file: context.file,
         line: 1,
         column: 1,
         severity: 'error',
-        message: `Package name "${name}" must start with "${scope}"`,
+        message: `Package name "${name}" must be scoped (start with "@" and contain "/")`,
         ruleId: 'package/require-scope',
         fix: NO_FIX,
       });

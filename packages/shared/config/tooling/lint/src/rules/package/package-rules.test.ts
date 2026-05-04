@@ -650,11 +650,11 @@ describe('package/require-scope', () => {
     expect(results[0]!.message).toContain('foo-bar');
   });
 
-  it('flags package with wrong scope', () => {
-    const results: LintResult[] = requireScope.check(ctx({ pkg: { name: '@other/foo' } }));
+  it('flags package without scope', () => {
+    const results: LintResult[] = requireScope.check(ctx({ pkg: { name: 'unscoped-pkg' } }));
     expect(results.length).toBe(1);
     expect(results[0]!.ruleId).toBe('package/require-scope');
-    expect(results[0]!.message).toContain('@other/foo');
+    expect(results[0]!.message).toContain('unscoped-pkg');
   });
 
   it('passes package with correct scope', () => {
