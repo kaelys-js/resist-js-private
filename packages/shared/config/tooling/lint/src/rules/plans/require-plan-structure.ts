@@ -10,12 +10,75 @@
  * @module
  */
 
-import { createResult, type LintResult, type WorkspaceRule } from '@/lint/framework/types.ts';
+import {
+  createResult,
+  type LintFix,
+  type LintResult,
+  type WorkspaceRule,
+} from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 import { discoverPlanFiles, parsePlan } from '@/lint/rules/plans/plan-parser.ts';
 
 /** Rule ID constant. */
 const RULE_ID: string = 'plans/require-plan-structure';
+
+/** No-op fix sentinel. */
+const NO_FIX: LintFix = { range: { start: 0, end: 0 }, text: '' };
+
+/** Standard Status Legend block to insert when missing. */
+const STATUS_LEGEND_BLOCK: string = [
+  '',
+  '## Status Legend',
+  '',
+  '- `[ ]` — Not started',
+  '- `[x]` — Done (implemented + verified + tests passing)',
+  '- `[~]` — In progress',
+  '',
+].join('\n');
+
+/**
+ * Build a fix that inserts the standard Status Legend block after the
+ * plan's front-matter header (first `---` section or first `##` heading).
+ *
+ * @param {string} content - Full plan file content
+ * @returns {LintFix} Fix inserting the Status Legend or NO_FIX
+ */
+function buildStatusLegendFix(content: string): LintFix {
+  const lines: string[] = content.split('\n');
+
+  /* Find insertion point: after the first blank line following the title/header */
+  let insertLineIdx: number = -1;
+
+  for (let i: number = 0; i < lines.length; i++) {
+    const line: string = (lines[i] ?? '').trim();
+
+    /* Skip past the title (# heading) and any metadata lines */
+    if (line.startsWith('# ') && insertLineIdx === -1) {
+      insertLineIdx = i + 1;
+      continue;
+    }
+
+    /* If we find a ## heading or --- separator after the title, insert before it */
+    if (insertLineIdx !== -1 && (line.startsWith('## ') || line === '---')) {
+      insertLineIdx = i;
+      break;
+    }
+  }
+
+  if (insertLineIdx === -1) {
+    /* Fall back to start of file */
+    insertLineIdx = 0;
+  }
+
+  /* Compute byte offset */
+  let byteOffset: number = 0;
+
+  for (let i: number = 0; i < insertLineIdx; i++) {
+    byteOffset += (lines[i] ?? '').length + 1;
+  }
+
+  return { range: { start: byteOffset, end: byteOffset }, text: STATUS_LEGEND_BLOCK };
+}
 
 /** Required tail task patterns (case-insensitive). */
 const REQUIRED_TAIL_TASKS: ReadonlyArray<{ pattern: RegExp; label: string }> = [
@@ -53,7 +116,7 @@ const rule: WorkspaceRule = {
   scope: 'workspace',
   categories: ['plans'],
   stages: ['ci'],
-  fixable: false,
+  fixable: true,
 
   async inputs(context: unknown): Promise<readonly string[]> {
     return discoverPlanFiles(context as WorkspaceContext);
@@ -74,6 +137,7 @@ const rule: WorkspaceRule = {
         results.push(
           createResult(RULE_ID, file, 1, 1, 'error', 'Missing "Status Legend" section.', {
             tip: 'Add a Status Legend section with [ ], [x], [~] definitions.',
+            fix: buildStatusLegendFix(content),
           }),
         );
       }

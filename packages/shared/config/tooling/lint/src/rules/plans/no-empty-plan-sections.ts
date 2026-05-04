@@ -29,7 +29,7 @@ const rule: WorkspaceRule = {
   scope: 'workspace',
   categories: ['plans'],
   stages: ['ci'],
-  fixable: false,
+  fixable: true,
 
   async inputs(context: unknown): Promise<readonly string[]> {
     return discoverPlanFiles(context as WorkspaceContext);

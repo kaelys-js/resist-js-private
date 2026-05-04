@@ -429,8 +429,8 @@ export async function lintWorkspace(
         break;
       }
     }
-    
-const diagnostics: vscode.Diagnostic[] = [];
+
+    const diagnostics: vscode.Diagnostic[] = [];
     let skipped = 0;
 
     for (const entry of entries) {

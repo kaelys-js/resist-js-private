@@ -7,12 +7,49 @@
  * @module
  */
 
-import { createResult, type LintResult, type WorkspaceRule } from '@/lint/framework/types.ts';
+import {
+  createResult,
+  type LintFix,
+  type LintResult,
+  type WorkspaceRule,
+} from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 import { discoverPlanFiles } from '@/lint/rules/plans/plan-parser.ts';
 
 /** Rule ID constant. */
 const RULE_ID: string = 'plans/no-template-placeholders';
+
+/** No-op fix sentinel. */
+const NO_FIX: LintFix = { range: { start: 0, end: 0 }, text: '' };
+
+/**
+ * Build a fix that replaces a YYYY-MM-DD placeholder with today's date.
+ *
+ * @param {string} content - Full file content
+ * @param {number} lineIdx - 0-based line index
+ * @param {string} lineText - Text of the line containing the placeholder
+ * @returns {LintFix} Fix replacing the placeholder with today's date
+ */
+function buildDatePlaceholderFix(content: string, lineIdx: number, lineText: string): LintFix {
+  const matchIdx: number = lineText.indexOf('YYYY-MM-DD');
+
+  if (matchIdx === -1) {
+    return NO_FIX;
+  }
+
+  /* Compute byte offset of this line */
+  const lines: string[] = content.split('\n');
+  let byteOffset: number = 0;
+
+  for (let i: number = 0; i < lineIdx; i++) {
+    byteOffset += (lines[i] ?? '').length + 1; /* +1 for \n */
+  }
+
+  const start: number = byteOffset + matchIdx;
+  const today: string = new Date().toISOString().slice(0, 10);
+
+  return { range: { start, end: start + 10 }, text: today };
+}
 
 /** Placeholder patterns to detect (case-sensitive). */
 const PLACEHOLDER_PATTERNS: ReadonlyArray<{ pattern: RegExp; label: string }> = [
@@ -41,7 +78,7 @@ const rule: WorkspaceRule = {
   scope: 'workspace',
   categories: ['plans'],
   stages: ['ci'],
-  fixable: false,
+  fixable: true,
 
   async inputs(context: unknown): Promise<readonly string[]> {
     return discoverPlanFiles(context as WorkspaceContext);
@@ -63,6 +100,9 @@ const rule: WorkspaceRule = {
 
         for (let i: number = 0; i < lines.length; i++) {
           if (re.test(lines[i] ?? '')) {
+            /* Only YYYY-MM-DD gets a real fix (replaced with today's date) */
+            const fix: LintFix =
+              label === 'YYYY-MM-DD' ? buildDatePlaceholderFix(content, i, lines[i] ?? '') : NO_FIX;
             results.push(
               createResult(
                 RULE_ID,
@@ -73,6 +113,7 @@ const rule: WorkspaceRule = {
                 `Template placeholder "${label}" was not replaced with real content.`,
                 {
                   tip: `Replace "${label}" with actual content for this plan.`,
+                  fix,
                 },
               ),
             );

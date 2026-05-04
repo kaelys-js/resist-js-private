@@ -62,8 +62,8 @@ const rule: WorkspaceRule = {
           break;
         }
       }
-      
-const isInBenchmarksDir: boolean = filePath.includes('/__benchmarks__/');
+
+      const isInBenchmarksDir: boolean = filePath.includes('/__benchmarks__/');
       const isTsFile: boolean = fileName.endsWith('.ts') || fileName.endsWith('.tsx');
 
       /* Check 1: Benchmark-named file not in __benchmarks__ directory. */
