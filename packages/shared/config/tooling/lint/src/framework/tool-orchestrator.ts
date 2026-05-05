@@ -52,6 +52,13 @@ export const ExternalToolSchema = v.strictObject({
    * Reserve for mission-critical tools whose absence indicates a broken env.
    */
   required: v.optional(v.boolean()),
+  /**
+   * Optional fix-pass invoked when the CLI is run with `--fix`. Tools that
+   * have a native autofix mode (e.g. `oxlint --fix`) implement this to apply
+   * fixes in-place before the diagnostic-collection pass runs. Should be
+   * idempotent: a tool that has nothing to fix should exit silently.
+   */
+  applyFixes: v.optional(v.custom<(filePaths: readonly string[]) => Promise<void>>(isFn)),
 });
 
 /** An external tool definition. See {@link ExternalToolSchema}. */
@@ -256,6 +263,55 @@ export class ToolRegistry {
     const results: LintResult[][] = await Promise.all(promises);
 
     return results.flat();
+  }
+
+  /**
+   * Run the fix-pass for every registered tool that implements `applyFixes`.
+   *
+   * Called by the orchestrator BEFORE `runAll` when the CLI is invoked with
+   * `--fix`. Each tool's `applyFixes` is given only the files matching its
+   * `filePatterns`. Failures are swallowed (the diagnostic-collection pass
+   * will surface anything that didn't apply).
+   *
+   * @param {string[]} files - All files in scope
+   */
+  async runAllFixes(files: string[]): Promise<void> {
+    if (files.length === 0) {
+      return;
+    }
+
+    const promises: Array<Promise<void>> = [];
+
+    for (const tool of this.tools) {
+      if (!tool.applyFixes) {
+        continue;
+      }
+
+      const matching: string[] = [];
+
+      for (const f of files) {
+        for (const pattern of tool.filePatterns) {
+          if (matchesPattern(f, pattern)) {
+            matching.push(f);
+            break;
+          }
+        }
+      }
+
+      if (matching.length === 0) {
+        continue;
+      }
+
+      const {applyFixes} = tool;
+
+      promises.push(
+        applyFixes(matching).catch((): void => {
+          /* Tool fix-pass failed — diagnostic pass will surface remaining issues. */
+        }),
+      );
+    }
+
+    await Promise.all(promises);
   }
 
   /**
