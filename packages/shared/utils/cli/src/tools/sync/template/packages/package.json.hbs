@@ -114,8 +114,9 @@
 	},
 	"devDependencies": {
 		{{#each versions.nodeTools}}
-		"{{@key}}": "{{this}}"{{#unless @last}},{{/unless}}
+		"{{@key}}": "{{this}}",
 		{{/each}}
+		"@/lint": "workspace:*"
 	}{{#ifPm "pnpm"}},
 	"pnpm": {
 		"onlyBuiltDependencies": [
