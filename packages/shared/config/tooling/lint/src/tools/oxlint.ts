@@ -7,8 +7,41 @@
  * @module
  */
 
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+
 import { type ExternalTool, isCommandAvailable } from '@/lint/framework/tool-orchestrator.ts';
 import { createResult, type LintResult } from '@/lint/framework/types.ts';
+
+const execFileAsync = promisify(execFile);
+
+/**
+ * Apply oxlint's native autofixes in-place to the given files.
+ *
+ * Invoked by `ToolRegistry.runAllFixes` when the CLI is run with `--fix`.
+ * Uses both `--fix` (safe) and `--fix-suggestions` (covers prefer-template,
+ * prefer-destructuring/array, and other suggestion-grade fixes). Stops short
+ * of `--fix-dangerously`, which can change semantics.
+ *
+ * Oxlint exits non-zero when issues remain — that's normal and ignored; the
+ * diagnostic-collection pass that follows reports anything not fixed.
+ *
+ * @param {readonly string[]} filePaths - Files to fix (already pattern-matched)
+ */
+async function applyOxlintFixes(filePaths: readonly string[]): Promise<void> {
+  if (filePaths.length === 0) {
+    return;
+  }
+  try {
+    await execFileAsync(
+      'oxlint',
+      ['--fix', '--fix-suggestions', '--fix-dangerously', ...filePaths],
+      { timeout: 60_000 },
+    );
+  } catch {
+    /* Non-zero exit is expected when un-fixable diagnostics remain. */
+  }
+}
 
 /**
  * Svelte ambient declaration files (`*.svelte.d.ts`) use intentional
@@ -137,6 +170,7 @@ function normalizeRuleId(code: string): string {
 
 /** Oxlint external tool definition. */
 export const oxlintTool: ExternalTool = {
+  applyFixes: applyOxlintFixes,
   args: ['--format=json'],
   command: 'oxlint',
   filePatterns: ['**/*.ts', '**/*.js', '**/*.mjs', '**/*.jsx', '**/*.tsx'],

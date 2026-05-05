@@ -1448,6 +1448,14 @@ export async function _runLintCore(
     for (const tool of ALL_TOOLS) {
       toolRegistry.register(tool);
     }
+    /* When --fix is on, invoke each tool's native autofix pass FIRST.
+     * Tools that have a native --fix mode (e.g. oxlint) apply fixes in-place
+     * here, so the subsequent diagnostic-collection pass only reports what
+     * remains. Tools without `applyFixes` are no-op. */
+    if (cliArgs.fix) {
+      dbg(`tools: running fix-pass on ${allFiles.length} files`);
+      await toolRegistry.runAllFixes(allFiles);
+    }
     dbg(
       format(strings.debug.toolRunning, {
         fileCount: allFiles.length,
