@@ -1,3 +1,16 @@
+READ CLAUDE.md then Commit everything and then:
+
+"typescript/require-const-comment": "off",
+"typescript/require-function-schema": "off",
+"typescript/require-non-negative-integer": "off",
+"typescript/require-return-type": "off",
+"typescript/require-svelte-ts-extension": "off",
+"typescript/require-type-annotation": "off",
+
+For each of these lint rules WE MUST support the ability for "fix", does that make sense?
+
+Think about this and present your solution in a changelog for each rule (if they dont already have a fix). Make sure your making maximum effort to determine if the rules i'm asking about are fixable. DO NOT DISSMISS OR TAKE THE LAZY PATH.
+
 - [Lint]
   - Rules
     - Duplicates
