@@ -14,6 +14,8 @@ import {
   NO_OP_FIX,
   type TypeScriptRule,
   type LintResult,
+  type LintFix,
+  type NoOpFix,
   type AstNode,
   type VisitorContext,
 } from '@/lint/framework/types.ts';
@@ -96,6 +98,10 @@ function collectBindableProps(ast: AstNode): Set<string> {
 /**
  * Find the AST node for a prop name inside the $props() ObjectPattern.
  * Returns the Property node if found (shorthand, no default).
+ *
+ * @param {AstNode} ast - Root AST to walk
+ * @param {string} propName - Name of the prop to locate
+ * @returns {AstNode | undefined} The Property node or undefined if not found
  */
 function findPropPropertyNode(ast: AstNode, propName: string): AstNode | undefined {
   let found: AstNode | undefined;
@@ -170,7 +176,7 @@ const rule: TypeScriptRule = {
       }
 
       /* Fix: add = $bindable() to the prop in the $props() destructuring */
-      let fix = NO_OP_FIX;
+      let fix: LintFix | NoOpFix = NO_OP_FIX;
       const propNode: AstNode | undefined = findPropPropertyNode(context.ast, bindName);
 
       if (propNode) {

@@ -53,15 +53,14 @@ const rule: TypeScriptRule = {
       /* Fix: wrap the pattern argument with inline regex escaping */
       const patternText: string = context.getNodeText(firstArg);
       /* The output regex escapes all special regex chars in the user input */
-      const escapeCall: string =
-        patternText + '.replace(/[.*+?^${}()|[\\]' + String.raw`\\` + ']/g, ' + String.raw`'\\$&'` + ')';
+      const escapeCall: string = `${patternText}.replace(/[.*+?^\${}()|[\\]${String.raw`\\`}]/g, ${String.raw`'\\$&'`})`;
       let fixText: string;
 
       if (args.length > 1) {
         const flagsText: string = context.getNodeText(args[1] as AstNode);
-        fixText = 'new RegExp(' + escapeCall + ', ' + flagsText + ')';
+        fixText = `new RegExp(${escapeCall}, ${flagsText})`;
       } else {
-        fixText = 'new RegExp(' + escapeCall + ')';
+        fixText = `new RegExp(${escapeCall})`;
       }
 
       const fix = {

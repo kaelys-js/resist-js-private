@@ -43,7 +43,7 @@ function buildReplaceFix(
   const commentText: string = content.slice(comment.start, comment.end);
   const replaced: string = commentText.replace(
     PATTERN,
-    EXPECT_DIRECTIVE + ' — TODO: fix type error',
+    `${EXPECT_DIRECTIVE} — TODO: fix type error`,
   );
 
   return { range: { start: comment.start, end: comment.end }, text: replaced };

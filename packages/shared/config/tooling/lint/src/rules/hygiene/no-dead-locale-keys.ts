@@ -7,7 +7,12 @@
  * @module
  */
 
-import { createResult, type LintFix, type WorkspaceRule } from '@/lint/framework/types.ts';
+import {
+  createResult,
+  type LintFix,
+  type LintResult,
+  type WorkspaceRule,
+} from '@/lint/framework/types.ts';
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 
 /**
@@ -135,23 +140,7 @@ const rule: WorkspaceRule = {
       description: 'Export name prefix for the locale object (default: "en").',
     },
   },
-  async check(context: unknown): Promise<
-    Array<{
-      ruleId: string;
-      file: string;
-      line: number;
-      column: number;
-      severity: 'error' | 'warning' | 'info';
-      message: string;
-      fix: { range: { start: number; end: number }; text: string };
-      tip?: string;
-      example?: string;
-      source?: string;
-      url?: string;
-      endLine?: number;
-      endColumn?: number;
-    }>
-  > {
+  async check(context: unknown): Promise<LintResult[]> {
     const ctx = context as WorkspaceContext & { ruleOptions?: Record<string, unknown> };
     const localeFileSuffix: string =
       typeof ctx.ruleOptions?.localeFile === 'string' ? ctx.ruleOptions.localeFile : 'locale/en.ts';
@@ -192,21 +181,7 @@ const rule: WorkspaceRule = {
     );
 
     /* Step 5: Check each key for references */
-    const results: Array<{
-      ruleId: string;
-      file: string;
-      line: number;
-      column: number;
-      severity: 'error' | 'warning' | 'info';
-      message: string;
-      fix: { range: { start: number; end: number }; text: string };
-      tip?: string;
-      example?: string;
-      source?: string;
-      url?: string;
-      endLine?: number;
-      endColumn?: number;
-    }> = [];
+    const results: LintResult[] = [];
 
     /* Pre-compute line start offsets for building delete-line fixes */
     const localeLineStarts: number[] = [0];

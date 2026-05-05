@@ -44,7 +44,7 @@ function buildReasonFix(comment: { start: number; end: number }, content: string
   const commentText: string = content.slice(comment.start, comment.end);
   const replaced: string = commentText.replace(
     DIRECTIVE_PATTERN,
-    DIRECTIVE + ' — TODO: add reason for suppression',
+    `${DIRECTIVE} — TODO: add reason for suppression`,
   );
 
   return { range: { start: comment.start, end: comment.end }, text: replaced };

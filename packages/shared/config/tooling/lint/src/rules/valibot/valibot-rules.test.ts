@@ -6,7 +6,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { runTypeScriptRules } from '../../framework/oxc-runner.ts';
-import type { LintResult, TypeScriptRule } from '../../framework/types.ts';
+import { expectTextFix, type LintResult, type TypeScriptRule } from '../../framework/types.ts';
 import awaitAsyncParse from './await-async-parse.ts';
 import colocateSchemaType from './colocate-schema-type.ts';
 import consistentInfer from './consistent-infer.ts';
@@ -102,7 +102,7 @@ const result = v.parse(schema, data);
     expect(results.length).toBe(1);
     expect(results[0]!.ruleId).toBe('valibot/no-parse');
     expect(results[0]!.fix).toBeDefined();
-    expect(results[0]!.fix.text).toBe('safeParse');
+    expect(expectTextFix(results[0]!.fix).text).toBe('safeParse');
   });
 
   it('passes safeParse calls', async () => {
@@ -228,7 +228,7 @@ const schema = v.object({ name: v.string() });
     const results: LintResult[] = await lint(requireStrictObject, code);
     expect(results.length).toBe(1);
     expect(results[0]!.ruleId).toBe('valibot/require-strict-object');
-    expect(results[0]!.fix.text).toBe('strictObject');
+    expect(expectTextFix(results[0]!.fix).text).toBe('strictObject');
   });
 
   it('passes v.strictObject() calls', async () => {
@@ -268,7 +268,7 @@ describe('valibot/namespace-import', () => {
     const results: LintResult[] = await lint(namespaceImport, code);
     expect(results.length).toBe(1);
     expect(results[0]!.ruleId).toBe('valibot/namespace-import');
-    expect(results[0]!.fix.text).toContain('import * as v');
+    expect(expectTextFix(results[0]!.fix).text).toContain('import * as v');
   });
 
   it('passes namespace import', async () => {
@@ -1642,9 +1642,13 @@ export const UserSchema = v.strictObject({ name: v.string() });
 `;
     const results: LintResult[] = await lint(noOrphanSchemas, code);
     expect(results).toHaveLength(1);
-    expect(results[0]!.fix.text).toBe('\nexport type User = v.InferOutput<typeof UserSchema>;\n');
-    expect(results[0]!.fix.range.start).toBeGreaterThan(0);
-    expect(results[0]!.fix.range.start).toBe(results[0]!.fix.range.end);
+    expect(expectTextFix(results[0]!.fix).text).toBe(
+      '\nexport type User = v.InferOutput<typeof UserSchema>;\n',
+    );
+    expect(expectTextFix(results[0]!.fix).range.start).toBeGreaterThan(0);
+    expect(expectTextFix(results[0]!.fix).range.start).toBe(
+      expectTextFix(results[0]!.fix).range.end,
+    );
   });
 
   it('provides autofix that prepends export to existing unexported type', async () => {
@@ -1654,9 +1658,11 @@ type User = v.InferOutput<typeof UserSchema>;
 `;
     const results: LintResult[] = await lint(noOrphanSchemas, code);
     expect(results).toHaveLength(1);
-    expect(results[0]!.fix.text).toBe('export ');
-    expect(results[0]!.fix.range.start).toBeGreaterThan(0);
-    expect(results[0]!.fix.range.start).toBe(results[0]!.fix.range.end);
+    expect(expectTextFix(results[0]!.fix).text).toBe('export ');
+    expect(expectTextFix(results[0]!.fix).range.start).toBeGreaterThan(0);
+    expect(expectTextFix(results[0]!.fix).range.start).toBe(
+      expectTextFix(results[0]!.fix).range.end,
+    );
   });
 
   it('has fixable: true', () => {
@@ -1993,9 +1999,13 @@ const UserSchema = v.strictObject({ name: v.string() });
 `;
     const results: LintResult[] = await lint(schemaTypePair, code);
     expect(results).toHaveLength(1);
-    expect(results[0]!.fix.text).toBe('\nexport type User = v.InferOutput<typeof UserSchema>;\n');
-    expect(results[0]!.fix.range.start).toBeGreaterThan(0);
-    expect(results[0]!.fix.range.start).toBe(results[0]!.fix.range.end);
+    expect(expectTextFix(results[0]!.fix).text).toBe(
+      '\nexport type User = v.InferOutput<typeof UserSchema>;\n',
+    );
+    expect(expectTextFix(results[0]!.fix).range.start).toBeGreaterThan(0);
+    expect(expectTextFix(results[0]!.fix).range.start).toBe(
+      expectTextFix(results[0]!.fix).range.end,
+    );
   });
 
   it('provides autofix that replaces type annotation when type is wrong', async () => {
@@ -2005,9 +2015,11 @@ type User = { name: string };
 `;
     const results: LintResult[] = await lint(schemaTypePair, code);
     expect(results).toHaveLength(1);
-    expect(results[0]!.fix.text).toBe('v.InferOutput<typeof UserSchema>');
-    expect(results[0]!.fix.range.start).toBeGreaterThan(0);
-    expect(results[0]!.fix.range.end).toBeGreaterThan(results[0]!.fix.range.start);
+    expect(expectTextFix(results[0]!.fix).text).toBe('v.InferOutput<typeof UserSchema>');
+    expect(expectTextFix(results[0]!.fix).range.start).toBeGreaterThan(0);
+    expect(expectTextFix(results[0]!.fix).range.end).toBeGreaterThan(
+      expectTextFix(results[0]!.fix).range.start,
+    );
   });
 
   it('has fixable: true', () => {
@@ -4124,9 +4136,11 @@ const schema = v.transform((s) => s.trim());
 `;
     const results: LintResult[] = await lint(preferMethods, code);
     expect(results.length).toBe(1);
-    expect(results[0]!.fix.text).toBe('v.trim()');
-    expect(results[0]!.fix.range.start).toBeGreaterThan(0);
-    expect(results[0]!.fix.range.end).toBeGreaterThan(results[0]!.fix.range.start);
+    expect(expectTextFix(results[0]!.fix).text).toBe('v.trim()');
+    expect(expectTextFix(results[0]!.fix).range.start).toBeGreaterThan(0);
+    expect(expectTextFix(results[0]!.fix).range.end).toBeGreaterThan(
+      expectTextFix(results[0]!.fix).range.start,
+    );
   });
 
   it('autofixes v.transform(x => x.toLowerCase()) to v.toLowerCase()', async () => {
@@ -4136,9 +4150,11 @@ const schema = v.transform((s) => s.toLowerCase());
 `;
     const results: LintResult[] = await lint(preferMethods, code);
     expect(results.length).toBe(1);
-    expect(results[0]!.fix.text).toBe('v.toLowerCase()');
-    expect(results[0]!.fix.range.start).toBeGreaterThan(0);
-    expect(results[0]!.fix.range.end).toBeGreaterThan(results[0]!.fix.range.start);
+    expect(expectTextFix(results[0]!.fix).text).toBe('v.toLowerCase()');
+    expect(expectTextFix(results[0]!.fix).range.start).toBeGreaterThan(0);
+    expect(expectTextFix(results[0]!.fix).range.end).toBeGreaterThan(
+      expectTextFix(results[0]!.fix).range.start,
+    );
   });
 
   it('autofixes v.transform(x => x.toUpperCase()) to v.toUpperCase()', async () => {
@@ -4148,9 +4164,11 @@ const schema = v.transform((s) => s.toUpperCase());
 `;
     const results: LintResult[] = await lint(preferMethods, code);
     expect(results.length).toBe(1);
-    expect(results[0]!.fix.text).toBe('v.toUpperCase()');
-    expect(results[0]!.fix.range.start).toBeGreaterThan(0);
-    expect(results[0]!.fix.range.end).toBeGreaterThan(results[0]!.fix.range.start);
+    expect(expectTextFix(results[0]!.fix).text).toBe('v.toUpperCase()');
+    expect(expectTextFix(results[0]!.fix).range.start).toBeGreaterThan(0);
+    expect(expectTextFix(results[0]!.fix).range.end).toBeGreaterThan(
+      expectTextFix(results[0]!.fix).range.start,
+    );
   });
 
   it('has fixable: true', () => {
@@ -4288,16 +4306,18 @@ const schema = minLength(string(), 3);
     const code = `import * as v from 'valibot';\nconst s = v.minLength(v.string(), 3);`;
     const results: LintResult[] = await lint(preferPipe, code);
     expect(results).toHaveLength(1);
-    expect(results[0]!.fix.text).toBe('v.pipe(v.string(), v.minLength(3))');
-    expect(results[0]!.fix.range.start).toBeGreaterThan(0);
-    expect(results[0]!.fix.range.end).toBeGreaterThan(results[0]!.fix.range.start);
+    expect(expectTextFix(results[0]!.fix).text).toBe('v.pipe(v.string(), v.minLength(3))');
+    expect(expectTextFix(results[0]!.fix).range.start).toBeGreaterThan(0);
+    expect(expectTextFix(results[0]!.fix).range.end).toBeGreaterThan(
+      expectTextFix(results[0]!.fix).range.start,
+    );
   });
 
   it('provides autofix for maxLength', async () => {
     const code = `import * as v from 'valibot';\nconst s = v.maxLength(v.string(), 100);`;
     const results: LintResult[] = await lint(preferPipe, code);
     expect(results).toHaveLength(1);
-    expect(results[0]!.fix.text).toBe('v.pipe(v.string(), v.maxLength(100))');
+    expect(expectTextFix(results[0]!.fix).text).toBe('v.pipe(v.string(), v.maxLength(100))');
   });
 
   it('has fixable: true', () => {

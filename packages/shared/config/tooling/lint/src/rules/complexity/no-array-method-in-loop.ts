@@ -87,7 +87,7 @@ function extractCallback(
   source: string,
 ): { param: string; body: string; isExpression: boolean } | null {
   const args: AstNode[] = (callNode.arguments ?? []) as AstNode[];
-  const firstArg: AstNode | undefined = args[0];
+  const [firstArg] = args;
 
   if (!firstArg) {
     return null;
@@ -98,7 +98,7 @@ function extractCallback(
   }
 
   const params: AstNode[] = (firstArg.params ?? []) as AstNode[];
-  const firstParam: AstNode | undefined = params[0];
+  const [firstParam] = params;
 
   if (!firstParam || firstParam.type !== 'FormalParameter') {
     /* Try direct Identifier (some parsers skip FormalParameter wrapper) */
@@ -214,7 +214,7 @@ function buildFix(
   }
 
   const condition: string = cb.body;
-  const {param} = cb;
+  const { param } = cb;
 
   /* Generate the replacement for-loop + variable name.
    * We use a deterministic name based on the array and method to avoid collisions. */
