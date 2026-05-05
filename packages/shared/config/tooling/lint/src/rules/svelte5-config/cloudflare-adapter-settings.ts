@@ -7,11 +7,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 import {
   getDefaultExportObject,
@@ -97,7 +98,7 @@ const rule: TypeScriptRule = {
 
       if (!hasRoutesConfig(adapterValue)) {
         /* Fix: insert routes config into adapter call args */
-        let fix = { range: { start: 0, end: 0 }, text: '' };
+        let fix = NO_OP_FIX;
 
         if (adapterValue.type === 'CallExpression') {
           const args: AstNode[] | undefined = adapterValue.arguments as AstNode[] | undefined;

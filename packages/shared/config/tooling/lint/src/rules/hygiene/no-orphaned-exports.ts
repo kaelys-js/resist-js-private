@@ -10,6 +10,7 @@
 
 import type { WorkspaceContext } from '@/lint/framework/rule-context.ts';
 import {
+  NO_OP_FIX,
   createResult,
   type LintFix,
   type LintResult,
@@ -176,7 +177,7 @@ const rule: WorkspaceRule = {
         if (!found) {
           /* Build a fix that strips the `export ` keyword from the line.
            * Compute the byte offset of this line and find `export ` within it. */
-          let exportFix: LintFix = { range: { start: 0, end: 0 }, text: '' };
+          let exportFix: LintFix = NO_OP_FIX;
           const exportIdx: number = line.indexOf('export ');
 
           if (exportIdx !== -1) {

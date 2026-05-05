@@ -6,11 +6,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 import { getDefaultExportObject, collectPropertyPaths, getNestedValue } from './_config-ast.ts';
 
@@ -54,7 +55,7 @@ const rule: TypeScriptRule = {
 
         if (reason) {
           /* Fix: locate the deprecated property node and delete it */
-          let fix = { range: { start: 0, end: 0 }, text: '' };
+          let fix = NO_OP_FIX;
           const segments: string[] = path.split('.');
           const propName: string = segments[segments.length - 1] ?? '';
           const parentPath: string = segments.slice(0, -1).join('.');

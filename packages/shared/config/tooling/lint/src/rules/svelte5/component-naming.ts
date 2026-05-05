@@ -10,11 +10,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /** Pattern for valid PascalCase filenames (without extension). */
@@ -68,7 +69,7 @@ const rule: TypeScriptRule = {
           message: `Component file should be PascalCase: '${filename}' -> '${suggested}.svelte'`,
           ruleId: rule.id,
           tip: `Rename to ${suggested}.svelte`,
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix: NO_OP_FIX,
         },
       ];
     },

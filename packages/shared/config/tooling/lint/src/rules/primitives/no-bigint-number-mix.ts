@@ -7,11 +7,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 const ARITHMETIC_OPERATORS = new Set(['+', '-', '*', '/', '%']);
@@ -76,7 +77,7 @@ const rule: TypeScriptRule = {
 
       if ((leftIsBigInt && rightIsNumber) || (leftIsNumber && rightIsBigInt)) {
         /* Fix: convert the number literal to BigInt by appending 'n' (integers only) */
-        let fix = { range: { start: 0, end: 0 }, text: '' };
+        let fix = NO_OP_FIX;
         const numNode: AstNode | undefined = leftIsNumber ? leftNode : rightNode;
         const numVal: unknown = numNode.value;
 

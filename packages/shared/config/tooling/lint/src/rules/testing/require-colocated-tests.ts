@@ -9,12 +9,13 @@
 
 import { existsSync, readFileSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
-import type {
-  FileOpFix,
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type FileOpFix,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /**
@@ -188,7 +189,7 @@ const rule: TypeScriptRule = {
           message: `Exported function '${name}' has no test cases in ${basename(testPath)}`,
           ruleId: 'testing/require-colocated-tests',
           tip: `Add tests for '${name}' in ${basename(testPath)}`,
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix: NO_OP_FIX,
         }),
       );
     },

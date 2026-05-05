@@ -8,16 +8,17 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  LintFix,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type LintFix,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /** No-op fix sentinel. */
-const NO_FIX: LintFix = { range: { start: 0, end: 0 }, text: '' };
+const NO_FIX: LintFix = NO_OP_FIX;
 
 /**
  * Build a fix that removes all re-export statements from a barrel file.

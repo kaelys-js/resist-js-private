@@ -6,11 +6,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 import {
   getDefaultExportObject,
@@ -49,7 +50,7 @@ const rule: TypeScriptRule = {
       }
 
       /* Fix: insert prerender config into kit object */
-      let fix = { range: { start: 0, end: 0 }, text: '' };
+      let fix = NO_OP_FIX;
       const kitObj: AstNode | undefined = getNestedValue(configObj, 'kit');
 
       if (kitObj && kitObj.type === 'ObjectExpression') {

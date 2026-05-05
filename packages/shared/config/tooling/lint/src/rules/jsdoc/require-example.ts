@@ -7,11 +7,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /**
@@ -57,7 +58,7 @@ function getJsDocEndOffset(node: AstNode, content: string): number {
 }
 
 /** No-op fix sentinel. */
-const NO_FIX = { range: { start: 0, end: 0 }, text: '' };
+const NO_FIX = NO_OP_FIX;
 
 /**
  * Build a fix that replaces a bare ``` fence with ```typescript after @example.

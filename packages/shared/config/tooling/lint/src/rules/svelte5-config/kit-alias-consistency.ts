@@ -10,11 +10,12 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 import { getDefaultExportObject, getNestedValue, getPropertyEntries } from './_config-ast.ts';
 
@@ -107,7 +108,7 @@ const rule: TypeScriptRule = {
             message: `Alias '${aliasName}' in svelte.config not found in tsconfig.json paths`,
             ruleId: rule.id,
             tip: `Add to tsconfig.json paths: "${aliasName}/*": ["./<path>/*"]`,
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix: NO_OP_FIX,
           });
         }
       }

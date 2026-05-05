@@ -10,11 +10,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 import { walkNode } from '@/lint/framework/oxc-runner.ts';
 import { isRuneCall } from './_svelte-helpers.ts';
@@ -64,7 +65,7 @@ const rule: TypeScriptRule = {
               '$state in class property makes all instances deeply reactive - ensure this is intentional',
             ruleId: rule.id,
             tip: 'Consider using plain classes with $state arrays/objects wrapping them instead',
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix: NO_OP_FIX,
           });
         }
       });

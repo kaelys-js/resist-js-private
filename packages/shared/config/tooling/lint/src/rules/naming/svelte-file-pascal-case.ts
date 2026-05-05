@@ -7,11 +7,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /** Pattern for valid PascalCase filenames (without extension). */
@@ -53,7 +54,7 @@ const rule: TypeScriptRule = {
             .join('')}.svelte)`,
           ruleId: 'naming/svelte-file-pascal-case',
           tip: 'Rename the file to PascalCase (e.g., SceneEditor.svelte)',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix: NO_OP_FIX,
         });
       }
 

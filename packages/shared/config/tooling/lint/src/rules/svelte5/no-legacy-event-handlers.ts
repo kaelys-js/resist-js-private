@@ -10,11 +10,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /** The no-legacy-event-handlers lint rule. */
@@ -35,7 +36,7 @@ const rule: TypeScriptRule = {
       const modifiers: string[] | undefined = (node as { modifiers?: string[] }).modifiers;
       const hasModifiers: boolean = Array.isArray(modifiers) && modifiers.length > 0;
 
-      let fix = { range: { start: 0, end: 0 }, text: '' };
+      let fix = NO_OP_FIX;
 
       if (!hasModifiers) {
         /* The source text starts with "on:" at node.start — remove the colon at offset +2 */

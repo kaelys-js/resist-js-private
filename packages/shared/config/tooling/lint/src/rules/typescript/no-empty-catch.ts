@@ -9,11 +9,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /**
@@ -205,7 +206,7 @@ const rule: TypeScriptRule = {
               'err() in catch block should include { cause: fromUnknownError(error) } in meta',
             ruleId: 'typescript/no-empty-catch',
             tip: 'Pass the converted error as cause: err(ERRORS.X.Y, { cause: appError })',
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix: NO_OP_FIX,
           });
         }
 
@@ -219,7 +220,7 @@ const rule: TypeScriptRule = {
             message: 'Use a specific error code in catch block, not ERRORS.INTERNAL.UNEXPECTED',
             ruleId: 'typescript/no-empty-catch',
             tip: 'Use a domain-specific code: ERRORS.IO.READ_FAILED, ERRORS.NETWORK.PORT_UNAVAILABLE, etc.',
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix: NO_OP_FIX,
           });
         }
       }

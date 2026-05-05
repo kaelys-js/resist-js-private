@@ -11,12 +11,13 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  LintFix,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type LintFix,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /**
@@ -45,14 +46,14 @@ function buildChainFix(outerNode: AstNode, innerNode: AstNode, context: VisitorC
   const originalExpr: AstNode | undefined = innerNode.expression as AstNode | undefined;
 
   if (!originalExpr) {
-    return { range: { start: 0, end: 0 }, text: '' };
+    return NO_OP_FIX;
   }
 
   /* Get the outer (final) type annotation */
   const outerType: AstNode | undefined = outerNode.typeAnnotation as AstNode | undefined;
 
   if (!outerType) {
-    return { range: { start: 0, end: 0 }, text: '' };
+    return NO_OP_FIX;
   }
 
   const exprText: string = nodeText(originalExpr, src);

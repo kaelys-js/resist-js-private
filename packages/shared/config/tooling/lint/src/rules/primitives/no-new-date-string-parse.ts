@@ -7,11 +7,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 const rule: TypeScriptRule = {
@@ -51,7 +52,7 @@ const rule: TypeScriptRule = {
       }
 
       /* Fix: parse common date string formats into explicit numeric constructor */
-      let fix = { range: { start: 0, end: 0 }, text: '' };
+      let fix = NO_OP_FIX;
       const dateStr = firstArg.value as string;
 
       /* Match YYYY-MM-DD or YYYY/MM/DD optionally followed by T or space then HH:MM:SS */

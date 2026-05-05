@@ -10,11 +10,12 @@
 import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 import { getAdapterImport } from './_config-ast.ts';
 
@@ -46,7 +47,7 @@ const rule: TypeScriptRule = {
       }
 
       /* Fix: replace the adapter-node import source with adapter-cloudflare */
-      let fix = { range: { start: 0, end: 0 }, text: '' };
+      let fix = NO_OP_FIX;
       const importMatch: RegExpExecArray | null = /@sveltejs\/adapter-node/.exec(context.content);
 
       if (importMatch) {

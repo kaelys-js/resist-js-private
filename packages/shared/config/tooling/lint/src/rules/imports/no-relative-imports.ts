@@ -7,11 +7,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /**
@@ -40,7 +41,7 @@ function checkRelativeSource(node: AstNode, context: VisitorContext): LintResult
       message: `Relative import '${value}' — use workspace alias instead`,
       ruleId: 'imports/no-relative-imports',
       tip: 'Replace with an @/ workspace alias (e.g. @/schemas/common)',
-      fix: { range: { start: 0, end: 0 }, text: '' },
+      fix: NO_OP_FIX,
     });
   }
 

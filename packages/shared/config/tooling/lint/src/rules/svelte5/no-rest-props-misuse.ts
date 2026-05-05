@@ -10,11 +10,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /** Pattern matching $$restProps or $$props usage. */
@@ -54,7 +55,7 @@ const rule: TypeScriptRule = {
               : '$$props is deprecated in Svelte 5 - use $props() destructuring',
             ruleId: rule.id,
             tip: 'Use: let { knownProp, ...rest } = $props(); then {...rest}',
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix: NO_OP_FIX,
           });
 
           match = LEGACY_PROPS_RE.exec(line);

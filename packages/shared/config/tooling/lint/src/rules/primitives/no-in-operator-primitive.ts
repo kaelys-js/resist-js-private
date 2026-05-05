@@ -7,11 +7,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 const rule: TypeScriptRule = {
@@ -45,7 +46,7 @@ const rule: TypeScriptRule = {
 
         if (valueType === 'string' || valueType === 'number' || valueType === 'boolean') {
           /* Fix: when right is string literal, replace with .includes() */
-          let fix = { range: { start: 0, end: 0 }, text: '' };
+          let fix = NO_OP_FIX;
 
           if (valueType === 'string') {
             const leftRaw: unknown = node.left;

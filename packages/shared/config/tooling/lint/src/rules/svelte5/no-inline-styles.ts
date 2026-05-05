@@ -10,11 +10,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /** The no-inline-styles lint rule. */
@@ -51,7 +52,7 @@ const rule: TypeScriptRule = {
       }
 
       /* Fix: convert style="prop: value; ..." to style:prop="value" directives */
-      let fix = { range: { start: 0, end: 0 }, text: '' };
+      let fix = NO_OP_FIX;
       const styleText: string = (value as AstNode[])
         .map((v: AstNode): string => (v as { data?: string }).data ?? '')
         .join('');

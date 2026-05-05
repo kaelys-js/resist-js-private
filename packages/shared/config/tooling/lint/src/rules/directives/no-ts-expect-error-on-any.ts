@@ -10,11 +10,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 import { computeLineStarts, offsetToLineNumber } from '@/lint/framework/comment-helpers.ts';
 
@@ -59,7 +60,7 @@ const rule: TypeScriptRule = {
             message: `${EXPECT_DIRECTIVE} on 'any' typed code - fix the type instead of suppressing`,
             ruleId: 'directives/no-ts-expect-error-on-any',
             tip: "Replace 'any' with proper type, or use 'unknown' with type narrowing",
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix: NO_OP_FIX,
           });
         }
       }

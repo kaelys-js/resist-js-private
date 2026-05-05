@@ -10,11 +10,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 import { walkNode } from '@/lint/framework/oxc-runner.ts';
 
@@ -30,7 +31,7 @@ const rule: TypeScriptRule = {
   visitor: {
     SlotElement(node: AstNode, context: VisitorContext): LintResult[] {
       /* Fix: replace <slot /> with {@render children?.()} or {@render name?.()} */
-      let fix = { range: { start: 0, end: 0 }, text: '' };
+      let fix = NO_OP_FIX;
 
       const children: AstNode[] | undefined = node.children as AstNode[] | undefined;
       const hasFallback: boolean = Array.isArray(children) && children.length > 0;
@@ -100,7 +101,7 @@ const rule: TypeScriptRule = {
           message: '$$slots is deprecated in Svelte 5 - check snippet props directly',
           ruleId: rule.id,
           tip: 'Accept snippet props and render with {@render snippetName?.()}',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix: NO_OP_FIX,
         });
       });
 

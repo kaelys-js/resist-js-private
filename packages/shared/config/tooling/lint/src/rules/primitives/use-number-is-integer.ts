@@ -7,11 +7,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /**
@@ -84,7 +85,7 @@ const rule: TypeScriptRule = {
           (isModOneCheck(rightNode) && isZeroLiteral(leftNode)))
       ) {
         /* Fix: x % 1 === 0 → Number.isInteger(x) */
-        let fix = { range: { start: 0, end: 0 }, text: '' };
+        let fix = NO_OP_FIX;
         const modNode = isModOneCheck(leftNode) ? leftNode : rightNode;
         const modLeftRaw: unknown = modNode.left;
         const modLeftNode =

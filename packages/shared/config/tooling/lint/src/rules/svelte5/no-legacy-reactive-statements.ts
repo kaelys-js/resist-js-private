@@ -10,11 +10,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /** The no-legacy-reactive-statements lint rule. */
@@ -36,7 +37,7 @@ const rule: TypeScriptRule = {
 
       /* Fix: convert $: to $derived or $effect based on body structure */
       const body: AstNode | undefined = node.body as AstNode | undefined;
-      let fix = { range: { start: 0, end: 0 }, text: '' };
+      let fix = NO_OP_FIX;
 
       if (body?.type === 'ExpressionStatement') {
         const expr: AstNode | undefined = (body as { expression?: AstNode }).expression;

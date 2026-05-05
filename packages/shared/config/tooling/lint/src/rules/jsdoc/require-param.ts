@@ -9,11 +9,12 @@
 
 import * as v from 'valibot';
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /**
@@ -230,7 +231,7 @@ function extractFunctionParamNames(params: AstNode[]): string[] {
 }
 
 /** No-op fix sentinel. */
-const NO_FIX = { range: { start: 0, end: 0 }, text: '' };
+const NO_FIX = NO_OP_FIX;
 
 /**
  * Build a fix that deletes a stale @param line from the JSDoc comment.

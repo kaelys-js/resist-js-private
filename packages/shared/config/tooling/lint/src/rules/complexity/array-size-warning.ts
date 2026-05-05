@@ -8,11 +8,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 import { findCallInBody } from './_utils.ts';
 
@@ -62,7 +63,7 @@ const rule: TypeScriptRule = {
           message: 'Unbounded .push() in while(true) — array may grow without limit',
           ruleId: 'complexity/array-size-warning',
           tip: 'Add a maximum size check or break condition to prevent unbounded growth',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix: NO_OP_FIX,
         });
       }
 

@@ -8,6 +8,7 @@
  */
 
 import {
+  NO_OP_FIX,
   createResult,
   type LintFix,
   type LintResult,
@@ -25,7 +26,7 @@ import {
 const RULE_ID: string = 'plans/status-dependency-order';
 
 /** No-op fix sentinel. */
-const NO_FIX: LintFix = { range: { start: 0, end: 0 }, text: '' };
+const NO_FIX: LintFix = NO_OP_FIX;
 
 /**
  * Build a fix that changes `[x]` to `[ ]` on the task's status line,

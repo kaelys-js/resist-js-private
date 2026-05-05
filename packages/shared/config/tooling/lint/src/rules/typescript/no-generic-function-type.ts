@@ -7,11 +7,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /** File path patterns exempt from this rule. */
@@ -73,7 +74,7 @@ const rule: TypeScriptRule = {
                   'Generic function type with `...args: unknown[]` — define specific parameter types',
                 ruleId: 'typescript/no-generic-function-type',
                 tip: 'Replace `unknown[]` with specific parameter types for type safety',
-                fix: { range: { start: 0, end: 0 }, text: '' },
+                fix: NO_OP_FIX,
               });
             }
           }

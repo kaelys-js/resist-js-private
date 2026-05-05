@@ -8,11 +8,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 import { findAwaitInBody } from './_utils.ts';
 
@@ -37,7 +38,7 @@ const checkLoop = (node: AstNode, context: VisitorContext): LintResult[] => {
       message: 'await inside loop runs sequentially — use Promise.all() for parallel execution',
       ruleId: 'complexity/no-await-in-loop',
       tip: 'Collect promises in an array and await Promise.all(promises)',
-      fix: { range: { start: 0, end: 0 }, text: '' },
+      fix: NO_OP_FIX,
     });
   }
 

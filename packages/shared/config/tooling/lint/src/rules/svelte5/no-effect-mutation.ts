@@ -10,11 +10,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 import { walkNode } from '@/lint/framework/oxc-runner.ts';
 import {
@@ -74,7 +75,7 @@ const rule: TypeScriptRule = {
             message: `Unguarded mutation of '$state' variable '${target.name}' inside $effect may cause infinite loop`,
             ruleId: rule.id,
             tip: `Wrap mutation in a conditional: if (condition) { ${target.name} = newValue; }`,
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix: NO_OP_FIX,
           });
         }
       });
