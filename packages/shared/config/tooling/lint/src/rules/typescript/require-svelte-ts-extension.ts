@@ -6,11 +6,12 @@
  *
  * @module
  */
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /** Svelte 5 rune identifiers that require `.svelte.ts` file extension. */
@@ -96,7 +97,7 @@ const rule: TypeScriptRule = {
           message: `Svelte rune '${name}()' requires .svelte.ts extension`,
           ruleId: 'typescript/require-svelte-ts-extension',
           tip: 'Rename this file from .ts to .svelte.ts',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix: NO_OP_FIX,
         },
       ];
     },

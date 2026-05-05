@@ -8,11 +8,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /**
@@ -58,7 +59,7 @@ const rule: TypeScriptRule = {
 
       if (isNullOrUndefined(left) || isNullOrUndefined(right)) {
         /* Fix: add explicit nullish guard before the relational comparison */
-        let fix = { range: { start: 0, end: 0 }, text: '' };
+        let fix = NO_OP_FIX;
         const leftIsNullish = isNullOrUndefined(left);
         const valueNode = leftIsNullish ? right : left;
         const nullishNode = leftIsNullish ? left : right;

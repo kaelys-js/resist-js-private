@@ -8,11 +8,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /** Pattern for valid kebab-case filenames (without extension). */
@@ -66,7 +67,7 @@ const rule: TypeScriptRule = {
           message: `TypeScript file '${filename}' should use kebab-case (e.g., ${baseName.replaceAll(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()}.ts)`,
           ruleId: 'naming/ts-file-kebab-case',
           tip: 'Rename the file to kebab-case (e.g., scene-loader.ts)',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix: NO_OP_FIX,
         });
       }
 

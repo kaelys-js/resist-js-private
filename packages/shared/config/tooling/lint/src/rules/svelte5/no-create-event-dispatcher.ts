@@ -10,11 +10,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /** The no-create-event-dispatcher lint rule. */
@@ -53,7 +54,7 @@ const rule: TypeScriptRule = {
 
         if (imported?.name === 'createEventDispatcher') {
           /* Fix: remove specifier or entire import if it's the only one */
-          let fix = { range: { start: 0, end: 0 }, text: '' };
+          let fix = NO_OP_FIX;
 
           if (specifiers.length === 1) {
             /* Only specifier — delete entire import statement */

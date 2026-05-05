@@ -7,11 +7,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /** The no-infinity-arithmetic lint rule. */
@@ -56,7 +57,7 @@ const rule: TypeScriptRule = {
           message: 'Operation may result in Infinity - add bounds checking or handle edge case',
           ruleId: 'primitives/no-infinity-arithmetic',
           tip: 'Check for zero divisor or use Number.isFinite() on result',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix: NO_OP_FIX,
         });
       }
 

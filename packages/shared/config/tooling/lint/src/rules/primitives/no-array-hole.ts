@@ -8,11 +8,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 const rule: TypeScriptRule = {
@@ -45,7 +46,7 @@ const rule: TypeScriptRule = {
               'Array holes behave differently from undefined - use explicit undefined or remove element',
             ruleId: 'primitives/no-array-hole',
             tip: 'Use explicit undefined values or Array.from/fill to avoid holes',
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix: NO_OP_FIX,
           });
           break;
         }
@@ -119,7 +120,7 @@ const rule: TypeScriptRule = {
             message: 'delete on array creates hole - use splice to remove elements',
             ruleId: 'primitives/no-array-hole',
             tip: 'Use explicit undefined values or Array.from/fill to avoid holes',
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix: NO_OP_FIX,
           });
         }
       }

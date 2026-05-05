@@ -163,8 +163,26 @@ export const LintResultSchema = v.strictObject({
 /** A single lint diagnostic produced by a rule. See {@link LintResultSchema}. */
 export type LintResult = v.InferOutput<typeof LintResultSchema>;
 
+/**
+ * Branded no-op fix type — distinguishable from `LintFix` at the type level.
+ *
+ * Rules marked `fixable: true` must NEVER use this type. Using `NO_OP_FIX`
+ * in a fixable rule's result will produce a TypeScript error because
+ * `NoOpFix` is not assignable to `RealLintFix`.
+ */
+export type NoOpFix = LintFix & { readonly __brand: 'NO_OP' };
+
 /** No-op fix placeholder for rules that don't provide auto-fixes. */
-export const NO_OP_FIX: LintFix = { range: { start: 0, end: 0 }, text: '' };
+export const NO_OP_FIX: NoOpFix = { range: { start: 0, end: 0 }, text: '' } as NoOpFix;
+
+/**
+ * A real fix — any `LintFix` or `FileOpFix` that is NOT a NO_OP_FIX.
+ *
+ * Used in `fixable: true` rules to ensure they never emit no-op fixes.
+ * `NoOpFix` is NOT assignable to `RealLintFix`, triggering a type error
+ * if a fixable rule accidentally uses `NO_OP_FIX`.
+ */
+export type RealLintFix = (LintFix & { readonly __brand?: never }) | FileOpFix;
 
 /** Optional fields for {@link createResult}. */
 type CreateResultOpts = {
@@ -227,6 +245,69 @@ export function createResult(
     url: opts?.url,
     endLine: opts?.endLine,
     endColumn: opts?.endColumn,
+  };
+}
+
+/** Optional fields for {@link createFixableResult} — fix is REQUIRED. */
+type FixableResultOpts = {
+  /** Short suggestion for fixing the issue. */
+  tip?: string;
+  /** Code example showing the correct form. */
+  example?: string;
+  /** Source code line that triggered the diagnostic. */
+  source?: string;
+  /** Link to documentation for the rule. */
+  url?: string;
+  /**
+   * Structured auto-fix — REQUIRED for fixable rules. Must be a real fix.
+   * Passing `NO_OP_FIX` here will trigger a TypeScript error because
+   * `NoOpFix` is not assignable to `RealLintFix`.
+   */
+  fix: RealLintFix;
+  /** End line for range highlighting. */
+  endLine?: number;
+  /** End column for range highlighting. */
+  endColumn?: number;
+};
+
+/**
+ * Factory for fixable rules — REQUIRES a real fix (rejects NO_OP_FIX at compile time).
+ *
+ * Use this in rules with `fixable: true`. If you accidentally pass `NO_OP_FIX`,
+ * TypeScript will emit: "Type 'NoOpFix' is not assignable to type 'RealLintFix'".
+ *
+ * @param {string} ruleId - Rule ID
+ * @param {string} file - Absolute file path
+ * @param {number} line - 1-based line number
+ * @param {number} column - 1-based column number
+ * @param {'error' | 'warning' | 'info'} severity - Severity level
+ * @param {string} message - Human-readable diagnostic message
+ * @param {FixableResultOpts} opts - Options including the REQUIRED fix
+ * @returns {LintResult} A complete lint result object
+ */
+export function createFixableResult(
+  ruleId: string,
+  file: string,
+  line: number,
+  column: number,
+  severity: 'error' | 'warning' | 'info',
+  message: string,
+  opts: FixableResultOpts,
+): LintResult {
+  return {
+    ruleId,
+    file,
+    line,
+    column,
+    severity,
+    message,
+    fix: opts.fix,
+    tip: opts.tip,
+    example: opts.example,
+    source: opts.source,
+    url: opts.url,
+    endLine: opts.endLine,
+    endColumn: opts.endColumn,
   };
 }
 

@@ -14,11 +14,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /** Map of node:* modules to their shared utility alternatives. */
@@ -98,7 +99,7 @@ const rule: TypeScriptRule = {
       const hasConcreteAlt: boolean = value in ALTERNATIVES && !alternative.includes('(');
       const fix = hasConcreteAlt
         ? { range: { start: sourceStart, end: sourceEnd }, text: alternative }
-        : { range: { start: 0, end: 0 }, text: '' };
+        : NO_OP_FIX;
 
       results.push({
         file: context.file,

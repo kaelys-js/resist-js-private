@@ -14,17 +14,18 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  LintFix,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type LintFix,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 import { walkBody } from './_utils.ts';
 
 /** No-op fix sentinel. */
-const NO_FIX: LintFix = { range: { start: 0, end: 0 }, text: '' };
+const NO_FIX: LintFix = NO_OP_FIX;
 
 /** Parameter names that indicate a depth/limit guard. */
 const DEPTH_PARAM_NAMES: ReadonlySet<string> = new Set([

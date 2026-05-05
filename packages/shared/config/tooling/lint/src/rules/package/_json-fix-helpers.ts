@@ -9,10 +9,10 @@
 
 import { readFileSync } from 'node:fs';
 
-import type { LintFix } from '@/lint/framework/types.ts';
+import { NO_OP_FIX, type LintFix } from '@/lint/framework/types.ts';
 
 /** No-op fix sentinel. */
-export const NO_FIX: LintFix = { range: { start: 0, end: 0 }, text: '' };
+export const NO_FIX: LintFix = NO_OP_FIX;
 
 /**
  * Read raw file content synchronously. Returns empty string on error.

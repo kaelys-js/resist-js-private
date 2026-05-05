@@ -8,11 +8,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 import { getDefaultExportObject, getPropertyValueNode, hasProperty } from './_config-ast.ts';
 
@@ -72,7 +73,7 @@ const rule: TypeScriptRule = {
                 message: 'Complex inline preprocessor should be extracted to a separate module',
                 ruleId: rule.id,
                 tip: 'Create preprocessor in config/preprocessors.js and import it',
-                fix: { range: { start: 0, end: 0 }, text: '' },
+                fix: NO_OP_FIX,
               });
             }
           }
@@ -94,7 +95,7 @@ const rule: TypeScriptRule = {
             message: 'Complex inline preprocessor should be extracted to a separate module',
             ruleId: rule.id,
             tip: 'Create preprocessor in config/preprocessors.js and import it',
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix: NO_OP_FIX,
           });
         }
       }

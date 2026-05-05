@@ -7,11 +7,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 const rule: TypeScriptRule = {
@@ -70,7 +71,7 @@ const rule: TypeScriptRule = {
         message: 'JSON.parse without reviver may lose precision on large integers',
         ruleId: 'primitives/no-json-bigint',
         tip: 'Use JSON.parse with reviver for BigInt fields, or use json-bigint library',
-        fix: { range: { start: 0, end: 0 }, text: '' },
+        fix: NO_OP_FIX,
       });
 
       return results;

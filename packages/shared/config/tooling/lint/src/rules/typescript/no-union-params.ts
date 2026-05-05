@@ -8,11 +8,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /** File path patterns exempt from this rule. */
@@ -148,7 +149,7 @@ const rule: TypeScriptRule = {
           message: `Parameter '${paramName}' uses union type — express optionality/variants in Valibot schema instead`,
           ruleId: 'typescript/no-union-params',
           tip: 'Use v.optional(schema) or v.union([...]) in the schema, then use the inferred type',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix: NO_OP_FIX,
         });
       }
 

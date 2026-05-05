@@ -10,11 +10,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 import { walkNode } from '@/lint/framework/oxc-runner.ts';
 import { getModuleScriptRange, isRuneCall } from './_svelte-helpers.ts';
@@ -56,7 +57,7 @@ const rule: TypeScriptRule = {
             message: '$state in module context creates shared state across all component instances',
             ruleId: rule.id,
             tip: 'Move $state to instance script, or use regular variable if shared state is intentional',
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix: NO_OP_FIX,
           });
         }
       });

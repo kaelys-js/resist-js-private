@@ -10,11 +10,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 import { walkNode } from '@/lint/framework/oxc-runner.ts';
 import { isRuneCall } from './_svelte-helpers.ts';
@@ -169,7 +170,7 @@ const rule: TypeScriptRule = {
       }
 
       /* Fix: add = $bindable() to the prop in the $props() destructuring */
-      let fix = { range: { start: 0, end: 0 }, text: '' };
+      let fix = NO_OP_FIX;
       const propNode: AstNode | undefined = findPropPropertyNode(context.ast, bindName);
 
       if (propNode) {

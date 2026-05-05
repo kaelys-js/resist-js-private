@@ -10,11 +10,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 import { walkNode } from '@/lint/framework/oxc-runner.ts';
 
@@ -77,7 +78,7 @@ const rule: TypeScriptRule = {
         }
 
         /* Fix: only if this is the sole export-let statement in the file */
-        let fix = { range: { start: 0, end: 0 }, text: '' };
+        let fix = NO_OP_FIX;
 
         if (exportLetCount === 1) {
           fix = {

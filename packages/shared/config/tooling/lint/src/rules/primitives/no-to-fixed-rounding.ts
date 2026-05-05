@@ -8,11 +8,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /** The no-toFixed-rounding lint rule. */
@@ -51,7 +52,7 @@ const rule: TypeScriptRule = {
 
         if (propertyName === 'toFixed') {
           /* Fix: expr.toFixed(n) → (Math.round(expr * 10**n) / 10**n).toString() */
-          let fix = { range: { start: 0, end: 0 }, text: '' };
+          let fix = NO_OP_FIX;
           const objRaw: unknown = calleeNode.object;
           const objNode =
             objRaw !== null && typeof objRaw === 'object' ? (objRaw as AstNode) : undefined;

@@ -8,11 +8,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /** Canonical section order — earlier index = must appear first. */
@@ -107,7 +108,7 @@ const rule: TypeScriptRule = {
             message: `File has ${categoryCount} content categories but no section markers — add // === headers`,
             ruleId: 'comments/require-section-order',
             tip: 'Add section headers: // === Schemas, // === Types, // === Constants, // === API',
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix: NO_OP_FIX,
           });
         }
 
@@ -155,7 +156,7 @@ const rule: TypeScriptRule = {
             message: `Section '${current}' should appear before '${earlier}'`,
             ruleId: 'comments/require-section-order',
             tip: 'Reorder sections: Types/Schemas → Constants → Helpers → Exported/API',
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix: NO_OP_FIX,
           });
         }
         if (sect.orderIndex > maxOrder) {

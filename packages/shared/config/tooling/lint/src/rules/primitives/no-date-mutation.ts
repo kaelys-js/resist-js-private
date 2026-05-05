@@ -7,11 +7,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 const DATE_MUTATION_METHODS = new Set([
@@ -74,7 +75,7 @@ const rule: TypeScriptRule = {
         message: 'Date mutation methods are error-prone - create new Date or use date-fns',
         ruleId: 'primitives/no-date-mutation',
         tip: 'Use date-fns functions like addMonths() which return new instances',
-        fix: { range: { start: 0, end: 0 }, text: '' },
+        fix: NO_OP_FIX,
       });
 
       return results;

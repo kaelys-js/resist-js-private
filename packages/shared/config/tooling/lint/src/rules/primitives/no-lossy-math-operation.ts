@@ -8,11 +8,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 const rule: TypeScriptRule = {
@@ -72,7 +73,7 @@ const rule: TypeScriptRule = {
             'Lossy rounding pattern for decimal precision - use integers (cents) or decimal library',
           ruleId: 'primitives/no-lossy-math-operation',
           tip: 'Work with integers (cents for currency) or use a decimal library like decimal.js',
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix: NO_OP_FIX,
         });
       }
 

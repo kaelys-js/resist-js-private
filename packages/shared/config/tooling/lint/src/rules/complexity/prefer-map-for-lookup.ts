@@ -7,11 +7,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 import { walkBody, isCallTo, getCalleeObjectName } from './_utils.ts';
 
@@ -59,7 +60,7 @@ const rule: TypeScriptRule = {
             message: `Array "${name}" has multiple .find() calls — use a Map for O(1) lookups`,
             ruleId: 'complexity/prefer-map-for-lookup',
             tip: 'Create a Map from the array once, then use map.get() for lookups',
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix: NO_OP_FIX,
           });
         }
       }

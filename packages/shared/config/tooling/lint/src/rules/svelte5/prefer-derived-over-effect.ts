@@ -10,11 +10,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 import { walkNode } from '@/lint/framework/oxc-runner.ts';
 import { collectStateVariables, isRuneCall, getCallbackBody } from './_svelte-helpers.ts';
@@ -88,7 +89,7 @@ const rule: TypeScriptRule = {
           message: `$effect only sets '${name}' - use $derived instead`,
           ruleId: rule.id,
           tip: `Replace with: let ${name} = $derived(...);`,
-          fix: { range: { start: 0, end: 0 }, text: '' },
+          fix: NO_OP_FIX,
         });
       });
 

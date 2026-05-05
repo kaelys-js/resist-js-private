@@ -7,11 +7,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 import { walkBody, isLoopNode } from './_utils.ts';
 
@@ -35,7 +36,7 @@ const checkLoop = (node: AstNode, context: VisitorContext): LintResult[] => {
         message: 'Nested loop detected — consider using a Map or Set for O(1) lookups',
         ruleId: 'complexity/no-nested-array-iteration',
         tip: 'Convert inner loop to Map/Set lookup for O(n) total complexity',
-        fix: { range: { start: 0, end: 0 }, text: '' },
+        fix: NO_OP_FIX,
       });
       return true;
     }

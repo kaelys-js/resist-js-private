@@ -8,11 +8,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 import { walkBody, isCallTo, getCalleeObjectName } from './_utils.ts';
 
@@ -70,7 +71,7 @@ const rule: TypeScriptRule = {
             message: `Array "${name}" is traversed multiple times (.filter + .map) — combine into a single pass`,
             ruleId: 'complexity/no-repeated-traversal',
             tip: 'Use .reduce() or a single for...of loop to process in one pass',
-            fix: { range: { start: 0, end: 0 }, text: '' },
+            fix: NO_OP_FIX,
           });
         }
       }

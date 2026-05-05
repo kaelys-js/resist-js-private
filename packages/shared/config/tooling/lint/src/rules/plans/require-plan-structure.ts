@@ -11,6 +11,7 @@
  */
 
 import {
+  NO_OP_FIX,
   createResult,
   type LintFix,
   type LintResult,
@@ -23,7 +24,7 @@ import { discoverPlanFiles, parsePlan } from '@/lint/rules/plans/plan-parser.ts'
 const RULE_ID: string = 'plans/require-plan-structure';
 
 /** No-op fix sentinel. */
-const NO_FIX: LintFix = { range: { start: 0, end: 0 }, text: '' };
+const NO_FIX: LintFix = NO_OP_FIX;
 
 /** Standard Status Legend block to insert when missing. */
 const STATUS_LEGEND_BLOCK: string = [

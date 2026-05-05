@@ -7,11 +7,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 const rule: TypeScriptRule = {
@@ -43,7 +44,7 @@ const rule: TypeScriptRule = {
         calleePropName === 'charAt'
       ) {
         /* Fix: str.charAt(i) → [...str][i] */
-        let fix = { range: { start: 0, end: 0 }, text: '' };
+        let fix = NO_OP_FIX;
         const objRaw: unknown = calleeNode.object;
         const objNode =
           objRaw !== null && typeof objRaw === 'object' ? (objRaw as AstNode) : undefined;

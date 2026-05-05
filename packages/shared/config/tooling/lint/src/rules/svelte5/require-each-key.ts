@@ -10,11 +10,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /** The require-each-key lint rule. */
@@ -35,7 +36,7 @@ const rule: TypeScriptRule = {
       }
 
       /* Fix: insert (iterVar) as key for simple Identifier context */
-      let fix = { range: { start: 0, end: 0 }, text: '' };
+      let fix = NO_OP_FIX;
       const contextNode: AstNode | undefined = node.context as AstNode | undefined;
 
       if (contextNode?.type === 'Identifier') {

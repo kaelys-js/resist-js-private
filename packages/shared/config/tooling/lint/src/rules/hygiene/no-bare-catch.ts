@@ -11,6 +11,7 @@
  */
 
 import {
+  NO_OP_FIX,
   createResult,
   type TypeScriptRule,
   type LintResult,
@@ -20,7 +21,7 @@ import {
 } from '@/lint/framework/types.ts';
 
 /** No-op fix sentinel. */
-const NO_FIX: LintFix = { range: { start: 0, end: 0 }, text: '' };
+const NO_FIX: LintFix = NO_OP_FIX;
 
 /**
  * Build a fix that inserts `(error: unknown)` after the `catch` keyword.
