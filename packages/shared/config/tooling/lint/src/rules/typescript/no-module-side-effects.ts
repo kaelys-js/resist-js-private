@@ -61,7 +61,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['typescript', 'safety'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
@@ -86,13 +86,14 @@ const rule: TypeScriptRule = {
           statement.type === 'ClassDeclaration' ||
           statement.type === 'VariableDeclaration'
         ) {
-          // Check for throws inside top-level if statements guarding variable declarations
-          // e.g. `if (!parsed.ok) throw new Error(...)` at module level
           continue;
         }
 
-        // Flag top-level ThrowStatement
+        // Flag top-level ThrowStatement — wrap in exported function returning Result
         if (statement.type === 'ThrowStatement') {
+          const stmtText: string = context.content.slice(statement.start, statement.end);
+          const wrapped: string = `export function _validate(): void {\n  ${stmtText}\n}`;
+
           results.push({
             file: context.file,
             line: statement.loc.start.line,
@@ -102,7 +103,7 @@ const rule: TypeScriptRule = {
               'Top-level throw crashes the process on import — wrap in a function returning Result',
             ruleId: 'typescript/no-module-side-effects',
             tip: 'Move this into an exported function that returns err() instead of throwing',
-            fix: { range: { start: statement.start, end: statement.end }, text: '' },
+            fix: { range: { start: statement.start, end: statement.end }, text: wrapped },
           });
           continue;
         }
@@ -113,6 +114,13 @@ const rule: TypeScriptRule = {
           containsThrow(statement) &&
           !isIntegrationBoundaryIf(statement, context)
         ) {
+          const stmtText: string = context.content.slice(statement.start, statement.end);
+          const indented: string = stmtText
+            .split('\n')
+            .map((l: string): string => `  ${l}`)
+            .join('\n');
+          const wrapped: string = `export function _validateEnvironment(): void {\n${indented}\n}`;
+
           results.push({
             file: context.file,
             line: statement.loc.start.line,
@@ -122,7 +130,7 @@ const rule: TypeScriptRule = {
               'Top-level conditional throw crashes the process on import — wrap in a function returning Result',
             ruleId: 'typescript/no-module-side-effects',
             tip: 'Move this validation into an exported function that returns err() instead of throwing',
-            fix: { range: { start: statement.start, end: statement.end }, text: '' },
+            fix: { range: { start: statement.start, end: statement.end }, text: wrapped },
           });
           continue;
         }
@@ -132,6 +140,9 @@ const rule: TypeScriptRule = {
           const expr = statement.expression as AstNode | undefined;
 
           if (expr?.type === 'CallExpression' || expr?.type === 'AwaitExpression') {
+            const stmtText: string = context.content.slice(statement.start, statement.end);
+            const wrapped: string = `export function init(): void {\n  ${stmtText}\n}`;
+
             results.push({
               file: context.file,
               line: statement.loc.start.line,
@@ -141,7 +152,7 @@ const rule: TypeScriptRule = {
                 'Top-level function call executes on import — consider wrapping in an exported function',
               ruleId: 'typescript/no-module-side-effects',
               tip: 'Module-level calls run before consumers can handle errors',
-              fix: { range: { start: statement.start, end: statement.end }, text: '' },
+              fix: { range: { start: statement.start, end: statement.end }, text: wrapped },
             });
           }
         }

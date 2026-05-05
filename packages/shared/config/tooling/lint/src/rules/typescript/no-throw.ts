@@ -92,7 +92,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['typescript', 'safety', 'result'],
   stages: ['lint', 'pre-commit', 'ci'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     ThrowStatement(node: AstNode, context: VisitorContext): LintResult[] {
@@ -130,6 +130,28 @@ const rule: TypeScriptRule = {
         }
       }
 
+      /* Build the err() replacement from the throw argument */
+      const argument = node.argument as AstNode | undefined;
+      let errText: string;
+
+      if (argument?.type === 'NewExpression') {
+        /* throw new Error('msg') → return err(ERRORS.UNKNOWN.UNSPECIFIED, 'msg') */
+        const args = argument.arguments as AstNode[] | undefined;
+        const firstArg: AstNode | undefined = args?.[0];
+        const msgText: string = firstArg
+          ? context.content.slice(firstArg.start, firstArg.end)
+          : "'unknown error'";
+
+        errText = `return err(ERRORS.UNKNOWN.UNSPECIFIED, ${msgText})`;
+      } else if (argument) {
+        /* throw expr → return err(ERRORS.UNKNOWN.UNSPECIFIED, { cause: expr }) */
+        const argText: string = context.content.slice(argument.start, argument.end);
+
+        errText = `return err(ERRORS.UNKNOWN.UNSPECIFIED, { cause: ${argText} })`;
+      } else {
+        errText = `return err(ERRORS.UNKNOWN.UNSPECIFIED, 'unknown error')`;
+      }
+
       return [
         {
           file: context.file,
@@ -139,7 +161,7 @@ const rule: TypeScriptRule = {
           message: 'Do not use throw — return err(ERRORS.DOMAIN.CODE, message) instead',
           ruleId: 'typescript/no-throw',
           tip: 'Replace throw with return err() to maintain the Result pattern',
-          fix: { range: { start: node.start, end: node.start }, text: '' },
+          fix: { range: { start: node.start, end: node.end }, text: `${errText};` },
         },
       ];
     },
