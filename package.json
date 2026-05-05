@@ -53,8 +53,5 @@
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.0.18",
     "@/lint": "workspace:*"
-  },
-  "volta": {
-    "node": "24.14.0"
   }
 }

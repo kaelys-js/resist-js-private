@@ -133,8 +133,18 @@
 			"outputs": [],
 			"outputLogs": "new-only"
 		},
+		"//#qa:hooks": {
+			"inputs": [".claude/hooks/**", ".claude/settings.json", "CLAUDE.md"],
+			"outputs": [],
+			"cache": false
+		},
+		"svelte-kit:sync": {
+			"inputs": ["svelte.config.*", "src/**/*.svelte"],
+			"outputs": [".svelte-kit/**"],
+			"outputLogs": "errors-only"
+		},
 		"qa:test": {
-			"dependsOn": ["^build"],
+			"dependsOn": ["^build", "svelte-kit:sync"],
 			"inputs": ["$TURBO_DEFAULT$"],
 			"outputs": [],
 			"outputLogs": "new-only"
