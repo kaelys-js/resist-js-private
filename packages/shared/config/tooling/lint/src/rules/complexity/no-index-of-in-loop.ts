@@ -225,7 +225,7 @@ function buildIndexOfFix(
   const indent: string = detectIndent(loopStart, src);
 
   /* Generate set variable */
-  const safeArr: string = arrText.replace(/[^a-zA-Z0-9]/g, '_');
+  const safeArr: string = arrText.replaceAll(/[^a-zA-Z0-9]/g, '_');
   const setVar: string = `_${safeArr}Set`;
   const hoisted: string = `${indent}const ${setVar}: ReadonlySet<unknown> = new Set(${arrText});\n`;
 

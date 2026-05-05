@@ -143,7 +143,7 @@ function dependsOnLoopVar(argNode: AstNode, loopVarName: string | null, source: 
 
   const argText: string = nodeText(argNode, source);
   const wordBoundary: RegExp = new RegExp(
-    `\\b${loopVarName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`,
+    `\\b${loopVarName.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`)}\\b`,
   );
 
   return wordBoundary.test(argText);

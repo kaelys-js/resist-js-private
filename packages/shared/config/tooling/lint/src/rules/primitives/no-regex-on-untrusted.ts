@@ -54,7 +54,7 @@ const rule: TypeScriptRule = {
       const patternText: string = context.getNodeText(firstArg);
       /* The output regex escapes all special regex chars in the user input */
       const escapeCall: string =
-        patternText + '.replace(/[.*+?^${}()|[\\]' + '\\\\' + ']/g, ' + "'\\\\$&'" + ')';
+        patternText + '.replace(/[.*+?^${}()|[\\]' + String.raw`\\` + ']/g, ' + String.raw`'\\$&'` + ')';
       let fixText: string;
 
       if (args.length > 1) {

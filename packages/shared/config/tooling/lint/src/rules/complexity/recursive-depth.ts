@@ -151,7 +151,7 @@ function buildRecursiveDepthFix(
   let paramPrefix: string;
 
   if (params.length > 0) {
-    const lastParam: AstNode = params[params.length - 1] as AstNode;
+    const lastParam: AstNode = params.at(-1) as AstNode;
     paramInsertOffset = (lastParam.end as number) - funcStart;
     paramPrefix = ', ';
   } else {
@@ -196,7 +196,7 @@ function buildRecursiveDepthFix(
   /* Now find and update all recursive calls — add depth + 1 as last argument.
    * We do this with a simple regex since the text has been modified. */
   const callPattern: RegExp = new RegExp(
-    `${funcName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\(`,
+    `${funcName.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`)}\\s*\\(`,
     'g',
   );
   let match: RegExpExecArray | null = callPattern.exec(funcText);

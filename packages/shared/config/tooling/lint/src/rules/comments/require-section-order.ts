@@ -181,7 +181,7 @@ const rule: TypeScriptRule = {
          * and that points to the === line; the header is 3 lines: ===, title, ===).
          * A section ends at the byte before the next section's header starts, or
          * at content.length for the last section. */
-        interface SectionBlock {
+        type SectionBlock = {
           orderIndex: number;
           startByte: number;
           endByte: number;
@@ -204,13 +204,13 @@ const rule: TypeScriptRule = {
 
         if (blocks.length >= 2) {
           const firstBlock: SectionBlock = blocks[0]!;
-          const lastBlock: SectionBlock = blocks[blocks.length - 1]!;
+          const lastBlock: SectionBlock = blocks.at(-1)!;
           const regionStart: number = firstBlock.startByte;
           const regionEnd: number = lastBlock.endByte;
 
           /* Extract each block's text and sort by canonical order */
           const sortedTexts: string[] = [...blocks]
-            .sort((a: SectionBlock, b: SectionBlock): number => a.orderIndex - b.orderIndex)
+            .toSorted((a: SectionBlock, b: SectionBlock): number => a.orderIndex - b.orderIndex)
             .map((blk: SectionBlock): string => context.content.slice(blk.startByte, blk.endByte));
 
           const reorderedText: string = sortedTexts.join('');

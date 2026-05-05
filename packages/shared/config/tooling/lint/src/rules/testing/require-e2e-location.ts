@@ -7,7 +7,7 @@
  * @module
  */
 
-import { basename, dirname, join } from 'node:path';
+import { basename, join } from 'node:path';
 
 import {
   createResult,

@@ -102,7 +102,7 @@ const rule: PackageJsonRule = {
 
     // Must extend root tsconfig
     if (!extendsStr.endsWith('tsconfig.json') || !extendsStr.includes('..')) {
-      const relPath: string = relative(dir, process.cwd()).replace(/\\/g, '/');
+      const relPath: string = relative(dir, process.cwd()).replaceAll('\\', '/');
       const correctExtends: string = `${relPath}/tsconfig.json`;
       const fix = buildSetJsonFieldFix(tsconfigContent, 'extends', `"${correctExtends}"`);
 
