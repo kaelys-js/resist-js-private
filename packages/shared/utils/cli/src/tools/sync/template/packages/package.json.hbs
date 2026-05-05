@@ -101,6 +101,7 @@
 		"update:sync": "{{ pm.filter }} @/cli tool sync --",
 		"update:schemas": "{{ pm.filter }} @/cli tool schema-updater --",
 		"setup:vscode": "{{ pm.filter }} @/cli tool setup-vscode",
+		"setup:knowledge-stack": "uv tool install 'cocoindex-code[full]' && ([ -d .cocoindex_code ] || ccc index .)",
 
 		"qa:boundaries": "turbo boundaries",
 
