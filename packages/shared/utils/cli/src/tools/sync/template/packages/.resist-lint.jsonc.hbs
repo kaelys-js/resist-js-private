@@ -1,0 +1,184 @@
+{{syncHeader "//" "@/lint configuration"}}
+//
+// Baseline: every rule defaults to "error" via the framework's
+// `resolveRuleSeverity` (see packages/shared/config/tooling/lint/src/config/schema.ts).
+// To relax a rule for the whole workspace, add it to "rules" with severity "off"|"warning".
+// To relax a rule for specific files, append to "overrides".
+//
+{
+  "$schema": "./.resist-lint.schema.json",
+  "include": ["packages"],
+  "exclude": [
+    "node_modules",
+    ".git",
+    ".svelte-kit",
+    ".svelte-check",
+    "dist",
+    "build",
+    "coverage",
+    ".turbo",
+    "_INTEGRATE",
+    "__mocks__",
+    "packages/shared/utils/cli"
+  ],
+  "extensions": [".ts", ".svelte.ts", ".svelte", ".astro", ".html", ".vue", ".md", ".mdx", ".mjs"],
+  "rules": {},
+  "ruleOptions": {
+    "comments/no-lint-disable": {
+      "allowedTargets": [
+        "max-classes-per-file",
+        "max-lines",
+        "max-lines-per-function",
+        "no-array-for-each",
+        "no-await-in-loop"
+      ]
+    }
+  },
+  "overrides": [
+    // =========================================================================
+    // Directive rule source + test files — contain directive examples as fixtures
+    // =========================================================================
+    {
+      "files": [
+        "**/rules/directives/*.ts",
+        "**/rules/directives/*.test.ts",
+        "**/rules/comments/no-lint-disable.ts",
+        "**/rules/comments/comments-rules.test.ts",
+        "**/workspace/no-lint-ignore-directives.ts",
+        "**/workspace/workspace-rules.test.ts",
+        "**/test-mocks/**",
+        "**/test-setup-component.ts"
+      ],
+      "rules": {
+        "directives/no-biome-ignore": "off",
+        "directives/no-eslint-disable": "off",
+        "directives/no-generic-any-assertion": "off",
+        "directives/no-oxlint-ignore": "off",
+        "directives/no-prettier-ignore": "off",
+        "directives/no-ts-expect-error-on-any": "off",
+        "directives/no-ts-ignore": "off",
+        "directives/no-ts-nocheck": "off"
+      }
+    },
+
+    // =========================================================================
+    // VSCode extension — stricter JSDoc + comments rules
+    // =========================================================================
+    {
+      "files": ["**/config/tooling/vscode/**"],
+      "rules": {
+        "comments/no-lint-disable": "error",
+        "comments/require-blank-line-groups": "error",
+        "comments/require-section-marker-style": "error",
+        "comments/require-section-order": "error",
+        "jsdoc/param-type-match": "error",
+        "jsdoc/require-example": "error",
+        "jsdoc/require-jsdoc": "error",
+        "jsdoc/require-module": "error",
+        "jsdoc/require-param": "error",
+        "jsdoc/require-returns": "error",
+        "jsdoc/require-schema-link": "error",
+        "jsdoc/validate-example": "error"
+      }
+    },
+
+    // =========================================================================
+    // Lint tooling — CLI tool, no Result pattern, uses raw Node APIs
+    // =========================================================================
+    {
+      "files": ["**/config/tooling/lint/src/**"],
+      "rules": {}
+    },
+
+    // =========================================================================
+    // Common schemas — shared base schemas have unique patterns
+    // =========================================================================
+    {
+      "files": ["**/schemas/common/**"],
+      "rules": {
+        "valibot/no-duplicate-schema": "off",
+        "valibot/no-direct-safeparse": "off",
+        "valibot/require-schema-suffix": "off",
+        "valibot/require-min-length": "off",
+        "valibot/colocate-schema-type": "off",
+        "valibot/export-schema-and-type": "off",
+        "valibot/no-orphan-schemas": "off",
+        "valibot/no-orphan-types": "off",
+        "valibot/one-schema-per-file": "off",
+        "valibot/schema-file-location": "off",
+        "valibot/schema-type-pair": "off",
+        "valibot/type-alias-from-schema": "off",
+        "typescript/no-throw": "off",
+        "imports/no-raw-json": "off"
+      }
+    },
+
+    // =========================================================================
+    // VS Code extension — different module system, .js extensions OK
+    // =========================================================================
+    {
+      "files": ["**/extensions/vscode/**"],
+      "rules": {
+        "typescript/no-bare-data-types": "off",
+        "imports/no-js-extension": "off"
+      }
+    },
+
+    // =========================================================================
+    // Non-lintable file types
+    // =========================================================================
+    {
+      "files": ["**/*.d.ts", "**/index.ts", "**/*.config.ts", "**/*.config.js"],
+      "rules": {
+        "testing/require-colocated-tests": "off"
+      }
+    },
+
+    // =========================================================================
+    // Test files — most rules don't apply
+    // =========================================================================
+    {
+      "files": ["**/*.test.ts", "**/*.spec.ts"],
+      "rules": {}
+    },
+
+    // =========================================================================
+    // Test infrastructure — relaxed rules for test helpers/presets
+    // =========================================================================
+    {
+      "files": ["**/config/test/**"],
+      "rules": {}
+    },
+
+    // =========================================================================
+    // Template literal schemas — special schema directory
+    // =========================================================================
+    {
+      "files": ["**/schemas/template-literal/**"],
+      "rules": {
+        "valibot/prefer-template-literal": "off"
+      }
+    },
+
+    // =========================================================================
+    // Core utils — safe wrapper implementations
+    // =========================================================================
+    {
+      "files": ["**/utils/core/src/**"],
+      "rules": {
+        "imports/no-raw-json": "off"
+      }
+    },
+
+    // =========================================================================
+    // Barrel / index files — re-exports are intentional
+    // =========================================================================
+    {
+      "files": ["**/index.ts"],
+      "rules": {
+        "imports/no-barrel-files": "off",
+        "imports/no-reexport": "off"
+      }
+    }
+  ]
+}
