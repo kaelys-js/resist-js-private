@@ -128,6 +128,25 @@ export function isTextFix(fix: unknown): fix is LintFix {
   );
 }
 
+/**
+ * Test helper: assert and narrow a `LintResult.fix` to the `LintFix`
+ * (text-replacement) variant. Throws if the fix is a `FileOpFix`.
+ *
+ * Replaces verbose narrowing in test code:
+ *   `if (!isTextFix(r.fix)) throw …; r.fix.text` →
+ *   `expectTextFix(r.fix).text`
+ *
+ * @param {LintFix | FileOpFix} fix - The fix to narrow
+ * @returns {LintFix} The narrowed text-replacement fix
+ * @throws {Error} If the fix is a FileOpFix variant
+ */
+export function expectTextFix(fix: LintFix | FileOpFix): LintFix {
+  if (!isTextFix(fix)) {
+    throw new Error(`Expected a text-replacement fix, got: ${JSON.stringify(fix)}`);
+  }
+  return fix;
+}
+
 /** Schema for a single lint diagnostic produced by a rule. */
 export const LintResultSchema = v.strictObject({
   /** Absolute file path */
