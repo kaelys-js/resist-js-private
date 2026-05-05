@@ -1,0 +1,41 @@
+name: CI
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qa:
+    name: qa
+    runs-on: macos-14   # arm64, matches Apple Silicon dev environment
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install mise (pinned tool versions from mise.toml)
+        uses: jdx/mise-action@v2
+        with:
+          version: 2026.5.0
+          install: true
+          cache: true
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint (strict — zero diagnostics required)
+        run: pnpm -w run qa:lint
+
+      - name: Tests
+        run: pnpm -w run qa:test
+
+      - name: Typecheck
+        run: pnpm -w run qa:typecheck
+        continue-on-error: false

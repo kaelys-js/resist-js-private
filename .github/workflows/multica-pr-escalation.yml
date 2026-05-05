@@ -1,0 +1,48 @@
+name: Multica PR escalation
+
+# When CI fails on a PR labeled `multica`, count the failures via PR comments.
+# After 3 consecutive failures, remove auto-merge label, add `needs-human-review`,
+# and @-mention the user for attention.
+
+on:
+  check_run:
+    types: [completed]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  escalate:
+    if: github.event.check_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Find associated multica PRs and escalate
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.event.check_run.head_sha }}
+        run: |
+          set -euo pipefail
+
+          # Find PRs for this commit, filter to ones labeled `multica`
+          PRS=$(gh api "repos/$REPO/commits/$SHA/pulls" \
+            --jq '.[] | select(.labels | map(.name) | contains(["multica"])) | .number')
+
+          [[ -z "$PRS" ]] && { echo "No multica PRs for $SHA"; exit 0; }
+
+          for PR in $PRS; do
+            COUNT=$(gh api "repos/$REPO/issues/$PR/comments" \
+              --jq '[.[] | select(.body | startswith("<!-- multica-failure-count -->"))] | length')
+            NEW_COUNT=$((COUNT + 1))
+
+            gh pr comment "$PR" --body "<!-- multica-failure-count -->
+CI failure #${NEW_COUNT} on this PR."
+
+            if [ "$NEW_COUNT" -ge 3 ]; then
+              gh pr edit "$PR" --remove-label multica --add-label needs-human-review || true
+              gh pr comment "$PR" --body \
+                "@cole — agent has failed CI ${NEW_COUNT}× on this PR. Auto-merge removed; needs human review."
+            fi
+          done
