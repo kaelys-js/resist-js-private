@@ -1,13 +1,21 @@
 ---
 name: fix-bug
-description: Systematic bug investigation and fixing with mandatory user approval gates. Use when encountering any bug, visual glitch, rendering issue, runtime error, or unexpected behavior that needs debugging. Also use when the user says "fix this bug", "debug this", "this is broken", or describes something not working correctly. This skill enforces investigate-first, fix-second discipline with hard approval checkpoints to prevent blind trial-and-error.
+description: Systematic bug investigation and fixing. Triggers on issues mentioning "bug", "broken", "fix:", "regression", "not working", "crash", "error", "glitch", "incorrect output", "wrong behavior", "unexpected", or any reproducer. Enforces investigate-first, fix-second discipline; in interactive mode requires user approval before code changes, in Multica autonomous mode posts findings as an issue comment then proceeds.
 ---
 
 # Fix Bug
 
-Rigid workflow for investigating and fixing bugs. NEVER touch code before completing investigation and getting user approval.
+Rigid workflow for investigating and fixing bugs. NEVER touch code before completing investigation.
 
-No skills. No worktrees. No plan mode. No ceremony.
+## Autonomous mode (Multica-spawned tasks)
+
+When `MULTICA_AUTONOMOUS=1` is set in the environment (Multica daemon spawned this task), step 3's user-approval gate is replaced with a Multica issue comment containing the same findings. **Investigation depth and rigor are NOT relaxed** — the comment IS your audit trail. Then proceed directly to step 4 implementation.
+
+In interactive mode (terminal use, no env var), the original approval gate stays — wait for explicit user "yes" before code changes.
+
+The "NEVER edit code before Step 4" rule applies in both modes. The change is *what* unblocks step 4: explicit user approval (interactive) vs. successfully posting the findings comment (autonomous).
+
+No worktrees. No plan mode. No ceremony.
 
 ## Steps — FOLLOW EXACTLY
 
@@ -42,9 +50,12 @@ Output: A clear explanation of the root cause. Must include:
 
 **Time limit: 10 minutes.** If you can't identify root cause in 10 minutes, STOP and present what you know (see Step 3).
 
-### 3. Present Findings — MANDATORY APPROVAL GATE
+### 3. Present Findings — APPROVAL GATE (interactive) or COMMENT (autonomous)
 
-**STOP. Do NOT write any code. Present your findings to the user and WAIT for approval.**
+**STOP. Do NOT write any code yet.**
+
+- **Interactive mode** (`MULTICA_AUTONOMOUS` unset): Present findings to the user and WAIT for explicit approval ("yes", "go ahead", "fix it").
+- **Autonomous mode** (`MULTICA_AUTONOMOUS=1`): Post findings as a comment on the Multica issue using the API. The comment IS your audit trail — it must include every section below in full. Then proceed to Step 4 (no waiting).
 
 Format your findings as:
 
@@ -74,7 +85,9 @@ If confidence is Low or root cause is unknown:
 - List what you haven't checked
 - Ask the user what to try or whether they have more context
 
-**NEVER proceed past this step without explicit user approval ("yes", "go ahead", "fix it", etc.)**
+**Interactive mode: NEVER proceed past this step without explicit user approval ("yes", "go ahead", "fix it", etc.)**
+
+**Autonomous mode: NEVER proceed past this step without successfully posting the findings comment to the Multica issue.**
 
 ### 4. Implement the Fix
 
@@ -108,7 +121,7 @@ If a feature does NOT produce visible output when it should, it is a BUG — not
 | Rule | Why |
 |------|-----|
 | NEVER edit code before Step 4 | Prevents blind trial-and-error that makes things worse |
-| NEVER skip the approval gate (Step 3) | User must approve before any code changes |
+| NEVER skip the approval gate (Step 3) | Interactive: user must approve. Autonomous: findings comment must post successfully. |
 | NEVER try multiple fixes hoping one works | Each fix attempt requires going back through Steps 2-3 |
 | NEVER spend >15 min total investigating | If stuck, present what you know and ask for help |
 | NEVER ignore user messages during investigation | Check for messages after EVERY tool call |

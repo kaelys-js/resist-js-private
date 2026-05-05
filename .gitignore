@@ -26,6 +26,11 @@ coverage/
 !.claude/skills/build-editor/
 !.claude/skills/expand-feature/
 !.claude/skills/multica-handoff/
+!.claude/skills/feature-implement/
+!.claude/skills/add-test-coverage/
+!.claude/skills/refactor-pattern/
+!.claude/skills/dependency-bump/
+!.claude/skills/decompose-issue/
 .worktrees/
 .playwright-mcp
 test-results/
@@ -33,3 +38,6 @@ test-results/
 branding-git-exclude
 # CocoIndex Code (ccc)
 /.cocoindex_code/
+
+# Multica notifier secret config (token + ntfy topic)
+scripts/multica-notifier/.env

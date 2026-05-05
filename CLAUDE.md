@@ -88,6 +88,27 @@ These gates **stay strict regardless** of `MULTICA_AUTONOMOUS`:
 
 In interactive sessions in your terminal (where `MULTICA_AUTONOMOUS` is not set), every hook behaves exactly as documented above with no change.
 
+### Agent routing (Multica)
+
+Two Multica agents are available, both running on this machine:
+
+- **Opus 4.7** — for ambiguous, architectural, or research-flavored work; bug fixes that need investigation; anything where wrong choices are expensive
+- **Sonnet 4.6** — for routine grinds: lint cleanup, test coverage, simple refactors, dep bumps; anything where the path is clear and the cost of a mistake is small (cheap to retry)
+
+When filing an issue without explicit assignee guidance, default to **Sonnet 4.6**. Reach for Opus 4.7 only when the issue is open-ended or has architectural implications.
+
+Routing examples:
+
+| Issue type | Agent |
+|---|---|
+| `feat: add X to package Y` (well-scoped) | Sonnet 4.6 |
+| `fix: investigate flaky test in Z` | Opus 4.7 (needs investigation) |
+| `chore(deps): bump foo from 1.2 to 1.3` | Sonnet 4.6 |
+| `refactor: migrate X pattern to Y across @/utils` | Sonnet 4.6 |
+| `Design new state-management approach for editor` | Opus 4.7 |
+| `Lint cleanup in @/products/storylyne` | Sonnet 4.6 |
+| `[decompose] Build new RPG editor lighting system` | Opus 4.7 (decomposition needs design judgment) |
+
 ## Browser Tools
 
 - **NEVER use `preview_*` tools** (`mcp__Claude_Preview__preview_*`) — they are forbidden in this project
