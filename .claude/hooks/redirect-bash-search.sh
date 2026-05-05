@@ -37,7 +37,7 @@ if [[ "$cmd" =~ [[:space:]](cat|head|tail|sed|awk)[[:space:]] ]]; then
 fi
 if [[ "$has_reader" == "true" ]]; then
   # Check if any argument ends in a code extension
-  if [[ "$cmd" =~ \.(ts|tsx|js|jsx|svelte)([[:space:]]|$|\") ]]; then
+  if [[ "$cmd" =~ \.(ts|tsx|js|jsx|svelte|mjs|cjs|cts|mts|hbs|go)([[:space:]]|$|\") ]]; then
     # Allow heredocs
     if [[ "$cmd" =~ \<\< ]]; then
       exit 0
@@ -45,6 +45,37 @@ if [[ "$has_reader" == "true" ]]; then
     cat <<EOF >&2
 BASH CODE READ BLOCKED.
 Use the Read tool (which checks for Serena memories) or mcp__serena__find_symbol instead of cat/head/tail on code files.
+EOF
+    exit 2
+  fi
+fi
+
+# === Block 3: find / ls -R on code paths (closes the bypass that lets agents
+# walk packages/* via bash before reaching for serena tools) ===
+if [[ "$cmd" =~ (^|[|;&] *)(find|ls[[:space:]]+-R)[[:space:]] ]]; then
+  # Allow if the find scope is non-code (root config, _INTEGRATE/, .git/, .claude/, $HOME)
+  # — `find .` at workspace root is allowed; deeper packages/ paths are blocked below.
+  if [[ "$cmd" =~ (^|[[:space:]])find[[:space:]]+(_INTEGRATE|\.git|\.claude|\.serena|\.cocoindex_code|~|/Users/home/(\.|/Library)) ]]; then
+    exit 0
+  fi
+  # Allow when name pattern targets non-code files (json/jsonc/md/yml/yaml/toml/log/txt/sh/lock)
+  if [[ "$cmd" =~ -name[[:space:]]+[\'\"]\*?\.(json|jsonc|md|mdx|yml|yaml|toml|log|txt|sh|lock)[\'\"]? ]]; then
+    exit 0
+  fi
+  # Allow when targeting build artifacts (node_modules / dist / .svelte-kit / coverage / .turbo)
+  if [[ "$cmd" =~ (node_modules|dist|\.svelte-kit|coverage|\.turbo|build|out)/ ]]; then
+    exit 0
+  fi
+  # Block when path traverses code source dirs
+  if [[ "$cmd" =~ (^|[[:space:]/])(packages|src|apps|server|lib|routes)([[:space:]/]|$) ]]; then
+    cat <<'EOF' >&2
+BASH find / ls -R BLOCKED on code paths.
+Use one of these instead:
+  - mcp__serena__get_symbols_overview — for file/directory structure
+  - mcp__serena__find_symbol — for symbol lookup ("find createSvelteConfig")
+  - mcp__cocoindex_code__search — for fuzzy/semantic queries
+  - mcp__serena__list_memories — for area overviews
+For pure non-code enumeration (json/md/yml/toml/log/txt/sh/lock), pass `-name '*.json'` etc.
 EOF
     exit 2
   fi

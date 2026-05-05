@@ -7,9 +7,9 @@ input=$(cat)
 pattern=$(echo "$input" | jq -r '.tool_input.pattern // ""')
 
 # Block globbing for code files — use Serena for code discovery
-if [[ "$pattern" =~ \*\.(ts|tsx|js|jsx|svelte) ]] || [[ "$pattern" =~ \*\*/\*\.(ts|tsx|js|jsx|svelte) ]]; then
+if [[ "$pattern" =~ \*\.(ts|tsx|js|jsx|svelte|mjs|cjs|cts|mts|hbs|go) ]] || [[ "$pattern" =~ \*\*/\*\.(ts|tsx|js|jsx|svelte|mjs|cjs|cts|mts|hbs|go) ]]; then
   # Allow test file globs — legitimate for test discovery
-  if [[ "$pattern" =~ \.(test|spec)\.(ts|tsx|js) ]]; then
+  if [[ "$pattern" =~ \.(test|spec)\.(ts|tsx|js|mjs) ]]; then
     exit 0
   fi
   cat <<EOF >&2
