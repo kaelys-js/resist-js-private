@@ -6,7 +6,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { runTypeScriptRules } from '../../framework/oxc-runner.ts';
-import type { LintResult, TypeScriptRule } from '../../framework/types.ts';
+import { expectTextFix, type LintResult, type TypeScriptRule } from '../../framework/types.ts';
 
 import noLintDisable from './no-lint-disable.ts';
 import requireSectionMarkerStyle from './require-section-marker-style.ts';
@@ -212,8 +212,8 @@ const x: number = 1;
     const results: LintResult[] = await lint(requireSectionMarkerStyle, code);
     expect(results.length).toBe(1);
     expect(results[0]!.fix).toBeDefined();
-    expect(results[0]!.fix.text).toContain('// =');
-    expect(results[0]!.fix.text).toContain('My Section');
+    expect(expectTextFix(results[0]!.fix).text).toContain('// =');
+    expect(expectTextFix(results[0]!.fix).text).toContain('My Section');
   });
 });
 
@@ -393,7 +393,7 @@ describe('comments/require-blank-line-groups', () => {
     const results: LintResult[] = await lint(requireBlankLineGroups, code);
     expect(results.length).toBe(1);
     expect(results[0]!.fix).toBeDefined();
-    expect(results[0]!.fix.text).toBe('\n');
+    expect(expectTextFix(results[0]!.fix).text).toBe('\n');
   });
 
   it('has fixable: true in the rule definition', () => {

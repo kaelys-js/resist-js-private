@@ -7,15 +7,16 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
-  VisitorFn,
-  ImportInfo,
-  ImportSpecifier,
-  CommentInfo,
+import {
+  isTextFix,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
+  type VisitorFn,
+  type ImportInfo,
+  type ImportSpecifier,
+  type CommentInfo,
 } from '@/lint/framework/types.ts';
 import {
   parseSvelteTemplate,
@@ -744,10 +745,14 @@ export async function runTypeScriptRules(
   // Script AST visitors produce fix offsets relative to parseContent (where
   // non-script lines are blanked).  Translate them now so ALL results carry
   // original-file-space offsets — cli-helpers can apply fixes directly.
+  // Only text-replacement fixes have ranges; FileOpFix variants don't.
   if (parseContent !== content) {
     for (const result of results) {
       const { fix } = result;
 
+      if (!isTextFix(fix)) {
+        continue; // file ops (rename/move/create) have no range to translate
+      }
       if (fix.range.start === 0 && fix.range.end === 0 && fix.text === '') {
         continue; // no-op placeholder
       }

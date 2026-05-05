@@ -9,7 +9,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { runTypeScriptRules } from '../../framework/oxc-runner.ts';
-import type { LintResult, TypeScriptRule } from '../../framework/types.ts';
+import { expectTextFix, type LintResult, type TypeScriptRule } from '../../framework/types.ts';
 
 import requireJsdoc from './require-jsdoc.ts';
 import requireParam from './require-param.ts';
@@ -42,7 +42,7 @@ describe('jsdoc/require-jsdoc', () => {
     expect(results[0]!.ruleId).toBe('jsdoc/require-jsdoc');
     expect(results[0]!.message).toContain('foo');
     expect(results[0]!.fix).toBeDefined();
-    expect(results[0]!.fix.text).toContain('/** Description. */');
+    expect(expectTextFix(results[0]!.fix).text).toContain('/** Description. */');
   });
 
   it('passes exported function with JSDoc', async () => {
@@ -226,7 +226,7 @@ export function foo(name: string): void {}
 `;
     const results: LintResult[] = await lint(requireParam, code);
     expect(results.length).toBe(1);
-    const { fix } = results[0]!;
+    const fix = expectTextFix(results[0]!.fix);
     // Fix must NOT be a no-op (start === end && text === '')
     const isNoOp: boolean = fix.range.start === fix.range.end && fix.text === '';
     expect(isNoOp).toBe(false);
@@ -244,7 +244,7 @@ export function greet(name: string): void {}
 `;
     const results: LintResult[] = await lint(requireParam, code);
     expect(results.length).toBe(1);
-    const { fix } = results[0]!;
+    const fix = expectTextFix(results[0]!.fix);
     // Applying the fix should produce valid JSDoc with {string} name
     const fixed: string = code.slice(0, fix.range.start) + fix.text + code.slice(fix.range.end);
     expect(fixed).toContain('@param {string} name');
@@ -260,9 +260,9 @@ export function process(count: number): void {}
 `;
     const results: LintResult[] = await lint(requireParam, code);
     expect(results.length).toBe(1);
-    expect(results[0]!.fix.text).toContain('{number}');
+    expect(expectTextFix(results[0]!.fix).text).toContain('{number}');
     // Verify applied fix is correct
-    const { fix } = results[0]!;
+    const fix = expectTextFix(results[0]!.fix);
     const fixed: string = code.slice(0, fix.range.start) + fix.text + code.slice(fix.range.end);
     expect(fixed).toContain('@param {number} count');
   });
@@ -280,9 +280,10 @@ export function add(a: number, b: number): number { return a + b; }
     expect(results.length).toBe(2);
     // Both fixes should be non-no-op
     for (const r of results) {
-      const isNoOp: boolean = r.fix.range.start === r.fix.range.end && r.fix.text === '';
+      const fix = expectTextFix(r.fix);
+      const isNoOp: boolean = fix.range.start === fix.range.end && fix.text === '';
       expect(isNoOp).toBe(false);
-      expect(r.fix.text).toContain('{number}');
+      expect(fix.text).toContain('{number}');
     }
   });
 
@@ -293,7 +294,7 @@ export function foo(name: string): void {}
 `;
     const results: LintResult[] = await lint(requireParam, code);
     expect(results.length).toBe(1);
-    const { fix } = results[0]!;
+    const fix = expectTextFix(results[0]!.fix);
     // The fix text should include @param with {Type}
     expect(fix.text).toContain('@param {string} name');
     // Should be an insertion (start === end)
@@ -383,7 +384,7 @@ export function foo(): string { return ''; }
 `;
     const results: LintResult[] = await lint(requireReturns, code);
     expect(results.length).toBe(1);
-    const { fix } = results[0]!;
+    const fix = expectTextFix(results[0]!.fix);
     expect(fix.text).toBe('{string} ');
     // The fix range should be a zero-width insert after "@returns "
     expect(fix.range.start).toBe(fix.range.end);
@@ -401,7 +402,7 @@ export function foo(): string { return ''; }
 `;
     const results: LintResult[] = await lint(requireReturns, code);
     expect(results.length).toBe(1);
-    const { fix } = results[0]!;
+    const fix = expectTextFix(results[0]!.fix);
     expect(fix.text).toBe('{string}');
     // The fix range should cover {number}
     const replaced: string = code.slice(fix.range.start, fix.range.end);
@@ -535,7 +536,7 @@ export function foo(x: number): void {}
 `;
     const results: LintResult[] = await lint(paramTypeMatch, code);
     expect(results.length).toBe(1);
-    const { fix } = results[0]!;
+    const fix = expectTextFix(results[0]!.fix);
     expect(fix.text).toBe('{number}');
     // The fix range should cover the {string} substring in the JSDoc
     const replaced: string = code.slice(fix.range.start, fix.range.end);
@@ -557,7 +558,7 @@ describe('jsdoc/require-module', () => {
     const results: LintResult[] = await lint(requireModule, code);
     expect(results.length).toBe(1);
     expect(results[0]!.ruleId).toBe('jsdoc/require-module');
-    expect(results[0]!.fix.text).toContain('@module');
+    expect(expectTextFix(results[0]!.fix).text).toContain('@module');
   });
 
   it('passes file with @module', async () => {
@@ -1117,7 +1118,7 @@ export function foo(): void {}
     const results: LintResult[] = await lint(requireExample, code);
     expect(results.length).toBe(1);
     expect(results[0]!.fix).toBeDefined();
-    expect(results[0]!.fix.text).toContain('@example');
+    expect(expectTextFix(results[0]!.fix).text).toContain('@example');
   });
 });
 
@@ -1169,7 +1170,7 @@ export type Foo = v.InferOutput<typeof FooSchema>;
 `;
     const results: LintResult[] = await lint(requireSchemaLink, code);
     expect(results.length).toBe(1);
-    const { fix } = results[0]!;
+    const fix = expectTextFix(results[0]!.fix);
     expect(fix.text).toContain('{@link FooSchema}');
     // It's an insert (zero-width range) at the */ position
     expect(fix.range.start).toBe(fix.range.end);
@@ -1185,7 +1186,7 @@ export type Bar = v.InferOutput<typeof BarSchema>;
 `;
     const results: LintResult[] = await lint(requireSchemaLink, code);
     expect(results.length).toBe(1);
-    const { fix } = results[0]!;
+    const fix = expectTextFix(results[0]!.fix);
     expect(fix.text).toContain('/** See {@link BarSchema}.');
     expect(fix.text).toContain('*/');
   });

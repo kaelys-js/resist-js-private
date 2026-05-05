@@ -6,7 +6,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { runTypeScriptRules } from '../../framework/oxc-runner.ts';
-import type { LintResult, TypeScriptRule } from '../../framework/types.ts';
+import { expectTextFix, type LintResult, type TypeScriptRule } from '../../framework/types.ts';
 
 import noRelativeImports from './no-relative-imports.ts';
 import noBarrelFiles from './no-barrel-files.ts';
@@ -405,7 +405,7 @@ import { StrSchema } from '@/schemas/common';
     const results: LintResult[] = await lint(requireImportGroups, code);
     expect(results.length).toBe(1);
     expect(results[0]!.fix).toBeDefined();
-    expect(results[0]!.fix.text).toBe('\n');
+    expect(expectTextFix(results[0]!.fix).text).toBe('\n');
   });
 
   it('has fixable: true in the rule definition', () => {
