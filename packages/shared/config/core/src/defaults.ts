@@ -97,7 +97,15 @@ const defaultsInput: v.InferInput<typeof CoreConfigObjectSchema> = {
       markerDir: '.resist',
     },
     onboarding: {
-      steps: ['i', 'clean', 'setup:vscode', 'update:sync', 'secrets:setup', 'ci:local'],
+      steps: [
+        'i',
+        'clean',
+        'setup:vscode',
+        'setup:knowledge-stack',
+        'update:sync',
+        'secrets:setup',
+        'ci:local',
+      ],
     },
     packageManager: {
       manager: 'pnpm',

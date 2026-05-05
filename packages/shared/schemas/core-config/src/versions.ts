@@ -218,6 +218,8 @@ export const SystemToolVersionsSchema = v.strictObject({
   helm: v.optional(PinnedVersionSchema, '4.1.1'),
   /** mise tool version manager (self-reference for version tracking) */
   mise: v.optional(PinnedVersionSchema, '2026.2.16'),
+  /** uv Python package manager (provides `uvx` for Serena and `uv tool install` for cocoindex-code) */
+  uv: v.optional(PinnedVersionSchema, '0.11.9'),
   /** rustfmt Rust formatter (version tracks Rust stable) */
   rustfmt: v.optional(PinnedVersionSchema, '1.93.1'),
   /** gofmt Go formatter (version tracks Go stable) */
