@@ -11,6 +11,8 @@ import {
   NO_OP_FIX,
   type TypeScriptRule,
   type LintResult,
+  type LintFix,
+  type NoOpFix,
   type AstNode,
   type VisitorContext,
 } from '@/lint/framework/types.ts';
@@ -85,7 +87,7 @@ const rule: TypeScriptRule = {
           (isModOneCheck(rightNode) && isZeroLiteral(leftNode)))
       ) {
         /* Fix: x % 1 === 0 → Number.isInteger(x) */
-        let fix = NO_OP_FIX;
+        let fix: LintFix | NoOpFix = NO_OP_FIX;
         const modNode = isModOneCheck(leftNode) ? leftNode : rightNode;
         const modLeftRaw: unknown = modNode.left;
         const modLeftNode =

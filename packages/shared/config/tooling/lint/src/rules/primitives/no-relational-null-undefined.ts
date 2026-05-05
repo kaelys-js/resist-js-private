@@ -12,6 +12,8 @@ import {
   NO_OP_FIX,
   type TypeScriptRule,
   type LintResult,
+  type LintFix,
+  type NoOpFix,
   type AstNode,
   type VisitorContext,
 } from '@/lint/framework/types.ts';
@@ -59,12 +61,12 @@ const rule: TypeScriptRule = {
 
       if (isNullOrUndefined(left) || isNullOrUndefined(right)) {
         /* Fix: add explicit nullish guard before the relational comparison */
-        let fix = NO_OP_FIX;
+        let fix: LintFix | NoOpFix = NO_OP_FIX;
         const leftIsNullish = isNullOrUndefined(left);
         const valueNode = leftIsNullish ? right : left;
         const nullishNode = leftIsNullish ? left : right;
         const valueText: string = context.getNodeText(valueNode);
-        
+
         const isUndefined =
           nullishNode.type === 'Identifier' && (nullishNode.name as string) === 'undefined';
         const guard: string = isUndefined ? `${valueText} !== undefined` : `${valueText} != null`;

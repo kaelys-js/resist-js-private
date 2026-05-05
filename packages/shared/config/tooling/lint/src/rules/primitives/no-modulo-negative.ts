@@ -12,6 +12,8 @@ import {
   NO_OP_FIX,
   type TypeScriptRule,
   type LintResult,
+  type LintFix,
+  type NoOpFix,
   type AstNode,
   type VisitorContext,
 } from '@/lint/framework/types.ts';
@@ -40,7 +42,7 @@ const rule: TypeScriptRule = {
         const rightNode =
           rightRaw !== null && typeof rightRaw === 'object' ? (rightRaw as AstNode) : undefined;
 
-        let fix = NO_OP_FIX;
+        let fix: LintFix | NoOpFix = NO_OP_FIX;
 
         if (leftNode && rightNode) {
           const leftText: string = context.getNodeText(leftNode);

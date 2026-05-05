@@ -37,17 +37,6 @@ const DEPTH_PARAM_NAMES: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Extract source text for an AST node.
- *
- * @param {AstNode} astNode - Node with start/end byte offsets
- * @param {string} source - Full source text
- * @returns {string} The node's source text
- */
-function nodeText(astNode: AstNode, source: string): string {
-  return source.slice(astNode.start as number, astNode.end as number);
-}
-
-/**
  * Detect indentation at a byte offset.
  *
  * @param {number} offset - Byte offset

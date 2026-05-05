@@ -11,6 +11,8 @@ import {
   NO_OP_FIX,
   type TypeScriptRule,
   type LintResult,
+  type LintFix,
+  type NoOpFix,
   type AstNode,
   type VisitorContext,
 } from '@/lint/framework/types.ts';
@@ -37,7 +39,7 @@ const rule: TypeScriptRule = {
 
       if (!runesValue || !isBooleanLiteral(runesValue, true)) {
         /* Fix: ensure compilerOptions.runes = true */
-        let fix = NO_OP_FIX;
+        let fix: LintFix | NoOpFix = NO_OP_FIX;
 
         if (runesValue) {
           /* runes exists but is false — replace with true */

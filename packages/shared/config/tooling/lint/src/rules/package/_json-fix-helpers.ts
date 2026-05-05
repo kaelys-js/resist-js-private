@@ -302,7 +302,7 @@ export function buildInsertJsonEntryFix(
 
   const closingIndent: string =
     content.slice(closingLineStart, closingBrace).match(/^(\s*)/)?.[1] ?? '  ';
-  const entryIndent: string = closingIndent + '  ';
+  const entryIndent: string = `${closingIndent}  `;
 
   /* Check if block is empty (only whitespace between braces) */
   const blockContent: string = content.slice(braceIdx + 1, closingBrace).trim();
