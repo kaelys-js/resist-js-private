@@ -69,6 +69,25 @@ When the user approves a plan via `ExitPlanMode`, the `post-exit-plan-mode-recor
 - **Multi-file shell-loop bulk edits are blocked.** `pre-bash-block-multi-file-shell.sh` denies `find -exec <write-cmd>`, shell `for f in <glob>; do <write>; done`, `xargs <write-cmd>`, and `grep -rl | xargs <write>` chains. Closes the back door from the Python/sed bulk-script blocker. Same approval marker (`.claude/approved-bulk-script`).
 - **You CANNOT run qa:lint repeatedly.** The `pre-qa-commands.sh` hook blocks `pnpm -w run qa:lint` if it was already run less than 2 minutes ago. The lint output from the FIRST run contains every file, line number, error, and suggested fix — USE IT. Do not re-run qa:lint to "check progress." For final verification after ALL fixes are complete, the user can approve a re-run: `touch .claude/approved-relint`.
 
+### Autonomous-mode escape (Multica-spawned tasks)
+
+When Claude is spawned by the Multica daemon (`multica daemon start` with `MULTICA_AUTONOMOUS=1` set in its environment), four ergonomics gates honor an env-var bypass so unattended tasks don't deadlock on approval markers that no human is present to touch:
+
+- `pre-bash-block-bulk-script.sh` — bypassed in full
+- `pre-bash-block-multi-file-shell.sh` — bypassed in full
+- `pre-edit-revert-detector.sh` — block bypassed; **history logging continues** so the audit trail is intact
+- `pre-qa-commands.sh` — **only** the repeated-qa:lint guard is bypassed; npx-vitest, cd-subdir, and pipe-grep blocks remain strict
+
+These gates **stay strict regardless** of `MULTICA_AUTONOMOUS`:
+
+- `pre-edit-lint-config-deny.sh` (lint config edits still require explicit approval)
+- `pre-bash-block-claude-abandon-attempt.sh` (plans are still abandoned only by the user)
+- `pre-bash-no-file-writes.sh` (no shell file writes, ever)
+- `pre-destructive-git.sh` (destructive git still gated)
+- `stop-active-plan-block.sh` (the autonomy linchpin: tasks cannot stop until success_check passes)
+
+In interactive sessions in your terminal (where `MULTICA_AUTONOMOUS` is not set), every hook behaves exactly as documented above with no change.
+
 ## Browser Tools
 
 - **NEVER use `preview_*` tools** (`mcp__Claude_Preview__preview_*`) — they are forbidden in this project

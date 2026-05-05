@@ -25,6 +25,7 @@ coverage/
 !.claude/skills/visual-verification/
 !.claude/skills/build-editor/
 !.claude/skills/expand-feature/
+!.claude/skills/multica-handoff/
 .worktrees/
 .playwright-mcp
 test-results/

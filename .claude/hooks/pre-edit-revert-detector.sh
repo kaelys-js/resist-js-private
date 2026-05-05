@@ -27,6 +27,25 @@ if [[ -z "$FILE" ]]; then
   exit 0
 fi
 
+# Autonomous mode (Multica-spawned task): bypass the thrash block.
+# History logging continues below so post-mortems still have the trail.
+# Safety-critical hooks (pre-bash-no-file-writes, pre-edit-lint-config-deny,
+# pre-destructive-git, pre-bash-block-claude-abandon-attempt) DO NOT honor
+# this escape and remain strict.
+if [[ "${MULTICA_AUTONOMOUS:-}" = "1" ]]; then
+  REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+  HISTORY="$REPO_ROOT/.claude/edit-history.jsonl"
+  OLD_HASH=$(printf '%s' "$OLD_STRING" | shasum -a 256 | cut -c1-32)
+  NEW_HASH=$(printf '%s' "$NEW_STRING" | shasum -a 256 | cut -c1-32)
+  mkdir -p "$(dirname "$HISTORY")"
+  touch "$HISTORY"
+  TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  jq -nc \
+    --arg ts "$TS" --arg file "$FILE" --arg old "$OLD_HASH" --arg new "$NEW_HASH" \
+    '{ts: $ts, file: $file, old_hash: $old, new_hash: $new}' >> "$HISTORY"
+  exit 0
+fi
+
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 HISTORY="$REPO_ROOT/.claude/edit-history.jsonl"
 APPROVAL_MARKER="$REPO_ROOT/.claude/approved-revert"
