@@ -25,6 +25,14 @@ if echo "$COMMAND" | grep -qE '^\s*git\s'; then
   exit 0
 fi
 
+# Autonomous mode (Multica-spawned task): bypass approval-marker gating.
+# Safety-critical hooks (pre-bash-no-file-writes, pre-edit-lint-config-deny,
+# pre-destructive-git, pre-bash-block-claude-abandon-attempt) DO NOT honor
+# this escape and remain strict.
+if [[ "${MULTICA_AUTONOMOUS:-}" = "1" ]]; then
+  exit 0
+fi
+
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 APPROVAL_MARKER="$REPO_ROOT/.claude/approved-bulk-script"
 

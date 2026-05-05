@@ -42,6 +42,15 @@ fi
 LINT_TRACKER="$REPO_ROOT/.claude/.last-lint-run"
 
 if echo "$CMD" | grep -qE 'qa:lint|lint/src/cli\.ts|resist-lint'; then
+  # Autonomous mode (Multica-spawned task): bypass the repeated-lint guard.
+  # The agent re-running lint to verify progress is normal in unattended runs.
+  # The other gates in this hook (npx vitest, cd-subdir, pipe-grep) remain
+  # strict regardless because they enforce workflow correctness, not ergonomics.
+  if [[ "${MULTICA_AUTONOMOUS:-}" = "1" ]]; then
+    date +%s > "$LINT_TRACKER" 2>/dev/null || true
+    exit 0
+  fi
+
   # Allow if user has approved a re-run
   RELINT_MARKER="$REPO_ROOT/.claude/approved-relint"
   if [[ -f "$RELINT_MARKER" ]]; then
