@@ -162,7 +162,7 @@ function buildSortFix(sortCall: AstNode, loopNode: AstNode, context: VisitorCont
 
   if (loopVar) {
     const wordBoundary: RegExp = new RegExp(
-      `\\b${loopVar.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`,
+      `\\b${loopVar.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`)}\\b`,
     );
 
     if (wordBoundary.test(arrText)) {

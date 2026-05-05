@@ -12,6 +12,8 @@ import {
   type TypeScriptRule,
   type LintResult,
   type AstNode,
+  type LintFix,
+  type NoOpFix,
   type VisitorContext,
 } from '@/lint/framework/types.ts';
 import {
@@ -98,7 +100,7 @@ const rule: TypeScriptRule = {
 
       if (!hasRoutesConfig(adapterValue)) {
         /* Fix: insert routes config into adapter call args */
-        let fix = NO_OP_FIX;
+        let fix: LintFix | NoOpFix = NO_OP_FIX;
 
         if (adapterValue.type === 'CallExpression') {
           const args: AstNode[] | undefined = adapterValue.arguments as AstNode[] | undefined;
@@ -106,7 +108,7 @@ const rule: TypeScriptRule = {
 
           if (args && args.length > 0 && args[0]?.type === 'ObjectExpression') {
             /* Has existing options object — insert routes property */
-            const optObj = args[0];
+            const [optObj] = args;
             fix = {
               range: { start: optObj.end - 1, end: optObj.end - 1 },
               text: `, ${routesSnippet} `,

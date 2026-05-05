@@ -64,7 +64,7 @@ const rule: TypeScriptRule = {
         const valueNode = leftIsNullish ? right : left;
         const nullishNode = leftIsNullish ? left : right;
         const valueText: string = context.getNodeText(valueNode);
-        const nullishText: string = context.getNodeText(nullishNode);
+        
         const isUndefined =
           nullishNode.type === 'Identifier' && (nullishNode.name as string) === 'undefined';
         const guard: string = isUndefined ? `${valueText} !== undefined` : `${valueText} != null`;

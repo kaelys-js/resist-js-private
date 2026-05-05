@@ -214,11 +214,11 @@ function buildFix(
   }
 
   const condition: string = cb.body;
-  const param: string = cb.param;
+  const {param} = cb;
 
   /* Generate the replacement for-loop + variable name.
    * We use a deterministic name based on the array and method to avoid collisions. */
-  const safeArr: string = arrText.replace(/[^a-zA-Z0-9]/g, '_');
+  const safeArr: string = arrText.replaceAll(/[^a-zA-Z0-9]/g, '_');
   let hoisted: string;
 
   if (method === 'filter') {

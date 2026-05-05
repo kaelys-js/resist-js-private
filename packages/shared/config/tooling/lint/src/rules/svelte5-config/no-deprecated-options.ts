@@ -57,7 +57,7 @@ const rule: TypeScriptRule = {
           /* Fix: locate the deprecated property node and delete it */
           let fix = NO_OP_FIX;
           const segments: string[] = path.split('.');
-          const propName: string = segments[segments.length - 1] ?? '';
+          const propName: string = segments.at(-1) ?? '';
           const parentPath: string = segments.slice(0, -1).join('.');
           const parentObj: AstNode | undefined = parentPath
             ? getNestedValue(configObj, parentPath)

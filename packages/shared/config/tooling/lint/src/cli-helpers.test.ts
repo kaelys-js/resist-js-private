@@ -549,7 +549,7 @@ describe('applyFileOps', () => {
   /**
    * Create a temp directory for each test.
    */
-  async function makeTmpDir(): Promise<string> {
+  function makeTmpDir(): Promise<string> {
     return mkdtemp(join(tmpdir(), 'lint-fileop-'));
   }
 

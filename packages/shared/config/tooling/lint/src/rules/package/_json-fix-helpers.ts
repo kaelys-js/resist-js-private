@@ -22,7 +22,7 @@ export const NO_FIX: LintFix = NO_OP_FIX;
  */
 export function readContent(filePath: string): string {
   try {
-    return readFileSync(filePath, 'utf-8');
+    return readFileSync(filePath, 'utf8');
   } catch {
     return '';
   }
@@ -143,7 +143,7 @@ export function buildDeleteJsonBlockFix(content: string, key: string): LintFix {
   }
 
   /* Find the opening brace */
-  let braceIdx: number = content.indexOf('{', keyIdx + keyPattern.length);
+  const braceIdx: number = content.indexOf('{', keyIdx + keyPattern.length);
 
   if (braceIdx === -1) {
     return NO_FIX;
@@ -216,7 +216,7 @@ export function buildDeleteJsonBlockFix(content: string, key: string): LintFix {
  * @returns {string} Derived vitest project name, or empty string on failure
  */
 export function deriveVitestProjectName(filePath: string): string {
-  const normalized: string = filePath.replace(/\\/g, '/');
+  const normalized: string = filePath.replaceAll('\\', '/');
   const markers: readonly string[] = ['packages/shared/', 'packages/products/'];
 
   for (const marker of markers) {

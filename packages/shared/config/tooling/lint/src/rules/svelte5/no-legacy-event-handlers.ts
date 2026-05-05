@@ -33,7 +33,7 @@ const rule: TypeScriptRule = {
       const eventName: string = (node as { name?: string }).name ?? 'unknown';
 
       /* Fix: remove the colon from on:event → onevent (only if no modifiers) */
-      const modifiers: string[] | undefined = (node as { modifiers?: string[] }).modifiers;
+      const {modifiers} = (node as { modifiers?: string[] });
       const hasModifiers: boolean = Array.isArray(modifiers) && modifiers.length > 0;
 
       let fix = NO_OP_FIX;

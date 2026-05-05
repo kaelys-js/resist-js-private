@@ -40,7 +40,7 @@ function toCamelCase(name: string): string {
 
   /* Split on underscores or camelCase/PascalCase boundaries */
   const parts: string[] = raw
-    .replace(/([a-z])([A-Z])/g, '$1_$2')
+    .replaceAll(/([a-z])([A-Z])/g, '$1_$2')
     .split('_')
     .filter((p: string): boolean => p.length > 0);
 

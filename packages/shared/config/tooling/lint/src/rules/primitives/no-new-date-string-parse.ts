@@ -12,6 +12,8 @@ import {
   type TypeScriptRule,
   type LintResult,
   type AstNode,
+  type LintFix,
+  type NoOpFix,
   type VisitorContext,
 } from '@/lint/framework/types.ts';
 
@@ -52,7 +54,7 @@ const rule: TypeScriptRule = {
       }
 
       /* Fix: parse common date string formats into explicit numeric constructor */
-      let fix = NO_OP_FIX;
+      let fix: LintFix | NoOpFix = NO_OP_FIX;
       const dateStr = firstArg.value as string;
 
       /* Match YYYY-MM-DD or YYYY/MM/DD optionally followed by T or space then HH:MM:SS */
@@ -61,14 +63,10 @@ const rule: TypeScriptRule = {
       );
 
       if (dateTimeMatch) {
-        const year = dateTimeMatch[1];
-        const month = Number(dateTimeMatch[2]) - 1;
-        const day = dateTimeMatch[3];
+        const [, year, monthStr, day, hour, minute, second] = dateTimeMatch;
+        const month = Number(monthStr) - 1;
 
-        if (dateTimeMatch[4]) {
-          const hour = dateTimeMatch[4];
-          const minute = dateTimeMatch[5];
-          const second = dateTimeMatch[6];
+        if (hour) {
           fix = {
             range: { start: node.start, end: node.end },
             text: `new Date(${year}, ${month}, ${day}, ${hour}, ${minute}, ${second})`,

@@ -49,7 +49,7 @@ const rule: TypeScriptRule = {
       /* Fix: replace adapter import source with adapter-static */
       let fix = NO_OP_FIX;
       const importMatch: RegExpExecArray | null = new RegExp(
-        adapterPkg.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+        adapterPkg.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`),
       ).exec(context.content);
 
       if (importMatch) {
