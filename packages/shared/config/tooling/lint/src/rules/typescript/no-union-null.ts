@@ -42,7 +42,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['typescript', 'valibot'],
   stages: ['lint'],
-  fixable: false,
+  fixable: true,
 
   visitor: {
     TSUnionType(node: AstNode, context: VisitorContext): LintResult[] {
@@ -86,57 +86,102 @@ const rule: TypeScriptRule = {
         'NonNegativeInteger',
       ]);
 
+      /** Map base type keywords/names to their Nullable/Optional wrappers. */
+      const NULLABLE_MAP: ReadonlyMap<string, string> = new Map([
+        ['TSStringKeyword', 'NullableStr'],
+        ['TSNumberKeyword', 'NullableNum'],
+        ['TSBooleanKeyword', 'NullableBool'],
+        ['Str', 'NullableStr'],
+        ['Num', 'NullableNum'],
+        ['Bool', 'NullableBool'],
+        ['Path', 'NullablePath'],
+        ['Command', 'NullableCommand'],
+        ['Hostname', 'NullableHostname'],
+        ['Port', 'NullablePort'],
+        ['Filename', 'NullableFilename'],
+      ]);
+
+      const OPTIONAL_MAP: ReadonlyMap<string, string> = new Map([
+        ['TSStringKeyword', 'OptionalStr'],
+        ['TSNumberKeyword', 'OptionalNum'],
+        ['TSBooleanKeyword', 'OptionalBool'],
+        ['Str', 'OptionalStr'],
+        ['Num', 'OptionalNum'],
+        ['Bool', 'OptionalBool'],
+        ['Path', 'OptionalPath'],
+        ['Command', 'OptionalCommand'],
+        ['Hostname', 'OptionalHostname'],
+        ['Port', 'OptionalPort'],
+        ['Filename', 'OptionalFilename'],
+      ]);
+
       /**
-       * Check if a union member is a base type that has a shared Nullable/Optional wrapper.
+       * Get the base type key for mapping to Nullable/Optional wrappers.
        *
        * @param {AstNode} member - AST node to check
-       * @returns {boolean} Whether the member is a base type
+       * @returns {string | undefined} The map key, or undefined if not a base type
        */
-      function isBaseType(member: AstNode): boolean {
+      function getBaseTypeKey(member: AstNode): string | undefined {
         if (BASE_TYPE_NODES.has(member.type)) {
-          return true;
+          return member.type;
         }
         if (member.type === 'TSTypeReference') {
           const typeName = (member.typeName as AstNode | undefined)?.name as string | undefined;
 
           if (typeName && BASE_TYPE_NAMES.has(typeName)) {
-            return true;
+            return typeName;
           }
         }
-        return false;
+        return undefined;
       }
 
       const otherTypes: AstNode[] = types.filter(
         (t: AstNode): boolean => t.type !== 'TSNullKeyword' && t.type !== 'TSUndefinedKeyword',
       );
-      const hasBaseType: boolean = otherTypes.some(isBaseType);
 
-      for (const member of types) {
-        if (member.type === 'TSNullKeyword' && hasBaseType) {
-          results.push({
-            file: context.file,
-            line: node.loc.start.line,
-            column: node.loc.start.column + 1,
-            severity: 'error',
-            message:
-              "Use NullableStr/NullableNum/NullableBool from @/schemas/common instead of '| null'",
-            ruleId: 'typescript/no-union-null',
-            tip: 'Import the appropriate Nullable type from @/schemas/common',
-            fix: { range: { start: node.start, end: node.end }, text: '' },
-          });
+      /* Find the first base type to compute the wrapper name */
+      let baseKey: string | undefined;
+
+      for (const t of otherTypes) {
+        baseKey = getBaseTypeKey(t);
+        if (baseKey) {
+          break;
         }
-        if (member.type === 'TSUndefinedKeyword' && hasBaseType) {
-          results.push({
-            file: context.file,
-            line: node.loc.start.line,
-            column: node.loc.start.column + 1,
-            severity: 'error',
-            message: "Use OptionalStr/OptionalNum from @/schemas/common instead of '| undefined'",
-            ruleId: 'typescript/no-union-null',
-            tip: 'Import the appropriate Optional type from @/schemas/common',
-            fix: { range: { start: node.start, end: node.end }, text: '' },
-          });
-        }
+      }
+
+      const hasNull: boolean = types.some((t: AstNode): boolean => t.type === 'TSNullKeyword');
+      const hasUndefined: boolean = types.some(
+        (t: AstNode): boolean => t.type === 'TSUndefinedKeyword',
+      );
+
+      if (hasNull && baseKey) {
+        const replacement: string = NULLABLE_MAP.get(baseKey) ?? `Nullable${baseKey}`;
+
+        results.push({
+          file: context.file,
+          line: node.loc.start.line,
+          column: node.loc.start.column + 1,
+          severity: 'error',
+          message:
+            "Use NullableStr/NullableNum/NullableBool from @/schemas/common instead of '| null'",
+          ruleId: 'typescript/no-union-null',
+          tip: `Import { ${replacement} } from '@/schemas/common'`,
+          fix: { range: { start: node.start, end: node.end }, text: replacement },
+        });
+      }
+      if (hasUndefined && baseKey) {
+        const replacement: string = OPTIONAL_MAP.get(baseKey) ?? `Optional${baseKey}`;
+
+        results.push({
+          file: context.file,
+          line: node.loc.start.line,
+          column: node.loc.start.column + 1,
+          severity: 'error',
+          message: "Use OptionalStr/OptionalNum from @/schemas/common instead of '| undefined'",
+          ruleId: 'typescript/no-union-null',
+          tip: `Import { ${replacement} } from '@/schemas/common'`,
+          fix: { range: { start: node.start, end: node.end }, text: replacement },
+        });
       }
 
       return results;
