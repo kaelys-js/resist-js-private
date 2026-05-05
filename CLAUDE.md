@@ -1,5 +1,19 @@
 # CLAUDE.md
 
+## Code navigation — READ THIS FIRST
+
+For any task involving understanding, finding, or editing existing code:
+1. ALWAYS check `mcp__serena__list_memories` first. If a memory exists for the area, read it.
+2. Use `mcp__serena__find_symbol` and `mcp__serena__find_referencing_symbols` for precise lookups.
+3. Use `mcp__cocoindex_code__search` for fuzzy/semantic queries ("where do we handle JWT refresh").
+4. Grep/Read are ONLY for non-code files (configs, markdown, logs).
+
+After exploring an unfamiliar area, write findings to `mcp__serena__write_memory` so future sessions benefit.
+
+## Decisions log
+
+Architecture decisions live in `docs/decisions/`. Read relevant ADRs before changing architecture.
+
 ## Behavioral Rules (CRITICAL — read first)
 
 - **NEVER substitute your own assessment for explicit instructions.** If a guide, prompt, or user says to do step X — DO IT. Do not evaluate whether the step is "needed," "simple enough to skip," or "unnecessary for this case." Execute every step as written, in order. No judgment calls. No shortcuts. This is the #0 rule and overrides all other optimization instincts.
