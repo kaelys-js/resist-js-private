@@ -54,9 +54,22 @@ When you're spawned by Multica (env `MULTICA_AUTONOMOUS=1`) inside a workspace u
 - **Branch already exists with conflicting history** — append `-retry-N` (start at `-retry-1`) to the branch name and push that. Report the new branch name.
 - **No remote configured** — report and stop. The workspace was cloned without a remote and handoff requires one.
 
+## Auto-PR via GitHub Actions
+
+If `.github/workflows/multica-auto-pr.yml` exists in the repo, do **NOT** run `gh pr create` yourself — the workflow opens the PR automatically when it detects a push to `multica/**`. Just push the branch and report the branch name; the workflow handles PR creation, label, and auto-merge enablement.
+
+If that workflow file does not exist, fall back to opening the PR yourself:
+
+```bash
+gh pr create --base main --head "multica/<issue-id>" \
+  --title "$(git log -1 --format=%s)" \
+  --body "Multica issue: <issue id>" \
+  --label multica
+```
+
 ## What NOT to do
 
-- Do not create a pull request automatically. The user reviews and opens the PR from their main checkout.
+- Do not create a pull request when the auto-PR workflow exists (see above).
 - Do not force-push (`--force`, `--force-with-lease`).
 - Do not reset, rebase onto main, or alter shared branches.
 - Do not run `git push --all` or `git push <remote> :branch` (delete remote branches).
