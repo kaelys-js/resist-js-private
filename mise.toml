@@ -1,0 +1,10 @@
+# Project tool versions for mise (https://mise.jdx.dev)
+# Used by:
+# - Local dev: matches your global ~/.config/mise/config.toml versions
+# - CI: jdx/mise-action reads this to install matching tool versions
+#
+# Update strategy: bump these when you bump locally; commit + push.
+
+[tools]
+node = "25.9.0"
+pnpm = "10.30.2"
