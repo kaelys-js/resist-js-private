@@ -9,8 +9,7 @@
         "start-mcp-server",
         "--context",
         "ide-assistant",
-        "--project",
-        "/Users/home/Desktop/resist-js-private"
+        "--project-from-cwd"
       ]
     },
     "cocoindex_code": {
