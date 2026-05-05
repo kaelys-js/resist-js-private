@@ -82,7 +82,7 @@ function getLoopVar(loopNode: AstNode, source: string): string | null {
     /* VariableDeclaration with a single declarator */
     if (left.type === 'VariableDeclaration') {
       const declarations: AstNode[] = (left.declarations ?? []) as AstNode[];
-      const first: AstNode | undefined = declarations[0];
+      const [first] = declarations;
 
       if (first) {
         const id: AstNode | undefined = first.id as AstNode | undefined;
@@ -109,7 +109,7 @@ function getLoopVar(loopNode: AstNode, source: string): string | null {
 
     if (init?.type === 'VariableDeclaration') {
       const declarations: AstNode[] = (init.declarations ?? []) as AstNode[];
-      const first: AstNode | undefined = declarations[0];
+      const [first] = declarations;
 
       if (first) {
         const id: AstNode | undefined = first.id as AstNode | undefined;

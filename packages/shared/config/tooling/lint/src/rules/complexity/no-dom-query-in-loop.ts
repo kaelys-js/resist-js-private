@@ -88,7 +88,7 @@ function buildDomQueryFix(
 ): LintFix {
   const src: string = context.content;
   const args: AstNode[] = (callNode.arguments ?? []) as AstNode[];
-  const firstArg: AstNode | undefined = args[0];
+  const [firstArg] = args;
 
   /* Only hoist when the selector is a literal string (loop-invariant) */
   if (!firstArg || (firstArg.type !== 'StringLiteral' && firstArg.type !== 'Literal')) {
@@ -102,15 +102,16 @@ function buildDomQueryFix(
   const callEnd: number = callNode.end as number;
   const indent: string = detectIndent(loopStart, src);
 
-  /* Generate a descriptive variable name from the method */
-  const varName: string =
-    method === 'querySelector'
-      ? '_cachedElement'
-      : method === 'querySelectorAll'
-        ? '_cachedElements'
-        : method === 'getElementById'
-          ? '_cachedElement'
-          : '_cachedElements';
+  /* Generate a descriptive variable name from the method.
+   * Uses if/else chain instead of nested ternary for clarity. */
+  let varName: string;
+
+  if (method === 'querySelector' || method === 'getElementById') {
+    varName = '_cachedElement';
+  } else {
+    /* querySelectorAll, getElementsByClassName, getElementsByTagName, etc. */
+    varName = '_cachedElements';
+  }
 
   const hoisted: string = `${indent}const ${varName} = ${callText};\n`;
 
