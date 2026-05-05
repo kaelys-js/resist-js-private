@@ -36,7 +36,16 @@
 .claude/*
 !.claude/settings.json
 !.claude/hooks/
+!.claude/scripts/
+!.claude/lint-baseline.json
 !.claude/skills/
+.claude/skills/*
+!.claude/skills/fix-bug/
+!.claude/skills/code-rules/
+!.claude/skills/qa-commands/
+!.claude/skills/visual-verification/
+!.claude/skills/build-editor/
+!.claude/skills/expand-feature/
 
 # Git worktrees (Claude Code isolation)
 .worktrees/
@@ -46,6 +55,12 @@
 
 # GitHub Skills (generated)
 .github/skills
+
+# Branding (project-specific exclusion marker)
+branding-git-exclude
+
+# CocoIndex Code (knowledge-stack semantic search index)
+/.cocoindex_code/
 
 # mise tool installations (workspace-scoped, auto-generated)
 .mise/

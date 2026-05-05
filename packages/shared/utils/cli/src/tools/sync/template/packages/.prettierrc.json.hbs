@@ -1,0 +1,20 @@
+{
+  "$schema": "{{schemaPath 'tooling/prettier'}}",
+  "useTabs": false,
+  "tabWidth": {{ format.global.indent_size }},
+  "printWidth": {{ format.global.line_length }},
+  "endOfLine": "lf",
+  "singleQuote": true,
+  "trailingComma": "all",
+  "semi": true,
+  "arrowParens": "always",
+  "plugins": ["prettier-plugin-svelte"],
+  "overrides": [
+    {
+      "files": "*.svelte",
+      "options": {
+        "parser": "svelte"
+      }
+    }
+  ]
+}

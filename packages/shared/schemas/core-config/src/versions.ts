@@ -52,11 +52,11 @@ export type PinnedVersion = v.InferOutput<typeof PinnedVersionSchema>;
  */
 export const NodeToolVersionsSchema = v.strictObject({
   /** Biome formatter/linter */
-  '@biomejs/biome': v.optional(PinnedVersionSchema, '2.4.2'),
+  '@biomejs/biome': v.optional(PinnedVersionSchema, '2.4.4'),
   /** Prettier formatter */
   prettier: v.optional(PinnedVersionSchema, '3.8.1'),
   /** Turborepo build system */
-  turbo: v.optional(PinnedVersionSchema, '2.8.9'),
+  turbo: v.optional(PinnedVersionSchema, '2.8.11'),
   /** Commitlint CLI */
   '@commitlint/cli': v.optional(PinnedVersionSchema, '20.4.1'),
   /** Commitlint conventional config */
@@ -86,7 +86,7 @@ export const NodeToolVersionsSchema = v.strictObject({
   /** Prettier XML plugin */
   '@prettier/plugin-xml': v.optional(PinnedVersionSchema, '3.4.2'),
   /** Prettier Svelte plugin */
-  'prettier-plugin-svelte': v.optional(PinnedVersionSchema, '3.4.1'),
+  'prettier-plugin-svelte': v.optional(PinnedVersionSchema, '3.5.0'),
   /** Prettier Astro plugin */
   'prettier-plugin-astro': v.optional(PinnedVersionSchema, '0.14.1'),
   /** Prettier Pug plugin */
@@ -100,9 +100,29 @@ export const NodeToolVersionsSchema = v.strictObject({
   /** Cloudflare Wrangler CLI */
   wrangler: v.optional(PinnedVersionSchema, '4.66.0'),
   /** Oxlint linter */
-  oxlint: v.optional(PinnedVersionSchema, '1.48.0'),
+  oxlint: v.optional(PinnedVersionSchema, '1.50.0'),
   /** Knip unused dependency finder */
   knip: v.optional(PinnedVersionSchema, '5.84.1'),
+  /** Svelte 5 framework */
+  svelte: v.optional(PinnedVersionSchema, '5.53.5'),
+  /** svelte-check type checker */
+  'svelte-check': v.optional(PinnedVersionSchema, '4.4.3'),
+  /** Svelte Vite plugin */
+  '@sveltejs/vite-plugin-svelte': v.optional(PinnedVersionSchema, '6.2.4'),
+  /** Svelte testing library */
+  '@testing-library/svelte': v.optional(PinnedVersionSchema, '5.3.1'),
+  /** Node type definitions */
+  '@types/node': v.optional(PinnedVersionSchema, '25.3.0'),
+  /** PNG.js type definitions */
+  '@types/pngjs': v.optional(PinnedVersionSchema, '6.0.5'),
+  /** jsdom DOM-in-Node implementation (used by vitest) */
+  jsdom: v.optional(PinnedVersionSchema, '28.1.0'),
+  /** PNG.js (used by tests) */
+  pngjs: v.optional(PinnedVersionSchema, '7.0.0'),
+  /** TypeScript compiler */
+  typescript: v.optional(PinnedVersionSchema, '5.9.3'),
+  /** vite-tsconfig-paths plugin */
+  'vite-tsconfig-paths': v.optional(PinnedVersionSchema, '6.1.1'),
 });
 
 /** Inferred output type of {@link NodeToolVersionsSchema}. */
