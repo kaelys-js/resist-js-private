@@ -17,15 +17,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
 
-      - name: Install mise (pinned tool versions from mise.toml)
-        uses: jdx/mise-action@v2
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        # Reads version from package.json packageManager field (pnpm@10.30.2)
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
         with:
-          version: 2026.5.0
-          install: true
-          cache: true
+          node-version-file: 'package.json'   # reads engines.node (>=25 → latest 25.x)
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -38,4 +39,3 @@ jobs:
 
       - name: Typecheck
         run: pnpm -w run qa:typecheck
-        continue-on-error: false
