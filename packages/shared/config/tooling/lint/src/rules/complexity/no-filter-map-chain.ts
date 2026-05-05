@@ -71,7 +71,7 @@ function extractArrowCallback(
   source: string,
 ): { param: string; body: string } | null {
   const args: AstNode[] = (callNode.arguments ?? []) as AstNode[];
-  const firstArg: AstNode | undefined = args[0];
+  const [firstArg] = args;
 
   if (!firstArg || firstArg.type !== 'ArrowFunctionExpression') {
     return null;
@@ -85,7 +85,7 @@ function extractArrowCallback(
   }
 
   const params: AstNode[] = (firstArg.params ?? []) as AstNode[];
-  const firstParam: AstNode | undefined = params[0];
+  const [firstParam] = params;
 
   if (!firstParam) {
     return null;
