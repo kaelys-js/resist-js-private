@@ -1,0 +1,162 @@
+{{syncHeader "//" "https://biomejs.dev/reference/configuration"}}
+{
+  "$schema": "https://biomejs.dev/schemas/{{lookup versions.nodeTools '@biomejs/biome'}}/schema.json",
+
+  // =============================================================================
+  // VCS Integration
+  // =============================================================================
+  "vcs": {
+    "enabled": false
+  },
+
+  // =============================================================================
+  // File Handling
+  // =============================================================================
+  "files": {
+    "maxSize": 1048576,
+    "ignoreUnknown": true,
+    "includes": [
+      "**",
+      "!.resist-lint-cache.json",
+      "!**/_INTEGRATE/**",
+      "!**/.agents/**",
+      "!**/.claude/**",
+      "!**/app.css",
+      "!**/.svelte-kit/**",
+      "!**/.svelte-check/**",
+      "!**/.turbo/**",
+      "!**/coverage/**",
+      "!**/dist/**",
+      "!**/out/**",
+      "!**/test-results/**",
+      "!**/node_modules/**",
+      "!**/*.svelte",
+      "!**/svelte.d.ts"
+    ]
+  },
+
+  // =============================================================================
+  // Organize Imports
+  // =============================================================================
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on",
+        "useSortedKeys": "on",
+        "useSortedAttributes": "on"
+      }
+    }
+  },
+
+  // =============================================================================
+  // Linter (disabled — use oxlint)
+  // =============================================================================
+  "linter": {
+    "enabled": false,
+    "rules": {
+      "recommended": false
+    }
+  },
+
+  // =============================================================================
+  // Formatter — Global Settings
+  // =============================================================================
+  "formatter": {
+    "enabled": true,
+    "formatWithErrors": true,
+    "indentStyle": "space",
+    "indentWidth": {{ format.global.indent_size }},
+    "lineWidth": {{ format.global.line_length }},
+    "lineEnding": "lf",
+    "attributePosition": "auto",
+    "bracketSpacing": true
+  },
+
+  // =============================================================================
+  // JavaScript/TypeScript Settings
+  // =============================================================================
+  "javascript": {
+    "formatter": {
+      "enabled": true,
+      "quoteStyle": "single",
+      "jsxQuoteStyle": "double",
+      "quoteProperties": "asNeeded",
+      "trailingCommas": "all",
+      "semicolons": "always",
+      "arrowParentheses": "always",
+      "bracketSameLine": false
+    },
+    "parser": {
+      "unsafeParameterDecoratorsEnabled": true
+    }
+  },
+
+  // =============================================================================
+  // JSON Settings
+  // =============================================================================
+  "json": {
+    "formatter": {
+      "enabled": true,
+      "trailingCommas": "none"
+    },
+    "parser": {
+      "allowComments": true,
+      "allowTrailingCommas": true
+    }
+  },
+
+  // =============================================================================
+  // CSS Settings
+  // =============================================================================
+  "css": {
+    "formatter": {
+      "enabled": true,
+      "quoteStyle": "single"
+    },
+    "parser": {
+      "allowWrongLineComments": false
+    },
+    "linter": {
+      "enabled": false
+    }
+  },
+
+  // =============================================================================
+  // GraphQL Settings
+  // =============================================================================
+  "graphql": {
+    "formatter": {
+      "enabled": true,
+      "quoteStyle": "double"
+    }
+  },
+
+  // =============================================================================
+  // File-Specific Overrides
+  // =============================================================================
+  "overrides": [
+    {
+      "includes": [
+        "**/*.jsonc",
+        "**/tsconfig.json",
+        "**/tsconfig.*.json",
+        "**/biome.json",
+        "**/biome.jsonc"
+      ],
+      "json": {
+        "parser": {
+          "allowComments": true,
+          "allowTrailingCommas": true
+        }
+      }
+    },
+    {
+      "includes": ["**/package.json"],
+      "json": {
+        "formatter": {
+          "lineWidth": 1
+        }
+      }
+    }
+  ]
+}
