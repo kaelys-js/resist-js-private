@@ -56,6 +56,43 @@ case "$FILE_PATH" in
     ;;
 esac
 
+# ── Phase 2.5: Spawn background Haiku polisher for residual diagnostics ────
+# Conditions to spawn:
+#   - File is a source file we lint
+#   - File has 1-15 diagnostics in itself only (no cross-file cascades)
+#   - File is ≤ 800 lines (cost / risk cap)
+# When spawned, the worker runs in the background; this hook returns success
+# immediately so the user's Edit doesn't block. Pre-commit waits for any
+# in-flight workers before running the final lint check.
+# Sets _HAIKU_SPAWNED=1 so Phase 3 suppresses its BLOCK (worker is going to
+# fix it; pre-commit will catch anything that doesn't get fixed).
+_HAIKU_SPAWNED=0
+case "$FILE_PATH" in
+  *.ts|*.tsx|*.js|*.jsx|*.mjs|*.cjs|*.mts|*.cts|*.svelte)
+    if [[ "${CLAUDE_NO_HAIKU:-}" != "1" ]]; then
+      _Q_RAW=$(cd "$PROJECT_DIR" && ./node_modules/.bin/resist-lint --tools --json "$FILE_PATH" 2>/dev/null || echo '[]')
+      # Slurp multiple JSON arrays (one per tool) into a single flat array.
+      _Q_DIAG_JSON=$(echo "$_Q_RAW" | jq -s 'add // []' 2>/dev/null || echo '[]')
+      _Q_DIAG_COUNT=$(echo "$_Q_DIAG_JSON" | jq 'length' 2>/dev/null || echo 0)
+      [[ "$_Q_DIAG_COUNT" =~ ^[0-9]+$ ]] || _Q_DIAG_COUNT=0
+      _Q_EXTERNAL=$(echo "$_Q_DIAG_JSON" | jq --arg f "$FILE_PATH" '[.[] | select(.file != $f)] | length' 2>/dev/null || echo 0)
+      [[ "$_Q_EXTERNAL" =~ ^[0-9]+$ ]] || _Q_EXTERNAL=0
+      _Q_LINES=$(wc -l <"$FILE_PATH" 2>/dev/null | tr -d ' ')
+      [[ "$_Q_LINES" =~ ^[0-9]+$ ]] || _Q_LINES=9999
+      if [[ "$_Q_DIAG_COUNT" -gt 0 ]] \
+         && [[ "$_Q_DIAG_COUNT" -le 15 ]] \
+         && [[ "$_Q_EXTERNAL" -eq 0 ]] \
+         && [[ "$_Q_LINES" -le 800 ]]; then
+        _Q_MTIME=$(stat -f '%m' "$FILE_PATH" 2>/dev/null || stat -c '%Y' "$FILE_PATH" 2>/dev/null || echo 0)
+        nohup bash "$PROJECT_DIR/.claude/hooks/lib/haiku-fix-worker.sh" \
+          "$FILE_PATH" "$_Q_MTIME" </dev/null >/dev/null 2>&1 &
+        disown 2>/dev/null || true
+        _HAIKU_SPAWNED=1
+      fi
+    fi
+    ;;
+esac
+
 # ── Phase 3: Re-lint, compare to baseline, auto-shrink on approve ───────────
 # Captures stderr separately. If resist-lint itself crashes, BLOCK rather than
 # silently approving — a crashed linter is not "no findings."
@@ -85,7 +122,7 @@ $LINT_STDERR"
     HOOK_RESULT=$(BASELINE_PATH="$BASELINE" EDITED_FILE="$FILE_PATH" \
       node "$PROJECT_DIR/.claude/hooks/lib/baseline-compare.mjs" "$LINT_JSON" 2>&1)
 
-    if [[ "$HOOK_RESULT" == BLOCK* ]]; then
+    if [[ "$HOOK_RESULT" == BLOCK* ]] && [[ "$_HAIKU_SPAWNED" -ne 1 ]]; then
       BLOCK_MSG=$(echo "$HOOK_RESULT" | tail -n +2 | head -10)
       REASON="New lint after editing $FILE_PATH (includes cross-file cascades):
 $BLOCK_MSG"
