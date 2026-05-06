@@ -3,10 +3,33 @@
 # No skip mechanism. Use `git commit --no-verify` only with explicit user authorization.
 set -e
 
+# Wait for any background Haiku auto-fix workers to land their changes
+# before validating. Cap at 60s so a stuck worker can't block forever.
+QUEUE_DIR="$(git rev-parse --show-toplevel)/.claude/.haiku-queue"
+if [ -d "$QUEUE_DIR" ]; then
+  WAITED=0
+  while [ "$WAITED" -lt 60 ]; do
+    # Count lock files actively held (modified within last 90s — anything
+    # older is presumed dead). If none, no workers are running.
+    ACTIVE=$(find "$QUEUE_DIR" -name '*.lock' -mmin -1.5 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$ACTIVE" -eq 0 ]; then
+      break
+    fi
+    sleep 1
+    WAITED=$((WAITED + 1))
+  done
+fi
+
 STAGED=$(git diff --cached --name-only --diff-filter=ACM)
 if [ -z "$STAGED" ]; then
   exit 0
 fi
+
+# Re-stage any files that Haiku workers may have modified after our staging.
+# Without this, the staged copy may differ from the on-disk version.
+for f in $STAGED; do
+  [ -f "$f" ] && git add "$f"
+done
 
 # Biome handles ts/tsx/js/jsx/mjs/cjs/json/jsonc.
 BIOME_FILES=$(echo "$STAGED" | grep -E '\.(ts|tsx|js|jsx|mjs|cjs|json|jsonc)$' || true)
