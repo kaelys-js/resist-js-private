@@ -142,7 +142,10 @@ fi
 
 # Cross-file safety: only proceed if every diagnostic is for THIS file.
 # Cross-file cascades require multi-file context Haiku can't deliver here.
-EXTERNAL_COUNT=$(echo "$DIAG_JSON" | jq --arg f "$FILE_PATH" '[.[] | select(.file != $f)] | length' 2>/dev/null || echo 0)
+# resist-lint emits paths as workspace-relative; compare both forms.
+REL_PATH="${FILE_PATH#$PROJECT_DIR/}"
+EXTERNAL_COUNT=$(echo "$DIAG_JSON" | jq --arg abs "$FILE_PATH" --arg rel "$REL_PATH" \
+  '[.[] | select(.file != $abs and .file != $rel)] | length' 2>/dev/null || echo 0)
 [[ "$EXTERNAL_COUNT" =~ ^[0-9]+$ ]] || EXTERNAL_COUNT=0
 if [[ "$EXTERNAL_COUNT" -gt 0 ]]; then
   log "skip(cross-file-cascade external=$EXTERNAL_COUNT) $FILE_PATH"

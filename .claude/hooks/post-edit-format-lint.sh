@@ -75,7 +75,11 @@ case "$FILE_PATH" in
       _Q_DIAG_JSON=$(echo "$_Q_RAW" | jq -s 'add // []' 2>/dev/null || echo '[]')
       _Q_DIAG_COUNT=$(echo "$_Q_DIAG_JSON" | jq 'length' 2>/dev/null || echo 0)
       [[ "$_Q_DIAG_COUNT" =~ ^[0-9]+$ ]] || _Q_DIAG_COUNT=0
-      _Q_EXTERNAL=$(echo "$_Q_DIAG_JSON" | jq --arg f "$FILE_PATH" '[.[] | select(.file != $f)] | length' 2>/dev/null || echo 0)
+      # resist-lint emits paths as workspace-relative; FILE_PATH is absolute.
+      # Compare both forms so we don't misclassify same-file as cross-file.
+      _Q_REL_PATH="${FILE_PATH#$PROJECT_DIR/}"
+      _Q_EXTERNAL=$(echo "$_Q_DIAG_JSON" | jq --arg abs "$FILE_PATH" --arg rel "$_Q_REL_PATH" \
+        '[.[] | select(.file != $abs and .file != $rel)] | length' 2>/dev/null || echo 0)
       [[ "$_Q_EXTERNAL" =~ ^[0-9]+$ ]] || _Q_EXTERNAL=0
       _Q_LINES=$(wc -l <"$FILE_PATH" 2>/dev/null | tr -d ' ')
       [[ "$_Q_LINES" =~ ^[0-9]+$ ]] || _Q_LINES=9999
