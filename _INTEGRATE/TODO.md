@@ -24,7 +24,6 @@ Think about this and present your solution in a changelog for each rule (if they
   - Give a full list of directories to delete that aren't "components" but are "blocks"
 
 https://tailgrids.com/docs/components
-https://github.com/Robdel12/OrbitDock
 mobbin.com
 
 - [Lens]
