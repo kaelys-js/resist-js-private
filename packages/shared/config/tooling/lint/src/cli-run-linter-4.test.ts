@@ -70,10 +70,10 @@ describe.concurrent('runLinter — workspace rules', () => {
     const { output } = captureOutput();
     const code: number = await runLinter(
       makeCliArgs({
-        paths: [resolve('packages/shared/config/tooling/lint/src/framework')],
+        paths: [resolve('packages/shared/config/tooling/lint/src/__test-fixtures/tiny-dir')],
         debug: true,
         warnOnly: true,
-        ruleIds: ['workspace/no-merge-conflicts'],
+        ruleIds: ['workspace/no-sparse-index-disabled'],
       }),
       output,
       en,
@@ -86,8 +86,8 @@ describe.concurrent('runLinter — workspace rules', () => {
     const { output } = captureOutput();
     const code: number = await runLinter(
       makeCliArgs({
-        paths: [resolve('packages/shared/config/tooling/lint/src/framework')],
-        ruleIds: ['workspace/no-merge-conflicts'],
+        paths: [resolve('packages/shared/config/tooling/lint/src/__test-fixtures/tiny-dir')],
+        ruleIds: ['workspace/no-sparse-index-disabled'],
         warnOnly: true,
       }),
       output,
