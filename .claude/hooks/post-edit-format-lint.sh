@@ -38,14 +38,14 @@ case "$FILE_PATH" in
   *.svelte)
     (cd "$PROJECT_DIR" && ./node_modules/.bin/prettier --write "$FILE_PATH") >/dev/null 2>&1 || true
     ;;
-  *.ts|*.tsx|*.js|*.jsx|*.json|*.jsonc|*.css|*.html|*.graphql|*.md|*.mdx)
+  *.ts|*.tsx|*.js|*.jsx|*.mjs|*.cjs|*.mts|*.cts|*.json|*.jsonc|*.css|*.html|*.graphql|*.md|*.mdx)
     (cd "$PROJECT_DIR" && ./node_modules/.bin/biome format --write "$FILE_PATH") >/dev/null 2>&1 || true
     ;;
 esac
 
 # ── Phase 2: Auto-fix ───────────────────────────────────────────────────────
 case "$FILE_PATH" in
-  *.ts|*.tsx|*.js|*.jsx|*.svelte)
+  *.ts|*.tsx|*.js|*.jsx|*.mjs|*.cjs|*.mts|*.cts|*.svelte)
     # Snapshot file hash before autofix to detect if it changed anything
     _PRE_FIX_HASH=$(shasum -a 256 "$FILE_PATH" 2>/dev/null | cut -c1-16)
     (cd "$PROJECT_DIR" && ./node_modules/.bin/resist-lint --fix "$FILE_PATH") >/dev/null 2>&1 || true
@@ -60,7 +60,7 @@ esac
 # Captures stderr separately. If resist-lint itself crashes, BLOCK rather than
 # silently approving — a crashed linter is not "no findings."
 case "$FILE_PATH" in
-  *.ts|*.tsx|*.js|*.jsx|*.svelte)
+  *.ts|*.tsx|*.js|*.jsx|*.mjs|*.cjs|*.mts|*.cts|*.svelte)
     LINT_STDERR_FILE=$(mktemp)
     LINT_JSON=$(cd "$PROJECT_DIR" && ./node_modules/.bin/resist-lint --tools --json "$FILE_PATH" 2>"$LINT_STDERR_FILE")
     LINT_EXIT=$?
