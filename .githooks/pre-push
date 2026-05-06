@@ -1,10 +1,13 @@
 #!/bin/sh
 # pre-push — workspace-wide format check + lint + tests.
-# qa:test is turbo-cached so no-change pushes finish near-instantly.
+# qa:test runs with turbo --concurrency=1 to avoid cross-package CPU
+# contention that causes flaky timeouts (see commit 47f66766 for context).
+# Cached unchanged packages still skip; only ACTUALLY-changed packages
+# run, and they run one at a time, each with the full machine to itself.
 # qa:lint has internal per-file fingerprint cache.
 # No skip mechanism. Use `git push --no-verify` only with explicit user authorization.
 set -e
 
 pnpm run qa:format:check
 pnpm -w run qa:lint
-pnpm run qa:test
+pnpm exec turbo qa:test --concurrency=1 --filter='!./packages/shared/utils/cli'

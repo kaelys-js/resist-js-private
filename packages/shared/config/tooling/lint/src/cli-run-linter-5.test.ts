@@ -72,6 +72,10 @@ describe.concurrent('runLinter — exit code branches', () => {
       makeCliArgs({
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         warnOnly: false,
+        // Narrow to a single TS rule so workspace rules (which scan
+        // thousands of files via ctx.allFiles()) don't run — this test
+        // only verifies the exit code branch, not rule output.
+        ruleIds: ['typescript/no-throw'],
       }),
       output,
       en,
@@ -87,6 +91,7 @@ describe.concurrent('runLinter — exit code branches', () => {
       makeCliArgs({
         paths: [resolve('packages/shared/config/tooling/lint/src/constants.ts')],
         warnOnly: true,
+        ruleIds: ['typescript/no-throw'],
       }),
       output,
       en,
@@ -109,6 +114,7 @@ describe.concurrent('runLinter — debug output coverage', () => {
         debug: true,
         cache: false,
         warnOnly: true,
+        ruleIds: ['typescript/no-throw'],
       }),
       output,
       en,
@@ -143,6 +149,7 @@ describe.concurrent('runLinter — debug output coverage', () => {
         debug: true,
         diff: 'head',
         warnOnly: true,
+        ruleIds: ['typescript/no-throw'],
       }),
       output,
       en,
