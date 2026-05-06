@@ -38,7 +38,7 @@ const rule: TypeScriptRule = {
         const nodeText: string = context.getNodeText(node);
         const fix = {
           range: { start: node.start, end: node.end },
-          text: nodeText + 'n',
+          text: `${nodeText}n`,
         };
 
         results.push({

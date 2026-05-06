@@ -119,7 +119,7 @@ function buildTestEntriesFix(content: string, task: PlanTask): LintFix {
     return `- Test: ${testPath}`;
   });
 
-  const insertText: string = testLines.join('\n') + '\n';
+  const insertText: string = `${testLines.join('\n')}\n`;
 
   return { range: { start: byteOffset, end: byteOffset }, text: insertText };
 }

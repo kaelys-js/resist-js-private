@@ -61,7 +61,7 @@ const rule: WorkspaceRule = {
       if (E2E_PATTERN.test(name) && !isInE2eDir(file)) {
         /* Compute destination: move to e2e/ directory at workspace root */
         const destPath: string = join(ctx.rootDir, 'e2e', name);
-        const fix: FileOpFix = { type: 'move', from: file, to: destPath };
+        const fileOp: FileOpFix = { type: 'move', from: file, to: destPath };
 
         results.push(
           createResult(
@@ -73,7 +73,7 @@ const rule: WorkspaceRule = {
             `E2E test '${name}' must be in an e2e/ or tests/e2e/ directory`,
             {
               tip: 'Move this file to an e2e/ or tests/e2e/ directory',
-              fix,
+              fileOp,
             },
           ),
         );

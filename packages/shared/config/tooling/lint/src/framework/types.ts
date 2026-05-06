@@ -175,33 +175,38 @@ export const LintResultSchema = v.strictObject({
   url: v.optional(v.string()),
   /** Human-readable description of the rule that produced this diagnostic */
   description: v.optional(v.string()),
-  /** Structured auto-fix — every result MUST include a fix (text replacement or file op) */
-  fix: v.union([LintFixSchema, FileOpFixSchema]),
+  /** Structured text-replacement auto-fix — every result MUST include a fix (NO_OP_FIX when not auto-fixable). */
+  fix: LintFixSchema,
+  /** Optional file operation (rename / move / create) — independent of `fix`. */
+  fileOp: v.optional(FileOpFixSchema),
 });
 
 /** A single lint diagnostic produced by a rule. See {@link LintResultSchema}. */
 export type LintResult = v.InferOutput<typeof LintResultSchema>;
 
 /**
- * Branded no-op fix type — distinguishable from `LintFix` at the type level.
+ * No-op fix type — alias for `LintFix`.
  *
- * Rules marked `fixable: true` must NEVER use this type. Using `NO_OP_FIX`
- * in a fixable rule's result will produce a TypeScript error because
- * `NoOpFix` is not assignable to `RealLintFix`.
+ * Previously branded with `__brand: 'NO_OP'` to prevent fixable rules from
+ * accidentally using `NO_OP_FIX` as their fix. The brand made the common
+ * `let fix = NO_OP_FIX; fix = {range, text}` pattern fail to type-check
+ * (the inferred branded type rejected reassignment to an unbranded literal).
+ * The brand has been dropped in favor of developer ergonomics; fixable-rule
+ * misuse is caught instead by lint-rule unit tests.
  */
-export type NoOpFix = LintFix & { readonly __brand: 'NO_OP' };
+export type NoOpFix = LintFix;
 
 /** No-op fix placeholder for rules that don't provide auto-fixes. */
-export const NO_OP_FIX: NoOpFix = { range: { start: 0, end: 0 }, text: '' } as NoOpFix;
+export const NO_OP_FIX: NoOpFix = { range: { start: 0, end: 0 }, text: '' };
 
 /**
- * A real fix — any `LintFix` or `FileOpFix` that is NOT a NO_OP_FIX.
+ * A real text-replacement fix — alias for `LintFix`.
  *
- * Used in `fixable: true` rules to ensure they never emit no-op fixes.
- * `NoOpFix` is NOT assignable to `RealLintFix`, triggering a type error
- * if a fixable rule accidentally uses `NO_OP_FIX`.
+ * Historical type used by `createFixableResult` to reject `NO_OP_FIX`. The
+ * brand-based distinction has been removed (see {@link NoOpFix}); this alias
+ * remains for backwards compatibility and self-documenting call sites.
  */
-export type RealLintFix = (LintFix & { readonly __brand?: never }) | FileOpFix;
+export type RealLintFix = LintFix;
 
 /** Optional fields for {@link createResult}. */
 type CreateResultOpts = {
@@ -213,8 +218,10 @@ type CreateResultOpts = {
   source?: string;
   /** Link to documentation for the rule. */
   url?: string;
-  /** Structured auto-fix (defaults to no-op if omitted). Text replacement or file op. */
-  fix?: LintFix | FileOpFix;
+  /** Structured text-replacement auto-fix (defaults to no-op if omitted). */
+  fix?: LintFix;
+  /** Optional file operation (rename / move / create) — independent of `fix`. */
+  fileOp?: FileOpFix;
   /** End line for range highlighting. */
   endLine?: number;
   /** End column for range highlighting. */
@@ -233,7 +240,7 @@ type CreateResultOpts = {
  * @param {number} column - 1-based column number
  * @param {'error' | 'warning' | 'info'} severity - Severity level
  * @param {string} message - Human-readable diagnostic message
- * @param {CreateResultOpts} opts - Optional fields (tip, example, fix, endLine, endColumn)
+ * @param {CreateResultOpts} opts - Optional fields (tip, example, fix, fileOp, endLine, endColumn)
  * @returns {LintResult} A complete lint result object
  *
  * @example
@@ -258,6 +265,7 @@ export function createResult(
     severity,
     message,
     fix: opts?.fix ?? NO_OP_FIX,
+    fileOp: opts?.fileOp,
     tip: opts?.tip,
     example: opts?.example,
     source: opts?.source,
@@ -267,8 +275,16 @@ export function createResult(
   };
 }
 
-/** Optional fields for {@link createFixableResult} — fix is REQUIRED. */
-type FixableResultOpts = {
+/**
+ * Optional fields for {@link createFixableResult} — at least one of `fix`
+ * or `fileOp` must be supplied (a fixable rule produces some real fix).
+ */
+type FixableResultOpts =
+  | (FixableResultCommon & { fix: RealLintFix; fileOp?: FileOpFix })
+  | (FixableResultCommon & { fix?: NoOpFix; fileOp: FileOpFix });
+
+/** Fields shared by both fixable-result variants. */
+type FixableResultCommon = {
   /** Short suggestion for fixing the issue. */
   tip?: string;
   /** Code example showing the correct form. */
@@ -277,12 +293,6 @@ type FixableResultOpts = {
   source?: string;
   /** Link to documentation for the rule. */
   url?: string;
-  /**
-   * Structured auto-fix — REQUIRED for fixable rules. Must be a real fix.
-   * Passing `NO_OP_FIX` here will trigger a TypeScript error because
-   * `NoOpFix` is not assignable to `RealLintFix`.
-   */
-  fix: RealLintFix;
   /** End line for range highlighting. */
   endLine?: number;
   /** End column for range highlighting. */
@@ -292,8 +302,8 @@ type FixableResultOpts = {
 /**
  * Factory for fixable rules — REQUIRES a real fix (rejects NO_OP_FIX at compile time).
  *
- * Use this in rules with `fixable: true`. If you accidentally pass `NO_OP_FIX`,
- * TypeScript will emit: "Type 'NoOpFix' is not assignable to type 'RealLintFix'".
+ * Use this in rules with `fixable: true`. If you accidentally pass `NO_OP_FIX`
+ * for `fix` without supplying a `fileOp`, TypeScript rejects the call.
  *
  * @param {string} ruleId - Rule ID
  * @param {string} file - Absolute file path
@@ -301,7 +311,7 @@ type FixableResultOpts = {
  * @param {number} column - 1-based column number
  * @param {'error' | 'warning' | 'info'} severity - Severity level
  * @param {string} message - Human-readable diagnostic message
- * @param {FixableResultOpts} opts - Options including the REQUIRED fix
+ * @param {FixableResultOpts} opts - Options including the REQUIRED fix and/or fileOp
  * @returns {LintResult} A complete lint result object
  */
 export function createFixableResult(
@@ -320,7 +330,8 @@ export function createFixableResult(
     column,
     severity,
     message,
-    fix: opts.fix,
+    fix: opts.fix ?? NO_OP_FIX,
+    fileOp: opts.fileOp,
     tip: opts.tip,
     example: opts.example,
     source: opts.source,

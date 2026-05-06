@@ -26,7 +26,7 @@ export function levenshtein(a: string, b: string): number {
   /* Use a single-row DP approach for space efficiency */
   const bLen: number = b.length;
   let prev: number[] = Array.from({ length: bLen + 1 }, (_: unknown, i: number): number => i);
-  let curr: number[] = new Array<number>(bLen + 1);
+  let curr: number[] = Array.from({ length: bLen + 1 }, (): number => 0);
 
   for (let i: number = 1; i <= a.length; i++) {
     curr[0] = i;

@@ -88,7 +88,7 @@ const rule: WorkspaceRule = {
 
       /* Move to tests/integration/ at the workspace root */
       const destPath: string = join(ctx.rootDir, 'tests', 'integration', name);
-      const fix: FileOpFix = { type: 'move', from: file, to: destPath };
+      const fileOp: FileOpFix = { type: 'move', from: file, to: destPath };
 
       results.push(
         createResult(
@@ -100,7 +100,7 @@ const rule: WorkspaceRule = {
           `Integration test '${name}' should be in tests/integration/ or colocated with source`,
           {
             tip: 'Move to tests/integration/ or place next to the source file it tests',
-            fix,
+            fileOp,
           },
         ),
       );

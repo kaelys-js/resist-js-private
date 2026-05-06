@@ -64,7 +64,7 @@ const rule: WorkspaceRule = {
       if (hasBadSuffix) {
         const correctedName: string = name.replace(/\.(spec|-test|_test)\./, '.test.');
         const correctedPath: string = join(dirname(file), correctedName);
-        const fix: FileOpFix = { type: 'rename', from: file, to: correctedPath };
+        const fileOp: FileOpFix = { type: 'rename', from: file, to: correctedPath };
 
         results.push(
           createResult(
@@ -76,7 +76,7 @@ const rule: WorkspaceRule = {
             `Test file '${name}' must use *.test.ts naming convention`,
             {
               tip: `Rename to ${correctedName}`,
-              fix,
+              fileOp,
             },
           ),
         );

@@ -548,6 +548,8 @@ describe('applyFixes', () => {
 describe('applyFileOps', () => {
   /**
    * Create a temp directory for each test.
+   *
+   * @returns {Promise<string>} Path to the newly created temp directory
    */
   function makeTmpDir(): Promise<string> {
     return mkdtemp(join(tmpdir(), 'lint-fileop-'));

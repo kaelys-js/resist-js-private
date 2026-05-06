@@ -52,7 +52,7 @@ function buildCatchParamFix(node: AstNode, source: string): LintFix {
 
   return {
     range: { start: nodeStart, end: nodeEnd },
-    text: beforeBrace + ' (error: unknown) ' + afterBrace,
+    text: `${beforeBrace} (error: unknown) ${afterBrace}`,
   };
 }
 

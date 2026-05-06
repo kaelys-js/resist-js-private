@@ -11,7 +11,6 @@
  */
 
 import {
-  NO_OP_FIX,
   createResult,
   type LintFix,
   type LintResult,

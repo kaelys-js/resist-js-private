@@ -35,18 +35,17 @@ import {
   ToolRegistry,
   type WorkspaceTool,
 } from '@/lint/framework/tool-orchestrator.ts';
-import {
-  isFileOpFix,
-  type FileOpFix,
-  type LintFix,
-  type LintResult,
-  type OptionsSchema,
-  type PackageJson,
-  type PackageJsonContext,
-  type PackageJsonRule,
-  type Stage,
-  type TypeScriptRule,
-  type WorkspaceRule,
+import type {
+  FileOpFix,
+  LintFix,
+  LintResult,
+  OptionsSchema,
+  PackageJson,
+  PackageJsonContext,
+  PackageJsonRule,
+  Stage,
+  TypeScriptRule,
+  WorkspaceRule,
 } from '@/lint/framework/types.ts';
 import { WorkerPool, type WorkerResult, type WorkerTask } from '@/lint/framework/worker-pool.ts';
 import { format, type LintStrings } from '@/lint/locale/schema.ts';
@@ -868,8 +867,8 @@ export async function applyFileOps(
 ): Promise<number> {
   let applied: number = 0;
 
-  for (const op of ops) {
-    try {
+  const settled: Array<PromiseSettledResult<void>> = await Promise.allSettled(
+    ops.map(async (op: FileOpFix): Promise<void> => {
       switch (op.type) {
         case 'rename':
         case 'move': {
@@ -880,7 +879,6 @@ export async function applyFileOps(
             await mkdir(destDir, { recursive: true });
           }
           await fsRename(op.from, op.to);
-          applied++;
           break;
         }
         case 'create': {
@@ -891,11 +889,19 @@ export async function applyFileOps(
             await mkdir(parentDir, { recursive: true });
           }
           await writeFile(op.path, op.content, 'utf8');
-          applied++;
           break;
         }
       }
-    } catch {
+    }),
+  );
+
+  for (let i: number = 0; i < settled.length; i++) {
+    const result: PromiseSettledResult<void> | undefined = settled[i];
+    const op: FileOpFix | undefined = ops[i];
+
+    if (result?.status === 'fulfilled') {
+      applied++;
+    } else if (op) {
       output.stderr(
         `File operation failed: ${op.type} ${op.type === 'create' ? op.path : op.from}\n`,
       );
@@ -2011,18 +2017,22 @@ export async function _runLintCore(
     const fileOps: FileOpFix[] = [];
 
     for (const result of allResults) {
-      if (!result.fix) {
+      /* File ops live on a separate field; collect them independently */
+      if (result.fileOp) {
+        fileOps.push(result.fileOp);
+      }
+
+      /* Skip text fixes that are NO_OP placeholders */
+      if (
+        !result.fix ||
+        (result.fix.range.start === 0 && result.fix.range.end === 0 && result.fix.text === '')
+      ) {
         continue;
       }
 
-      /* Separate file operations from text replacements */
-      if (isFileOpFix(result.fix)) {
-        fileOps.push(result.fix);
-      } else {
-        const existing: LintFix[] = fixesByFile.get(result.file) ?? [];
-        existing.push(result.fix);
-        fixesByFile.set(result.file, existing);
-      }
+      const existing: LintFix[] = fixesByFile.get(result.file) ?? [];
+      existing.push(result.fix);
+      fixesByFile.set(result.file, existing);
     }
 
     /* Apply text fixes first (before file ops, in case a file is both edited and renamed) */

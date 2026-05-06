@@ -166,7 +166,7 @@ function buildJsonFix(
 ): LintFix {
   const src: string = context.content;
   const args: AstNode[] = (callNode.arguments ?? []) as AstNode[];
-  const firstArg: AstNode | undefined = args[0];
+  const [firstArg] = args;
 
   if (!firstArg) {
     return NO_FIX;

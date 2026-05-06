@@ -60,7 +60,7 @@ function toCamelCase(name: string): string {
     })
     .join('');
 
-  return hasLeadingUnderscore ? '_' + result : result;
+  return hasLeadingUnderscore ? `_${result}` : result;
 }
 
 /** The camel-case-vars lint rule. */

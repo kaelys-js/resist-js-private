@@ -302,12 +302,16 @@ export class ToolRegistry {
         continue;
       }
 
-      const {applyFixes} = tool;
+      const { applyFixes } = tool;
 
       promises.push(
-        applyFixes(matching).catch((): void => {
-          /* Tool fix-pass failed — diagnostic pass will surface remaining issues. */
-        }),
+        (async (): Promise<void> => {
+          try {
+            await applyFixes(matching);
+          } catch {
+            /* Tool fix-pass failed — diagnostic pass will surface remaining issues. */
+          }
+        })(),
       );
     }
 
