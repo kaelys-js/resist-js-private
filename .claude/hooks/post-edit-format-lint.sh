@@ -57,21 +57,38 @@ case "$FILE_PATH" in
 esac
 
 # ── Phase 3: Re-lint, compare to baseline, auto-shrink on approve ───────────
+# Captures stderr separately. If resist-lint itself crashes, BLOCK rather than
+# silently approving — a crashed linter is not "no findings."
 case "$FILE_PATH" in
   *.ts|*.tsx|*.js|*.jsx|*.svelte)
-    LINT_JSON=$(cd "$PROJECT_DIR" && ./node_modules/.bin/resist-lint --tools --json "$FILE_PATH" 2>/dev/null) || true
+    LINT_STDERR_FILE=$(mktemp)
+    LINT_JSON=$(cd "$PROJECT_DIR" && ./node_modules/.bin/resist-lint --tools --json "$FILE_PATH" 2>"$LINT_STDERR_FILE")
+    LINT_EXIT=$?
+    LINT_STDERR=$(cat "$LINT_STDERR_FILE")
+    rm -f "$LINT_STDERR_FILE"
+
+    # resist-lint exits non-zero when there are diagnostics (normal). It only
+    # indicates a crash when stderr contains real noise and stdout is empty/invalid.
+    if [[ -z "$LINT_JSON" ]] && [[ -n "$LINT_STDERR" ]]; then
+      REASON="resist-lint crashed during post-edit re-lint of $FILE_PATH:
+$LINT_STDERR"
+      jq -n --arg reason "$REASON" '{decision: "block", reason: $reason}'
+      exit 0
+    fi
 
     # Baseline is a count-map {"file|ruleId|message": count}.
-    # NEW = any key where current_count_for_file > baseline_count.
-    # If no NEW, auto-shrink: for keys owned by edited file,
+    # NEW = any key where current_count > baseline_count (across ALL files —
+    # cross-file cascades from this edit count too).
+    # If no NEW, auto-shrink: for keys owned by edited file only,
     #                         baseline[k] = min(baseline[k], current_count).
     # Helper lives in .claude/hooks/lib/baseline-compare.mjs (also directly testable).
     HOOK_RESULT=$(BASELINE_PATH="$BASELINE" EDITED_FILE="$FILE_PATH" \
       node "$PROJECT_DIR/.claude/hooks/lib/baseline-compare.mjs" "$LINT_JSON" 2>&1)
 
     if [[ "$HOOK_RESULT" == BLOCK* ]]; then
-      BLOCK_MSG=$(echo "$HOOK_RESULT" | tail -n +2 | head -5)
-      REASON="New lint in $FILE_PATH: $BLOCK_MSG"
+      BLOCK_MSG=$(echo "$HOOK_RESULT" | tail -n +2 | head -10)
+      REASON="New lint after editing $FILE_PATH (includes cross-file cascades):
+$BLOCK_MSG"
       jq -n --arg reason "$REASON" '{decision: "block", reason: $reason}'
       exit 0
     fi
