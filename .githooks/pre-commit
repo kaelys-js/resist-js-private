@@ -1,0 +1,30 @@
+#!/bin/sh
+# pre-commit — format + lint staged files only.
+# No skip mechanism. Use `git commit --no-verify` only with explicit user authorization.
+set -e
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACM)
+if [ -z "$STAGED" ]; then
+  exit 0
+fi
+
+# Biome handles ts/tsx/js/jsx/mjs/cjs/json/jsonc.
+BIOME_FILES=$(echo "$STAGED" | grep -E '\.(ts|tsx|js|jsx|mjs|cjs|json|jsonc)$' || true)
+if [ -n "$BIOME_FILES" ]; then
+  echo "$BIOME_FILES" | xargs pnpm exec biome format --write --no-errors-on-unmatched
+  echo "$BIOME_FILES" | xargs git add
+fi
+
+# Prettier handles svelte/md/yml/yaml (Biome does not yet support these).
+PRETTIER_FILES=$(echo "$STAGED" | grep -E '\.(svelte|md|markdown|yml|yaml)$' || true)
+if [ -n "$PRETTIER_FILES" ]; then
+  echo "$PRETTIER_FILES" | xargs pnpm exec prettier --write --cache --cache-strategy content --log-level warn
+  echo "$PRETTIER_FILES" | xargs git add
+fi
+
+# Lint staged source files (oxlint + tsgo + custom rules + svelte-check).
+# qa:lint accepts a path/file list; passing staged files scopes the run.
+LINT_FILES=$(echo "$STAGED" | grep -E '\.(ts|tsx|svelte|mjs|cjs|json)$' || true)
+if [ -n "$LINT_FILES" ]; then
+  pnpm -w run qa:lint $LINT_FILES
+fi

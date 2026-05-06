@@ -1,0 +1,10 @@
+#!/bin/sh
+# pre-push — workspace-wide format check + lint + tests.
+# qa:test is turbo-cached so no-change pushes finish near-instantly.
+# qa:lint has internal per-file fingerprint cache.
+# No skip mechanism. Use `git push --no-verify` only with explicit user authorization.
+set -e
+
+pnpm run qa:format:check
+pnpm -w run qa:lint
+pnpm run qa:test
