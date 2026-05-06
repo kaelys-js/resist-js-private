@@ -68,18 +68,13 @@ function detectIndent(offset: number, source: string): string {
  * Replaces with `{ acc[key] = value; return acc; }`.
  *
  * @param {AstNode} reduceCall - The .reduce() CallExpression
- * @param {AstNode} spreadNode - The SpreadElement node
  * @param {VisitorContext} context - Visitor context
  * @returns {LintFix} The fix or NO_FIX
  */
-function buildSpreadFix(
-  reduceCall: AstNode,
-  spreadNode: AstNode,
-  context: VisitorContext,
-): LintFix {
+function buildSpreadFix(reduceCall: AstNode, context: VisitorContext): LintFix {
   const src: string = context.content;
   const args: AstNode[] = (reduceCall.arguments ?? []) as AstNode[];
-  const callback: AstNode | undefined = args[0];
+  const [callback] = args;
 
   if (!callback) {
     return NO_FIX;
@@ -109,7 +104,7 @@ function buildSpreadFix(
   }
 
   /* First property must be a SpreadElement matching our detected spread */
-  const firstProp: AstNode | undefined = properties[0];
+  const [firstProp] = properties;
 
   if (!firstProp || firstProp.type !== 'SpreadElement') {
     return NO_FIX;
@@ -126,7 +121,7 @@ function buildSpreadFix(
 
   /* Extract the callback parameters to verify acc name matches */
   const params: AstNode[] = (callback.params ?? []) as AstNode[];
-  const firstParam: AstNode | undefined = params[0];
+  const [firstParam] = params;
   let paramName: string | undefined;
 
   if (firstParam?.type === 'Identifier') {
@@ -191,11 +186,7 @@ function buildSpreadFix(
   const bodyEnd: number = bodyNode.end as number;
   const indent: string = detectIndent(callback.start as number, src);
 
-  const blockBody: string =
-    `{\n` +
-    assignments.map((a: string): string => `${indent}    ${a};`).join('\n') +
-    `\n${indent}    return ${accName};\n` +
-    `${indent}  }`;
+  const blockBody: string = `{\n${assignments.map((a: string): string => `${indent}    ${a};`).join('\n')}\n${indent}    return ${accName};\n${indent}  }`;
 
   /* Check if the expression body is wrapped in parentheses — if so, replace
    * from the opening paren to closing paren */
@@ -273,7 +264,7 @@ const rule: TypeScriptRule = {
           message: 'Spread operator inside .reduce() creates O(n²) copies',
           ruleId: 'complexity/no-spread-in-reduce',
           tip: 'Mutate the accumulator directly instead of spreading: acc[key] = value',
-          fix: buildSpreadFix(node, spread, context),
+          fix: buildSpreadFix(node, context),
         });
       }
 

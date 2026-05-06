@@ -7,16 +7,15 @@
  * @module
  */
 
-import {
-  isTextFix,
-  type TypeScriptRule,
-  type LintResult,
-  type AstNode,
-  type VisitorContext,
-  type VisitorFn,
-  type ImportInfo,
-  type ImportSpecifier,
-  type CommentInfo,
+import type {
+  TypeScriptRule,
+  LintResult,
+  AstNode,
+  VisitorContext,
+  VisitorFn,
+  ImportInfo,
+  ImportSpecifier,
+  CommentInfo,
 } from '@/lint/framework/types.ts';
 import {
   parseSvelteTemplate,
@@ -750,9 +749,6 @@ export async function runTypeScriptRules(
     for (const result of results) {
       const { fix } = result;
 
-      if (!isTextFix(fix)) {
-        continue; // file ops (rename/move/create) have no range to translate
-      }
       if (fix.range.start === 0 && fix.range.end === 0 && fix.text === '') {
         continue; // no-op placeholder
       }

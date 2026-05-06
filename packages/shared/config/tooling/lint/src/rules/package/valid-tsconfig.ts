@@ -126,9 +126,9 @@ const rule: PackageJsonRule = {
       !include.some((entry: unknown): boolean => typeof entry === 'string' && entry.includes('src'))
     ) {
       /* Only fix when include is entirely missing — modifying existing arrays is fragile */
-      const fix = !Array.isArray(include)
-        ? buildSetJsonFieldFix(tsconfigContent, 'include', '["src"]')
-        : NO_FIX;
+      const fix = Array.isArray(include)
+        ? NO_FIX
+        : buildSetJsonFieldFix(tsconfigContent, 'include', '["src"]');
 
       results.push({
         file: tsconfigPath,

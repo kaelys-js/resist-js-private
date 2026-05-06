@@ -34,7 +34,7 @@ const rule: TypeScriptRule = {
   fixable: true,
 
   visitor: {
-    Program(node: AstNode, context: VisitorContext): LintResult[] {
+    Program(_node: AstNode, context: VisitorContext): LintResult[] {
       const results: LintResult[] = [];
       // Extract all // === section headers with their line numbers
       const lines: string[] = context.content.split('\n');
@@ -173,7 +173,7 @@ const rule: TypeScriptRule = {
         const lineOffsets: number[] = [0];
 
         for (let li: number = 0; li < lines.length; li++) {
-          lineOffsets.push(lineOffsets[li]! + (lines[li]?.length ?? 0) + 1);
+          lineOffsets.push((lineOffsets[li] ?? 0) + (lines[li]?.length ?? 0) + 1);
         }
 
         /* Build section blocks with byte ranges.
@@ -185,11 +185,16 @@ const rule: TypeScriptRule = {
           orderIndex: number;
           startByte: number;
           endByte: number;
-        }
+        };
         const blocks: SectionBlock[] = [];
 
         for (let si: number = 0; si < sections.length; si++) {
-          const sect: { line: number; name: string; orderIndex: number } = sections[si]!;
+          const sect: { line: number; name: string; orderIndex: number } | undefined = sections[si];
+
+          if (!sect) {
+            continue;
+          }
+
           const startLine: number = sect.line - 1; // 0-based
           const startByte: number = lineOffsets[startLine] ?? 0;
           const nextSect: { line: number; name: string; orderIndex: number } | undefined =
@@ -202,9 +207,10 @@ const rule: TypeScriptRule = {
           blocks.push({ orderIndex: sect.orderIndex, startByte, endByte });
         }
 
-        if (blocks.length >= 2) {
-          const firstBlock: SectionBlock = blocks[0]!;
-          const lastBlock: SectionBlock = blocks.at(-1)!;
+        const [firstBlock] = blocks;
+        const lastBlock: SectionBlock | undefined = blocks.at(-1);
+
+        if (blocks.length >= 2 && firstBlock && lastBlock) {
           const regionStart: number = firstBlock.startByte;
           const regionEnd: number = lastBlock.endByte;
 
@@ -216,7 +222,7 @@ const rule: TypeScriptRule = {
           const reorderedText: string = sortedTexts.join('');
 
           /* Attach fix to the first result only (all results share the same fix) */
-          const firstResult: LintResult | undefined = results[0];
+          const [firstResult] = results;
 
           if (firstResult) {
             firstResult.fix = {

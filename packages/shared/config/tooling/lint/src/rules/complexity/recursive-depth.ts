@@ -158,16 +158,12 @@ function buildRecursiveDepthFix(
   }
 
   /* Insert the depth parameter */
-  funcText =
-    funcText.slice(0, paramInsertOffset) +
-    paramPrefix +
-    'depth: number = 0' +
-    funcText.slice(paramInsertOffset);
+  funcText = `${funcText.slice(0, paramInsertOffset)}${paramPrefix}depth: number = 0${funcText.slice(paramInsertOffset)}`;
 
   /* Find the opening brace of the function body to insert the guard */
   const bodyStart: number = (bodyNode.start as number) - funcStart;
   /* Adjust for the parameter insertion */
-  const paramInsertLen: number = (paramPrefix + 'depth: number = 0').length;
+  const paramInsertLen: number = `${paramPrefix}depth: number = 0`.length;
   const adjustedBodyStart: number = bodyStart + paramInsertLen;
 
   /* Find the first `{` at or after adjustedBodyStart */

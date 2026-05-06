@@ -161,7 +161,7 @@ const rule: TypeScriptRule = {
           ``,
         ].join('\n');
 
-        const fix: FileOpFix = { type: 'create', path: testPath, content: scaffold };
+        const fileOp: FileOpFix = { type: 'create', path: testPath, content: scaffold };
 
         return [
           {
@@ -172,7 +172,8 @@ const rule: TypeScriptRule = {
             message: `File exports functions but has no colocated test file`,
             ruleId: 'testing/require-colocated-tests',
             tip: `Create ${basename(testPath)} in the same directory`,
-            fix,
+            fix: NO_OP_FIX,
+            fileOp,
           },
         ];
       }

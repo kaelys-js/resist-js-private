@@ -62,8 +62,8 @@ function checkParams(
       /* Find the '?' character in the param source to strip it */
       const paramText: string = context.content.slice(param.start, param.end);
       const qIdx: number = paramText.indexOf('?');
-      const fixStart: number = qIdx !== -1 ? param.start + qIdx : param.start;
-      const fixEnd: number = qIdx !== -1 ? param.start + qIdx + 1 : param.start;
+      const fixStart: number = qIdx === -1 ? param.start : param.start + qIdx;
+      const fixEnd: number = qIdx === -1 ? param.start : param.start + qIdx + 1;
 
       results.push({
         file: context.file,

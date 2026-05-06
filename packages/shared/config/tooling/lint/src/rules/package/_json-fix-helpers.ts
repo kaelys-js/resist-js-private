@@ -335,11 +335,11 @@ export function buildInsertJsonEntryFix(
 /**
  * Build a fix that sets a top-level JSON field (insert or replace).
  *
- * If the field exists, replaces its value. If not, inserts after the opening `{`.
+ * If the field exists, replaces its value. If not, inserts after the opening brace.
  *
  * @param {string} content - Raw file content (JSON)
  * @param {string} key - JSON key to set
- * @param {string} rawValue - Raw JSON value text (e.g., `"../tsconfig.json"` or `["src"]`)
+ * @param {string} rawValue - Raw JSON value text such as a quoted string or array literal
  * @returns {LintFix} Fix or NO_FIX
  */
 export function buildSetJsonFieldFix(content: string, key: string, rawValue: string): LintFix {

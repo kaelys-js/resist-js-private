@@ -213,7 +213,7 @@ function buildIndexOfFix(
 
   /* Get the search argument */
   const args: AstNode[] = (indexOfCall.arguments ?? []) as AstNode[];
-  const searchArg: AstNode | undefined = args[0];
+  const [searchArg] = args;
 
   if (!searchArg) {
     return NO_FIX;

@@ -49,7 +49,7 @@ const rule: TypeScriptRule = {
               const attrValue: AstNode[] | undefined = attr.value as AstNode[] | undefined;
 
               if (attrValue && attrValue.length > 0) {
-                const textNode: AstNode | undefined = attrValue[0];
+                const [textNode] = attrValue;
 
                 if (textNode && (textNode as { data?: string }).data) {
                   slotName = (textNode as unknown as { data: string }).data;
