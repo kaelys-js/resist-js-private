@@ -525,6 +525,38 @@ BAK_COUNT=$(find "$SCRATCH" -name '*.haiku-bak-*' 2>/dev/null | wc -l | tr -d ' 
 [[ "$BAK_COUNT" -eq 0 ]] && assert "backup-cleaned-up-on-success" true || assert "backup-cleaned-up-on-success" false
 
 # ───────────────────────────────────────────────────────────────────────────
+# Test 21: Diagnostic file path is workspace-relative (not absolute)
+# ───────────────────────────────────────────────────────────────────────────
+# Regression test for the "external_count=1 false positive" bug — resist-lint
+# emits diagnostic.file as workspace-relative (packages/...) while FILE_PATH
+# is absolute (/Users/.../packages/...). The worker must compare BOTH forms
+# so a same-file diagnostic isn't misclassified as cross-file (which would
+# incorrectly skip the fix and let bad code slip through).
+echo "Test 21: relative-path diagnostic does not trigger cross-file skip"
+SCRATCH=$(make_scratch)
+setup_stub_resist_lint
+TARGET="$SCRATCH/test21.ts"
+ORIGINAL=$'export const x = 1;\nconst y = x!\n'
+FIXED=$'export const x = 1;\nconst y = x;\n'
+printf '%s' "$ORIGINAL" >"$TARGET"
+# Diagnostic.file uses RELATIVE path — same file, just different form.
+# (PROJECT_DIR == SCRATCH here, so the "relative" form is just the basename.)
+set_lint_for_content "$ORIGINAL" '[{"file":"test21.ts","line":2,"column":15,"ruleId":"oxlint/no-non-null-assertion","message":"X"}]'
+set_lint_for_content "$FIXED" '[]'
+PRE_HASH=$(shasum -a 256 "$TARGET" | cut -c1-16)
+FIX_FILE="$SCRATCH/fix21.txt"
+printf '%s' "$FIXED" >"$FIX_FILE"
+run_worker "$TARGET" "$(mtime_of "$TARGET")" success "$FIX_FILE" >/dev/null
+POST_HASH=$(shasum -a 256 "$TARGET" | cut -c1-16)
+LOG=$(get_log)
+# Worker must NOT have skipped with cross-file-cascade; must have applied fix.
+[[ "$PRE_HASH" != "$POST_HASH" ]] \
+  && [[ "$LOG" != *"cross-file-cascade"* ]] \
+  && [[ "$LOG" == *"FIXED"* ]] \
+  && assert "rel-path-not-misclassified-as-cross-file" true \
+  || assert "rel-path-not-misclassified-as-cross-file" false
+
+# ───────────────────────────────────────────────────────────────────────────
 # Cleanup + summary
 # ───────────────────────────────────────────────────────────────────────────
 rm -rf "$FAKE_DIR"
