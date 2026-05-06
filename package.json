@@ -8,6 +8,7 @@
     "node": ">=25"
   },
   "scripts": {
+    "prepare": "git config --local core.hooksPath .githooks",
     "dev": "turbo dev",
     "build": "turbo build",
     "clean": "turbo clean",
