@@ -271,7 +271,11 @@ describe.concurrent('runLinter — cache mode', () => {
   });
 
   it('--cache with finalize rules produces consistent results across runs', async () => {
-    const basePath: string = resolve('packages/shared/config/tooling/lint/src/');
+    // Tiny fixture (single file) — the test only verifies finalize() state
+    // is consistent across cold/warm cache runs, not its actual output.
+    const basePath: string = resolve(
+      'packages/shared/config/tooling/lint/src/__test-fixtures/tiny-dir',
+    );
     const args: CliArgs = makeCliArgs({
       paths: [basePath],
       cache: true,
@@ -367,6 +371,9 @@ describe.concurrent('runLinter — fix mode', () => {
 // =============================================================================
 
 describe.concurrent('runLinter — tools mode', () => {
+  // 60s: --tools enables tsgo/svelte-check/oxlint which type-check/lint the
+  // ENTIRE workspace, not just the path arg. Inherently slow; tiny-fixture
+  // pattern can't reduce their scope.
   it('--tools runs external tools alongside rules', async () => {
     const { stderrLines, output } = captureOutput();
     await runLinter(
@@ -383,13 +390,15 @@ describe.concurrent('runLinter — tools mode', () => {
     const combined: string = stderrLines.join('');
     // Debug output should mention tool loading/running
     expect(combined).toContain('tool');
-  });
+  }, 60_000);
 
+  // 60s: tools: true even with bail can run partial workspace-wide work
+  // (tools may be pre-spawned before bail triggers).
   it('--tools does not run tools when bailed', async () => {
     const { stderrLines, output } = captureOutput();
     await runLinter(
       makeCliArgs({
-        paths: [resolve('packages/shared/config/tooling/lint/src')],
+        paths: [resolve('packages/shared/config/tooling/lint/src/__test-fixtures/tiny-dir')],
         tools: true,
         bail: true,
         debug: true,
@@ -401,5 +410,5 @@ describe.concurrent('runLinter — tools mode', () => {
     // bail may trigger before tools run — that's the branch we're testing
     const combined: string = stderrLines.join('');
     expect(typeof combined).toBe('string');
-  });
+  }, 60_000);
 });
