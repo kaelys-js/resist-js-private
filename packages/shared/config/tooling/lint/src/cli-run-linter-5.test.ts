@@ -122,10 +122,10 @@ describe.concurrent('runLinter — debug output coverage', () => {
     const { stderrLines, output } = captureOutput();
     await runLinter(
       makeCliArgs({
-        paths: [resolve('packages/shared/config/tooling/lint/src/framework')],
+        paths: [resolve('packages/shared/config/tooling/lint/src/__test-fixtures/tiny-dir')],
         debug: true,
         warnOnly: true,
-        ruleIds: ['workspace/no-merge-conflicts'],
+        ruleIds: ['workspace/no-sparse-index-disabled'],
       }),
       output,
       en,

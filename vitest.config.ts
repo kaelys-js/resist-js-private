@@ -1,3 +1,9 @@
+/**
+ * Module description.
+ *
+ * @module
+ */
+
 import path from 'node:path';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { svelteTesting } from '@testing-library/svelte/vite';
