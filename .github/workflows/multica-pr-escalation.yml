@@ -19,11 +19,20 @@ permissions:
 
 jobs:
   escalate:
-    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    # No top-level if: — the job ALWAYS runs so the workflow conclusion is
+    # "success" (not the misleading "failure" GitHub reports when all jobs
+    # are filtered out by if:). Step-level if: gates the actual escalation.
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - name: Report parent CI conclusion
+        run: |
+          echo "Parent CI conclusion: ${{ github.event.workflow_run.conclusion }}"
+          echo "Parent CI head_branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "Parent CI head_sha:    ${{ github.event.workflow_run.head_sha }}"
+
       - name: Find associated multica PRs and escalate
+        if: ${{ github.event.workflow_run.conclusion == 'failure' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
@@ -47,7 +56,7 @@ jobs:
             NEW_COUNT=$((COUNT + 1))
 
             gh pr comment "$PR" --repo "$REPO" --body "<!-- multica-failure-count -->
-CI failure #${NEW_COUNT} on this PR. [View run]($RUN_URL)"
+          CI failure #${NEW_COUNT} on this PR. [View run]($RUN_URL)"
 
             if [ "$NEW_COUNT" -ge 3 ]; then
               gh pr edit "$PR" --repo "$REPO" --remove-label multica --add-label needs-human-review || true

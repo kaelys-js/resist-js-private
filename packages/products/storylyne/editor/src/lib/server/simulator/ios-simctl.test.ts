@@ -27,15 +27,16 @@ describe('ios-simctl', () => {
     });
   });
 
-  describe('isXcrunAvailable', () => {
+  /* Skip xcrun-dependent describes on non-darwin platforms (CI runs on Ubuntu).
+   * Local macOS dev machines + any future macos-latest CI matrix still run them. */
+  describe.skipIf(process.platform !== 'darwin')('isXcrunAvailable', () => {
     it('returns true on macOS with Xcode installed', async () => {
-      /* This test runs on the dev machine which has Xcode */
       const available: boolean = await isXcrunAvailable();
       expect(available).toBe(true);
     });
   });
 
-  describe('listSimulatorDevices', () => {
+  describe.skipIf(process.platform !== 'darwin')('listSimulatorDevices', () => {
     it('returns non-empty array of available devices', async () => {
       const devices = await listSimulatorDevices();
       expect(devices.length).toBeGreaterThan(0);

@@ -9,7 +9,8 @@ import { describe, expect, it } from 'vitest';
 import { getDeviceState } from './ios-lifecycle';
 import { listSimulatorDevices } from './ios-simctl';
 
-describe('ios-lifecycle', () => {
+/* xcrun is darwin-only; skip on Linux CI. macOS dev + any macOS CI matrix still run. */
+describe.skipIf(process.platform !== 'darwin')('ios-lifecycle', () => {
   describe('getDeviceState', () => {
     it('returns state for a known device UDID', async () => {
       const devices = await listSimulatorDevices();

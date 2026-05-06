@@ -4,6 +4,14 @@
 # Diverges from the .hbs in two ways pending template alignment:
 #   - runs `qa:lint` not `qa:checks` (root package.json has no qa:checks script)
 #   - omits deploy-staging + e2e-staging jobs (no staging environment configured yet)
+#
+# Performance design:
+# - Three parallel jobs (format, lint, test) instead of sequential steps in one job.
+#   Wall-time becomes max(format, lint, test) instead of sum.
+# - Each job restores actions/cache for `.turbo/`, `.resist-lint-cache.json`,
+#   and `node_modules/.cache/`. With cache hits, individual tasks skip entirely
+#   (turbo) or process only changed files (resist-lint, biome).
+# - pnpm install is cached via `cache: 'pnpm'` on setup-node@v4.
 
 name: CI
 
@@ -21,9 +29,87 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Reusable setup is duplicated across jobs intentionally — GitHub Actions has
+# no first-class composite action sharing for repo-local steps that's worth
+# the indirection. Three blocks of ~10 lines each is fine.
+
 jobs:
-  lint-and-test:
-    name: qa
+  format:
+    name: format
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.30.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: 'pnpm'
+
+      - name: Restore biome / prettier caches
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules/.cache
+          key: format-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'biome.json', '.prettierrc*') }}-${{ github.sha }}
+          restore-keys: |
+            format-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'biome.json', '.prettierrc*') }}-
+            format-${{ runner.os }}-
+
+      - name: Install dependencies
+        env:
+          NODE_OPTIONS: --import data:text/javascript,const{pathToFileURL:f}=await%20import('node:url');const{join:j,dirname:d}=await%20import('node:path');const{existsSync:e}=await%20import('node:fs');let%20p=process.cwd();while(!e(j(p,'pnpm-workspace.yaml'))%26%26d(p)!==p)p=d(p);if(e(j(p,'pnpm-workspace.yaml')))await%20import(f(j(p,'packages','shared','config','tooling','node','src','register-aliases.mjs')).href)
+        run: pnpm install --frozen-lockfile
+
+      - name: Format check
+        run: pnpm -w run qa:format:check
+
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.30.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: 'pnpm'
+
+      - name: Restore turbo + resist-lint caches
+        uses: actions/cache@v4
+        with:
+          path: |
+            .turbo
+            .resist-lint-cache.json
+            node_modules/.cache
+          key: lint-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json', '.resist-lint.jsonc', 'biome.json') }}-${{ github.sha }}
+          restore-keys: |
+            lint-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json', '.resist-lint.jsonc', 'biome.json') }}-
+            lint-${{ runner.os }}-
+
+      - name: Install dependencies
+        env:
+          NODE_OPTIONS: --import data:text/javascript,const{pathToFileURL:f}=await%20import('node:url');const{join:j,dirname:d}=await%20import('node:path');const{existsSync:e}=await%20import('node:fs');let%20p=process.cwd();while(!e(j(p,'pnpm-workspace.yaml'))%26%26d(p)!==p)p=d(p);if(e(j(p,'pnpm-workspace.yaml')))await%20import(f(j(p,'packages','shared','config','tooling','node','src','register-aliases.mjs')).href)
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint (strict — zero diagnostics required)
+        run: pnpm -w run qa:lint
+
+  test:
+    name: test
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -40,18 +126,21 @@ jobs:
           node-version-file: .nvmrc
           cache: 'pnpm'
 
-      # NODE_OPTIONS loads the @/ tsconfig path-alias resolver
-      # (.npmrc node-options is not applied to pnpm lifecycle scripts in pnpm 10.30.2)
+      - name: Restore turbo cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .turbo
+            node_modules/.cache
+          key: test-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json', 'vitest.config.ts') }}-${{ github.sha }}
+          restore-keys: |
+            test-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json', 'vitest.config.ts') }}-
+            test-${{ runner.os }}-
+
       - name: Install dependencies
         env:
           NODE_OPTIONS: --import data:text/javascript,const{pathToFileURL:f}=await%20import('node:url');const{join:j,dirname:d}=await%20import('node:path');const{existsSync:e}=await%20import('node:fs');let%20p=process.cwd();while(!e(j(p,'pnpm-workspace.yaml'))%26%26d(p)!==p)p=d(p);if(e(j(p,'pnpm-workspace.yaml')))await%20import(f(j(p,'packages','shared','config','tooling','node','src','register-aliases.mjs')).href)
         run: pnpm install --frozen-lockfile
-
-      - name: Lint (strict — zero diagnostics required)
-        run: pnpm -w run qa:lint
-
-      - name: Format check
-        run: pnpm -w run qa:format:check
 
       - name: Tests
         run: pnpm -w run qa:test
