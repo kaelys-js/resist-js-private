@@ -41,7 +41,7 @@ fi
 # the user explicitly asks for a fresh run via .claude/approved-relint).
 LINT_TRACKER="$REPO_ROOT/.claude/.last-lint-run"
 
-if echo "$CMD" | grep -qE 'qa:lint|lint/src/cli\.ts|resist-lint'; then
+if echo "$CMD" | grep -qE '(^|[[:space:]&;|`(])(pnpm|npm|yarn|bun|turbo)([[:space:]]+[^[:space:]]+)*[[:space:]]+(run[[:space:]]+)?qa:lint([[:space:]]|$)|(^|[[:space:]&;|`(])(node[[:space:]]+[^|]*lint/src/cli\.ts|resist-lint)([[:space:]]|$)'; then
   # Autonomous mode (Multica-spawned task): bypass the repeated-lint guard.
   # The agent re-running lint to verify progress is normal in unattended runs.
   # The other gates in this hook (npx vitest, cd-subdir, pipe-grep) remain
