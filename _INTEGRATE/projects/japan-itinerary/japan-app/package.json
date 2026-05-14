@@ -24,7 +24,7 @@
     "chart.js": "^4.5.1",
     "framework7": "^9.0.2",
     "framework7-svelte": "^9.0.2",
-    "svelte": "^5.50.0",
+    "svelte": "^5.55.7",
     "valibot": "^1.2.0"
   },
   "devDependencies": {
