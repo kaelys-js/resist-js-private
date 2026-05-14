@@ -44,7 +44,7 @@
     "pngjs": "^7.0.0",
     "prettier": "^3.8.1",
     "prettier-plugin-svelte": "^3.5.0",
-    "svelte": "^5.53.5",
+    "svelte": "^5.55.7",
     "svelte-check": "^4.4.3",
     "tsx": "^4.21.0",
     "turbo": "^2.8.11",

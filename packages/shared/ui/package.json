@@ -29,7 +29,7 @@
     "formsnap": "^2.0.1",
     "layerchart": "2.0.0-next.43",
     "mode-watcher": "^1.1.0",
-    "svelte": "^5.53.5",
+    "svelte": "^5.55.7",
     "svelte-check": "^4.4.3",
     "sveltekit-superforms": "^2.30.0",
     "typescript": "^5.9.3"
