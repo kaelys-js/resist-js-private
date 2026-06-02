@@ -5,6 +5,12 @@
 
 set -uo pipefail
 
+# Suppress node deprecation/experimental warnings (e.g. DEP0205 `module.register()`
+# emitted by the workspace's NODE_OPTIONS alias loader under node 26+). They are
+# written to stderr and would otherwise pollute scenarios that capture `2>&1` and
+# exact-match baseline-compare's stdout output (e.g. "SHRUNK 1").
+export NODE_NO_WARNINGS=1
+
 PROJECT_DIR="$(git rev-parse --show-toplevel)"
 HOOK="$PROJECT_DIR/.claude/hooks/post-edit-format-lint.sh"
 COMPARE="$PROJECT_DIR/.claude/hooks/lib/baseline-compare.mjs"

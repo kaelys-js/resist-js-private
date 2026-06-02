@@ -742,21 +742,18 @@ flush_active_tests
 # pass/fail line in the summary. Keeps individual test files runnable
 # standalone while ensuring `pnpm qa:hooks` exercises all of them.
 echo "Sibling smoke tests:"
-# Run all sibling smoke files in parallel — each is independent (own tmpdir).
-SMOKE_PIDS=()
-SMOKE_NAMES=()
+# Run sibling smoke files SEQUENTIALLY. Each file spawns linter/node
+# subprocesses (post-edit-format-lint.test.sh invokes the real linter several
+# times); running the FILES concurrently adds resource contention for no real
+# benefit. Serial across files — each still parallelizes its own scenarios
+# internally — keeps the suite stable and its output deterministic.
 for smoke in "$HOOKS_DIR"/*.test.sh; do
   [ "$(basename "$smoke")" = "hooks.test.sh" ] && continue
   [ ! -f "$smoke" ] && continue
-  bash "$smoke" >/dev/null 2>&1 &
-  SMOKE_PIDS+=($!)
-  SMOKE_NAMES+=("$(basename "$smoke")")
-done
-for i in "${!SMOKE_PIDS[@]}"; do
-  if wait "${SMOKE_PIDS[$i]}"; then
-    pass "${SMOKE_NAMES[$i]} all scenarios passed"
+  if bash "$smoke" >/dev/null 2>&1; then
+    pass "$(basename "$smoke") all scenarios passed"
   else
-    fail "${SMOKE_NAMES[$i]} one or more scenarios failed (run directly for detail)"
+    fail "$(basename "$smoke") one or more scenarios failed (run directly for detail)"
   fi
 done
 
