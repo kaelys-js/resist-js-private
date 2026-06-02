@@ -13,6 +13,7 @@ Steps (MANDATORY, DO NOT SKIP, READ EVERY WORD, FOLLOW EXACTLY):
 - docs/plans/[file].md: Run Linter Against The Plan File And Fix All Issues
 - EnterPlanMode with docs/plans/[file].md
 - Use TodoList for Tracking
+- Use Workflows
 
 --
 
