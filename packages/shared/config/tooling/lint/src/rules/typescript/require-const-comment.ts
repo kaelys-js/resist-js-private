@@ -7,11 +7,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  createFixableResult,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /**
@@ -47,6 +48,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['typescript', 'jsdoc'],
   stages: ['lint'],
+  fixable: true,
 
   visitor: {
     // We check at the Program level to identify top-level declarations only
@@ -96,19 +98,27 @@ const rule: TypeScriptRule = {
           }
 
           const nameStr: string = names.join(', ') || '<unnamed>';
-          results.push({
-            file: context.file,
-            line: varDecl.loc.start.line,
-            column: varDecl.loc.start.column + 1,
-            severity: 'error',
-            message: `Top-level const '${nameStr}' is missing a preceding comment`,
-            ruleId: 'typescript/require-const-comment',
-            tip: 'Add a /** ... */ or // comment above the declaration',
-            fix: {
-              range: { start: varDecl.start, end: varDecl.start },
-              text: `/** Description. */\n`,
-            },
-          });
+          // Insert a self-terminating BLOCK comment (never a `//` line comment —
+          // a line comment inserted before same-line trailing code would comment
+          // it out). The placeholder embeds the declared name(s); a meaningful
+          // description is human intent and cannot be inferred syntactically.
+          results.push(
+            createFixableResult(
+              'typescript/require-const-comment',
+              context.file,
+              varDecl.loc.start.line,
+              varDecl.loc.start.column + 1,
+              'error',
+              `Top-level const '${nameStr}' is missing a preceding comment`,
+              {
+                fix: {
+                  range: { start: varDecl.start, end: varDecl.start },
+                  text: `/** ${nameStr}. */\n`,
+                },
+                tip: 'Add a /** ... */ or // comment above the declaration',
+              },
+            ),
+          );
         }
       }
 

@@ -411,7 +411,8 @@ describe('typescript/require-const-comment', () => {
     expect(results.length).toBe(1);
     expect(results[0]!.ruleId).toBe('typescript/require-const-comment');
     expect(results[0]!.message).toContain('MAX_RETRIES');
-    expect(results[0]!.fix.text).toContain('/** Description. */');
+    expect(results[0]!.fix.text).toBe('/** MAX_RETRIES. */\n');
+    expect(requireConstComment.fixable).toBe(true);
   });
 
   it('passes top-level const with JSDoc comment', async () => {
@@ -1240,6 +1241,8 @@ describe('typescript/require-non-negative-integer', () => {
     expect(results.length).toBe(1);
     expect(results[0]!.ruleId).toBe('typescript/require-non-negative-integer');
     expect(results[0]!.message).toContain('NonNegativeInteger');
+    expect(results[0]!.fix.text).toBe('NonNegativeInteger');
+    expect(requireNonNegativeInteger.fixable).toBe(true);
   });
 
   it('passes .length typed as NonNegativeInteger', async () => {

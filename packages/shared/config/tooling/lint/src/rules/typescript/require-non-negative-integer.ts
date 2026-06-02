@@ -7,11 +7,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  createFixableResult,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /** File path patterns exempt from this rule. */
@@ -38,6 +39,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['typescript', 'valibot'],
   stages: ['lint'],
+  fixable: true,
 
   visitor: {
     VariableDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
@@ -89,19 +91,27 @@ const rule: TypeScriptRule = {
 
           if ((prop?.name as string) === 'length') {
             const name: string = (id.name as string) ?? '?';
-            results.push({
-              file: context.file,
-              line: node.loc.start.line,
-              column: node.loc.start.column + 1,
-              severity: 'error',
-              message: `'${name}' assigned from .length should be NonNegativeInteger, not Num`,
-              ruleId: 'typescript/require-non-negative-integer',
-              tip: 'Import NonNegativeInteger from @/schemas/common — .length is always >= 0',
-              fix: {
-                range: { start: innerType.start, end: innerType.end },
-                text: 'NonNegativeInteger',
-              },
-            });
+            // Replace ONLY the inner type node span (e.g. `Num`), never the
+            // TSTypeAnnotation wrapper (which includes the `:` and whitespace).
+            // The exact-text guard above (`typeText === 'Num'`) keeps this safe
+            // against `Num<T>`, `ns.Num`, `(Num)`, `Numeric`, etc.
+            results.push(
+              createFixableResult(
+                'typescript/require-non-negative-integer',
+                context.file,
+                node.loc.start.line,
+                node.loc.start.column + 1,
+                'error',
+                `'${name}' assigned from .length should be NonNegativeInteger, not Num`,
+                {
+                  fix: {
+                    range: { start: innerType.start, end: innerType.end },
+                    text: 'NonNegativeInteger',
+                  },
+                  tip: 'Import NonNegativeInteger from @/schemas/common — .length is always >= 0',
+                },
+              ),
+            );
           }
         }
       }
