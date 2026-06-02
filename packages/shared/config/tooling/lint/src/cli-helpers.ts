@@ -2016,7 +2016,22 @@ export async function _runLintCore(
     const fixesByFile: Map<string, LintFix[]> = new Map();
     const fileOps: FileOpFix[] = [];
 
+    /* Defense-in-depth: never auto-apply a fix/fileOp from a rule that
+     * explicitly opts out via `fixable: false`, even if it emitted a
+     * non-sentinel fix. Rules that leave `fixable` undefined are unaffected. */
+    const nonFixableRuleIds: Set<string> = new Set<string>();
+
+    for (const r of [...loaded.typescript, ...loaded.packageJson, ...loaded.workspace]) {
+      if (r.fixable === false) {
+        nonFixableRuleIds.add(r.id);
+      }
+    }
+
     for (const result of allResults) {
+      if (nonFixableRuleIds.has(result.ruleId)) {
+        continue;
+      }
+
       /* File ops live on a separate field; collect them independently */
       if (result.fileOp) {
         fileOps.push(result.fileOp);

@@ -8,6 +8,8 @@
  */
 import {
   NO_OP_FIX,
+  createFixableResult,
+  createResult,
   type TypeScriptRule,
   type LintResult,
   type AstNode,
@@ -72,7 +74,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts'],
   categories: ['typescript', 'naming'],
   stages: ['lint', 'ci'],
-  fixable: false,
+  fixable: true,
   visitor: {
     Program(node: AstNode, context: VisitorContext): LintResult[] {
       if (context.file.endsWith('.svelte.ts')) {
@@ -87,18 +89,44 @@ const rule: TypeScriptRule = {
 
       const callee = runeCall.callee as AstNode;
       const name = (callee.name as string) ?? '$state';
+      const { line, column: rawColumn } = runeCall.loc.start;
+      const column: number = rawColumn + 1;
+      const message = `Svelte rune '${name}()' requires .svelte.ts extension`;
+
+      // Declaration files match `**/*.ts`, but renaming to `*.d.svelte.ts` is
+      // nonsensical — flag as detect-only (no rename fileOp).
+      if (context.file.endsWith('.d.ts')) {
+        return [
+          createResult(
+            'typescript/require-svelte-ts-extension',
+            context.file,
+            line,
+            column,
+            'error',
+            message,
+            { tip: 'Move Svelte-rune code out of this declaration file.' },
+          ),
+        ];
+      }
+
+      // Rename `<name>.ts` → `<name>.svelte.ts`. The `**/*.ts` pattern guarantees
+      // a `.ts` suffix, so the rename target always differs from the source.
+      const to: string = context.file.replace(/\.ts$/, '.svelte.ts');
 
       return [
-        {
-          file: context.file,
-          line: runeCall.loc.start.line,
-          column: runeCall.loc.start.column + 1,
-          severity: 'error',
-          message: `Svelte rune '${name}()' requires .svelte.ts extension`,
-          ruleId: 'typescript/require-svelte-ts-extension',
-          tip: 'Rename this file from .ts to .svelte.ts',
-          fix: NO_OP_FIX,
-        },
+        createFixableResult(
+          'typescript/require-svelte-ts-extension',
+          context.file,
+          line,
+          column,
+          'error',
+          message,
+          {
+            fix: NO_OP_FIX,
+            fileOp: { type: 'rename', from: context.file, to },
+            tip: 'Rename this file from .ts to .svelte.ts. Importers referencing it may need a manual update — the rename does not rewrite imports.',
+          },
+        ),
       ];
     },
   },

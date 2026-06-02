@@ -46,13 +46,61 @@ function lint(rule: TypeScriptRule, code: string, filename?: string): Promise<Li
 // =============================================================================
 
 describe('typescript/require-type-annotation', () => {
-  it('reports const without type annotation', async () => {
+  it('reports const without type annotation and infers number', async () => {
     const code: string = 'const x = 42;';
     const results: LintResult[] = await lint(requireTypeAnnotation, code);
     expect(results.length).toBe(1);
     expect(results[0]!.message).toContain("'x'");
-    expect(results[0]!.fix).toBeDefined();
-    expect(results[0]!.fix.text).toBe(': TYPE');
+    expect(requireTypeAnnotation.fixable).toBe(true);
+    expect(results[0]!.fix.text).toBe(': number');
+  });
+
+  it('infers string for a string-literal const', async () => {
+    const results: LintResult[] = await lint(requireTypeAnnotation, "const s = 'a';");
+    expect(results[0]!.fix.text).toBe(': string');
+  });
+
+  it('infers boolean for a boolean-literal const', async () => {
+    const results: LintResult[] = await lint(requireTypeAnnotation, 'const b = true;');
+    expect(results[0]!.fix.text).toBe(': boolean');
+  });
+
+  it('infers number for a unary-minus numeric literal', async () => {
+    const results: LintResult[] = await lint(requireTypeAnnotation, 'const n = -1;');
+    expect(results[0]!.fix.text).toBe(': number');
+  });
+
+  it('infers string for a template literal', async () => {
+    const results: LintResult[] = await lint(requireTypeAnnotation, 'const t = `hello`;');
+    expect(results[0]!.fix.text).toBe(': string');
+  });
+
+  it('infers number for a literal-defaulted parameter', async () => {
+    const results: LintResult[] = await lint(
+      requireTypeAnnotation,
+      'function f(count = 0): void {}',
+    );
+    expect(results.length).toBe(1);
+    expect(results[0]!.fix.text).toBe(': number');
+  });
+
+  it('emits NO_OP (never a placeholder) for a non-inferable call-expression init', async () => {
+    const results: LintResult[] = await lint(requireTypeAnnotation, 'const a = foo();');
+    expect(results.length).toBe(1);
+    expect(results[0]!.fix.text).toBe('');
+    expect(results[0]!.fix.range).toEqual({ start: 0, end: 0 });
+  });
+
+  it('emits NO_OP for a bare untyped parameter', async () => {
+    const results: LintResult[] = await lint(requireTypeAnnotation, 'function f(x): void {}');
+    expect(results.length).toBe(1);
+    expect(results[0]!.fix.text).toBe('');
+  });
+
+  it('emits NO_OP for a destructured binding (no placeholder)', async () => {
+    const results: LintResult[] = await lint(requireTypeAnnotation, 'const [a, b] = pair;');
+    expect(results.length).toBe(1);
+    expect(results[0]!.fix.text).toBe('');
   });
 
   it('passes const with type annotation', async () => {
@@ -448,13 +496,58 @@ export const FOO: string = "bar";`;
 // =============================================================================
 
 describe('typescript/require-return-type', () => {
-  it('reports function without return type', async () => {
+  it('reports function without return type (NO_OP when body has a return)', async () => {
     const code: string = 'function foo() { return 42; }';
     const results: LintResult[] = await lint(requireReturnType, code);
     expect(results.length).toBe(1);
     expect(results[0]!.ruleId).toBe('typescript/require-return-type');
     expect(results[0]!.message).toContain('foo');
-    expect(results[0]!.fix.text).toBe(': ReturnType');
+    expect(requireReturnType.fixable).toBe(true);
+    // A real return type needs a type checker → NO_OP, never the old `: ReturnType`.
+    expect(results[0]!.fix.text).toBe('');
+  });
+
+  it('infers : void for an empty-body function', async () => {
+    const results: LintResult[] = await lint(requireReturnType, 'function f() {}');
+    expect(results.length).toBe(1);
+    expect(results[0]!.fix.text).toBe(': void');
+  });
+
+  it('infers : Promise<void> for an empty-body async function', async () => {
+    const results: LintResult[] = await lint(requireReturnType, 'async function f() {}');
+    expect(results[0]!.fix.text).toBe(': Promise<void>');
+  });
+
+  it('infers : void for a paren-wrapped empty-body arrow', async () => {
+    const results: LintResult[] = await lint(requireReturnType, 'const f = (x) => {};');
+    expect(results[0]!.fix.text).toBe(': void');
+  });
+
+  it('NO_OP for a throw-only body (type is never, not void)', async () => {
+    const results: LintResult[] = await lint(
+      requireReturnType,
+      'function f() { throw new Error(); }',
+    );
+    expect(results[0]!.fix.text).toBe('');
+  });
+
+  it('NO_OP for a partial-return body', async () => {
+    const results: LintResult[] = await lint(
+      requireReturnType,
+      'function f() { if (x) { return 1; } }',
+    );
+    expect(results[0]!.fix.text).toBe('');
+  });
+
+  it('NO_OP for a paren-less single-param arrow (cannot add parens with one insert)', async () => {
+    const results: LintResult[] = await lint(requireReturnType, 'const f = x => g(x);');
+    expect(results.length).toBe(1);
+    expect(results[0]!.fix.text).toBe('');
+  });
+
+  it('NO_OP for a generator function', async () => {
+    const results: LintResult[] = await lint(requireReturnType, 'function* g() {}');
+    expect(results[0]!.fix.text).toBe('');
   });
 
   it('passes function with return type', async () => {
@@ -1455,11 +1548,16 @@ describe('typescript/no-union-params', () => {
 // =============================================================================
 
 describe('typescript/require-function-schema', () => {
-  it('flags v.custom with function type parameter', async () => {
+  it('flags v.custom with function type parameter (NO_OP without imports)', async () => {
     const code: string = `const schema = v.strictObject({ handler: v.custom<() => void>(() => true) });`;
     const results: LintResult[] = await lint(requireFunctionSchema, code);
     expect(results.length).toBe(1);
     expect(results[0]!.message).toContain('functionSchema()');
+    expect(requireFunctionSchema.fixable).toBe(true);
+    // No valibot / functionSchema imports here → detect-only NO_OP, never the
+    // old destructive whole-node deletion.
+    expect(results[0]!.fix.range).toEqual({ start: 0, end: 0 });
+    expect(results[0]!.fix.text).toBe('');
   });
 
   it('flags v.custom with arrow function type parameter', async () => {
@@ -1489,6 +1587,60 @@ describe('typescript/require-function-schema', () => {
     );
     expect(results.length).toBe(0);
   });
+
+  it('transforms v.custom to functionSchema() when valibot + functionSchema imported and predicate trivial', async () => {
+    const code: string = [
+      "import * as v from 'valibot';",
+      "import { functionSchema } from '@/schemas/function';",
+      'const schema = v.strictObject({ handler: v.custom<() => void>(() => true) });',
+    ].join('\n');
+    const results: LintResult[] = await lint(requireFunctionSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.fix.text).toBe('functionSchema()');
+  });
+
+  it('does NOT transform when functionSchema is not imported (NO_OP)', async () => {
+    const code: string = [
+      "import * as v from 'valibot';",
+      'const schema = v.strictObject({ handler: v.custom<() => void>(() => true) });',
+    ].join('\n');
+    const results: LintResult[] = await lint(requireFunctionSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.fix.range).toEqual({ start: 0, end: 0 });
+  });
+
+  it('does NOT transform a logic-bearing predicate (would silently drop validation)', async () => {
+    const code: string = [
+      "import * as v from 'valibot';",
+      "import { functionSchema } from '@/schemas/function';",
+      'const s = v.strictObject({ h: v.custom<() => void>((fn) => typeof fn === "function") });',
+    ].join('\n');
+    const results: LintResult[] = await lint(requireFunctionSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.fix.range).toEqual({ start: 0, end: 0 });
+  });
+
+  it('does NOT transform a non-valibot .custom call', async () => {
+    const code: string = [
+      "import { functionSchema } from '@/schemas/function';",
+      "import lib from 'other';",
+      'const schema = lib.custom<() => void>(() => true);',
+    ].join('\n');
+    const results: LintResult[] = await lint(requireFunctionSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.fix.range).toEqual({ start: 0, end: 0 });
+  });
+
+  it('does NOT transform an immediately-invoked v.custom (IIFE)', async () => {
+    const code: string = [
+      "import * as v from 'valibot';",
+      "import { functionSchema } from '@/schemas/function';",
+      'const x = v.custom<() => void>(() => true)();',
+    ].join('\n');
+    const results: LintResult[] = await lint(requireFunctionSchema, code);
+    expect(results.length).toBe(1);
+    expect(results[0]!.fix.range).toEqual({ start: 0, end: 0 });
+  });
 });
 
 // =============================================================================
@@ -1496,7 +1648,7 @@ describe('typescript/require-function-schema', () => {
 // =============================================================================
 
 describe('typescript/require-svelte-ts-extension', () => {
-  it('flags $state() in plain .ts file', async () => {
+  it('flags $state() in plain .ts file with a rename fileOp', async () => {
     const results: LintResult[] = await lint(
       requireSvelteTsExtension,
       'const count = $state(0);',
@@ -1504,6 +1656,25 @@ describe('typescript/require-svelte-ts-extension', () => {
     );
     expect(results).toHaveLength(1);
     expect(results[0]!.ruleId).toBe('typescript/require-svelte-ts-extension');
+    expect(requireSvelteTsExtension.fixable).toBe(true);
+    expect(results[0]!.fileOp).toEqual({
+      type: 'rename',
+      from: '/src/state.ts',
+      to: '/src/state.svelte.ts',
+    });
+    // The text fix stays the NO_OP sentinel — only the fileOp is applied.
+    expect(results[0]!.fix.text).toBe('');
+    expect(results[0]!.fix.range).toEqual({ start: 0, end: 0 });
+  });
+
+  it('flags a rune in a .d.ts file WITHOUT a rename fileOp', async () => {
+    const results: LintResult[] = await lint(
+      requireSvelteTsExtension,
+      'const count = $state(0);',
+      '/src/types.d.ts',
+    );
+    expect(results).toHaveLength(1);
+    expect(results[0]!.fileOp).toBeUndefined();
   });
   it('flags $derived() in plain .ts file', async () => {
     const results: LintResult[] = await lint(

@@ -7,11 +7,13 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  createFixableResult,
+  createResult,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /**
@@ -22,6 +24,65 @@ import type {
  */
 function hasTypeAnnotation(decl: AstNode): boolean {
   return Boolean(decl.typeAnnotation || (decl.id as AstNode | undefined)?.typeAnnotation);
+}
+
+/**
+ * Infer a WIDENED keyword type from a syntactically-unambiguous initializer.
+ *
+ * Returns the keyword (`number`, `string`, `boolean`, `bigint`, `RegExp`) for
+ * cases the oxc syntactic AST proves, or null when a type checker would be
+ * required (calls, identifiers, member access, objects, arrays, …). Always the
+ * widened keyword — never a literal type like `42` — so it is correct for `let`.
+ *
+ * @param node - The initializer / default-value AST node (or undefined)
+ * @returns The inferred widened keyword, or null when not safely inferable
+ */
+function inferLiteralType(node: AstNode | undefined): string | null {
+  if (!node) {
+    return null;
+  }
+
+  if (node.type === 'Literal') {
+    const { value } = node;
+
+    if (value === null) {
+      return null; // `null` literal — skip (conservative).
+    }
+    if (value instanceof RegExp) {
+      return 'RegExp';
+    }
+
+    const kind: string = typeof value;
+
+    if (kind === 'number' || kind === 'string' || kind === 'boolean' || kind === 'bigint') {
+      return kind;
+    }
+
+    return null;
+  }
+
+  // Any template literal (even interpolated) is a string. Tagged templates are
+  // a distinct node type and are NOT matched here.
+  if (node.type === 'TemplateLiteral') {
+    return 'string';
+  }
+
+  // Unary `-`/`+` over a numeric literal is unambiguously `number`. Never fire
+  // on `void`/`typeof`/`!`/`~` or non-literal arguments.
+  if (node.type === 'UnaryExpression') {
+    const { operator } = node;
+    const argument = node.argument as AstNode | undefined;
+
+    if (
+      (operator === '-' || operator === '+') &&
+      argument?.type === 'Literal' &&
+      typeof argument.value === 'number'
+    ) {
+      return 'number';
+    }
+  }
+
+  return null;
 }
 
 /**
@@ -39,6 +100,8 @@ function checkParams(params: AstNode[], funcName: string, context: VisitorContex
     let paramName: string | null = null;
     let hasType: boolean = false;
     let insertPos: number = param.end;
+    // Only a defaulted param with a literal default carries a syntactic type signal.
+    let inferred: string | null = null;
 
     if (param.type === 'Identifier') {
       paramName = (param.name as string) ?? null; // cast safe: AST name property
@@ -51,6 +114,7 @@ function checkParams(params: AstNode[], funcName: string, context: VisitorContex
         paramName = (left.name as string) ?? null; // cast safe: AST name property
         hasType = Boolean(left.typeAnnotation);
         insertPos = left.end;
+        inferred = inferLiteralType(param.right as AstNode | undefined);
       }
     } else if (param.type === 'RestElement') {
       const arg = param.argument as AstNode | undefined; // cast safe: AST argument property
@@ -67,16 +131,34 @@ function checkParams(params: AstNode[], funcName: string, context: VisitorContex
     }
 
     if (paramName && !hasType) {
-      results.push({
-        file: context.file,
-        line: param.loc.start.line,
-        column: param.loc.start.column + 1,
-        severity: 'error',
-        message: `Missing type annotation on parameter '${paramName}' in function '${funcName}'`,
-        ruleId: 'typescript/require-type-annotation',
-        tip: 'Add a type annotation to the parameter',
-        fix: { range: { start: insertPos, end: insertPos }, text: ': TYPE' },
-      });
+      const message = `Missing type annotation on parameter '${paramName}' in function '${funcName}'`;
+      const tip = 'Add a type annotation to the parameter';
+
+      if (inferred) {
+        results.push(
+          createFixableResult(
+            'typescript/require-type-annotation',
+            context.file,
+            param.loc.start.line,
+            param.loc.start.column + 1,
+            'error',
+            message,
+            { fix: { range: { start: insertPos, end: insertPos }, text: `: ${inferred}` }, tip },
+          ),
+        );
+      } else {
+        results.push(
+          createResult(
+            'typescript/require-type-annotation',
+            context.file,
+            param.loc.start.line,
+            param.loc.start.column + 1,
+            'error',
+            message,
+            { tip },
+          ),
+        );
+      }
     }
   }
 
@@ -89,6 +171,7 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.svelte.ts'],
   categories: ['typescript'],
   stages: ['lint', 'ci'],
+  fixable: true,
 
   visitor: {
     VariableDeclaration(node: AstNode, context: VisitorContext): LintResult[] {
@@ -123,16 +206,19 @@ const rule: TypeScriptRule = {
 
             if (!isForOf) {
               const kind: string = id.type === 'ArrayPattern' ? 'array' : 'object';
-              results.push({
-                file: context.file,
-                line: node.loc.start.line,
-                column: node.loc.start.column + 1,
-                severity: 'error',
-                message: `Destructured ${kind} declaration is missing a type annotation`,
-                ruleId: 'typescript/require-type-annotation',
-                tip: `Add a type annotation after the destructuring pattern`,
-                fix: { range: { start: id.end, end: id.end }, text: ': TYPE' },
-              });
+              // Synthesizing the structural/tuple type for a destructuring
+              // pattern is unsafe (rest/holes/nested) — emit a detect-only NO_OP.
+              results.push(
+                createResult(
+                  'typescript/require-type-annotation',
+                  context.file,
+                  node.loc.start.line,
+                  node.loc.start.column + 1,
+                  'error',
+                  `Destructured ${kind} declaration is missing a type annotation`,
+                  { tip: `Add a type annotation after the destructuring pattern` },
+                ),
+              );
             }
           }
           continue;
@@ -171,19 +257,44 @@ const rule: TypeScriptRule = {
           continue;
         }
 
-        // Insert `: TYPE` after the identifier name
+        // Insert `: <inferred>` after the identifier when the initializer is a
+        // syntactically-unambiguous literal; otherwise emit a detect-only NO_OP
+        // (a type checker would be required, and `: TYPE` is not valid TS).
         const insertPos: number = id.end;
-        results.push({
-          file: context.file,
-          line: node.loc.start.line,
-          column: node.loc.start.column + 1,
-          severity: 'error',
-          message: `Missing type annotation on '${name}'`,
-          ruleId: 'typescript/require-type-annotation',
-          tip: 'Add an explicit type: const name: Type = ...',
-          example: `const ${name}: Type = value;`,
-          fix: { range: { start: insertPos, end: insertPos }, text: ': TYPE' },
-        });
+        const inferred: string | null = inferLiteralType(init);
+
+        if (inferred) {
+          results.push(
+            createFixableResult(
+              'typescript/require-type-annotation',
+              context.file,
+              node.loc.start.line,
+              node.loc.start.column + 1,
+              'error',
+              `Missing type annotation on '${name}'`,
+              {
+                fix: { range: { start: insertPos, end: insertPos }, text: `: ${inferred}` },
+                tip: 'Add an explicit type: const name: Type = ...',
+                example: `const ${name}: ${inferred} = value;`,
+              },
+            ),
+          );
+        } else {
+          results.push(
+            createResult(
+              'typescript/require-type-annotation',
+              context.file,
+              node.loc.start.line,
+              node.loc.start.column + 1,
+              'error',
+              `Missing type annotation on '${name}'`,
+              {
+                tip: 'Add an explicit type: const name: Type = ...',
+                example: `const ${name}: Type = value;`,
+              },
+            ),
+          );
+        }
       }
 
       return results;

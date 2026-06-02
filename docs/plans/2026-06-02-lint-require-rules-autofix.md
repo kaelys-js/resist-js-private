@@ -272,7 +272,10 @@ These rules are currently `off` in `.resist-lint.jsonc:194-199`, so the hazards 
 
 **Verification**:
 
-- All four checks above produce the expected result (zero added commands; `fixable` read by `--list-rules` and the applier; no new classes or files beyond the listed set; no orphaned exports).
+- `git diff HEAD -- packages/shared/config/tooling/lint/src | grep -cE '^\+.*registerCommand'` returns 0 — no VS Code commands added.
+- `grep -c 'fixable' packages/shared/config/tooling/lint/src/cli-helpers.ts` returns at least 1 — the applier reads the `fixable` flag.
+- `git diff --name-only --diff-filter=A HEAD -- packages/ | grep -cv 'test-results/'` returns 0 — no new source files beyond the listed set.
+- `git diff HEAD -- packages/shared/config/tooling/lint/src/rules | grep -cE '^\+export '` returns 0 — every added helper is file-private (no new exports).
 - `pnpm --filter '@/lint' run qa:test` passes with at least baseline plus the new cases.
 
 ---
