@@ -277,7 +277,10 @@ describe('findWorkspaceRoot', () => {
     const root: string | null = findWorkspaceRoot(process.cwd());
     expect(root).not.toBe(null);
     if (root !== null) {
-      expect(root.endsWith('resist-js-private')).toBe(true);
+      // Dir-agnostic: findWorkspaceRoot walks up to the directory containing
+      // pnpm-workspace.yaml — which is the workspace root we started from
+      // (process.cwd() under `pnpm -w exec vitest`), whatever it is named.
+      expect(root).toBe(process.cwd());
     }
   });
 

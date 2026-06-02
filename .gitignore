@@ -34,6 +34,10 @@ coverage/
 .worktrees/
 .playwright-mcp
 test-results/
+# `test-results/` (above) targets test-OUTPUT dirs; re-include the first-party
+# source "lens" directory that the broad pattern would otherwise ignore.
+!packages/shared/ui/src/test-results/
+!packages/shared/ui/src/test-results/**
 .github/skills
 branding-git-exclude
 # CocoIndex Code (ccc)
