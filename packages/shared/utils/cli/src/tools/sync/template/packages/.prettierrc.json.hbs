@@ -1,3 +1,4 @@
+// TODO: Sort keys
 {
   "$schema": "{{schemaPath 'tooling/prettier'}}",
   "useTabs": false,
@@ -7,7 +8,11 @@
   "singleQuote": true,
   "trailingComma": "all",
   "semi": true,
+  "bracketSpacing": true,
+  "bracketSameLine": false,
   "arrowParens": "always",
+  "svelteSortOrder": "options-scripts-markup-styles",
+  "svelteAllowShorthand": true
   "plugins": ["prettier-plugin-svelte"],
   "overrides": [
     {

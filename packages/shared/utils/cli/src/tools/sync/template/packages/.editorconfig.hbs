@@ -95,3 +95,23 @@ indent_style = unset
 indent_size = unset
 trim_trailing_whitespace = false
 insert_final_newline = unset
+
+# TODO: Commenting
+[*.{kt,kts}]
+ktlint_standard_property-naming = disabled
+
+# TODO: Commenting
+[*.{py,rb}]
+indent_size = {{ format.global.indent_size }}
+
+# TODO: Commenting
+[*.{xml,plist,xcconfig,xcsettings,xcscheme,xcworkspacedata,pbxproj}]
+indent_size = {{ format.global.indent_size }}
+trim_trailing_whitespace = false
+
+# TODO: Commenting
+[{*.lock,*.tsbuildinfo,*.snap,*.min.*,**/CHANGELOG.md,**/pnpm-lock.yaml,**/Gemfile.lock,**/Package.resolved}]
+indent_size              = unset
+indent_style             = unset
+trim_trailing_whitespace = false
+insert_final_newline     = unset

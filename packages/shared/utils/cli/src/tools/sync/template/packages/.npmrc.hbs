@@ -89,3 +89,18 @@ public-hoist-pattern[] = *cloudflare*
 # ============================================
 node-options = "--import data:text/javascript,const{pathToFileURL:f}=await%20import('node:url');const{join:j,dirname:d}=await%20import('node:path');const{existsSync:e}=await%20import('node:fs');let%20p=process.cwd();while(!e(j(p,'pnpm-workspace.yaml'))%26%26d(p)!==p)p=d(p);if(e(j(p,'pnpm-workspace.yaml')))await%20import(f(j(p,'packages','shared','config','tooling','node','src','register-aliases.mjs')).href)"
 {{/ifPm}}
+
+# TODO: Sort all the below into proper sections and add commenting and also gate these if they only work in pnpm and validate all of these properties exist, are correct and not already defaults
+prefer-frozen-lockfile=true
+loglevel=warnings
+node-linker=isolated
+package-import-method=hardlink
+dedupe-peer-dependents=true
+side-effects-cache=true
+side-ffects-cache-readonly=false
+package-manager-strict=true
+confirm-modules-purge=false
+manage-package-manager-versions=true
+strict-ssl=true
+registry=https://registry.npmjs.org
+verify-store-integrity=true

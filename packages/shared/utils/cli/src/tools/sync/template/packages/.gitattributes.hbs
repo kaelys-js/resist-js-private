@@ -215,11 +215,11 @@ Procfile text eol=lf
 *.storyboard binary
 *.xib binary
 *.strings text eol=lf
-
-# ============================================
-# Capacitor — Android
-# ============================================
-*.gradle text eol=lf
+*.xcworkspacedata text -merge
+*.xcscheme        text -merge
+*.xcsettings      text -merge
+*.plist           text -merge
+*.entitlements    text -merge
 
 # ============================================
 # TypeScript Definitions
@@ -239,6 +239,7 @@ Cargo.lock text eol=lf -diff linguist-generated=true
 go.sum text eol=lf -diff linguist-generated=true
 poetry.lock text eol=lf -diff linguist-generated=true
 shrinkwrap.yaml text eol=lf -diff linguist-generated=true
+Package.resolved text eol=lf -diff linguist-generated=true
 
 # ============================================
 # Generated Files (no diff, linguist ignore)
@@ -272,6 +273,8 @@ node_modules/** -diff linguist-generated=true
 **/__snapshots__/** -diff linguist-generated=true
 playwright-report/** -diff linguist-generated=true
 test-results/** -diff linguist-generated=true
+.gradle/** -diff linguist-generated=true
+.venv/** -diff linguist-generated=true
 
 # ============================================
 # Documentation (linguist)
@@ -286,6 +289,7 @@ docs/** linguist-documentation=true
 *.jpeg binary
 *.gif binary
 *.ico binary
+*.icns binary
 *.webp binary
 *.avif binary
 *.bmp binary
@@ -341,6 +345,7 @@ docs/** linguist-documentation=true
 *.zip binary
 *.gz binary
 *.tar binary
+*.tar.gz bunary
 *.tgz binary
 *.bz2 binary
 *.xz binary
@@ -366,6 +371,7 @@ docs/** linguist-documentation=true
 # ============================================
 # Executables & Libraries (binary)
 # ============================================
+*.app binary
 *.exe binary
 *.dll binary
 *.so binary
@@ -374,6 +380,17 @@ docs/** linguist-documentation=true
 *.lib binary
 *.wasm binary
 *.node binary
+*.bundle binary
+*.jar binary
+*.aar binary
+*.apk binary
+*.aab binary
+*.ipa binary
+*.AppImage binary
+*.snap binary
+*.deb binary
+*.rpm binary
+*.pkg binary
 
 # ============================================
 # Database (binary)
