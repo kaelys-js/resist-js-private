@@ -11,7 +11,8 @@
 import { describe, expect, it } from 'vitest';
 
 import type { WorkspaceContext } from '../../framework/rule-context.ts';
-import type { LintResult } from '../../framework/types.ts';
+import { NO_OP_FIX, type LintResult } from '../../framework/types.ts';
+import { applyFixes } from '../../cli-helpers.ts';
 import { discoverPlanFiles, parsePlan, parsePlanDate } from './plan-parser.ts';
 import noTemplatePlaceholders from './no-template-placeholders.ts';
 import noIncompleteTasks from './no-incomplete-tasks.ts';
@@ -820,6 +821,120 @@ describe('plans/require-test-files', () => {
     });
     const results: LintResult[] = await requireTestFiles.check(ctx);
     expect(results).toHaveLength(0);
+  });
+
+  it('emits a real insertion fix that adds a Test entry after the last Files bullet', async () => {
+    const plan = `## TASK 1 — Create feature
+
+**Status**: [ ]
+
+**Files**:
+- Edit: \`src/features/my-feature.ts\`
+
+**Verification**: Tests pass
+`;
+    const ctx = createMockContext({
+      '/mock/docs/plans/2026-04-01-test.md': plan,
+    });
+    const results: LintResult[] = await requireTestFiles.check(ctx);
+    expect(results).toHaveLength(1);
+
+    /* Fix is a REAL (non-NO_OP) text insertion: zero-width range (start === end). */
+    const { fix } = results[0]!;
+    expect('range' in fix).toBe(true);
+    if (!('range' in fix)) {
+      throw new Error('expected a text fix');
+    }
+    expect(fix.range.start).toBe(fix.range.end);
+    expect(fix.range.start).toBeGreaterThan(0);
+    expect(fix.text).toContain('- Test: src/features/my-feature.test.ts');
+
+    /* Applying the fix inserts the Test bullet directly after the Edit bullet. */
+    const patched: string = applyFixes(plan, [fix]);
+    expect(patched).toContain(
+      '- Edit: `src/features/my-feature.ts`\n- Test: src/features/my-feature.test.ts',
+    );
+  });
+
+  it('partial-fix: derives a Test entry only for the .ts source, not the .svelte source', async () => {
+    const plan = `## TASK 1 — Create feature
+
+**Status**: [ ]
+
+**Files**:
+- Create: \`src/features/widget.ts\`
+- Create: \`src/features/Widget.svelte\`
+
+**Verification**: Tests pass
+`;
+    const ctx = createMockContext({
+      '/mock/docs/plans/2026-04-01-test.md': plan,
+    });
+    const results: LintResult[] = await requireTestFiles.check(ctx);
+    expect(results).toHaveLength(1);
+
+    const { fix } = results[0]!;
+
+    if (!('text' in fix)) {
+      throw new Error('expected a text fix');
+    }
+    /* Only the .ts file gets a derived .test.ts entry. */
+    expect(fix.text).toContain('- Test: src/features/widget.test.ts');
+    /* No .svelte-derived test path is emitted. */
+    expect(fix.text).not.toContain('.svelte');
+    expect(fix.text).not.toContain('Widget.svelte.test');
+    expect((fix.text.match(/- Test:/g) ?? []).length).toBe(1);
+  });
+
+  it('returns NO_OP_FIX when the flagged task has no Edit/Create/Test anchor bullet', async () => {
+    /* The bullet has no space after the colon: the plan parser still records it
+     * as a Create file (so detection fires), but the fix's anchor regex requires
+     * whitespace after the colon — so no anchor line is found and the fix falls
+     * back to NO_OP_FIX. */
+    const plan = `## TASK 1 — Create feature
+
+**Status**: [ ]
+
+**Files**:
+- Create:src/features/my-feature.ts
+
+**Verification**: Tests pass
+`;
+    const ctx = createMockContext({
+      '/mock/docs/plans/2026-04-01-test.md': plan,
+    });
+    const results: LintResult[] = await requireTestFiles.check(ctx);
+    expect(results).toHaveLength(1);
+    expect(results[0]!.fix).toEqual(NO_OP_FIX);
+  });
+
+  it('emits multiple Test entries when a task has multiple .ts source files', async () => {
+    const plan = `## TASK 1 — Create feature
+
+**Status**: [ ]
+
+**Files**:
+- Create: \`src/features/alpha.ts\`
+- Create: \`src/features/beta.ts\`
+
+**Verification**: Tests pass
+`;
+    const ctx = createMockContext({
+      '/mock/docs/plans/2026-04-01-test.md': plan,
+    });
+    const results: LintResult[] = await requireTestFiles.check(ctx);
+    expect(results).toHaveLength(1);
+
+    const { fix } = results[0]!;
+
+    if (!('text' in fix)) {
+      throw new Error('expected a text fix');
+    }
+
+    const testLineCount: number = (fix.text.match(/- Test:/g) ?? []).length;
+    expect(testLineCount).toBeGreaterThanOrEqual(2);
+    expect(fix.text).toContain('- Test: src/features/alpha.test.ts');
+    expect(fix.text).toContain('- Test: src/features/beta.test.ts');
   });
 });
 
