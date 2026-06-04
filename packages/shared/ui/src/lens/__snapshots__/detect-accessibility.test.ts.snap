@@ -715,4 +715,4 @@ exports[`auditAccessibility — per-component regressions > component failure ma
 }
 `;
 
-exports[`auditAccessibility — per-component regressions > components with zero a11y failures stay clean 1`] = `733`;
+exports[`auditAccessibility — per-component regressions > components with zero a11y failures stay clean 1`] = `734`;
