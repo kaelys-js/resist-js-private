@@ -10,11 +10,12 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  createFixableResult,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 
 /** Statement types that are "declarations" (const/let/var). */
@@ -143,16 +144,31 @@ const rule: TypeScriptRule = {
         }
 
         if (!hasBlankLineBetween(context.content, current.end, next.start)) {
-          results.push({
-            file: context.file,
-            line: next.loc.start.line,
-            column: 1,
-            severity: 'error',
-            message: `Add a blank line between ${currentGroup} and ${nextGroup} statements for readability`,
-            ruleId: 'comments/require-blank-line-groups',
-            tip: 'Add an empty line between variable declarations and control flow (if/for/return)',
-            fix: { range: { start: next.start, end: next.start }, text: '\n' },
-          });
+          /* Count newlines already separating the two statements. A blank line
+           * requires TWO newlines; insert only the missing ones. Anchoring the
+           * insertion at current.end (rather than next.start) places the newline(s)
+           * before next's indentation, so the inserted line is truly blank and the
+           * fix is idempotent (re-running finds 2 newlines and inserts nothing). */
+          const between: string = context.content.slice(current.end, next.start);
+          const newlines: number = (between.match(/\n/g) ?? []).length;
+
+          results.push(
+            createFixableResult(
+              'comments/require-blank-line-groups',
+              context.file,
+              next.loc.start.line,
+              1,
+              'error',
+              `Add a blank line between ${currentGroup} and ${nextGroup} statements for readability`,
+              {
+                tip: 'Add an empty line between variable declarations and control flow (if/for/return)',
+                fix: {
+                  range: { start: current.end, end: current.end },
+                  text: '\n'.repeat(Math.max(1, 2 - newlines)),
+                },
+              },
+            ),
+          );
         }
       }
 
@@ -203,16 +219,28 @@ const rule: TypeScriptRule = {
         }
 
         if (!hasBlankLineBetween(context.content, current.end, next.start)) {
-          results.push({
-            file: context.file,
-            line: next.loc.start.line,
-            column: 1,
-            severity: 'error',
-            message: `Add a blank line between ${currentGroup} and ${nextGroup} statements for readability`,
-            ruleId: 'comments/require-blank-line-groups',
-            tip: 'Add an empty line between variable declarations and control flow (if/for/return)',
-            fix: { range: { start: next.start, end: next.start }, text: '\n' },
-          });
+          /* Same idempotent blank-line insertion as the BlockStatement visitor:
+           * insert only the missing newline(s), anchored at current.end. */
+          const between: string = context.content.slice(current.end, next.start);
+          const newlines: number = (between.match(/\n/g) ?? []).length;
+
+          results.push(
+            createFixableResult(
+              'comments/require-blank-line-groups',
+              context.file,
+              next.loc.start.line,
+              1,
+              'error',
+              `Add a blank line between ${currentGroup} and ${nextGroup} statements for readability`,
+              {
+                tip: 'Add an empty line between variable declarations and control flow (if/for/return)',
+                fix: {
+                  range: { start: current.end, end: current.end },
+                  text: '\n'.repeat(Math.max(1, 2 - newlines)),
+                },
+              },
+            ),
+          );
         }
       }
 

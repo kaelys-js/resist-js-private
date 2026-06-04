@@ -179,6 +179,105 @@ function findIndexOfComparison(
   return result;
 }
 
+/** Array methods that mutate the receiver in place. */
+const MUTATING_METHODS: ReadonlySet<string> = new Set([
+  'push',
+  'pop',
+  'shift',
+  'unshift',
+  'splice',
+  'sort',
+  'reverse',
+  'fill',
+]);
+
+/**
+ * Get the indexOf receiver when it is a simple `Identifier` (e.g. `arr` in
+ * `arr.indexOf(x)`). Returns null for computed or member receivers.
+ *
+ * @param {AstNode} callNode - The indexOf CallExpression
+ * @returns {string | null} The receiver identifier name, or null
+ */
+function getReceiverIdentifier(callNode: AstNode): string | null {
+  const callee: AstNode | undefined = callNode.callee as AstNode | undefined;
+
+  if (!callee || (callee.type !== 'StaticMemberExpression' && callee.type !== 'MemberExpression')) {
+    return null;
+  }
+
+  const obj: AstNode | undefined = callee.object as AstNode | undefined;
+
+  if (obj && obj.type === 'Identifier') {
+    return obj.name as string;
+  }
+
+  return null;
+}
+
+/**
+ * Whether the named array identifier is mutated anywhere inside the loop body.
+ *
+ * Treats as mutation: a call to a known mutating method on the identifier
+ * (`arr.push(...)`, `arr.splice(...)`, …) or an assignment/update whose target
+ * is a member of the identifier (`arr[i] = x`, `arr.length = 0`, `arr[i]++`).
+ *
+ * @param {AstNode} loopNode - The enclosing loop node
+ * @param {string} arrName - The array identifier name
+ * @returns {boolean} True if the array is mutated within the loop
+ */
+function isArrayMutatedInLoop(loopNode: AstNode, arrName: string): boolean {
+  let mutated: boolean = false;
+
+  const memberOfArr = (target: AstNode | undefined): boolean => {
+    if (
+      !target ||
+      (target.type !== 'StaticMemberExpression' && target.type !== 'MemberExpression')
+    ) {
+      return false;
+    }
+
+    const obj: AstNode | undefined = target.object as AstNode | undefined;
+
+    return obj?.type === 'Identifier' && (obj.name as string) === arrName;
+  };
+
+  walkBody(loopNode, (child: AstNode): void => {
+    /* arr.<mutator>(...) */
+    if (child.type === 'CallExpression') {
+      const callee: AstNode | undefined = child.callee as AstNode | undefined;
+
+      if (
+        callee &&
+        (callee.type === 'StaticMemberExpression' || callee.type === 'MemberExpression')
+      ) {
+        const obj: AstNode | undefined = callee.object as AstNode | undefined;
+        const prop: AstNode | undefined = callee.property as AstNode | undefined;
+
+        if (
+          obj?.type === 'Identifier' &&
+          (obj.name as string) === arrName &&
+          prop &&
+          MUTATING_METHODS.has(prop.name as string)
+        ) {
+          mutated = true;
+        }
+      }
+    }
+
+    /* arr[i] = x  /  arr.length = 0 */
+    if (child.type === 'AssignmentExpression' && memberOfArr(child.left as AstNode | undefined)) {
+      mutated = true;
+    }
+
+    /* arr[i]++  /  --arr.length */
+    if (child.type === 'UpdateExpression' && memberOfArr(child.argument as AstNode | undefined)) {
+      mutated = true;
+    }
+  });
+
+  return mutated;
+}
+
 /**
  * Build a fix for .indexOf() in a loop.
  *
@@ -193,9 +292,23 @@ function buildIndexOfFix(
   context: VisitorContext,
 ): LintFix {
   const src: string = context.content;
+
+  /* The receiver must be a simple identifier (so we can build `new Set(arr)`
+   * and detect mutation of that exact binding). */
+  const arrName: string | null = getReceiverIdentifier(indexOfCall);
+
+  if (!arrName) {
+    return NO_FIX;
+  }
+
   const arrText: string | null = getCalleeArrayText(indexOfCall, src);
 
   if (!arrText) {
+    return NO_FIX;
+  }
+
+  /* If the array is mutated inside the loop, a hoisted Set would be stale. */
+  if (isArrayMutatedInLoop(loopNode, arrName)) {
     return NO_FIX;
   }
 
@@ -211,8 +324,14 @@ function buildIndexOfFix(
     return NO_FIX;
   }
 
-  /* Get the search argument */
+  /* Get the search argument — require EXACTLY one. A second `fromIndex`
+   * argument changes the semantics and cannot be modeled with `Set.has`. */
   const args: AstNode[] = (indexOfCall.arguments ?? []) as AstNode[];
+
+  if (args.length !== 1) {
+    return NO_FIX;
+  }
+
   const [searchArg] = args;
 
   if (!searchArg) {

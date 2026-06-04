@@ -8,11 +8,13 @@
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  AstNode,
-  VisitorContext,
+import {
+  createResult,
+  createFixableResult,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 import { computeLineStarts, offsetToLineNumber } from '@/lint/framework/comment-helpers.ts';
 
@@ -84,16 +86,77 @@ const rule: TypeScriptRule = {
           const lineStart: number = lineStarts[lineIdx] ?? comment.start;
           const lineEnd: number = lineStarts[lineIdx + 1] ?? context.content.length;
 
-          results.push({
-            file: context.file,
-            line: lineNumber,
-            column: 1,
-            severity: 'error',
-            message: `Lint-suppression comment '${label}' is forbidden — fix the code instead`,
-            ruleId: 'comments/no-lint-disable',
-            tip: 'Fix the underlying issue. Add missing globals to .oxlintrc.json instead.',
-            fix: { range: { start: lineStart, end: lineEnd }, text: '' },
-          });
+          const message: string = `Lint-suppression comment '${label}' is forbidden — fix the code instead`;
+          const tip: string =
+            'Fix the underlying issue. Add missing globals to .oxlintrc.json instead.';
+
+          /* Partition the line around the comment. `before` is everything on the
+           * line preceding the comment; `after` is everything following it (up to
+           * and including the trailing newline). `commentSrc` is the comment's own
+           * source — a Block comment may span multiple physical lines. */
+          const before: string = context.content.slice(lineStart, comment.start);
+          const after: string = context.content.slice(comment.end, lineEnd);
+          const commentSrc: string = context.content.slice(comment.start, comment.end);
+          const isMultiLineComment: boolean = commentSrc.includes('\n');
+
+          if (before.trim() === '' && after.trim() === '' && !isMultiLineComment) {
+            /* SAFE FULL-LINE DELETE: the comment occupies the whole line on its own
+             * (only whitespace before/after) and is single-line. Removing the line
+             * — including its trailing newline — preserves surrounding code. */
+            results.push(
+              createFixableResult(
+                'comments/no-lint-disable',
+                context.file,
+                lineNumber,
+                1,
+                'error',
+                message,
+                {
+                  tip,
+                  fix: { range: { start: lineStart, end: lineEnd }, text: '' },
+                },
+              ),
+            );
+          } else if (comment.type === 'Line' && before.trim() !== '') {
+            /* SAFE TRAILING STRIP: a `//` line comment trailing real code. Strip from
+             * the end of the code (after trailing whitespace) through the comment's
+             * end, leaving the code and the line's newline intact. A Line comment is
+             * always single-line, so `comment.end` is on this same line. */
+            results.push(
+              createFixableResult(
+                'comments/no-lint-disable',
+                context.file,
+                lineNumber,
+                1,
+                'error',
+                message,
+                {
+                  tip,
+                  fix: {
+                    range: { start: lineStart + before.trimEnd().length, end: comment.end },
+                    text: '',
+                  },
+                },
+              ),
+            );
+          } else {
+            /* NO_OP: an inline Block comment sharing a line with code, or ANY
+             * multi-line block comment. No behavior-preserving single-range edit
+             * exists, so detect-only (the --fix applier skips NO_OP fixes). */
+            results.push(
+              createResult(
+                'comments/no-lint-disable',
+                context.file,
+                lineNumber,
+                1,
+                'error',
+                message,
+                {
+                  tip,
+                },
+              ),
+            );
+          }
           break;
         }
       }

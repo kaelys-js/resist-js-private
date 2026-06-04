@@ -5,9 +5,10 @@
  * that should be cached outside loops to avoid redundant lookups on each
  * iteration.
  *
- * The auto-fix hoists the DOM query call before the loop when the selector
- * argument is a string literal (loop-invariant). Falls back to no-op when
- * the argument is dynamic (depends on the loop variable).
+ * The auto-fix hoists the DOM query call before the loop ONLY when the loop has
+ * exactly one DOM query, the selector argument is a string literal, and the call
+ * is a direct statement of the loop body. Falls back to no-op for dynamic
+ * selectors, multiple queries, or calls nested in conditionals / inner scopes.
  *
  * @module
  */
@@ -20,7 +21,7 @@ import {
   type AstNode,
   type VisitorContext,
 } from '@/lint/framework/types.ts';
-import { findStaticMemberCallInBody } from './_utils.ts';
+import { findStaticMemberCallInBody, walkBody } from './_utils.ts';
 
 /** No-op fix sentinel. */
 const NO_FIX: LintFix = NO_OP_FIX;
@@ -69,10 +70,97 @@ function detectIndent(offset: number, source: string): string {
 }
 
 /**
+ * Count every `document.<method>(...)` DOM-query call inside a subtree.
+ *
+ * @param {AstNode} node - Root node of the subtree
+ * @returns {number} Total number of DOM-query calls
+ */
+function countDomQueries(node: AstNode): number {
+  let count: number = 0;
+
+  walkBody(node, (child: AstNode): void => {
+    if (child.type !== 'CallExpression') {
+      return;
+    }
+
+    const callee: AstNode | undefined = child.callee as AstNode | undefined;
+
+    if (
+      !callee ||
+      (callee.type !== 'StaticMemberExpression' && callee.type !== 'MemberExpression')
+    ) {
+      return;
+    }
+
+    const obj: AstNode | undefined = callee.object as AstNode | undefined;
+    const prop: AstNode | undefined = callee.property as AstNode | undefined;
+
+    if (
+      obj?.type === 'Identifier' &&
+      (obj.name as string) === 'document' &&
+      prop &&
+      DOM_METHODS.includes(prop.name as string)
+    ) {
+      count++;
+    }
+  });
+
+  return count;
+}
+
+/**
+ * Whether `callNode` is a direct statement of the loop body — either a bare
+ * `document.query(...)` expression statement or the initializer of a
+ * `const el = document.query(...)` declarator. This excludes calls nested in a
+ * conditional, a nested loop, or a nested function, where a flat hoist would be
+ * unsafe.
+ *
+ * @param {AstNode} loopNode - The enclosing loop node
+ * @param {AstNode} callNode - The DOM-query CallExpression
+ * @returns {boolean} True if the call is a direct loop-body statement
+ */
+function isDirectLoopBodyCall(loopNode: AstNode, callNode: AstNode): boolean {
+  const body: AstNode | undefined = loopNode.body as AstNode | undefined;
+
+  if (!body) {
+    return false;
+  }
+
+  const statements: AstNode[] =
+    body.type === 'BlockStatement' ? ((body.body ?? []) as AstNode[]) : [body];
+
+  const callStart: number = callNode.start as number;
+  const callEnd: number = callNode.end as number;
+
+  const sameSpan = (n: AstNode | undefined): boolean =>
+    Boolean(n && (n.start as number) === callStart && (n.end as number) === callEnd);
+
+  for (const stmt of statements) {
+    if (stmt.type === 'ExpressionStatement' && sameSpan(stmt.expression as AstNode | undefined)) {
+      return true;
+    }
+
+    if (stmt.type === 'VariableDeclaration') {
+      const decls: AstNode[] = (stmt.declarations ?? []) as AstNode[];
+
+      for (const d of decls) {
+        if (sameSpan(d.init as AstNode | undefined)) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+/**
  * Build a fix that hoists a DOM query call before the loop.
  *
- * Only hoists when the first argument is a string literal (loop-invariant).
- * Falls back to NO_FIX for dynamic selectors.
+ * Only fires when the loop contains exactly ONE DOM query, the selector is a
+ * string literal (loop-invariant), and the call is a direct statement of the
+ * loop body. The hoist var name is derived from the call's start offset so it
+ * is unique within the file. Encoded as a single range `[loopStart, callEnd]`.
  *
  * @param {string} method - The DOM method name (e.g. 'querySelector')
  * @param {AstNode} callNode - The CallExpression node
@@ -95,32 +183,41 @@ function buildDomQueryFix(
     return NO_FIX;
   }
 
+  /* Only one DOM query in the loop — multiple would need multiple hoists and
+   * this single-range fix can only express one. */
+  if (countDomQueries(loopNode) !== 1) {
+    return NO_FIX;
+  }
+
+  /* The call must be a direct loop-body statement, not nested in a conditional /
+   * nested loop / nested function. */
+  if (!isDirectLoopBodyCall(loopNode, callNode)) {
+    return NO_FIX;
+  }
+
   const callText: string = nodeText(callNode, src);
   const loopStart: number = loopNode.start as number;
-  const loopEnd: number = loopNode.end as number;
   const callStart: number = callNode.start as number;
   const callEnd: number = callNode.end as number;
   const indent: string = detectIndent(loopStart, src);
 
-  /* Generate a descriptive variable name from the method.
-   * Uses if/else chain instead of nested ternary for clarity. */
-  let varName: string;
+  /* Derive a unique name from the call's start offset to avoid collisions when
+   * multiple loops in the same file are fixed. */
+  const prefix: string =
+    method === 'querySelector' || method === 'getElementById'
+      ? '_cachedElement'
+      : '_cachedElements';
+  const varName: string = `${prefix}${callStart}`;
 
-  if (method === 'querySelector' || method === 'getElementById') {
-    varName = '_cachedElement';
-  } else {
-    /* querySelectorAll, getElementsByClassName, getElementsByTagName, etc. */
-    varName = '_cachedElements';
-  }
-
+  /* Single range [loopStart, callEnd]: hoist decl, then the loop text up to the
+   * call, then the var name. Everything after the call (rest of body + `}`) is
+   * outside the range and preserved verbatim. */
   const hoisted: string = `${indent}const ${varName} = ${callText};\n`;
-
   const beforeCall: string = src.slice(loopStart, callStart);
-  const afterCall: string = src.slice(callEnd, loopEnd);
 
   return {
-    range: { start: loopStart, end: loopEnd },
-    text: hoisted + beforeCall + varName + afterCall,
+    range: { start: loopStart, end: callEnd },
+    text: hoisted + beforeCall + varName,
   };
 }
 

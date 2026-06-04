@@ -5,9 +5,11 @@
  * A single-pass .reduce() or for...of loop achieves the same result
  * with half the iterations.
  *
- * The auto-fix merges `.filter(pred).map(transform)` into a single `for...of`
- * loop when both callbacks are inline arrow expression functions.
- * Falls back to no-op for named functions, block bodies, or complex chains.
+ * The auto-fix merges `.filter(pred).map(transform)` into a single
+ * `.flatMap((x) => (pred) ? [transform] : [])` when both callbacks are
+ * single-Identifier-parameter arrow expressions that bind the SAME parameter.
+ * Falls back to no-op for named functions, block bodies, differing or
+ * destructured params, or extra arguments.
  *
  * @module
  */
@@ -37,29 +39,6 @@ function nodeText(astNode: AstNode, source: string): string {
 }
 
 /**
- * Detect indentation at a byte offset.
- *
- * @param {number} offset - Byte offset
- * @param {string} source - Full source text
- * @returns {string} Whitespace prefix of the line
- */
-function detectIndent(offset: number, source: string): string {
-  let lineStart: number = offset;
-
-  while (lineStart > 0 && source[lineStart - 1] !== '\n') {
-    lineStart--;
-  }
-
-  let end: number = lineStart;
-
-  while (end < source.length && (source[end] === ' ' || source[end] === '\t')) {
-    end++;
-  }
-
-  return source.slice(lineStart, end);
-}
-
-/**
  * Extract the parameter name and expression body from an arrow function callback.
  *
  * @param {AstNode} callNode - A CallExpression node
@@ -71,43 +50,47 @@ function extractArrowCallback(
   source: string,
 ): { param: string; body: string } | null {
   const args: AstNode[] = (callNode.arguments ?? []) as AstNode[];
+
+  /* Exactly one argument — the callback. A 2nd arg (thisArg) is unusual and we
+   * conservatively decline to rewrite. */
+  if (args.length !== 1) {
+    return null;
+  }
+
   const [firstArg] = args;
 
   if (!firstArg || firstArg.type !== 'ArrowFunctionExpression') {
+    /* Named functions / function expressions — too opaque to merge safely. */
+    return null;
+  }
+
+  /* oxc encodes arrow block bodies as BlockStatement and sets `expression:false`.
+   * Only expression-body arrows (`x => expr`) can be inlined into a ternary. */
+  if (firstArg.expression === false) {
     return null;
   }
 
   const bodyNode: AstNode | undefined = firstArg.body as AstNode | undefined;
 
-  if (!bodyNode || bodyNode.type === 'FunctionBody') {
-    /* Block body — too complex to merge safely */
+  if (!bodyNode) {
     return null;
   }
 
+  /* Require exactly one parameter, and it must be a plain Identifier
+   * (no destructuring, no rest, no second parameter). */
   const params: AstNode[] = (firstArg.params ?? []) as AstNode[];
+
+  if (params.length !== 1) {
+    return null;
+  }
+
   const [firstParam] = params;
 
-  if (!firstParam) {
+  if (!firstParam || firstParam.type !== 'Identifier') {
     return null;
   }
 
-  let paramName: string;
-
-  if (firstParam.type === 'Identifier') {
-    paramName = firstParam.name as string;
-  } else if (firstParam.type === 'FormalParameter') {
-    const binding: AstNode | undefined = firstParam.pattern as AstNode | undefined;
-
-    if (binding?.type === 'Identifier') {
-      paramName = binding.name as string;
-    } else {
-      return null;
-    }
-  } else {
-    return null;
-  }
-
-  return { param: paramName, body: nodeText(bodyNode, source) };
+  return { param: firstParam.name as string, body: nodeText(bodyNode, source) };
 }
 
 /**
@@ -157,6 +140,13 @@ function buildFilterMapFix(
     return NO_FIX;
   }
 
+  /* Both callbacks must bind the SAME parameter name. Textual substitution of a
+   * differing map param into the filter scope is unsafe (it can collide with or
+   * shadow identifiers in the bodies), so we decline rather than rewrite. */
+  if (filterCb.param !== mapCb.param) {
+    return NO_FIX;
+  }
+
   const arrText: string | null = extractFilterSource(filterCall, src);
 
   if (!arrText) {
@@ -165,33 +155,17 @@ function buildFilterMapFix(
 
   const chainStart: number = mapCall.start as number;
   const chainEnd: number = mapCall.end as number;
-  const indent: string = detectIndent(chainStart, src);
+  const { param } = filterCb;
 
-  /* Use the filter param as the loop variable. If the map callback uses a different
-   * param name, inline-substitute it in the map body. */
-  const loopVar: string = filterCb.param;
-  let mapBody: string = mapCb.body;
-
-  if (mapCb.param !== loopVar) {
-    /* Simple textual substitution — works for identifier references */
-    mapBody = mapBody.replaceAll(mapCb.param, loopVar);
-  }
-
-  const resultVar: string = '_result';
-  const forLoop: string =
-    `(() => {\n` +
-    `${indent}  const ${resultVar}: Array<unknown> = [];\n` +
-    `${indent}  for (const ${loopVar} of ${arrText}) {\n` +
-    `${indent}    if (${filterCb.body}) {\n` +
-    `${indent}      ${resultVar}.push(${mapBody});\n` +
-    `${indent}    }\n` +
-    `${indent}  }\n` +
-    `${indent}  return ${resultVar};\n` +
-    `${indent}})()`;
+  /* Single-pass equivalent: keep matching items and project them in one go.
+   *   arr.filter(x => P).map(x => M)  →  arr.flatMap((x) => (P) ? [M] : [])
+   * Parenthesize the filter predicate and map body so any operator precedence
+   * inside them is preserved within the ternary. */
+  const flatMap: string = `${arrText}.flatMap((${param}) => (${filterCb.body}) ? [${mapCb.body}] : [])`;
 
   return {
     range: { start: chainStart, end: chainEnd },
-    text: forLoop,
+    text: flatMap,
   };
 }
 

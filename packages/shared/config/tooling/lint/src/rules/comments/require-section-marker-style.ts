@@ -131,8 +131,16 @@ const rule: TypeScriptRule = {
         const line2: string = lines[i + 1] ?? '';
         const line3: string = lines[i + 2] ?? '';
 
+        /* Only top-level (column-0) dividers are module-section markers. Indented
+         * dividers inside objects/functions are inline separators — rewriting them
+         * to the canonical // === form would de-indent and corrupt their alignment. */
+        const trimmedLine1: string = line1.trim();
+        const isTopLevel: boolean = line1 === trimmedLine1 || /^\S/.test(line1);
+
         // --- Check block comment markers: /* ---...--- */ ---
-        const blockTitle: string | null = extractBlockTitle(line1, line2, line3);
+        const blockTitle: string | null = isTopLevel
+          ? extractBlockTitle(line1, line2, line3)
+          : null;
 
         if (blockTitle) {
           // Calculate byte offset for the fix
@@ -161,9 +169,6 @@ const rule: TypeScriptRule = {
         }
 
         // --- Check dash line-comment markers at column 0: // ---...--- ---
-        const trimmedLine1: string = line1.trim();
-        const isTopLevel: boolean = line1 === trimmedLine1 || /^\S/.test(line1);
-
         if (isTopLevel) {
           const dashTitle: string | null = extractDashTitle(line1, line2, line3);
 
