@@ -35,7 +35,9 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts', '**/*.svelte', '**/*.js', '**/*.jsx'],
   categories: ['directives', 'safety'],
   stages: ['lint', 'ci'],
-  fixable: true,
+  /* Detect-only: fixing requires replacing the 'any' type with a real type,
+   * which cannot be inferred mechanically. The diagnostic carries NO_OP_FIX. */
+  fixable: false,
 
   visitor: {
     Program(_node: AstNode, context: VisitorContext): LintResult[] {

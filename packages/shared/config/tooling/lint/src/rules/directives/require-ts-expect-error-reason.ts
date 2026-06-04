@@ -42,9 +42,12 @@ const DIRECTIVE_WITH_REASON: RegExp = new RegExp(`${DIRECTIVE}\\s+-{1,2}\\s+.{10
  */
 function buildReasonFix(comment: { start: number; end: number }, content: string): LintFix {
   const commentText: string = content.slice(comment.start, comment.end);
+  /* Use an ASCII ' - ' separator so the rewritten directive satisfies this
+   * rule's own validity regex (DIRECTIVE_WITH_REASON) and --fix converges
+   * (an em-dash would never match, restacking the suffix on every pass). */
   const replaced: string = commentText.replace(
     DIRECTIVE_PATTERN,
-    `${DIRECTIVE} — TODO: add reason for suppression`,
+    `${DIRECTIVE} - TODO: add reason for suppression`,
   );
 
   return { range: { start: comment.start, end: comment.end }, text: replaced };

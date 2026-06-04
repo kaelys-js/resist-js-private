@@ -7,15 +7,23 @@
  * @module
  */
 
-import { render, screen } from '@testing-library/svelte';
+import { cleanup, render, screen } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ThemeSwitcherTest from './ThemeSwitcherTest.svelte';
 
 describe('ThemeSwitcher', () => {
-  // bits-ui's BodyScrollLock schedules a 24ms setTimeout on destroy.
-  // Without fake timers, the callback fires after jsdom teardown → "document is not defined".
+  // bits-ui's BodyScrollLock schedules a 24ms setTimeout on destroy that
+  // touches document.body. This project sets `globals: true`, which makes
+  // @testing-library/svelte's svelteTesting() auto-cleanup bail, so the
+  // component would otherwise stay mounted until jsdom teardown and fire that
+  // timer against a torn-down env → "document is not defined".
+  //
+  // Fix: under fake timers, unmount explicitly via cleanup() (synchronous
+  // Svelte flushSync) WHILE jsdom is still alive — this schedules the now-fake
+  // 24ms timer — then runAllTimers() flushes it against a live document.
   beforeEach(() => vi.useFakeTimers());
   afterEach(() => {
+    cleanup();
     vi.runAllTimers();
     vi.useRealTimers();
   });

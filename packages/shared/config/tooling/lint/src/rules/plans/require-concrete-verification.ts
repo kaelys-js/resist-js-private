@@ -67,7 +67,8 @@ const rule: WorkspaceRule = {
   scope: 'workspace',
   categories: ['plans'],
   stages: ['ci'],
-  fixable: true,
+  /* Detect-only: concrete verification steps cannot be synthesised. Always NO_OP. */
+  fixable: false,
 
   async inputs(context: unknown): Promise<readonly string[]> {
     return discoverPlanFiles(context as WorkspaceContext);

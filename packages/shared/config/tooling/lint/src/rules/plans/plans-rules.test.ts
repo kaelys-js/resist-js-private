@@ -288,6 +288,31 @@ describe('plans/no-template-placeholders', () => {
     expect(results.length).toBeGreaterThanOrEqual(1);
   });
 
+  it('fixes MULTIPLE YYYY-MM-DD placeholders on a single line', async () => {
+    const line: string = '**Date**: YYYY-MM-DD and also YYYY-MM-DD';
+    const ctx = createMockContext({
+      '/mock/docs/plans/2026-04-01-test.md': line,
+    });
+    const results: LintResult[] = await noTemplatePlaceholders.check(ctx);
+    const dateResults: LintResult[] = results.filter((r) => r.message.includes('YYYY-MM-DD'));
+    /* Both occurrences are reported (the old impl only handled the first). */
+    expect(dateResults).toHaveLength(2);
+
+    /* Each occurrence carries its own real (non-NO_OP) 10-char fix… */
+    const ranges = dateResults.map((r) => r.fix.range);
+
+    for (const range of ranges) {
+      expect(range.end - range.start).toBe('YYYY-MM-DD'.length);
+      expect(range.start === 0 && range.end === 0).toBe(false);
+    }
+
+    /* …anchored at the two distinct, non-overlapping offsets. */
+    const sorted = ranges.toSorted((a, b) => a.start - b.start);
+    expect(sorted[0]!.start).toBe(line.indexOf('YYYY-MM-DD'));
+    expect(sorted[1]!.start).toBe(line.lastIndexOf('YYYY-MM-DD'));
+    expect(sorted[0]!.end).toBeLessThanOrEqual(sorted[1]!.start);
+  });
+
   it('passes clean plan with no placeholders', async () => {
     const ctx = createMockContext({
       '/mock/docs/plans/2026-04-01-test.md': VALID_PLAN,
@@ -349,6 +374,10 @@ describe('plans/no-incomplete-tasks', () => {
     });
     const results: LintResult[] = await noIncompleteTasks.check(ctx);
     expect(results).toHaveLength(0);
+  });
+
+  it('is detect-only (fixable === false)', () => {
+    expect(noIncompleteTasks.fixable).toBe(false);
   });
 });
 
@@ -564,6 +593,10 @@ describe('plans/require-concrete-verification', () => {
     const integrationErrors = results.filter((r) => r.message.includes('Integration Verification'));
     expect(integrationErrors).toHaveLength(0);
   });
+
+  it('is detect-only (fixable === false)', () => {
+    expect(requireConcreteVerification.fixable).toBe(false);
+  });
 });
 
 // =============================================================================
@@ -691,6 +724,10 @@ describe('plans/no-empty-plan-sections', () => {
       (r) => r.message.includes('Gap') || r.message.includes('Files'),
     );
     expect(gapOrFileErrors).toHaveLength(0);
+  });
+
+  it('is detect-only (fixable === false)', () => {
+    expect(noEmptyPlanSections.fixable).toBe(false);
   });
 });
 

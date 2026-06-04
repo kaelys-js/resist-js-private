@@ -33,7 +33,10 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts', '**/*.svelte', '**/*.js', '**/*.jsx'],
   categories: ['directives', 'safety'],
   stages: ['lint', 'ci'],
-  fixable: true,
+  /* Detect-only: there is no behaviour-preserving auto-fix for "too many
+   * suppressions" — deleting directives would re-expose the errors they
+   * suppress. The diagnostic always carries NO_OP_FIX. */
+  fixable: false,
 
   visitor: {
     Program(_node: AstNode, context: VisitorContext): LintResult[] {

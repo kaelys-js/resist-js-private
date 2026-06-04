@@ -41,9 +41,11 @@ function buildReplaceFix(
   content: string,
 ): LintFix {
   const commentText: string = content.slice(comment.start, comment.end);
+  /* Use an ASCII ' - ' separator so the rewritten directive satisfies
+   * require-ts-expect-error-reason's validity regex and --fix converges. */
   const replaced: string = commentText.replace(
     PATTERN,
-    `${EXPECT_DIRECTIVE} — TODO: fix type error`,
+    `${EXPECT_DIRECTIVE} - TODO: fix type error`,
   );
 
   return { range: { start: comment.start, end: comment.end }, text: replaced };

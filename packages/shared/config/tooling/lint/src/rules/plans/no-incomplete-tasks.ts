@@ -28,7 +28,8 @@ const rule: WorkspaceRule = {
   scope: 'workspace',
   categories: ['plans'],
   stages: ['ci'],
-  fixable: true,
+  /* Detect-only: completing or removing a task is a human decision. Always NO_OP. */
+  fixable: false,
   optionsSchema: {
     maxAgeDays: {
       type: 'number',

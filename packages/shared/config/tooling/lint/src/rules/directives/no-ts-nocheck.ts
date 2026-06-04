@@ -6,17 +6,20 @@
  * AST-comment-based; the literal token is built at runtime so the
  * rule does not self-flag its own source.
  *
- * The auto-fix deletes the entire comment line containing the directive.
+ * Detect-only: deleting the nocheck directive re-enables file-wide
+ * type-checking that the file may not pass, so this rule emits no auto-fix
+ * (NO_OP_FIX).
  *
  * @module
  */
 
-import type {
-  TypeScriptRule,
-  LintResult,
-  LintFix,
-  AstNode,
-  VisitorContext,
+import {
+  NO_OP_FIX,
+  createResult,
+  type TypeScriptRule,
+  type LintResult,
+  type AstNode,
+  type VisitorContext,
 } from '@/lint/framework/types.ts';
 import { computeLineStarts, offsetToLineNumber } from '@/lint/framework/comment-helpers.ts';
 
@@ -27,46 +30,6 @@ const EXPECT_DIRECTIVE: string = `${'@'}ts${'-'}expect${'-'}error`;
 /** Pattern to detect the directive in comment text. */
 const PATTERN: RegExp = new RegExp(NOCHECK_DIRECTIVE);
 
-/**
- * Compute a fix that deletes the comment line.
- *
- * @param {number} commentStart - Byte offset where comment starts
- * @param {number} commentEnd - Byte offset where comment ends
- * @param {number[]} lineStarts - Array of byte offsets for each line start
- * @param {string} content - Full source text
- * @returns {LintFix} Fix that removes the line
- */
-function deleteCommentLineFix(
-  commentStart: number,
-  commentEnd: number,
-  lineStarts: number[],
-  content: string,
-): LintFix {
-  let lineIdx: number = 0;
-
-  for (let i: number = 0; i < lineStarts.length; i++) {
-    if ((lineStarts[i] ?? 0) <= commentStart) {
-      lineIdx = i;
-    } else {
-      break;
-    }
-  }
-
-  const lineStart: number = lineStarts[lineIdx] ?? 0;
-  const beforeComment: string = content.slice(lineStart, commentStart);
-
-  if (beforeComment.trim() === '') {
-    const lineEnd: number =
-      lineIdx + 1 < lineStarts.length
-        ? (lineStarts[lineIdx + 1] ?? content.length)
-        : content.length;
-
-    return { range: { start: lineStart, end: lineEnd }, text: '' };
-  }
-
-  return { range: { start: commentStart, end: commentEnd }, text: '' };
-}
-
 /** The lint rule definition (banning whole-file no-check directive comments). */
 const rule: TypeScriptRule = {
   id: 'directives/no-ts-nocheck',
@@ -74,7 +37,10 @@ const rule: TypeScriptRule = {
   patterns: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts', '**/*.svelte', '**/*.js', '**/*.jsx'],
   categories: ['directives', 'safety'],
   stages: ['lint', 'ci'],
-  fixable: true,
+  /* Detect-only: deleting the directive re-enables file-wide type-checking the
+   * file may fail. That is not a safe mechanical fix. The diagnostic carries
+   * NO_OP_FIX; the developer must remove it and fix the errors by hand. */
+  fixable: false,
 
   visitor: {
     Program(_node: AstNode, context: VisitorContext): LintResult[] {
@@ -84,16 +50,20 @@ const rule: TypeScriptRule = {
       for (const comment of context.comments) {
         if (PATTERN.test(comment.value)) {
           const lineNumber: number = offsetToLineNumber(comment.start, lineStarts);
-          results.push({
-            file: context.file,
-            line: lineNumber,
-            column: 1,
-            severity: 'error',
-            message: `${NOCHECK_DIRECTIVE} is banned - file must have type-checking enabled`,
-            ruleId: 'directives/no-ts-nocheck',
-            tip: `Remove ${NOCHECK_DIRECTIVE} and fix type errors individually, or use targeted ${EXPECT_DIRECTIVE} with explanations`,
-            fix: deleteCommentLineFix(comment.start, comment.end, lineStarts, context.content),
-          });
+          results.push(
+            createResult(
+              'directives/no-ts-nocheck',
+              context.file,
+              lineNumber,
+              1,
+              'error',
+              `${NOCHECK_DIRECTIVE} is banned - file must have type-checking enabled`,
+              {
+                tip: `Remove ${NOCHECK_DIRECTIVE} and fix type errors individually, or use targeted ${EXPECT_DIRECTIVE} with explanations`,
+                fix: NO_OP_FIX,
+              },
+            ),
+          );
         }
       }
 
