@@ -50,9 +50,9 @@ vi.mock('@/schemas/result/result', async (importOriginal) => {
 
 const { resolveErrorHtml } = await import('./vite-plugin-template-html.ts');
 
-// ---------------------------------------------------------------------------
+// =============================================================================
 // Test
-// ---------------------------------------------------------------------------
+// =============================================================================
 
 describe('resolveErrorHtml: deriveErrorIdPrefix error branch (line 233)', () => {
   it('returns error when ok() fails inside deriveErrorIdPrefix', () => {

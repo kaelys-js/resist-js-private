@@ -1,18 +1,22 @@
 /**
  * Rule: complexity/no-concat-in-loop
  *
- * Detects string concatenation (+=) or .concat() calls inside loop bodies.
- * String concatenation in loops creates O(n²) complexity because strings are
- * immutable and each concatenation copies the entire string.
- * Suggests collecting parts in an array and joining after the loop.
+ * Detects string concatenation (+=) inside loop bodies. String concatenation in
+ * loops creates O(n²) complexity because strings are immutable and each
+ * concatenation copies the entire string. Suggests collecting parts in an array
+ * and joining after the loop.
  *
- * The auto-fix fires only for the provably-safe shape: a plain `let acc = ''`
- * declared immediately before the loop, written exactly once via `acc += expr`
- * as a direct statement of the loop body and never read elsewhere in it. It
- * replaces BOTH the declaration and the loop — `const _accParts: string[] = [];`
- * before, `acc += expr` → `_accParts.push(expr)` inside, and
- * `const acc = _accParts.join('')` after. Falls back to no-op for `.concat()`,
- * numeric `+=`, compound LHS, conditional/nested/multiple `+=`, or a missing
+ * Detection is gated on auto-fixability: the rule flags ONLY the provably-safe
+ * shape it can rewrite — a plain `let acc = ''` declared immediately before the
+ * loop, written exactly once via `acc += expr` as a direct statement of the loop
+ * body and never read elsewhere in it. The fix replaces BOTH the declaration and
+ * the loop — `const _accParts: Array<string | undefined> = [];` before,
+ * `acc += expr` → `_accParts.push(expr)` inside, and `const acc =
+ * _accParts.join('')` after.
+ *
+ * Cases that cannot be safely rewritten are NOT flagged (no false positives):
+ * `.concat()` calls, numeric `+=` (e.g. `total += n`), compound/member LHS,
+ * conditional/nested/multiple `+=`, reads of the accumulator, or a missing
  * `let acc = ''` immediately before the loop.
  *
  * @module
@@ -26,10 +30,22 @@ import {
   type AstNode,
   type VisitorContext,
 } from '@/lint/framework/types.ts';
-import { findPlusAssignInBody, findCallInBody, walkBody } from './_utils.ts';
+import { findPlusAssignInBody, walkBody } from './_utils.ts';
 
 /** No-op fix sentinel. */
 const NO_FIX: LintFix = NO_OP_FIX;
+
+/**
+ * Whether a fix is a REAL (non-no-op) text replacement. The no-op sentinel is
+ * `{ range: { start: 0, end: 0 }, text: '' }`; anything else is a genuine fix.
+ * Detection is gated on this so a flagged violation is always auto-fixable.
+ *
+ * @param {LintFix} fix - The fix to test
+ * @returns {boolean} True if the fix replaces real source text
+ */
+function isRealFix(fix: LintFix): boolean {
+  return !(fix.range.start === 0 && fix.range.end === 0 && fix.text === '');
+}
 
 /**
  * Extract source text for an AST node.
@@ -226,8 +242,8 @@ function uniqueArrayVar(accName: string, source: string): string {
  * `let acc = ''` in the statement immediately before the loop, written exactly
  * once via `+=` as a direct statement child of the loop body, and never read
  * elsewhere in the body. The fix replaces the declaration AND the loop:
- *   `const _accParts: string[] = [];` + loop with `acc += e` → `_accParts.push(e)`
- *   + `const acc = _accParts.join('');` after the loop.
+ *   `const _accParts: Array<string | undefined> = [];` + loop with `acc += e` →
+ *   `_accParts.push(e)` + `const acc = _accParts.join('');` after the loop.
  *
  * Returns NO_FIX for numeric `+=`, compound LHS, conditional/nested `+=`,
  * multiple `+=`, reads of `acc`, or a missing `let acc = ''` just before.
@@ -337,8 +353,19 @@ function buildPlusAssignFix(
    * `declStart` is OUTSIDE the range and stays put — it indents the first
    * emitted line (the array decl). We re-supply `indent` before the loop and
    * before the trailing join. The original whitespace between the decl and the
-   * loop is inside the range and is dropped. */
-  const arrayDecl: string = `const ${partsVar}: string[] = [];`;
+   * loop is inside the range and is dropped.
+   *
+   * The parts array is typed `Array<string | undefined>`, not `string[]`: under
+   * `noUncheckedIndexedAccess`, an indexed read like `arr[i]` is `string |
+   * undefined`, so pushing it into a `string[]` is a TS2345 error. Widening the
+   * element type accepts the push, and `Array.prototype.join` coerces any
+   * `undefined` element to '' — so the joined string is identical to what the
+   * original `acc += arr[i]` produced. The `Array<…>` form (rather than
+   * `(string | undefined)[]`) is required because the workspace's `array-type`
+   * lint rule is configured `array-simple`, which forbids the `[]` shorthand for
+   * non-simple (union) element types and mandates `Array<T>` — so the generated
+   * fix is itself lint-clean. */
+  const arrayDecl: string = `const ${partsVar}: Array<string | undefined> = [];`;
   const joined: string = `\n${indent}const ${accName} = ${partsVar}.join('');`;
 
   return {
@@ -360,34 +387,30 @@ const checkLoop = (node: AstNode, context: VisitorContext): LintResult[] => {
   const plusAssign: AstNode | undefined = findPlusAssignInBody(node);
 
   if (plusAssign) {
-    results.push({
-      file: context.file,
-      line: plusAssign.loc.start.line,
-      column: plusAssign.loc.start.column + 1,
-      severity: 'warning',
-      message:
-        'String concatenation inside loop creates O(n²) complexity — use array.join() or template literals',
-      ruleId: 'complexity/no-concat-in-loop',
-      tip: 'Collect parts in an array and call .join() after the loop',
-      fix: buildPlusAssignFix(plusAssign, node, context),
-    });
+    /* Detection is gated on auto-fixability: emit ONLY the provably-safe
+     * string-accumulator shape (the case buildPlusAssignFix can rewrite).
+     * Numeric `+=`, member LHS, conditional/nested/multiple `+=`, reads of the
+     * accumulator, or a missing `let acc = ''` all NO_OP — and thus no longer
+     * flag, so correct numeric `+=` is not a false positive. */
+    const fix: LintFix = buildPlusAssignFix(plusAssign, node, context);
+
+    if (isRealFix(fix)) {
+      results.push({
+        file: context.file,
+        line: plusAssign.loc.start.line,
+        column: plusAssign.loc.start.column + 1,
+        severity: 'warning',
+        message:
+          'String concatenation inside loop creates O(n²) complexity — use array.join() or template literals',
+        ruleId: 'complexity/no-concat-in-loop',
+        tip: 'Collect parts in an array and call .join() after the loop',
+        fix,
+      });
+    }
   }
 
-  const concatCall: AstNode | undefined = findCallInBody(node, 'concat');
-
-  if (concatCall) {
-    results.push({
-      file: context.file,
-      line: concatCall.loc.start.line,
-      column: concatCall.loc.start.column + 1,
-      severity: 'warning',
-      message:
-        'String concatenation inside loop creates O(n²) complexity — use array.join() or template literals',
-      ruleId: 'complexity/no-concat-in-loop',
-      tip: 'Collect parts in an array and call .join() after the loop',
-      fix: NO_FIX,
-    });
-  }
+  /* `.concat()` is never auto-fixable (buildPlusAssignFix only handles `+=`),
+   * so it is no longer flagged — detection stays in lockstep with the fix. */
 
   return results;
 };

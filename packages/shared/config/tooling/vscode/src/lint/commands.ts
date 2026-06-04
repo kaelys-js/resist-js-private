@@ -167,9 +167,9 @@ export function registerLintCommands(context: vscode.ExtensionContext, deps: Com
     diagnosticCollection.clear();
     log(outputChannel, en.messages.linterRestarted);
 
-    const openUris: vscode.Uri[] = vscode.workspace.textDocuments
-      .filter((doc) => doc.uri.scheme === 'file' && !doc.isUntitled)
-      .map((doc) => doc.uri);
+    const openUris: vscode.Uri[] = vscode.workspace.textDocuments.flatMap((doc) =>
+      doc.uri.scheme === 'file' && !doc.isUntitled ? [doc.uri] : [],
+    );
 
     await withFileProgress(outputChannel, en.progress.restart, openUris, (uri) => {
       const doc = vscode.workspace.textDocuments.find((d) => d.uri.fsPath === uri.fsPath);

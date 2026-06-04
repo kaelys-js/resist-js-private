@@ -65,7 +65,7 @@
   );
   const hasOverrides: Bool = $derived(urlOverrideEntries.length > 0);
 
-  const picklistKeys: Str[] = debugFields.filter((f) => f.type === 'picklist').map((f) => f.key);
+  const picklistKeys: Str[] = debugFields.flatMap((f) => (f.type === 'picklist' ? [f.key] : []));
   let openPicklists: Record<Str, Bool> = $state(
     Object.fromEntries(picklistKeys.map((k) => [k, false])),
   );

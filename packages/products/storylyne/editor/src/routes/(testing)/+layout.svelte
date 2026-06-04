@@ -2562,20 +2562,22 @@
                         {#each group.components as name (name)}
                           {@const itemMeta = metaByName.get(name)}
                           {@const itemCompat = compatByName.get(name)}
-                          {@const a11yRulesForComponent = a11yFailingRules
-                            .filter((r) =>
-                              r.failingFiles.some(
-                                (f) => f.includes('/' + name + '/') || f.includes('/' + name + '.'),
-                              ),
+                          {@const a11yRulesForComponent = a11yFailingRules.flatMap((r) =>
+                            r.failingFiles.some(
+                              (f) => f.includes('/' + name + '/') || f.includes('/' + name + '.'),
                             )
-                            .map((r) => ({
-                              ...r,
-                              failCount: r.failingFiles.filter(
-                                (f) =>
-                                  (f as string).includes('/' + name + '/') ||
-                                  (f as string).includes('/' + name + '.'),
-                              ).length as typeof r.failCount,
-                            }))}
+                              ? [
+                                  {
+                                    ...r,
+                                    failCount: r.failingFiles.filter(
+                                      (f) =>
+                                        (f as string).includes('/' + name + '/') ||
+                                        (f as string).includes('/' + name + '.'),
+                                    ).length as typeof r.failCount,
+                                  },
+                                ]
+                              : [],
+                          )}
                           {@const isIncompat =
                             (itemCompat ? !itemCompat.compatible : false) ||
                             a11yRulesForComponent.length > 0}

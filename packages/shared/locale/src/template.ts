@@ -741,12 +741,15 @@ function parsePluralBranches(body: Str): Result<PluralParseResult> {
     }
 
     // Read keyword (e.g., "one", "other", "=0")
-    let keyword: Str = '';
+    const _keywordParts: Array<string | undefined> = [];
 
     while (i < trimmed.length && !/[\s{]/.test(trimmed[i] ?? '')) {
-      keyword += trimmed[i];
+      _keywordParts.push(trimmed[i]);
       i++;
     }
+
+    const keyword = _keywordParts.join('');
+
     if (!keyword) {
       break;
     }
@@ -763,7 +766,7 @@ function parsePluralBranches(body: Str): Result<PluralParseResult> {
     i++; // skip opening brace
 
     let depth: Num = 1;
-    let branchBody: Str = '';
+    const _branchBodyParts: Array<string | undefined> = [];
 
     while (i < trimmed.length && depth > 0) {
       if (trimmed[i] === '{') {
@@ -775,9 +778,11 @@ function parsePluralBranches(body: Str): Result<PluralParseResult> {
           break;
         }
       }
-      branchBody += trimmed[i];
+      _branchBodyParts.push(trimmed[i]);
       i++;
     }
+
+    const branchBody = _branchBodyParts.join('');
 
     branches.set(keyword, branchBody);
   }
@@ -1567,12 +1572,15 @@ function parseRangeBranches(body: Str): Result<readonly RangeBranch[]> {
     i++;
 
     // Read range spec until ')'
-    let rangeSpec: Str = '';
+    const _rangeSpecParts: Array<string | undefined> = [];
 
     while (i < trimmed.length && trimmed[i] !== ')') {
-      rangeSpec += trimmed[i];
+      _rangeSpecParts.push(trimmed[i]);
       i++;
     }
+
+    const rangeSpec = _rangeSpecParts.join('');
+
     if (i >= trimmed.length) {
       break;
     }
@@ -1591,7 +1599,7 @@ function parseRangeBranches(body: Str): Result<readonly RangeBranch[]> {
 
     // Read branch body with brace depth counting
     let braceDepth: Num = 1;
-    let branchBody: Str = '';
+    const _branchBodyParts: Array<string | undefined> = [];
 
     while (i < trimmed.length && braceDepth > 0) {
       if (trimmed[i] === '{') {
@@ -1603,9 +1611,11 @@ function parseRangeBranches(body: Str): Result<readonly RangeBranch[]> {
           break;
         }
       }
-      branchBody += trimmed[i];
+      _branchBodyParts.push(trimmed[i]);
       i++;
     }
+
+    const branchBody = _branchBodyParts.join('');
 
     // Parse range spec: "0" (exact), "2-5" (range), "6-inf" (open-ended)
     const dashIndex: Num = rangeSpec.indexOf('-');

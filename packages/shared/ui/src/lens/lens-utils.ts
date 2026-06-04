@@ -191,9 +191,9 @@ export function extractComponentDescription(src: Str): Str | undefined {
   return firstLine;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Lens Compatibility                                                 */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Lens Compatibility
+// =============================================================================
 
 /**
  * A single lint violation found during compatibility checking.

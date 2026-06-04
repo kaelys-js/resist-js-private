@@ -3460,7 +3460,7 @@
 
   /** Unique network categories present after filtering (excludes empty category for 'none'). */
   const filteredNetworkCategories: Str[] = $derived([
-    ...new Set(filteredNetworkPresets.filter((p) => p.category).map((p) => p.category)),
+    ...new Set(filteredNetworkPresets.flatMap((p) => (p.category ? [p.category] : []))),
   ]);
 
   /** Background presets filtered by search query. */

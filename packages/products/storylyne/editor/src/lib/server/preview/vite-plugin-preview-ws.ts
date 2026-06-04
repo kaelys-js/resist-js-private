@@ -22,16 +22,16 @@ import { safeParse } from '@/utils/result/safe';
 import { log } from '@/utils/core/logger';
 import { SessionConfigSchema, type SessionConfig } from './preview-types';
 
-/* ------------------------------------------------------------------ */
-/*  Constants                                                          */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Constants
+// =============================================================================
 
 /** WebSocket endpoint path for Live View preview sessions. */
 export const PREVIEW_WS_PATH: Str = '/api/lens/preview/ws' as Str;
 
-/* ------------------------------------------------------------------ */
-/*  Query parsing                                                      */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Query parsing
+// =============================================================================
 
 /**
  * Parse and validate session configuration from a request URL's query string.
@@ -74,9 +74,9 @@ export function parseSessionQuery(url: Str): Result<SessionConfig> {
   return safeParse(SessionConfigSchema, raw);
 }
 
-/* ------------------------------------------------------------------ */
-/*  Server setup                                                       */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Server setup
+// =============================================================================
 
 /**
  * Set up the Live View preview WebSocket on a Vite dev server.

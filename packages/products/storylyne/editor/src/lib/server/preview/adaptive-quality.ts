@@ -17,9 +17,9 @@
 
 import type { Num } from '@/schemas/common';
 
-/* ------------------------------------------------------------------ */
-/*  Constants                                                          */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Constants
+// =============================================================================
 
 /** Buffer threshold (bytes) above which quality is reduced. */
 const HIGH_BUFFER_THRESHOLD: Num = 32_768 as Num; // 32 KB
@@ -39,9 +39,9 @@ const MAX_SKIP_RATE: Num = 3 as Num;
 /** Number of consecutive high-buffer reports before skip rate increases. */
 const SKIP_ESCALATION_COUNT: Num = 5 as Num;
 
-/* ------------------------------------------------------------------ */
-/*  Controller                                                         */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Controller
+// =============================================================================
 
 /**
  * Adaptive quality controller for backpressure management.

@@ -16,9 +16,9 @@ import { dev } from '$app/environment';
 import { createAvd, listSystemImages } from '$lib/server/simulator/android-devices';
 import { checkAndroidSdk } from '$lib/server/simulator/android-sdk';
 
-/* ------------------------------------------------------------------ */
-/*  POST handler                                                       */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// POST handler
+// =============================================================================
 
 /**
  * POST handler — creates a new AVD from a hardware device profile.

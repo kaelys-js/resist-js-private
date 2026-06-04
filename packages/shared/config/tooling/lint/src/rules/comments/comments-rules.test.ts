@@ -340,6 +340,37 @@ const x: number = 1;
     expect(expectTextFix(results[0]!.fix).text).toContain('// =');
     expect(expectTextFix(results[0]!.fix).text).toContain('My Section');
   });
+
+  it('does NOT flag a /* --- */ divider block inside a template-literal string', async () => {
+    /* String-blindness regression: the same divider pattern that is flagged as a
+     * real comment must be IGNORED when it lives inside string content (e.g. a
+     * lint-rule test fixture). A prior string-blind --fix corrupted fixtures by
+     * rewriting these to the canonical // === form. */
+    const code: string = [
+      'const code = `',
+      '/* ------------------------------------------------------------------ */',
+      '/*  Title                                                             */',
+      '/* ------------------------------------------------------------------ */',
+      '`;',
+      '',
+    ].join('\n');
+    const results: LintResult[] = await lint(requireSectionMarkerStyle, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('does NOT flag a // --- divider block inside a template-literal string', async () => {
+    /* Same string-blindness guard for the dash line-comment divider style. */
+    const code: string = [
+      'const code = `',
+      '// -------------------------------------------------------------------------',
+      '// Title',
+      '// -------------------------------------------------------------------------',
+      '`;',
+      '',
+    ].join('\n');
+    const results: LintResult[] = await lint(requireSectionMarkerStyle, code);
+    expect(results.length).toBe(0);
+  });
 });
 
 // =============================================================================

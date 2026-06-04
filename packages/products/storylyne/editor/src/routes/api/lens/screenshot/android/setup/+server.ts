@@ -14,9 +14,9 @@ import type { RequestHandler } from './$types';
 import { dev } from '$app/environment';
 import { checkAndroidSdk } from '$lib/server/simulator/android-sdk';
 
-/* ------------------------------------------------------------------ */
-/*  GET handler                                                        */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// GET handler
+// =============================================================================
 
 /**
  * GET handler — returns Android SDK status and setup instructions.

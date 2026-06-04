@@ -25,9 +25,9 @@ import type { Num, Str } from '@/schemas/common';
 import type { Browser, BrowserContext, BrowserType, ConsoleMessage, Page } from 'playwright';
 import { dev } from '$app/environment';
 
-/* ------------------------------------------------------------------ */
-/*  Browser engine management                                          */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Browser engine management
+// =============================================================================
 
 /** Valid browser engine identifiers. */
 const VALID_ENGINES: Set<Str> = new Set(['chromium' as Str, 'firefox' as Str, 'webkit' as Str]);
@@ -38,9 +38,9 @@ const VALID_ENGINES: Set<Str> = new Set(['chromium' as Str, 'firefox' as Str, 'w
  */
 const browserCache: Map<Str, Browser> = new Map();
 
-/* ------------------------------------------------------------------ */
-/*  Concurrency semaphore                                              */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Concurrency semaphore
+// =============================================================================
 
 /** Maximum concurrent Playwright contexts across all engines. */
 const MAX_CONCURRENT: Num = 3 as Num;
@@ -110,9 +110,9 @@ async function getOrLaunchBrowser(engine: Str): Promise<Browser> {
   return browser;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Display name helpers                                               */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Display name helpers
+// =============================================================================
 
 /**
  * Map engine IDs to human-readable display names.
@@ -130,9 +130,9 @@ function engineDisplayName(engine: Str): Str {
   return 'Chromium' as Str;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Console formatting helpers                                         */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Console formatting helpers
+// =============================================================================
 
 /**
  * Strip `%c` format specifiers from console message text.
@@ -154,9 +154,9 @@ function stripConsoleFormatting(text: Str): Str {
   return cleaned.trim() as Str;
 }
 
-/* ------------------------------------------------------------------ */
-/*  GET handler                                                        */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// GET handler
+// =============================================================================
 
 /**
  * GET handler — renders a component in a real browser and returns JSON

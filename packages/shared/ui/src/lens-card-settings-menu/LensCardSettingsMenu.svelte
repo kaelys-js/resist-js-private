@@ -2824,7 +2824,7 @@
         }),
   );
   const filteredNetworkCategories: Str[] = $derived([
-    ...new Set(filteredNetworkPresets.filter((p) => p.category).map((p) => p.category)),
+    ...new Set(filteredNetworkPresets.flatMap((p) => (p.category ? [p.category] : []))),
   ]);
   const activeNetworkLabel: Str = $derived.by(() => {
     if (activeNetworkSim === 'none') {
@@ -2880,7 +2880,7 @@
     }),
   );
   const filteredColorCategories: Str[] = $derived([
-    ...new Set(filteredColorItems.filter((p) => p.category).map((p) => p.category)),
+    ...new Set(filteredColorItems.flatMap((p) => (p.category ? [p.category] : []))),
   ]);
   const filteredVisionItems = $derived(
     VISION_ITEMS.filter((item) => {
@@ -2894,7 +2894,7 @@
     }),
   );
   const filteredVisionCategories: Str[] = $derived([
-    ...new Set(filteredVisionItems.filter((p) => p.category).map((p) => p.category)),
+    ...new Set(filteredVisionItems.flatMap((p) => (p.category ? [p.category] : []))),
   ]);
   const filteredDirPresets = $derived(
     dirSearchQuery.length === 0
@@ -2928,7 +2928,7 @@
     ),
   );
   const filteredFontSizeCategories: Str[] = $derived([
-    ...new Set(filteredFontSizePresets.filter((p) => p.category).map((p) => p.category)),
+    ...new Set(filteredFontSizePresets.flatMap((p) => (p.category ? [p.category] : []))),
   ]);
   const filteredExportItems = $derived(
     exportSearchQuery.length === 0

@@ -5,10 +5,13 @@
  * These operations are expensive and should be performed outside loops
  * when the input does not change between iterations.
  *
- * The auto-fix hoists the call before the loop ONLY when its argument is an
- * invariant literal (a string literal or zero-expression template), the call is
- * the loop's own body (no intervening nested loop / function), and it is the
- * loop's only JSON call. Every other shape falls back to no-op.
+ * Detection is gated on auto-fixability: the rule flags ONLY the hoistable shape
+ * — an invariant-literal argument (a string literal or zero-expression
+ * template), in the loop's own body (no intervening nested loop / function), as
+ * the loop's only JSON call. A call on per-iteration data (an identifier/member
+ * argument, an interpolated template, a call nested in a function, or a second
+ * JSON call) is NOT flagged (no false positives on legitimate per-iteration
+ * parse/stringify).
  *
  * @module
  */
@@ -25,6 +28,18 @@ import { findStaticMemberCallInBody, walkBody } from './_utils.ts';
 
 /** No-op fix sentinel. */
 const NO_FIX: LintFix = NO_OP_FIX;
+
+/**
+ * Whether a fix is a REAL (non-no-op) text replacement. The no-op sentinel is
+ * `{ range: { start: 0, end: 0 }, text: '' }`; anything else is a genuine fix.
+ * Detection is gated on this so a flagged violation is always auto-fixable.
+ *
+ * @param {LintFix} fix - The fix to test
+ * @returns {boolean} True if the fix replaces real source text
+ */
+function isRealFix(fix: LintFix): boolean {
+  return !(fix.range.start === 0 && fix.range.end === 0 && fix.text === '');
+}
 
 /**
  * Extract source text for an AST node.
@@ -274,34 +289,49 @@ function buildJsonFix(
 const checkLoop = (node: AstNode, context: VisitorContext): LintResult[] => {
   const results: LintResult[] = [];
 
+  /* Detection is gated on auto-fixability: emit ONLY when buildJsonFix can hoist
+   * the call before the loop — i.e. an invariant-literal argument (string
+   * literal or zero-expression template) in the loop's own body, as its sole
+   * JSON call. A call on per-iteration data (an identifier/member argument, an
+   * interpolated template, a nested function, or a second JSON call) NO_OPs and
+   * is no longer flagged, eliminating false positives on legitimate per-iteration
+   * parse/stringify. */
   const parseCall: AstNode | undefined = findStaticMemberCallInBody(node, 'JSON', 'parse');
 
   if (parseCall) {
-    results.push({
-      file: context.file,
-      line: parseCall.loc.start.line,
-      column: parseCall.loc.start.column + 1,
-      severity: 'warning',
-      message: 'JSON.parse()/JSON.stringify() inside loop is expensive — cache or restructure',
-      ruleId: 'complexity/no-json-parse-in-loop',
-      tip: 'Parse/stringify outside the loop when possible',
-      fix: buildJsonFix('parse', parseCall, node, context),
-    });
+    const fix: LintFix = buildJsonFix('parse', parseCall, node, context);
+
+    if (isRealFix(fix)) {
+      results.push({
+        file: context.file,
+        line: parseCall.loc.start.line,
+        column: parseCall.loc.start.column + 1,
+        severity: 'warning',
+        message: 'JSON.parse()/JSON.stringify() inside loop is expensive — cache or restructure',
+        ruleId: 'complexity/no-json-parse-in-loop',
+        tip: 'Parse/stringify outside the loop when possible',
+        fix,
+      });
+    }
   }
 
   const stringifyCall: AstNode | undefined = findStaticMemberCallInBody(node, 'JSON', 'stringify');
 
   if (stringifyCall) {
-    results.push({
-      file: context.file,
-      line: stringifyCall.loc.start.line,
-      column: stringifyCall.loc.start.column + 1,
-      severity: 'warning',
-      message: 'JSON.parse()/JSON.stringify() inside loop is expensive — cache or restructure',
-      ruleId: 'complexity/no-json-parse-in-loop',
-      tip: 'Parse/stringify outside the loop when possible',
-      fix: buildJsonFix('stringify', stringifyCall, node, context),
-    });
+    const fix: LintFix = buildJsonFix('stringify', stringifyCall, node, context);
+
+    if (isRealFix(fix)) {
+      results.push({
+        file: context.file,
+        line: stringifyCall.loc.start.line,
+        column: stringifyCall.loc.start.column + 1,
+        severity: 'warning',
+        message: 'JSON.parse()/JSON.stringify() inside loop is expensive — cache or restructure',
+        ruleId: 'complexity/no-json-parse-in-loop',
+        tip: 'Parse/stringify outside the loop when possible',
+        fix,
+      });
+    }
   }
 
   return results;

@@ -11,9 +11,9 @@ import { describe, expect, it, beforeEach } from 'vitest';
 import type { Bool, Num } from '@/schemas/common';
 import { AdaptiveQualityController } from './adaptive-quality';
 
-/* ------------------------------------------------------------------ */
-/*  Tests                                                              */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Tests
+// =============================================================================
 
 describe('AdaptiveQualityController', (): void => {
   let controller: AdaptiveQualityController;

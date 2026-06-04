@@ -20,9 +20,9 @@ import {
 } from '$lib/server/simulator/android-devices';
 import { checkAndroidSdk } from '$lib/server/simulator/android-sdk';
 
-/* ------------------------------------------------------------------ */
-/*  Cache                                                              */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Cache
+// =============================================================================
 
 /** Cached device list with expiry timestamp. */
 let deviceCache: { devices: AndroidDevice[]; systemImages: Str[]; expiresAt: Num } | null = null;
@@ -30,9 +30,9 @@ let deviceCache: { devices: AndroidDevice[]; systemImages: Str[]; expiresAt: Num
 /** Cache duration in ms (30 seconds — shorter to pick up newly created AVDs). */
 const CACHE_TTL_MS: Num = 30_000 as Num;
 
-/* ------------------------------------------------------------------ */
-/*  GET handler                                                        */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// GET handler
+// =============================================================================
 
 /**
  * GET handler — returns all Android device profiles (created + uncreated).

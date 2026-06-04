@@ -15,9 +15,9 @@
 import type { Num, Str } from '@/schemas/common';
 import { WebSocket } from 'ws';
 
-/* ------------------------------------------------------------------ */
-/*  Types                                                              */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Types
+// =============================================================================
 
 /** A console message captured from Safari via WebKit Inspector Protocol. */
 export type CapturedConsoleMessage = {
@@ -43,9 +43,9 @@ export type FormattedConsoleEntry = {
   source: Str;
 };
 
-/* ------------------------------------------------------------------ */
-/*  Message parsing                                                    */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Message parsing
+// =============================================================================
 
 /**
  * Parse a WebKit Inspector Protocol message for console events.
@@ -106,9 +106,9 @@ export function formatConsoleMessages(messages: CapturedConsoleMessage[]): Forma
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  WebSocket-based capture                                            */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// WebSocket-based capture
+// =============================================================================
 
 /**
  * Connect to a WebKit Inspector WebSocket and capture console messages.

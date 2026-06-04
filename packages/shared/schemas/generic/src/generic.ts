@@ -14,30 +14,6 @@
 import type { GenericSchema, GenericSchemaFactory } from '@/schemas/generic/types';
 
 // =============================================================================
-// Internal Cast Helper
-// =============================================================================
-
-/**
- * Casts a `GenericSchemaFactory` to `GenericSchema<TFactory>`.
- *
- * This is the **single centralized location** for the `as GenericSchema` cast
- * in the generic schema package. The `generic()` function attaches the
- * `__isGenericSchema` metadata via `Object.defineProperty`, but TypeScript
- * cannot track property additions, so a cast is unavoidable.
- *
- * @internal
- * @typeParam TFactory - The schema factory function type.
- * @param value - The factory function to cast. Caller is responsible for
- *   ensuring `__isGenericSchema` has been attached.
- * @returns The value typed as `GenericSchema<TFactory>`.
- */
-function _toGenericSchema<TFactory extends GenericSchemaFactory>(
-  value: TFactory,
-): GenericSchema<TFactory> {
-  return value as GenericSchema<TFactory>;
-}
-
-// =============================================================================
 // Generic Schema Factory
 // =============================================================================
 
@@ -154,4 +130,27 @@ export function isGenericSchema(value: unknown): value is GenericSchema<GenericS
   return (
     typeof value === 'function' && '__isGenericSchema' in value && value.__isGenericSchema === true
   );
+}
+// =============================================================================
+// Internal Cast Helper
+// =============================================================================
+
+/**
+ * Casts a `GenericSchemaFactory` to `GenericSchema<TFactory>`.
+ *
+ * This is the **single centralized location** for the `as GenericSchema` cast
+ * in the generic schema package. The `generic()` function attaches the
+ * `__isGenericSchema` metadata via `Object.defineProperty`, but TypeScript
+ * cannot track property additions, so a cast is unavoidable.
+ *
+ * @internal
+ * @typeParam TFactory - The schema factory function type.
+ * @param value - The factory function to cast. Caller is responsible for
+ *   ensuring `__isGenericSchema` has been attached.
+ * @returns The value typed as `GenericSchema<TFactory>`.
+ */
+function _toGenericSchema<TFactory extends GenericSchemaFactory>(
+  value: TFactory,
+): GenericSchema<TFactory> {
+  return value as GenericSchema<TFactory>;
 }

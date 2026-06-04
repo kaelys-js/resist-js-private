@@ -49,9 +49,9 @@ import { openUrlInSimulator } from '$lib/server/simulator/ios-navigate';
 import { getStaticSafeAreaInsets, type SafeAreaInsets } from '$lib/server/simulator/ios-safe-area';
 import { findDeviceFrameByName, type DeviceFrame } from '$lib/server/simulator/device-frames';
 
-/* ------------------------------------------------------------------ */
-/*  GET handler                                                        */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// GET handler
+// =============================================================================
 
 /**
  * GET handler — renders a component in the iOS Simulator's Safari and

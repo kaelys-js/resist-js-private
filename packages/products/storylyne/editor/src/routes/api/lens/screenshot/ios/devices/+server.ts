@@ -19,9 +19,9 @@ import {
   type SimulatorDevice,
 } from '$lib/server/simulator/ios-simctl';
 
-/* ------------------------------------------------------------------ */
-/*  Cache                                                              */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Cache
+// =============================================================================
 
 /** Cached device list with expiry timestamp. */
 let deviceCache: { devices: SimulatorDevice[]; expiresAt: Num } | null = null;
@@ -29,9 +29,9 @@ let deviceCache: { devices: SimulatorDevice[]; expiresAt: Num } | null = null;
 /** Cache duration in ms (30 seconds — boot state changes frequently). */
 const CACHE_TTL_MS: Num = 30_000 as Num;
 
-/* ------------------------------------------------------------------ */
-/*  GET handler                                                        */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// GET handler
+// =============================================================================
 
 /**
  * GET handler — returns all available iOS Simulator devices.

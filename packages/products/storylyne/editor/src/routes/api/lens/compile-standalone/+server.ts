@@ -25,9 +25,9 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, dirname, basename, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-/* ------------------------------------------------------------------ */
-/*  Resolve workspace paths                                            */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Resolve workspace paths
+// =============================================================================
 
 /**
  * Resolve the absolute path to `packages/shared/ui/src/` from the project root.
@@ -71,9 +71,9 @@ function resolveEditorSrcDir(): Str {
   return resolve(currentDir, '..', '..', '..', '..') as Str;
 }
 
-/* ------------------------------------------------------------------ */
-/*  File discovery & reading                                           */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// File discovery & reading
+// =============================================================================
 
 /**
  * Recursively collect all `.svelte` and `.ts`/`.js` files that a component
@@ -156,9 +156,9 @@ function collectComponentSources(componentDir: Str, uiSrcDir: Str): Map<Str, Str
   return sources;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Tailwind CSS extraction                                            */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Tailwind CSS extraction
+// =============================================================================
 
 /**
  * Extract Tailwind CSS class candidates from source code.
@@ -255,9 +255,9 @@ async function generateTailwindCss(candidates: Str[], editorSrcDir: Str): Promis
   }
 }
 
-/* ------------------------------------------------------------------ */
-/*  Workspace alias resolution                                         */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Workspace alias resolution
+// =============================================================================
 
 /** Exact `@/` alias → filesystem path mappings (from root tsconfig.json). */
 const EXACT_ALIASES: ReadonlyArray<[Str, Str]> = [
@@ -343,9 +343,9 @@ function resolveWorkspaceAlias(importPath: Str, workspaceRoot: Str): Str | undef
   return undefined;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Svelte compilation + esbuild bundling                              */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Svelte compilation + esbuild bundling
+// =============================================================================
 
 /**
  * Compile a single `.svelte` file to client-side JavaScript.
@@ -513,9 +513,9 @@ async function bundleWithEsbuild(
   return '' as Str;
 }
 
-/* ------------------------------------------------------------------ */
-/*  HTML assembly                                                      */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// HTML assembly
+// =============================================================================
 
 /**
  * Read the full app.css to extract theme custom property blocks.
@@ -641,9 +641,9 @@ ${bundledJs}
 </html>` as Str;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Request handler                                                    */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Request handler
+// =============================================================================
 
 /**
  * POST handler — compiles a Svelte component into a standalone HTML file.

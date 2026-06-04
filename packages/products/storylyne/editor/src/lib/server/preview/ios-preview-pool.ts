@@ -21,9 +21,9 @@ import { log } from '@/utils/core/logger';
 
 const execFileAsync = promisify(execFile);
 
-/* ------------------------------------------------------------------ */
-/*  Constants                                                          */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Constants
+// =============================================================================
 
 /** Default number of parallel capture processes. */
 export const DEFAULT_POOL_SIZE: Num = 3 as Num;
@@ -31,9 +31,9 @@ export const DEFAULT_POOL_SIZE: Num = 3 as Num;
 /** Default target FPS for the capture loop. */
 export const DEFAULT_TARGET_FPS: Num = 20 as Num;
 
-/* ------------------------------------------------------------------ */
-/*  Capture pool                                                       */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Capture pool
+// =============================================================================
 
 /**
  * Parallel simctl screenshot capture pool for iOS Simulator Live View.

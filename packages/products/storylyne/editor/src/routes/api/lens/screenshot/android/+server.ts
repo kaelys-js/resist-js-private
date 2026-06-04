@@ -36,16 +36,16 @@ import { checkAndroidSdk } from '$lib/server/simulator/android-sdk';
 import { openUrlInEmulator, setupPortForward } from '$lib/server/simulator/android-navigate';
 import { findDeviceFrameByName, type DeviceFrame } from '$lib/server/simulator/device-frames';
 
-/* ------------------------------------------------------------------ */
-/*  Constants                                                          */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Constants
+// =============================================================================
 
 /** Default AVD name when none is specified. */
 const DEFAULT_AVD: Str = 'Medium_Phone_API_35' as Str;
 
-/* ------------------------------------------------------------------ */
-/*  GET handler                                                        */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// GET handler
+// =============================================================================
 
 /**
  * GET handler — renders a component in the Android Emulator's Chrome and

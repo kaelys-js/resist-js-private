@@ -5,14 +5,19 @@
  * per call, so using it inside a loop creates O(n²) complexity.
  * Suggests using a Map or Set for O(1) lookups.
  *
- * The auto-fix pre-computes a Set from the array before the loop and replaces
- * common `.indexOf()` comparison patterns with `.has()`:
+ * Detection is gated on auto-fixability: the rule flags ONLY a membership-test
+ * `.indexOf()` it can rewrite into a hoisted Set lookup:
  *   - `arr.indexOf(x) !== -1` → `_arrSet.has(x)`
  *   - `arr.indexOf(x) === -1` → `!_arrSet.has(x)`
  *   - `arr.indexOf(x) >= 0`  → `_arrSet.has(x)`
  *   - `arr.indexOf(x) < 0`   → `!_arrSet.has(x)`
  *
- * Falls back to no-op for bare `.indexOf()` calls used for the index value itself.
+ * Cases that cannot be safely rewritten are NOT flagged (no false positives):
+ * a bare `.indexOf()` used for its INDEX VALUE (no `=== -1`/`!== -1` compare), a
+ * non-identifier receiver, an array mutated inside the loop, a second
+ * `fromIndex` argument, or a multi-character string-literal argument (a String
+ * substring search the Set rewrite would corrupt). A single-char literal or an
+ * identifier argument is kept.
  *
  * @module
  */
@@ -29,6 +34,18 @@ import { walkBody, isCallTo } from './_utils.ts';
 
 /** No-op fix sentinel. */
 const NO_FIX: LintFix = NO_OP_FIX;
+
+/**
+ * Whether a fix is a REAL (non-no-op) text replacement. The no-op sentinel is
+ * `{ range: { start: 0, end: 0 }, text: '' }`; anything else is a genuine fix.
+ * Detection is gated on this so a flagged violation is always auto-fixable.
+ *
+ * @param {LintFix} fix - The fix to test
+ * @returns {boolean} True if the fix replaces real source text
+ */
+function isRealFix(fix: LintFix): boolean {
+  return !(fix.range.start === 0 && fix.range.end === 0 && fix.text === '');
+}
 
 /**
  * Extract source text for an AST node.
@@ -338,6 +355,20 @@ function buildIndexOfFix(
     return NO_FIX;
   }
 
+  /* A multi-character string-literal argument is a SUBSTRING search on a String
+   * (`s.indexOf('foo')`), not an Array membership test. `Set.has('foo')` checks
+   * for the WHOLE element 'foo', so the rewrite would change the meaning and
+   * corrupt correct code. A single-char literal (`s.indexOf('a')`) or an
+   * identifier/expression arg is safe to keep — Array membership and the
+   * length-1 String case both behave identically under Set.has. */
+  if (
+    searchArg.type === 'Literal' &&
+    typeof searchArg.value === 'string' &&
+    (searchArg.value as string).length > 1
+  ) {
+    return NO_FIX;
+  }
+
   const searchText: string = nodeText(searchArg, src);
   const loopStart: number = loopNode.start as number;
   const loopEnd: number = loopNode.end as number;
@@ -383,16 +414,27 @@ const checkLoop = (node: AstNode, context: VisitorContext): LintResult[] => {
   });
 
   if (found) {
-    results.push({
-      file: context.file,
-      line: found.loc.start.line,
-      column: found.loc.start.column + 1,
-      severity: 'warning',
-      message: '.indexOf() inside loop creates O(n²) complexity',
-      ruleId: 'complexity/no-index-of-in-loop',
-      tip: 'Use a Set or Map for O(1) lookups instead of .indexOf()',
-      fix: buildIndexOfFix(found, node, context),
-    });
+    /* Detection is gated on auto-fixability: emit ONLY when buildIndexOfFix can
+     * rewrite the call into a hoisted `Set.has` — i.e. a simple-identifier
+     * receiver, an un-mutated array, and a `=== -1`/`!== -1`-style membership
+     * comparison with a single non-substring argument. A bare `.indexOf()` used
+     * for its index value, a non-identifier receiver, a mutated array, a second
+     * `fromIndex` arg, or a multi-char substring search all NO_OP — and thus no
+     * longer flag, eliminating false positives on correct index-value usage. */
+    const fix: LintFix = buildIndexOfFix(found, node, context);
+
+    if (isRealFix(fix)) {
+      results.push({
+        file: context.file,
+        line: found.loc.start.line,
+        column: found.loc.start.column + 1,
+        severity: 'warning',
+        message: '.indexOf() inside loop creates O(n²) complexity',
+        ruleId: 'complexity/no-index-of-in-loop',
+        tip: 'Use a Set or Map for O(1) lookups instead of .indexOf()',
+        fix,
+      });
+    }
   }
 
   return results;

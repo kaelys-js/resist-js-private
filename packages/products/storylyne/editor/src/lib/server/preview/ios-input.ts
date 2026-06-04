@@ -19,9 +19,9 @@ import { log } from '@/utils/core/logger';
 
 const execFileAsync = promisify(execFile);
 
-/* ------------------------------------------------------------------ */
-/*  Constants                                                          */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Constants
+// =============================================================================
 
 /** Input method: xcrun simctl io commands. */
 export const IOS_INPUT_METHOD_SIMCTL: Str = 'simctl' as Str;
@@ -29,9 +29,9 @@ export const IOS_INPUT_METHOD_SIMCTL: Str = 'simctl' as Str;
 /** Input method: AppleScript event posting. */
 export const IOS_INPUT_METHOD_APPLESCRIPT: Str = 'applescript' as Str;
 
-/* ------------------------------------------------------------------ */
-/*  Dispatcher                                                         */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Dispatcher
+// =============================================================================
 
 /**
  * Dispatches input events to an iOS Simulator.
@@ -200,9 +200,9 @@ export class IosInputDispatcher {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/*  Key mapping                                                        */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Key mapping
+// =============================================================================
 
 /** Map of browser key names to simctl key names. */
 const KEY_MAP: Record<Str, Str> = {

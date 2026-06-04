@@ -12,9 +12,9 @@
 import * as v from 'valibot';
 import { type Str, NumSchema, StrSchema } from '@/schemas/common';
 
-/* ------------------------------------------------------------------ */
-/*  Engine identifiers                                                 */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Engine identifiers
+// =============================================================================
 
 /** All supported preview engine identifiers. */
 export const PREVIEW_ENGINES: readonly Str[] = [
@@ -34,9 +34,9 @@ const PreviewEngineSchema = v.picklist([
   'android-emulator',
 ]);
 
-/* ------------------------------------------------------------------ */
-/*  SessionConfig                                                      */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// SessionConfig
+// =============================================================================
 
 /**
  * Configuration for a preview WebSocket session.
@@ -77,16 +77,16 @@ export const SessionConfigSchema = v.strictObject({
 /** Configuration for a preview WebSocket session. */
 export type SessionConfig = v.InferOutput<typeof SessionConfigSchema>;
 
-/* ------------------------------------------------------------------ */
-/*  Mouse button                                                       */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Mouse button
+// =============================================================================
 
 /** Valid mouse button values. */
 const MouseButtonSchema = v.picklist(['left', 'right', 'middle']);
 
-/* ------------------------------------------------------------------ */
-/*  Touch point                                                        */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Touch point
+// =============================================================================
 
 /** A single touch point with position and identifier. */
 const TouchPointSchema = v.strictObject({
@@ -98,9 +98,9 @@ const TouchPointSchema = v.strictObject({
   id: NumSchema,
 });
 
-/* ------------------------------------------------------------------ */
-/*  Input messages (Client → Server)                                   */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Input messages (Client → Server)
+// =============================================================================
 
 /** Mouse down event. */
 const MouseDownSchema = v.strictObject({
@@ -285,9 +285,9 @@ export const InputMessageSchema = v.variant('type', [
 /** Any client → server message. */
 export type InputMessage = v.InferOutput<typeof InputMessageSchema>;
 
-/* ------------------------------------------------------------------ */
-/*  Server messages (Server → Client)                                  */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Server messages (Server → Client)
+// =============================================================================
 
 /** Viewport metadata sent at session start and on resize. */
 const MetadataMessageSchema = v.strictObject({

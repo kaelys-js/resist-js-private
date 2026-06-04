@@ -14,9 +14,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type * as NodeUrlModule from 'node:url';
 import type * as NodeFsModule from 'node:fs';
 
-/* ------------------------------------------------------------------ */
-/*  Mocks — declared before import of the module under test            */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Mocks — declared before import of the module under test
+// =============================================================================
 
 /**
  * Shared in-memory filesystem used across all mocked fs calls.
@@ -142,9 +142,9 @@ vi.mock('@tailwindcss/node', () => ({
   compile: (...args: unknown[]): unknown => tailwindCompileMock(...args),
 }));
 
-/* ------------------------------------------------------------------ */
-/*  Helpers                                                            */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Helpers
+// =============================================================================
 
 function makeRequest(body: unknown): Request {
   return new Request('http://localhost/api/lens/compile-standalone', {
@@ -173,9 +173,9 @@ function installDefaultMocks(): void {
   });
 }
 
-/* ------------------------------------------------------------------ */
-/*  Tests                                                              */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Tests
+// =============================================================================
 
 describe('POST /api/lens/compile-standalone', () => {
   beforeEach(() => {

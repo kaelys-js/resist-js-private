@@ -327,11 +327,14 @@ const tripled = items.map(x => x * 3);`;
 // =============================================================================
 
 describe('complexity/no-index-of-in-loop', () => {
-  it('reports .indexOf() in for loop', async () => {
+  it('reports a membership-comparison .indexOf() (fixable into Set.has)', async () => {
     const code: string = `
-const arr = ['a', 'b', 'c'];
-for (let i = 0; i < 10; i++) {
-  arr.indexOf('x');
+const allow = ['a', 'b', 'c'];
+const items = ['x', 'y'];
+for (const it of items) {
+  if (allow.indexOf(it) !== -1) {
+    use(it);
+  }
 }`;
     const results: LintResult[] = await lint(noIndexOfInLoop, code);
     expect(results.length).toBe(1);
@@ -339,17 +342,27 @@ for (let i = 0; i < 10; i++) {
     expect(results[0]!.message).toContain('O(n²)');
   });
 
-  it('reports .indexOf() in for-of loop', async () => {
+  it('does NOT flag a bare .indexOf() in a for loop (used for its index value)', async () => {
+    const code: string = `
+const arr = ['a', 'b', 'c'];
+for (let i = 0; i < 10; i++) {
+  arr.indexOf('x');
+}`;
+    const results: LintResult[] = await lint(noIndexOfInLoop, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('does NOT flag a bare .indexOf() in a for-of loop (used for its index value)', async () => {
     const code: string = `
 const items = [1, 2, 3];
 for (const item of items) {
   items.indexOf(item);
 }`;
     const results: LintResult[] = await lint(noIndexOfInLoop, code);
-    expect(results.length).toBe(1);
+    expect(results.length).toBe(0);
   });
 
-  it('reports .indexOf() in while loop', async () => {
+  it('does NOT flag a bare .indexOf() in a while loop (used for its index value)', async () => {
     const code: string = `
 const arr = [1, 2];
 let i = 0;
@@ -358,7 +371,31 @@ while (i < 5) {
   i++;
 }`;
     const results: LintResult[] = await lint(noIndexOfInLoop, code);
-    expect(results.length).toBe(1);
+    expect(results.length).toBe(0);
+  });
+
+  it('does NOT flag an index-value .indexOf() assigned to a const (false positive on correct code)', async () => {
+    const code: string = `
+const s = 'hello world';
+for (let i = 0; i < 10; i++) {
+  const idx = s.indexOf('x');
+  use(idx);
+}`;
+    const results: LintResult[] = await lint(noIndexOfInLoop, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('does NOT flag a multi-char substring search even in a membership comparison', async () => {
+    const code: string = `
+const haystack = 'abcdef';
+const items = ['x', 'y'];
+for (const it of items) {
+  if (haystack.indexOf('cd') !== -1) {
+    use(it);
+  }
+}`;
+    const results: LintResult[] = await lint(noIndexOfInLoop, code);
+    expect(results.length).toBe(0);
   });
 
   it('passes .indexOf() outside loop', async () => {
@@ -417,12 +454,11 @@ const mapped = items.map(x => x * 2);`;
 // =============================================================================
 
 describe('complexity/no-concat-in-loop', () => {
-  it('reports += in for loop', async () => {
+  it('reports the provably-safe += accumulator shape (declared immediately before the loop)', async () => {
     const code: string = `
 let result = '';
-const items = ['a', 'b', 'c'];
-for (let i = 0; i < items.length; i++) {
-  result += items[i];
+for (const ch of items) {
+  result += ch;
 }`;
     const results: LintResult[] = await lint(noConcatInLoop, code);
     expect(results.length).toBe(1);
@@ -430,18 +466,38 @@ for (let i = 0; i < items.length; i++) {
     expect(results[0]!.message).toContain('O(n²)');
   });
 
-  it('reports .concat() in for-of loop', async () => {
+  it('does NOT flag += when the accumulator is not declared immediately before the loop', async () => {
+    const code: string = `
+let result = '';
+const items = ['a', 'b', 'c'];
+for (let i = 0; i < items.length; i++) {
+  result += items[i];
+}`;
+    const results: LintResult[] = await lint(noConcatInLoop, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('does NOT flag a numeric += (false positive on correct numeric accumulation)', async () => {
+    const code: string = `
+let total = 0;
+for (const n of nums) {
+  total += n;
+}`;
+    const results: LintResult[] = await lint(noConcatInLoop, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('does NOT flag .concat() in a for-of loop (not auto-fixable)', async () => {
     const code: string = `
 let str = '';
 for (const ch of ['a', 'b', 'c']) {
   str = str.concat(ch);
 }`;
     const results: LintResult[] = await lint(noConcatInLoop, code);
-    expect(results.length).toBe(1);
-    expect(results[0]!.message).toContain('String concatenation');
+    expect(results.length).toBe(0);
   });
 
-  it('reports both += and .concat() in same loop', async () => {
+  it('does NOT flag += or .concat() when neither matches the fixable shape', async () => {
     const code: string = `
 let a = '';
 let b = '';
@@ -450,10 +506,10 @@ for (const ch of ['x', 'y']) {
   b = b.concat(ch);
 }`;
     const results: LintResult[] = await lint(noConcatInLoop, code);
-    expect(results.length).toBe(2);
+    expect(results.length).toBe(0);
   });
 
-  it('reports += in while loop', async () => {
+  it('does NOT flag += in a while loop when the accumulator is not the immediately-preceding statement', async () => {
     const code: string = `
 let s = '';
 let i = 0;
@@ -462,7 +518,7 @@ while (i < 5) {
   i++;
 }`;
     const results: LintResult[] = await lint(noConcatInLoop, code);
-    expect(results.length).toBe(1);
+    expect(results.length).toBe(0);
   });
 
   it('passes concatenation outside loop', async () => {
@@ -489,15 +545,14 @@ for (let i = 0; i < 10; i++) {
     expect(results[0]!.message).toContain('DOM query inside loop');
   });
 
-  it('reports document.getElementById in for-of loop', async () => {
+  it('does NOT flag document.getElementById with a dynamic selector in a for-of loop', async () => {
     const code: string = `
 const ids = ['a', 'b', 'c'];
 for (const id of ids) {
   document.getElementById(id);
 }`;
     const results: LintResult[] = await lint(noDomQueryInLoop, code);
-    expect(results.length).toBe(1);
-    expect(results[0]!.message).toContain('DOM query inside loop');
+    expect(results.length).toBe(0);
   });
 
   it('reports document.querySelectorAll in while loop', async () => {
@@ -527,6 +582,27 @@ for (let i = 0; i < 5; i++) {
 }`;
     const results: LintResult[] = await lint(noDomQueryInLoop, code);
     expect(results.length).toBe(1);
+  });
+
+  it('does NOT flag a DOM query nested inside a conditional (false positive — cannot hoist)', async () => {
+    const code: string = `
+for (let i = 0; i < 10; i++) {
+  if (i > 5) {
+    document.querySelector('.item');
+  }
+}`;
+    const results: LintResult[] = await lint(noDomQueryInLoop, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('does NOT flag multiple DOM queries in one loop (cannot express two hoists)', async () => {
+    const code: string = `
+for (let i = 0; i < 10; i++) {
+  document.querySelector('.a');
+  document.querySelector('.b');
+}`;
+    const results: LintResult[] = await lint(noDomQueryInLoop, code);
+    expect(results.length).toBe(0);
   });
 
   it('passes DOM query outside loop', async () => {
@@ -638,39 +714,7 @@ arr.sort();`;
 // =============================================================================
 
 describe('complexity/no-json-parse-in-loop', () => {
-  it('reports JSON.parse() in for loop', async () => {
-    const code: string = `
-const str = '{"a":1}';
-for (let i = 0; i < 10; i++) {
-  JSON.parse(str);
-}`;
-    const results: LintResult[] = await lint(noJsonParseInLoop, code);
-    expect(results.length).toBe(1);
-    expect(results[0]!.message).toContain('JSON.parse()');
-  });
-
-  it('reports JSON.stringify() in for-of loop', async () => {
-    const code: string = `
-const obj = { a: 1 };
-for (const x of [1, 2]) {
-  JSON.stringify(obj);
-}`;
-    const results: LintResult[] = await lint(noJsonParseInLoop, code);
-    expect(results.length).toBe(1);
-    expect(results[0]!.message).toContain('JSON.stringify()');
-  });
-
-  it('reports both JSON.parse and JSON.stringify in same loop', async () => {
-    const code: string = `
-for (let i = 0; i < 5; i++) {
-  const obj = JSON.parse('{}');
-  JSON.stringify(obj);
-}`;
-    const results: LintResult[] = await lint(noJsonParseInLoop, code);
-    expect(results.length).toBe(2);
-  });
-
-  it('reports JSON.parse() in while loop', async () => {
+  it('reports a JSON.parse() with an invariant string-literal argument (hoistable)', async () => {
     const code: string = `
 let i = 0;
 while (i < 3) {
@@ -679,6 +723,48 @@ while (i < 3) {
 }`;
     const results: LintResult[] = await lint(noJsonParseInLoop, code);
     expect(results.length).toBe(1);
+    expect(results[0]!.message).toContain('JSON.parse()');
+  });
+
+  it('does NOT flag JSON.parse() on a per-iteration identifier argument', async () => {
+    const code: string = `
+const str = '{"a":1}';
+for (let i = 0; i < 10; i++) {
+  JSON.parse(str);
+}`;
+    const results: LintResult[] = await lint(noJsonParseInLoop, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('does NOT flag JSON.stringify() on a per-iteration identifier argument', async () => {
+    const code: string = `
+const obj = { a: 1 };
+for (const x of [1, 2]) {
+  JSON.stringify(obj);
+}`;
+    const results: LintResult[] = await lint(noJsonParseInLoop, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('does NOT flag a JSON.parse on per-iteration data (false positive on legitimate parse)', async () => {
+    const code: string = `
+const rows = ['{"a":1}', '{"b":2}'];
+for (const row of rows) {
+  const parsed = JSON.parse(row);
+  use(parsed);
+}`;
+    const results: LintResult[] = await lint(noJsonParseInLoop, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('does NOT flag two JSON calls in the same loop (cannot express two hoists)', async () => {
+    const code: string = `
+for (let i = 0; i < 5; i++) {
+  const obj = JSON.parse('{}');
+  JSON.stringify(obj);
+}`;
+    const results: LintResult[] = await lint(noJsonParseInLoop, code);
+    expect(results.length).toBe(0);
   });
 
   it('passes JSON.parse() outside loop', async () => {
@@ -778,6 +864,22 @@ const mapped = items.map(x => x * 2);`;
     const code: string = `
 const items = [1, 2, 3];
 const result = items.sort().map(x => x * 2);`;
+    const results: LintResult[] = await lint(noFilterMapChain, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('does NOT flag a block-body filter().map() chain (false positive — cannot rewrite)', async () => {
+    const code: string = `
+const items = [1, 2, 3];
+const result = items.filter(x => { return x > 2; }).map(x => x * 2);`;
+    const results: LintResult[] = await lint(noFilterMapChain, code);
+    expect(results.length).toBe(0);
+  });
+
+  it('does NOT flag a named-callback filter().map() chain (false positive — cannot rewrite)', async () => {
+    const code: string = `
+const items = [1, 2, 3];
+const result = items.filter(isPositive).map(double);`;
     const results: LintResult[] = await lint(noFilterMapChain, code);
     expect(results.length).toBe(0);
   });
@@ -1060,7 +1162,7 @@ for (const ch of parts) {
     const fix: LintFix = expectTextFix(results[0]!.fix);
     const applied: string = applyFix(code, fix);
     expect(applied).toBe(`
-const _outParts: string[] = [];
+const _outParts: Array<string | undefined> = [];
 for (const ch of parts) {
   _outParts.push(ch);
 }
@@ -1068,29 +1170,27 @@ const out = _outParts.join('');`);
     expectParses(applied);
   });
 
-  it('NO_OPs numeric += (declared = 0, not a string)', async () => {
+  it('does not flag numeric += (declared = 0, not a string)', async () => {
     const code: string = `
 let total = 0;
 for (const n of nums) {
   total += n;
 }`;
     const results: LintResult[] = await lint(noConcatInLoop, code);
-    expect(results.length).toBe(1);
-    expect(isNoOp(expectTextFix(results[0]!.fix))).toBe(true);
+    expect(results.length).toBe(0);
   });
 
-  it('NO_OPs a member LHS (compound target)', async () => {
+  it('does not flag a member LHS (compound target)', async () => {
     const code: string = `
 const obj = { s: '' };
 for (const ch of parts) {
   obj.s += ch;
 }`;
     const results: LintResult[] = await lint(noConcatInLoop, code);
-    expect(results.length).toBe(1);
-    expect(isNoOp(expectTextFix(results[0]!.fix))).toBe(true);
+    expect(results.length).toBe(0);
   });
 
-  it('NO_OPs when acc is not declared immediately before the loop', async () => {
+  it('does not flag when acc is not declared immediately before the loop', async () => {
     const code: string = `
 let out = '';
 const parts = ['a', 'b'];
@@ -1098,11 +1198,10 @@ for (const ch of parts) {
   out += ch;
 }`;
     const results: LintResult[] = await lint(noConcatInLoop, code);
-    expect(results.length).toBe(1);
-    expect(isNoOp(expectTextFix(results[0]!.fix))).toBe(true);
+    expect(results.length).toBe(0);
   });
 
-  it('NO_OPs a conditional/nested += (not a direct body statement)', async () => {
+  it('does not flag a conditional/nested += (not a direct body statement)', async () => {
     const code: string = `
 let out = '';
 for (const ch of parts) {
@@ -1111,11 +1210,10 @@ for (const ch of parts) {
   }
 }`;
     const results: LintResult[] = await lint(noConcatInLoop, code);
-    expect(results.length).toBe(1);
-    expect(isNoOp(expectTextFix(results[0]!.fix))).toBe(true);
+    expect(results.length).toBe(0);
   });
 
-  it('NO_OPs multiple += to the same accumulator', async () => {
+  it('does not flag multiple += to the same accumulator', async () => {
     const code: string = `
 let out = '';
 for (const ch of parts) {
@@ -1123,11 +1221,10 @@ for (const ch of parts) {
   out += '-';
 }`;
     const results: LintResult[] = await lint(noConcatInLoop, code);
-    expect(results.length).toBe(1);
-    expect(isNoOp(expectTextFix(results[0]!.fix))).toBe(true);
+    expect(results.length).toBe(0);
   });
 
-  it('NO_OPs when the accumulator is read elsewhere in the loop body', async () => {
+  it('does not flag when the accumulator is read elsewhere in the loop body', async () => {
     const code: string = `
 let out = '';
 for (const ch of parts) {
@@ -1135,19 +1232,17 @@ for (const ch of parts) {
   log(out);
 }`;
     const results: LintResult[] = await lint(noConcatInLoop, code);
-    expect(results.length).toBe(1);
-    expect(isNoOp(expectTextFix(results[0]!.fix))).toBe(true);
+    expect(results.length).toBe(0);
   });
 
-  it('NO_OPs .concat() calls', async () => {
+  it('does not flag .concat() calls', async () => {
     const code: string = `
 let str = '';
 for (const ch of ['a', 'b', 'c']) {
   str = str.concat(ch);
 }`;
     const results: LintResult[] = await lint(noConcatInLoop, code);
-    expect(results.length).toBe(1);
-    expect(isNoOp(expectTextFix(results[0]!.fix))).toBe(true);
+    expect(results.length).toBe(0);
   });
 });
 
@@ -1167,30 +1262,26 @@ for (let i = 0; i < 10; i++) {
     expectParses(applied);
   });
 
-  it('NO_OPs a dynamic (non-literal) selector', async () => {
+  it('does not flag a dynamic (non-literal) selector', async () => {
     const code: string = `
 for (const id of ids) {
   document.getElementById(id);
 }`;
     const results: LintResult[] = await lint(noDomQueryInLoop, code);
-    expect(results.length).toBe(1);
-    expect(isNoOp(expectTextFix(results[0]!.fix))).toBe(true);
+    expect(results.length).toBe(0);
   });
 
-  it('NO_OPs when the loop has more than one DOM query', async () => {
+  it('does not flag when the loop has more than one DOM query', async () => {
     const code: string = `
 for (let i = 0; i < 10; i++) {
   document.querySelector('.a');
   document.querySelector('.b');
 }`;
     const results: LintResult[] = await lint(noDomQueryInLoop, code);
-    expect(results.length).toBeGreaterThanOrEqual(1);
-    for (const r of results) {
-      expect(isNoOp(expectTextFix(r.fix))).toBe(true);
-    }
+    expect(results.length).toBe(0);
   });
 
-  it('NO_OPs a query nested inside a conditional', async () => {
+  it('does not flag a query nested inside a conditional', async () => {
     const code: string = `
 for (let i = 0; i < 10; i++) {
   if (i > 5) {
@@ -1198,8 +1289,7 @@ for (let i = 0; i < 10; i++) {
   }
 }`;
     const results: LintResult[] = await lint(noDomQueryInLoop, code);
-    expect(results.length).toBe(1);
-    expect(isNoOp(expectTextFix(results[0]!.fix))).toBe(true);
+    expect(results.length).toBe(0);
   });
 });
 
@@ -1218,40 +1308,36 @@ const result = items.flatMap((x) => (x > 2) ? [x * 2] : []);`);
     expectParses(applied);
   });
 
-  it('NO_OPs when filter and map params differ', async () => {
+  it('does not flag when filter and map params differ', async () => {
     const code: string = `
 const items = [1, 2, 3];
 const result = items.filter(x => x > 2).map(y => y * 2);`;
     const results: LintResult[] = await lint(noFilterMapChain, code);
-    expect(results.length).toBe(1);
-    expect(isNoOp(expectTextFix(results[0]!.fix))).toBe(true);
+    expect(results.length).toBe(0);
   });
 
-  it('NO_OPs a block-body map callback', async () => {
+  it('does not flag a block-body map callback', async () => {
     const code: string = `
 const items = [1, 2, 3];
 const result = items.filter(x => x > 2).map(x => { return x * 2; });`;
     const results: LintResult[] = await lint(noFilterMapChain, code);
-    expect(results.length).toBe(1);
-    expect(isNoOp(expectTextFix(results[0]!.fix))).toBe(true);
+    expect(results.length).toBe(0);
   });
 
-  it('NO_OPs a destructured filter param', async () => {
+  it('does not flag a destructured filter param', async () => {
     const code: string = `
 const items = [{ v: 1 }];
 const result = items.filter(({ v }) => v > 0).map(({ v }) => v * 2);`;
     const results: LintResult[] = await lint(noFilterMapChain, code);
-    expect(results.length).toBe(1);
-    expect(isNoOp(expectTextFix(results[0]!.fix))).toBe(true);
+    expect(results.length).toBe(0);
   });
 
-  it('NO_OPs a named-function callback', async () => {
+  it('does not flag a named-function callback', async () => {
     const code: string = `
 const items = [1, 2, 3];
 const result = items.filter(function (x) { return x > 2; }).map(x => x * 2);`;
     const results: LintResult[] = await lint(noFilterMapChain, code);
-    expect(results.length).toBe(1);
-    expect(isNoOp(expectTextFix(results[0]!.fix))).toBe(true);
+    expect(results.length).toBe(0);
   });
 });
 
@@ -1290,7 +1376,7 @@ for (const it of items) {
     expectParses(applied);
   });
 
-  it('NO_OPs when the array is mutated inside the loop (Set would be stale)', async () => {
+  it('does not flag when the array is mutated inside the loop (Set would be stale)', async () => {
     const code: string = `
 const seen = [];
 const items = [1, 2, 3];
@@ -1300,22 +1386,20 @@ for (const it of items) {
   }
 }`;
     const results: LintResult[] = await lint(noIndexOfInLoop, code);
-    expect(results.length).toBe(1);
-    expect(isNoOp(expectTextFix(results[0]!.fix))).toBe(true);
+    expect(results.length).toBe(0);
   });
 
-  it('NO_OPs a bare .indexOf() used for its index value', async () => {
+  it('does not flag a bare .indexOf() used for its index value', async () => {
     const code: string = `
 const arr = ['a', 'b', 'c'];
 for (let i = 0; i < 10; i++) {
   const idx = arr.indexOf('x');
 }`;
     const results: LintResult[] = await lint(noIndexOfInLoop, code);
-    expect(results.length).toBe(1);
-    expect(isNoOp(expectTextFix(results[0]!.fix))).toBe(true);
+    expect(results.length).toBe(0);
   });
 
-  it('NO_OPs a non-identifier receiver', async () => {
+  it('does not flag a non-identifier receiver', async () => {
     const code: string = `
 const obj = { arr: ['a'] };
 const items = ['x'];
@@ -1325,11 +1409,10 @@ for (const it of items) {
   }
 }`;
     const results: LintResult[] = await lint(noIndexOfInLoop, code);
-    expect(results.length).toBe(1);
-    expect(isNoOp(expectTextFix(results[0]!.fix))).toBe(true);
+    expect(results.length).toBe(0);
   });
 
-  it('NO_OPs when indexOf has a second (fromIndex) argument', async () => {
+  it('does not flag when indexOf has a second (fromIndex) argument', async () => {
     const code: string = `
 const allow = ['a', 'b'];
 const items = ['x'];
@@ -1339,8 +1422,7 @@ for (const it of items) {
   }
 }`;
     const results: LintResult[] = await lint(noIndexOfInLoop, code);
-    expect(results.length).toBe(1);
-    expect(isNoOp(expectTextFix(results[0]!.fix))).toBe(true);
+    expect(results.length).toBe(0);
   });
 });
 
@@ -1370,50 +1452,44 @@ for (let i = 0; i < 3; i++) {
     expectParses(applied);
   });
 
-  it('NO_OPs a non-literal (identifier) argument', async () => {
+  it('does not flag a non-literal (identifier) argument', async () => {
     const code: string = `
 const str = '{}';
 for (let i = 0; i < 3; i++) {
   JSON.parse(str);
 }`;
     const results: LintResult[] = await lint(noJsonParseInLoop, code);
-    expect(results.length).toBe(1);
-    expect(isNoOp(expectTextFix(results[0]!.fix))).toBe(true);
+    expect(results.length).toBe(0);
   });
 
-  it('NO_OPs a template literal with an interpolation', async () => {
+  it('does not flag a template literal with an interpolation', async () => {
     const code: string = `
 const x = 1;
 for (let i = 0; i < 3; i++) {
   JSON.parse(\`\${x}\`);
 }`;
     const results: LintResult[] = await lint(noJsonParseInLoop, code);
-    expect(results.length).toBe(1);
-    expect(isNoOp(expectTextFix(results[0]!.fix))).toBe(true);
+    expect(results.length).toBe(0);
   });
 
-  it('NO_OPs a JSON.parse nested inside a function in the loop body', async () => {
+  it('does not flag a JSON.parse nested inside a function in the loop body', async () => {
     const code: string = `
 for (let i = 0; i < 3; i++) {
   const make = () => JSON.parse('{}');
   make();
 }`;
     const results: LintResult[] = await lint(noJsonParseInLoop, code);
-    expect(results.length).toBe(1);
-    expect(isNoOp(expectTextFix(results[0]!.fix))).toBe(true);
+    expect(results.length).toBe(0);
   });
 
-  it('NO_OPs when the loop has more than one JSON call', async () => {
+  it('does not flag when the loop has more than one JSON call', async () => {
     const code: string = `
 for (let i = 0; i < 3; i++) {
   JSON.parse('{}');
   JSON.parse('[]');
 }`;
     const results: LintResult[] = await lint(noJsonParseInLoop, code);
-    expect(results.length).toBeGreaterThanOrEqual(1);
-    for (const r of results) {
-      expect(isNoOp(expectTextFix(r.fix))).toBe(true);
-    }
+    expect(results.length).toBe(0);
   });
 });
 

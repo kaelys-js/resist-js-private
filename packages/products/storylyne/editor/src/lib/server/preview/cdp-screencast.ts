@@ -24,9 +24,9 @@ const WS_OPEN: Num = 1 as Num;
 /** Cursor poll interval in milliseconds. */
 const CURSOR_POLL_MS: Num = 1000 as Num;
 
-/* ------------------------------------------------------------------ */
-/*  CDP screencast frame event shape                                   */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// CDP screencast frame event shape
+// =============================================================================
 
 /** Shape of a CDP Page.screencastFrame event payload. */
 type ScreencastFrameEvent = {
@@ -45,9 +45,9 @@ type ScreencastFrameEvent = {
   sessionId: number;
 };
 
-/* ------------------------------------------------------------------ */
-/*  Provider                                                           */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Provider
+// =============================================================================
 
 /**
  * CDP-based screencast frame provider for Chromium browsers.

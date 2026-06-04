@@ -18,9 +18,9 @@ import {
 } from './VisuallyHidden.svelte';
 import { meta } from './lens.js';
 
-/* ------------------------------------------------------------------ */
-/*  Schema validation                                                  */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Schema validation
+// =============================================================================
 describe('VisuallyHiddenPropsSchema', () => {
   it('accepts empty props and fills defaults', () => {
     const result = safeParse(VisuallyHiddenPropsSchema, {});
@@ -90,9 +90,9 @@ describe('VisuallyHiddenPropsSchema', () => {
   });
 });
 
-/* ------------------------------------------------------------------ */
-/*  tv() variants                                                      */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// tv() variants
+// =============================================================================
 describe('visuallyHiddenVariants', () => {
   it('returns base hidden classes when focusable is false', () => {
     const classes: Str = visuallyHiddenVariants({ focusable: false }) as Str;
@@ -114,9 +114,9 @@ describe('visuallyHiddenVariants', () => {
   });
 });
 
-/* ------------------------------------------------------------------ */
-/*  Type exports                                                       */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Type exports
+// =============================================================================
 describe('type exports', () => {
   it('InputProps allows all fields to be optional', () => {
     const empty: VisuallyHiddenInputProps = {};
@@ -136,9 +136,9 @@ describe('type exports', () => {
   });
 });
 
-/* ------------------------------------------------------------------ */
-/*  lens.ts metadata                                                   */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// lens.ts metadata
+// =============================================================================
 describe('lens.ts meta', () => {
   it('has required LensMeta fields', () => {
     expect(meta.category).toBe('a11y');

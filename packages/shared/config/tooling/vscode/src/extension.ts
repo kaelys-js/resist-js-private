@@ -458,7 +458,7 @@ export function activate(context: vscode.ExtensionContext): void {
       isLintableDocument(doc),
     );
 
-    const openUris: vscode.Uri[] = openDocs.filter((doc) => !doc.isUntitled).map((doc) => doc.uri);
+    const openUris: vscode.Uri[] = openDocs.flatMap((doc) => (doc.isUntitled ? [] : [doc.uri]));
 
     // Lint saved files with progress bar
     withFileProgress(outputChannel, en.progress.activation, openUris, (uri) => {

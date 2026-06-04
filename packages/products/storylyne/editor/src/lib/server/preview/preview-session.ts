@@ -24,9 +24,9 @@ import { createTranscoder, type TranscodeHandle } from './scrcpy-transcode';
 import { IosPreviewCapturePool } from './ios-preview-pool';
 import { IosInputDispatcher } from './ios-input';
 
-/* ------------------------------------------------------------------ */
-/*  Session type                                                       */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Session type
+// =============================================================================
 
 /** Engine type determines which frame provider is used. */
 export type EngineType = 'cdp' | 'screenshot-loop' | 'scrcpy' | 'ios-simctl';
@@ -57,9 +57,9 @@ export type PreviewSession = {
   readonly iosInput: IosInputDispatcher | undefined;
 };
 
-/* ------------------------------------------------------------------ */
-/*  ID generation                                                      */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// ID generation
+// =============================================================================
 
 /** Counter for generating unique session IDs. */
 let nextId: Num = 0 as Num;
@@ -75,9 +75,9 @@ function generateId(): Str {
   return id;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Isolate URL builder                                                */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Isolate URL builder
+// =============================================================================
 
 /** Default dev server port for the isolate route. */
 const DEV_PORT: Num = 3100 as Num;
@@ -111,9 +111,9 @@ function buildIsolateUrl(component: Str, config: SessionConfig): Str {
   return base;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Manager                                                            */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Manager
+// =============================================================================
 
 /**
  * Manages the lifecycle of Live View preview sessions.

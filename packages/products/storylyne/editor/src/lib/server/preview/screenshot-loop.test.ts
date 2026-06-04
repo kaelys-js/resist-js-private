@@ -11,9 +11,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Bool, Num, Str } from '@/schemas/common';
 import { ScreenshotLoopProvider } from './screenshot-loop';
 
-/* ------------------------------------------------------------------ */
-/*  Mocks                                                              */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Mocks
+// =============================================================================
 
 /** Fake JPEG buffer returned by page.screenshot(). */
 const FAKE_JPEG: Buffer = Buffer.from('fake-jpeg-data');
@@ -53,9 +53,9 @@ function createMockWs(): {
   };
 }
 
-/* ------------------------------------------------------------------ */
-/*  Tests                                                              */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Tests
+// =============================================================================
 
 describe('ScreenshotLoopProvider', (): void => {
   let page: ReturnType<typeof createMockPage>;

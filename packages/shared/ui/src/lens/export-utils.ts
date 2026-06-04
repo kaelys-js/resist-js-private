@@ -14,9 +14,9 @@ import { StrSchema, NumSchema, type Str, type Bool, type Num } from '@/schemas/c
 import { domToPng, domToJpeg, domToSvg, domToBlob } from 'modern-screenshot';
 import { clipboardCopy } from './clipboard.js';
 
-/* ------------------------------------------------------------------ */
-/*  Schemas                                                            */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Schemas
+// =============================================================================
 
 /** Export format identifiers. */
 const ExportFormatSchema = v.picklist(['png', 'jpeg', 'svg', 'webp']);
@@ -48,9 +48,9 @@ const ChainExportNodeSchema = v.strictObject({
 });
 type ChainExportNode = v.InferOutput<typeof ChainExportNodeSchema>;
 
-/* ------------------------------------------------------------------ */
-/*  Internal helpers                                                   */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Internal helpers
+// =============================================================================
 
 /**
  * Convert a data URL to a Blob.
@@ -136,9 +136,9 @@ function mermaidEdgeLabel(kind: Str): Str {
   return `|${kind}|`;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Image export                                                       */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Image export
+// =============================================================================
 
 /**
  * Download a DOM element as a PNG image.
@@ -273,9 +273,9 @@ export async function copyDataUri(element: HTMLElement, options?: ExportOptions)
   return clipboardCopy(dataUrl);
 }
 
-/* ------------------------------------------------------------------ */
-/*  HTML export                                                        */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// HTML export
+// =============================================================================
 
 /**
  * Recursively inline all computed styles onto every element in a cloned subtree.
@@ -453,9 +453,9 @@ export function copyHtml(element: HTMLElement): Promise<Bool> {
   return clipboardCopy(html);
 }
 
-/* ------------------------------------------------------------------ */
-/*  Data export (dependency chain)                                     */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Data export (dependency chain)
+// =============================================================================
 
 /**
  * Export chain nodes as a JSON string and copy to clipboard.
@@ -665,9 +665,9 @@ export function copyChainMarkdown(nodes: ChainExportNode[], componentName: Str):
   return clipboardCopy(lines.join('\n'));
 }
 
-/* ------------------------------------------------------------------ */
-/*  Standalone HTML (compiled Svelte)                                  */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Standalone HTML (compiled Svelte)
+// =============================================================================
 
 /**
  * Download a compiled, self-contained standalone HTML file for a Svelte component.

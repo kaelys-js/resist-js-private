@@ -5,10 +5,11 @@
  * that should be cached outside loops to avoid redundant lookups on each
  * iteration.
  *
- * The auto-fix hoists the DOM query call before the loop ONLY when the loop has
- * exactly one DOM query, the selector argument is a string literal, and the call
- * is a direct statement of the loop body. Falls back to no-op for dynamic
- * selectors, multiple queries, or calls nested in conditionals / inner scopes.
+ * Detection is gated on auto-fixability: the rule flags ONLY the hoistable shape
+ * — the loop's sole DOM query, with a string-literal (loop-invariant) selector,
+ * as a direct statement of the loop body. A dynamic (non-literal) selector,
+ * multiple queries, or a query nested in a conditional / inner scope is NOT
+ * flagged (no false positives on queries the rule cannot safely hoist).
  *
  * @module
  */
@@ -25,6 +26,18 @@ import { findStaticMemberCallInBody, walkBody } from './_utils.ts';
 
 /** No-op fix sentinel. */
 const NO_FIX: LintFix = NO_OP_FIX;
+
+/**
+ * Whether a fix is a REAL (non-no-op) text replacement. The no-op sentinel is
+ * `{ range: { start: 0, end: 0 }, text: '' }`; anything else is a genuine fix.
+ * Detection is gated on this so a flagged violation is always auto-fixable.
+ *
+ * @param {LintFix} fix - The fix to test
+ * @returns {boolean} True if the fix replaces real source text
+ */
+function isRealFix(fix: LintFix): boolean {
+  return !(fix.range.start === 0 && fix.range.end === 0 && fix.text === '');
+}
 
 /** DOM query methods to check for. */
 const DOM_METHODS: readonly string[] = [
@@ -235,16 +248,26 @@ const checkLoop = (node: AstNode, context: VisitorContext): LintResult[] => {
     const found: AstNode | undefined = findStaticMemberCallInBody(node, 'document', method);
 
     if (found) {
-      results.push({
-        file: context.file,
-        line: found.loc.start.line,
-        column: found.loc.start.column + 1,
-        severity: 'warning',
-        message: 'DOM query inside loop — cache the result outside the loop',
-        ruleId: 'complexity/no-dom-query-in-loop',
-        tip: 'Move document.querySelector() before the loop and reuse the reference',
-        fix: buildDomQueryFix(method, found, node, context),
-      });
+      /* Detection is gated on auto-fixability: emit ONLY when buildDomQueryFix
+       * can hoist the query before the loop — i.e. the loop's sole DOM query, a
+       * string-literal (loop-invariant) selector, and a direct loop-body
+       * statement. A dynamic selector, multiple queries, or a query nested in a
+       * conditional / inner scope NO_OPs and is no longer flagged, eliminating
+       * false positives on queries the rule cannot safely hoist. */
+      const fix: LintFix = buildDomQueryFix(method, found, node, context);
+
+      if (isRealFix(fix)) {
+        results.push({
+          file: context.file,
+          line: found.loc.start.line,
+          column: found.loc.start.column + 1,
+          severity: 'warning',
+          message: 'DOM query inside loop — cache the result outside the loop',
+          ruleId: 'complexity/no-dom-query-in-loop',
+          tip: 'Move document.querySelector() before the loop and reuse the reference',
+          fix,
+        });
+      }
     }
   }
 

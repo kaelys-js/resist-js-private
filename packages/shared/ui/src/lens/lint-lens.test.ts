@@ -85,9 +85,9 @@ function rel(path: string): string {
   return relative(UI_SRC, path);
 }
 
-/* ------------------------------------------------------------------ */
-/*  Helpers                                                            */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Helpers
+// =============================================================================
 
 /**
  * Find matching closing brace for an opening brace.
@@ -329,9 +329,9 @@ function parseFields(body: string): FieldInfo[] {
   return fields;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Tests                                                              */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Tests
+// =============================================================================
 
 describe('Lens lint', () => {
   describe('Rule 1: @values required on Str/Num fields', () => {
@@ -475,8 +475,11 @@ describe('Lens lint', () => {
     /** All component directories with .svelte files. */
     const componentDirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
       .filter((d) => d.isDirectory() && !SKIP_DIRS.has(d.name))
-      .filter((d) => readdirSync(join(UI_SRC, d.name)).some((f: string) => f.endsWith('.svelte')))
-      .map((d) => d.name);
+      .flatMap((d) =>
+        readdirSync(join(UI_SRC, d.name)).some((f: string) => f.endsWith('.svelte'))
+          ? [d.name]
+          : [],
+      );
 
     it('every component directory has a lens.ts file', () => {
       const missing: string[] = componentDirs.filter(
@@ -628,9 +631,9 @@ describe('Lens lint', () => {
 
     const empty: string[] = [];
 
-    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
-      .filter((d) => d.isDirectory() && !INFRA_DIRS.has(d.name))
-      .map((d) => d.name);
+    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true }).flatMap((d) =>
+      d.isDirectory() && !INFRA_DIRS.has(d.name) ? [d.name] : [],
+    );
 
     for (const dir of dirs) {
       const dirPath: string = join(UI_SRC, dir);
@@ -692,8 +695,11 @@ describe('Lens lint', () => {
 
     const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
       .filter((d) => d.isDirectory())
-      .filter((d) => readdirSync(join(UI_SRC, d.name)).some((f: string) => f.endsWith('.svelte')))
-      .map((d) => d.name);
+      .flatMap((d) =>
+        readdirSync(join(UI_SRC, d.name)).some((f: string) => f.endsWith('.svelte'))
+          ? [d.name]
+          : [],
+      );
 
     for (const dir of dirs) {
       if (!KEBAB_RE.test(dir)) {
@@ -719,8 +725,11 @@ describe('Lens lint', () => {
 
     const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
       .filter((d) => d.isDirectory() && !SKIP_DIRS.has(d.name))
-      .filter((d) => readdirSync(join(UI_SRC, d.name)).some((f: string) => f.endsWith('.svelte')))
-      .map((d) => d.name);
+      .flatMap((d) =>
+        readdirSync(join(UI_SRC, d.name)).some((f: string) => f.endsWith('.svelte'))
+          ? [d.name]
+          : [],
+      );
 
     for (const dir of dirs) {
       const files: string[] = readdirSync(join(UI_SRC, dir));
@@ -747,9 +756,9 @@ describe('Lens lint', () => {
     const violations: string[] = [];
     const SKIP_DIRS: ReadonlySet<string> = INTERNAL_DIRS;
 
-    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
-      .filter((d) => d.isDirectory() && !SKIP_DIRS.has(d.name))
-      .map((d) => d.name);
+    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true }).flatMap((d) =>
+      d.isDirectory() && !SKIP_DIRS.has(d.name) ? [d.name] : [],
+    );
 
     for (const dir of dirs) {
       const dirPath: string = join(UI_SRC, dir);
@@ -813,9 +822,9 @@ describe('Lens lint', () => {
     const violations: string[] = [];
     const SKIP_DIRS: ReadonlySet<string> = INTERNAL_DIRS;
 
-    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
-      .filter((d) => d.isDirectory() && !SKIP_DIRS.has(d.name))
-      .map((d) => d.name);
+    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true }).flatMap((d) =>
+      d.isDirectory() && !SKIP_DIRS.has(d.name) ? [d.name] : [],
+    );
 
     for (const dir of dirs) {
       const dirPath: string = join(UI_SRC, dir);
@@ -909,9 +918,9 @@ describe('Lens lint', () => {
   describe('Rule 16: Example names in lens.ts match filesystem', () => {
     const violations: string[] = [];
 
-    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
-      .filter((d) => d.isDirectory())
-      .map((d) => d.name);
+    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true }).flatMap((d) =>
+      d.isDirectory() ? [d.name] : [],
+    );
 
     for (const dir of dirs) {
       const lensPath: string = join(UI_SRC, dir, 'lens.ts');
@@ -958,9 +967,9 @@ describe('Lens lint', () => {
   describe('Rule 17: tv-variant tag when tv() is used', () => {
     const violations: string[] = [];
 
-    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
-      .filter((d) => d.isDirectory())
-      .map((d) => d.name);
+    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true }).flatMap((d) =>
+      d.isDirectory() ? [d.name] : [],
+    );
 
     for (const dir of dirs) {
       const dirPath: string = join(UI_SRC, dir);
@@ -1044,9 +1053,9 @@ describe('Lens lint', () => {
     const violations: string[] = [];
     const SKIP_DIRS: ReadonlySet<string> = INTERNAL_DIRS;
 
-    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
-      .filter((d) => d.isDirectory() && !SKIP_DIRS.has(d.name))
-      .map((d) => d.name);
+    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true }).flatMap((d) =>
+      d.isDirectory() && !SKIP_DIRS.has(d.name) ? [d.name] : [],
+    );
 
     for (const dir of dirs) {
       const dirPath: string = join(UI_SRC, dir);
@@ -1115,9 +1124,9 @@ describe('Lens lint', () => {
     const violations: string[] = [];
     const SKIP_DIRS: ReadonlySet<string> = INTERNAL_DIRS;
 
-    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
-      .filter((d) => d.isDirectory() && !SKIP_DIRS.has(d.name))
-      .map((d) => d.name);
+    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true }).flatMap((d) =>
+      d.isDirectory() && !SKIP_DIRS.has(d.name) ? [d.name] : [],
+    );
 
     for (const dir of dirs) {
       const dirPath: string = join(UI_SRC, dir);
@@ -1161,9 +1170,9 @@ describe('Lens lint', () => {
     const violations: string[] = [];
     const SKIP_DIRS: ReadonlySet<string> = INTERNAL_DIRS;
 
-    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
-      .filter((d) => d.isDirectory() && !SKIP_DIRS.has(d.name))
-      .map((d) => d.name);
+    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true }).flatMap((d) =>
+      d.isDirectory() && !SKIP_DIRS.has(d.name) ? [d.name] : [],
+    );
 
     for (const dir of dirs) {
       const dirPath: string = join(UI_SRC, dir);
@@ -1221,9 +1230,9 @@ describe('Lens lint', () => {
     const violations: string[] = [];
     const SKIP_DIRS: ReadonlySet<string> = INTERNAL_DIRS;
 
-    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
-      .filter((d) => d.isDirectory() && !SKIP_DIRS.has(d.name))
-      .map((d) => d.name);
+    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true }).flatMap((d) =>
+      d.isDirectory() && !SKIP_DIRS.has(d.name) ? [d.name] : [],
+    );
 
     for (const dir of dirs) {
       const dirPath: string = join(UI_SRC, dir);
@@ -1297,9 +1306,9 @@ describe('Lens lint', () => {
     /** Props always implicitly used: class (via cn()), children/child (slot content). */
     const ALWAYS_USED: ReadonlySet<string> = new Set(['class', 'children', 'child']);
 
-    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
-      .filter((d) => d.isDirectory() && !SKIP_DIRS.has(d.name))
-      .map((d) => d.name);
+    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true }).flatMap((d) =>
+      d.isDirectory() && !SKIP_DIRS.has(d.name) ? [d.name] : [],
+    );
 
     for (const dir of dirs) {
       const dirPath: string = join(UI_SRC, dir);
@@ -1369,9 +1378,9 @@ describe('Lens lint', () => {
     const violations: string[] = [];
     const SKIP_DIRS: ReadonlySet<string> = INTERNAL_DIRS;
 
-    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true })
-      .filter((d) => d.isDirectory() && !SKIP_DIRS.has(d.name))
-      .map((d) => d.name);
+    const dirs: string[] = readdirSync(UI_SRC, { withFileTypes: true }).flatMap((d) =>
+      d.isDirectory() && !SKIP_DIRS.has(d.name) ? [d.name] : [],
+    );
 
     for (const dir of dirs) {
       const dirPath: string = join(UI_SRC, dir);

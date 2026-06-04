@@ -13,9 +13,9 @@ import * as v from 'valibot';
 import type { Bool, Num, Str } from '@/schemas/common';
 import { storageKey } from '$lib/config/app-meta';
 
-/* ------------------------------------------------------------------ */
-/*  Schemas                                                            */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Schemas
+// =============================================================================
 
 /** Notification severity/type. */
 export const NotificationTypeSchema = v.picklist(['info', 'success', 'warning', 'error']);
@@ -66,9 +66,9 @@ export const NotificationPreferencesSchema = v.strictObject({
 /** Notification preferences. */
 export type NotificationPreferences = v.InferOutput<typeof NotificationPreferencesSchema>;
 
-/* ------------------------------------------------------------------ */
-/*  Defaults                                                           */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Defaults
+// =============================================================================
 
 /** Default notification preferences. */
 const DEFAULT_PREFERENCES: NotificationPreferences = {
@@ -80,9 +80,9 @@ const DEFAULT_PREFERENCES: NotificationPreferences = {
   showToasts: true,
 };
 
-/* ------------------------------------------------------------------ */
-/*  Storage keys                                                       */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Storage keys
+// =============================================================================
 
 /** localStorage key for notifications. */
 const NOTIFICATIONS_KEY: Str = storageKey('lens-notifications');
@@ -90,9 +90,9 @@ const NOTIFICATIONS_KEY: Str = storageKey('lens-notifications');
 /** localStorage key for notification preferences. */
 const PREFERENCES_KEY: Str = storageKey('lens-notification-prefs');
 
-/* ------------------------------------------------------------------ */
-/*  State                                                              */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// State
+// =============================================================================
 
 /** All notifications (newest first). */
 let notifications: LensNotification[] = $state([]);
@@ -100,9 +100,9 @@ let notifications: LensNotification[] = $state([]);
 /** User notification preferences. */
 let preferences: NotificationPreferences = $state({ ...DEFAULT_PREFERENCES });
 
-/* ------------------------------------------------------------------ */
-/*  Persistence                                                        */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Persistence
+// =============================================================================
 
 /**
  * Load notifications and preferences from localStorage.
@@ -147,9 +147,9 @@ function persistPreferences(): void {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/*  Notification CRUD                                                  */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Notification CRUD
+// =============================================================================
 
 /** Counter for generating unique IDs. */
 let idCounter: Num = 0 as Num;
@@ -295,9 +295,9 @@ export function clearAllNotifications(): void {
   persistNotifications();
 }
 
-/* ------------------------------------------------------------------ */
-/*  Preferences                                                        */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Preferences
+// =============================================================================
 
 /**
  * Update notification preferences.
@@ -315,9 +315,9 @@ export function resetPreferences(): void {
   persistPreferences();
 }
 
-/* ------------------------------------------------------------------ */
-/*  Derived / accessors                                                */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Derived / accessors
+// =============================================================================
 
 /**
  * Check if a notification type is enabled in preferences.

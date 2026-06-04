@@ -236,9 +236,9 @@
 
   /** IDs of all rules that have expandable findings. */
   const expandableRuleIds: Str[] = $derived(
-    auditResult.rules
-      .filter((r: A11yRuleResult) => r.failingFiles.length > 0 || r.fileFindings.length > 0)
-      .map((r: A11yRuleResult): Str => r.id),
+    auditResult.rules.flatMap((r) =>
+      r.failingFiles.length > 0 || r.fileFindings.length > 0 ? [r.id] : [],
+    ),
   );
 
   /** Whether all expandable rules are currently expanded. */
@@ -498,9 +498,9 @@
   /** Expand all fail/warn rules that have findings. */
   function expandAll(): void {
     expandedRules = new Set(
-      auditResult.rules
-        .filter((r: A11yRuleResult) => r.failingFiles.length > 0 || r.fileFindings.length > 0)
-        .map((r: A11yRuleResult): Str => r.id),
+      auditResult.rules.flatMap((r) =>
+        r.failingFiles.length > 0 || r.fileFindings.length > 0 ? [r.id] : [],
+      ),
     );
   }
 

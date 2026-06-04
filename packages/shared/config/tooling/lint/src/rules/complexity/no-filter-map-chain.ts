@@ -5,11 +5,12 @@
  * A single-pass .reduce() or for...of loop achieves the same result
  * with half the iterations.
  *
- * The auto-fix merges `.filter(pred).map(transform)` into a single
- * `.flatMap((x) => (pred) ? [transform] : [])` when both callbacks are
- * single-Identifier-parameter arrow expressions that bind the SAME parameter.
- * Falls back to no-op for named functions, block bodies, differing or
- * destructured params, or extra arguments.
+ * Detection is gated on auto-fixability: the rule flags ONLY a chain it can
+ * merge into a single `.flatMap((x) => (pred) ? [transform] : [])` — both
+ * callbacks must be single-Identifier-parameter arrow EXPRESSIONS binding the
+ * SAME parameter. Named functions, block bodies, differing or destructured
+ * params, or extra arguments are NOT flagged (no false positives on chains the
+ * rule cannot rewrite).
  *
  * @module
  */
@@ -26,6 +27,18 @@ import { isCallTo } from './_utils.ts';
 
 /** No-op fix sentinel. */
 const NO_FIX: LintFix = NO_OP_FIX;
+
+/**
+ * Whether a fix is a REAL (non-no-op) text replacement. The no-op sentinel is
+ * `{ range: { start: 0, end: 0 }, text: '' }`; anything else is a genuine fix.
+ * Detection is gated on this so a flagged violation is always auto-fixable.
+ *
+ * @param {LintFix} fix - The fix to test
+ * @returns {boolean} True if the fix replaces real source text
+ */
+function isRealFix(fix: LintFix): boolean {
+  return !(fix.range.start === 0 && fix.range.end === 0 && fix.text === '');
+}
 
 /**
  * Extract source text for an AST node.
@@ -67,6 +80,14 @@ function extractArrowCallback(
   /* oxc encodes arrow block bodies as BlockStatement and sets `expression:false`.
    * Only expression-body arrows (`x => expr`) can be inlined into a ternary. */
   if (firstArg.expression === false) {
+    return null;
+  }
+
+  /* A type-guard arrow — `(x): x is T => …` — narrows the element type; the
+   * flatMap rewrite would silently drop that narrowing (a type-safety
+   * regression). Decline to rewrite any arrow carrying a return-type
+   * annotation (a type predicate or otherwise). */
+  if (firstArg.returnType) {
     return null;
   }
 
@@ -218,17 +239,27 @@ const rule: TypeScriptRule = {
       }
 
       if (isCallTo(objNode, 'filter')) {
-        results.push({
-          file: context.file,
-          line: node.loc.start.line,
-          column: node.loc.start.column + 1,
-          severity: 'warning',
-          message:
-            '.filter().map() traverses the array twice — use .reduce() or for...of for a single pass',
-          ruleId: 'complexity/no-filter-map-chain',
-          tip: 'Use a single .reduce() or for...of loop to filter and transform in one pass',
-          fix: buildFilterMapFix(node, objNode, context),
-        });
+        /* Detection is gated on auto-fixability: emit ONLY when buildFilterMapFix
+         * can merge the chain into a single `.flatMap()` — i.e. both callbacks
+         * are single-Identifier-parameter expression-body arrows binding the
+         * SAME parameter. Block-body callbacks, named functions, destructured /
+         * differing params, or extra arguments NO_OP and are no longer flagged,
+         * eliminating false positives on chains the rule cannot rewrite. */
+        const fix: LintFix = buildFilterMapFix(node, objNode, context);
+
+        if (isRealFix(fix)) {
+          results.push({
+            file: context.file,
+            line: node.loc.start.line,
+            column: node.loc.start.column + 1,
+            severity: 'warning',
+            message:
+              '.filter().map() traverses the array twice — use .reduce() or for...of for a single pass',
+            ruleId: 'complexity/no-filter-map-chain',
+            tip: 'Use a single .reduce() or for...of loop to filter and transform in one pass',
+            fix,
+          });
+        }
       }
 
       return results;

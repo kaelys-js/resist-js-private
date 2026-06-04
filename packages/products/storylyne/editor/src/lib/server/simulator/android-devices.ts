@@ -19,9 +19,9 @@ import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
 
-/* ------------------------------------------------------------------ */
-/*  Types                                                              */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Types
+// =============================================================================
 
 /** An Android Virtual Device profile. */
 export type AndroidDevice = {
@@ -55,9 +55,9 @@ export type DeviceProfile = {
   tag: Str;
 };
 
-/* ------------------------------------------------------------------ */
-/*  Device dimensions lookup                                           */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Device dimensions lookup
+// =============================================================================
 
 /**
  * Static lookup table for common Android device screen dimensions.
@@ -92,9 +92,9 @@ const DEVICE_DIMENSIONS: Map<Str, { width: Num; height: Num; density: Num }> = n
   ['medium_tablet' as Str, { width: 1600 as Num, height: 2560 as Num, density: 320 as Num }],
 ]);
 
-/* ------------------------------------------------------------------ */
-/*  AVD listing                                                        */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// AVD listing
+// =============================================================================
 
 /**
  * Parse the output of `emulator -list-avds` into AVD name strings.
@@ -188,9 +188,9 @@ function buildDeviceFromConfig(name: Str, config: Record<Str, Str>, deviceId?: S
   };
 }
 
-/* ------------------------------------------------------------------ */
-/*  Device profile parsing                                             */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Device profile parsing
+// =============================================================================
 
 /**
  * Parse the output of `avdmanager list device` into hardware device profiles.
@@ -281,9 +281,9 @@ export function parseDeviceProfiles(output: Str): DeviceProfile[] {
   return profiles;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Device profile filtering                                           */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Device profile filtering
+// =============================================================================
 
 /** Device IDs to exclude — legacy, non-phone/tablet, or impractical. */
 const EXCLUDED_PREFIXES: Str[] = [
@@ -389,9 +389,9 @@ export function filterPhoneAndTabletProfiles(profiles: DeviceProfile[]): DeviceP
   });
 }
 
-/* ------------------------------------------------------------------ */
-/*  Public API                                                         */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Public API
+// =============================================================================
 
 /**
  * List all available AVDs using the `emulator` binary.

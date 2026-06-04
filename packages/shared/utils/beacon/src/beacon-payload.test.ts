@@ -11,9 +11,9 @@ import type { Breadcrumb, CapturedError, CapturedErrorType } from '@/schemas/res
 import { safeParse } from '@/utils/result/safe';
 import { BeaconPayloadSchema, toBeaconPayload, type BeaconPayload } from './beacon-payload';
 
-// ---------------------------------------------------------------------------
+// =============================================================================
 // Helpers
-// ---------------------------------------------------------------------------
+// =============================================================================
 
 const makeAppError = (overrides?: Partial<AppError>): AppError =>
   ({
@@ -37,9 +37,9 @@ const makeCaptured = (overrides?: Partial<CapturedError>): CapturedError =>
     ...overrides,
   }) as CapturedError;
 
-// ---------------------------------------------------------------------------
+// =============================================================================
 // Schema validation
-// ---------------------------------------------------------------------------
+// =============================================================================
 
 describe('BeaconPayloadSchema', () => {
   it('validates a minimal payload', () => {
@@ -183,9 +183,9 @@ describe('BeaconPayloadSchema', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
+// =============================================================================
 // toBeaconPayload
-// ---------------------------------------------------------------------------
+// =============================================================================
 
 describe('toBeaconPayload', () => {
   it('converts CapturedError to beacon payload stripping PII', () => {

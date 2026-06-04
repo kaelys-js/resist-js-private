@@ -17,9 +17,9 @@ import {
   type LanguageDisplayInfo,
 } from './display';
 
-/* ------------------------------------------------------------------ */
-/*  LanguageDisplayInfoSchema                                          */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// LanguageDisplayInfoSchema
+// =============================================================================
 describe('LanguageDisplayInfoSchema', () => {
   it('accepts valid display info', () => {
     const result = safeParse(LanguageDisplayInfoSchema, {
@@ -47,9 +47,9 @@ describe('LanguageDisplayInfoSchema', () => {
   });
 });
 
-/* ------------------------------------------------------------------ */
-/*  getLanguageDisplayName                                             */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// getLanguageDisplayName
+// =============================================================================
 describe('getLanguageDisplayName', () => {
   it('returns endonym and exonym for Japanese viewed from English', () => {
     const result = getLanguageDisplayName('ja' as Str, 'en' as Str);
@@ -117,9 +117,9 @@ describe('getLanguageDisplayName', () => {
   });
 });
 
-/* ------------------------------------------------------------------ */
-/*  getLanguageDisplayNames                                            */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// getLanguageDisplayNames
+// =============================================================================
 const TEST_LOCALES: readonly Str[] = [
   'en' as Str,
   'ja' as Str,

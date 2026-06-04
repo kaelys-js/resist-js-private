@@ -22,9 +22,9 @@ import {
   type A11yRuleResult,
 } from './detect-accessibility.js';
 
-/* ------------------------------------------------------------------ */
-/*  File discovery — same pattern as lint-lens.test.ts                 */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// File discovery — same pattern as lint-lens.test.ts
+// =============================================================================
 
 const LENS_DIR: string = dirname(fileURLToPath(import.meta.url));
 const UI_SRC: string = join(LENS_DIR, '..');
@@ -109,9 +109,9 @@ function componentName(filePath: string): string {
   return parts[0] ?? filePath;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Run the audit once for all tests                                   */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Run the audit once for all tests
+// =============================================================================
 
 const sources: Record<string, string> = buildSources();
 const audit: A11yAuditResult = auditAccessibility(sources);
@@ -133,17 +133,17 @@ function failingRulesForComponent(name: string): A11yRuleResult[] {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Unique component directories that have .svelte files               */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Unique component directories that have .svelte files
+// =============================================================================
 
 const componentDirs: string[] = [
   ...new Set(svelteFiles.map((f: string): string => componentName(relative(UI_SRC, f)))),
 ].toSorted();
 
-/* ------------------------------------------------------------------ */
-/*  Tests                                                              */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Tests
+// =============================================================================
 
 describe('auditAccessibility — global', () => {
   it('runs all 150 rules', () => {

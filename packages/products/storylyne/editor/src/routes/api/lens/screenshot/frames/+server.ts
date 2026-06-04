@@ -13,9 +13,9 @@ import type { RequestHandler } from './$types';
 import { dev } from '$app/environment';
 import { listDeviceFrames } from '$lib/server/simulator/device-frames';
 
-/* ------------------------------------------------------------------ */
-/*  GET handler                                                        */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// GET handler
+// =============================================================================
 
 /**
  * GET handler — returns all registered device frames.

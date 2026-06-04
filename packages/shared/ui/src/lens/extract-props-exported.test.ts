@@ -12,9 +12,9 @@ import { describe, expect, it } from 'vitest';
 import { extractDescription, extractPropsVariants, buildBaseProps } from './extract-props.js';
 import type { PropMeta, VariantKeyMeta, TypeField } from './types.js';
 
-/* ------------------------------------------------------------------ */
-/*  extractDescription                                                 */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// extractDescription
+// =============================================================================
 
 describe('extractDescription', () => {
   it('returns empty string for empty source', () => {
@@ -66,9 +66,9 @@ describe('extractDescription', () => {
   });
 });
 
-/* ------------------------------------------------------------------ */
-/*  extractPropsVariants                                               */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// extractPropsVariants
+// =============================================================================
 
 /**
  * Build a minimal PropMeta with only the fields a given branch needs.
@@ -334,9 +334,9 @@ describe('extractPropsVariants', () => {
   });
 });
 
-/* ------------------------------------------------------------------ */
-/*  buildBaseProps                                                     */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// buildBaseProps
+// =============================================================================
 
 describe('buildBaseProps', () => {
   it('returns an empty object for empty props array', () => {

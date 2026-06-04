@@ -9,18 +9,18 @@
 import * as v from 'valibot';
 import { StrSchema, BoolSchema, NumSchema } from '@/schemas/common';
 
-/* ------------------------------------------------------------------ */
-/*  Budget level — traffic light system                               */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Budget level — traffic light system
+// =============================================================================
 
 /** Performance budget level for a single metric. */
 export const BudgetLevelSchema = v.picklist(['green', 'yellow', 'red']);
 /** Description. */
 export type BudgetLevel = v.InferOutput<typeof BudgetLevelSchema>;
 
-/* ------------------------------------------------------------------ */
-/*  Heading audit                                                     */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Heading audit
+// =============================================================================
 
 /** A heading element found in the component. */
 export const HeadingInfoSchema = v.strictObject({
@@ -32,9 +32,9 @@ export const HeadingInfoSchema = v.strictObject({
 /** Description. */
 export type HeadingInfo = v.InferOutput<typeof HeadingInfoSchema>;
 
-/* ------------------------------------------------------------------ */
-/*  Focus order issue                                                 */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Focus order issue
+// =============================================================================
 
 /** An element with a positive tabindex (anti-pattern). */
 export const FocusOrderIssueSchema = v.strictObject({
@@ -48,9 +48,9 @@ export const FocusOrderIssueSchema = v.strictObject({
 /** Description. */
 export type FocusOrderIssue = v.InferOutput<typeof FocusOrderIssueSchema>;
 
-/* ------------------------------------------------------------------ */
-/*  Tab order entry                                                    */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Tab order entry
+// =============================================================================
 
 /** A focusable element in the component's tab order. */
 export const TabOrderEntrySchema = v.strictObject({
@@ -64,9 +64,9 @@ export const TabOrderEntrySchema = v.strictObject({
 /** Description. */
 export type TabOrderEntry = v.InferOutput<typeof TabOrderEntrySchema>;
 
-/* ------------------------------------------------------------------ */
-/*  Contrast issue                                                     */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Contrast issue
+// =============================================================================
 
 /** A text element with insufficient color contrast ratio. */
 export const ContrastIssueSchema = v.strictObject({
@@ -86,9 +86,9 @@ export const ContrastIssueSchema = v.strictObject({
 /** Description. */
 export type ContrastIssue = v.InferOutput<typeof ContrastIssueSchema>;
 
-/* ------------------------------------------------------------------ */
-/*  ARIA issue                                                         */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// ARIA issue
+// =============================================================================
 
 /** An ARIA attribute misuse found in the component. */
 export const AriaIssueSchema = v.strictObject({
@@ -102,9 +102,9 @@ export const AriaIssueSchema = v.strictObject({
 /** Description. */
 export type AriaIssue = v.InferOutput<typeof AriaIssueSchema>;
 
-/* ------------------------------------------------------------------ */
-/*  Accessibility audit                                               */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Accessibility audit
+// =============================================================================
 
 /** A single unlabeled interactive element flagged by the accessibility audit. */
 export const UnlabeledElementSchema = v.strictObject({
@@ -164,9 +164,9 @@ export const A11yAuditSchema = v.strictObject({
 /** Description. */
 export type A11yAudit = v.InferOutput<typeof A11yAuditSchema>;
 
-/* ------------------------------------------------------------------ */
-/*  Console capture                                                   */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Console capture
+// =============================================================================
 
 /** A captured console message during component mount. */
 export const CapturedConsoleMessageSchema = v.strictObject({
@@ -178,9 +178,9 @@ export const CapturedConsoleMessageSchema = v.strictObject({
 /** Description. */
 export type CapturedConsoleMessage = v.InferOutput<typeof CapturedConsoleMessageSchema>;
 
-/* ------------------------------------------------------------------ */
-/*  Per-metric budget result                                          */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Per-metric budget result
+// =============================================================================
 
 /** Budget evaluation for a single metric. */
 export const MetricBudgetSchema = v.strictObject({
@@ -202,9 +202,9 @@ export const MetricBudgetSchema = v.strictObject({
 /** Description. */
 export type MetricBudget = v.InferOutput<typeof MetricBudgetSchema>;
 
-/* ------------------------------------------------------------------ */
-/*  Layout shift source                                               */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Layout shift source
+// =============================================================================
 
 /** A DOM element that contributed to a layout shift. */
 export const LayoutShiftSourceSchema = v.strictObject({
@@ -218,9 +218,9 @@ export const LayoutShiftSourceSchema = v.strictObject({
 /** Description. */
 export type LayoutShiftSource = v.InferOutput<typeof LayoutShiftSourceSchema>;
 
-/* ------------------------------------------------------------------ */
-/*  Web Vitals                                                        */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Web Vitals
+// =============================================================================
 
 /** Component-scoped Web Vitals measured via PerformanceObserver. */
 export const WebVitalsSchema = v.strictObject({
@@ -256,9 +256,9 @@ export const WebVitalsSchema = v.strictObject({
 /** Description. */
 export type WebVitals = v.InferOutput<typeof WebVitalsSchema>;
 
-/* ------------------------------------------------------------------ */
-/*  Complete stats data                                               */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Complete stats data
+// =============================================================================
 
 /** Complete performance statistics for a rendered component card. */
 export const LensStatsDataSchema = v.strictObject({

@@ -15,9 +15,9 @@ import { dev } from '$app/environment';
 import { checkAndroidSdk } from '$lib/server/simulator/android-sdk';
 import { isXcrunAvailable } from '$lib/server/simulator/ios-simctl';
 
-/* ------------------------------------------------------------------ */
-/*  GET handler                                                        */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// GET handler
+// =============================================================================
 
 /**
  * GET handler — returns combined status for all screenshot engines.

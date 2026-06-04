@@ -8,9 +8,9 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import type { Str, Bool, Path } from '@/schemas/common';
 import type { Result } from '@/schemas/result/result';
 
-// ---------------------------------------------------------------------------
+// =============================================================================
 // Helpers — mock Result constructors
-// ---------------------------------------------------------------------------
+// =============================================================================
 
 /**
  * Helper to create a success Result.
@@ -36,9 +36,9 @@ function mockErr(code: Str): Result<never> {
   }) as Result<never>;
 }
 
-// ---------------------------------------------------------------------------
+// =============================================================================
 // Mocks — must be set up before importing the module under test
-// ---------------------------------------------------------------------------
+// =============================================================================
 
 const execSyncSafeMock = vi.fn((_cmd: Str): Result<Str> => mockOk(''));
 const readFileMock = vi.fn((_path: Str): Result<Str> => mockOk('{}'));

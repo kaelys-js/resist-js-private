@@ -15,9 +15,9 @@ import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
 
-/* ------------------------------------------------------------------ */
-/*  Types                                                              */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Types
+// =============================================================================
 
 /** iOS content size category names mapped to UIKit constants. */
 const CONTENT_SIZE_MAP: Record<Str, Str> = {
@@ -57,9 +57,9 @@ export type SimctlCommand = {
   description: Str;
 };
 
-/* ------------------------------------------------------------------ */
-/*  Command builders                                                   */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Command builders
+// =============================================================================
 
 /**
  * Build the list of `xcrun` commands needed to apply accessibility settings.
@@ -168,9 +168,9 @@ export async function applyAccessibilitySettings(
   return successCount;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Helpers                                                            */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Helpers
+// =============================================================================
 
 /** Accessibility preference keys mapped to their Apple plist domain and key. */
 const ACCESSIBILITY_PREFS: Record<Str, { domain: Str; key: Str; value: Str }> = {

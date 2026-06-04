@@ -14,9 +14,9 @@
 import type { Bool, Num, Str } from '@/schemas/common';
 import { WebSocket } from 'ws';
 
-/* ------------------------------------------------------------------ */
-/*  Constants                                                          */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Constants
+// =============================================================================
 
 /** Poll interval for checking page readiness (ms). */
 const POLL_INTERVAL_MS: Num = 250 as Num;
@@ -27,9 +27,9 @@ const DEFAULT_TIMEOUT_MS: Num = 10_000 as Num;
 /** Fallback delay when debug proxy is unavailable (ms). */
 const FALLBACK_DELAY_MS: Num = 3000 as Num;
 
-/* ------------------------------------------------------------------ */
-/*  Script building                                                    */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Script building
+// =============================================================================
 
 /**
  * Build the JavaScript expression to check if the page is ready.
@@ -47,9 +47,9 @@ export function buildReadyCheckScript(): Str {
   return "!!document.querySelector('[data-lens-ready]')" as Str;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Response parsing                                                   */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Response parsing
+// =============================================================================
 
 /**
  * Parse a WebKit Inspector Runtime.evaluate response to extract the result.
@@ -97,9 +97,9 @@ export function parseEvalResponse(rawResponse: Str): boolean {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/*  Page-load polling                                                  */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Page-load polling
+// =============================================================================
 
 /**
  * Wait for the page to finish loading by polling `[data-lens-ready]`.
@@ -214,9 +214,9 @@ export async function waitForPageLoad(
   return waitForPageReady(wsUrl, timeoutMs);
 }
 
-/* ------------------------------------------------------------------ */
-/*  Helpers                                                            */
-/* ------------------------------------------------------------------ */
+// =============================================================================
+// Helpers
+// =============================================================================
 
 /**
  * Wait for a single CustomEvent on an EventTarget.

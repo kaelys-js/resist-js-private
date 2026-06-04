@@ -58,7 +58,7 @@
   const userPrefs: FieldDescriptor[] = preferences.filter((p) => USER_KEYS.has(p.key));
 
   // Track open state per picklist — initialize all keys to avoid bind:open={undefined}
-  const picklistKeys: Str[] = preferences.filter((p) => p.type === 'picklist').map((p) => p.key);
+  const picklistKeys: Str[] = preferences.flatMap((p) => (p.type === 'picklist' ? [p.key] : []));
   let openPicklists: Record<Str, Bool> = $state(
     Object.fromEntries(picklistKeys.map((k) => [k, false])),
   );
