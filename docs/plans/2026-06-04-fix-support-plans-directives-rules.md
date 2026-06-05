@@ -41,7 +41,7 @@ Separately, `@storylyne/editor` `qa:test` shows all 1498 tests passing but exits
 | plans/require-plan-structure              | fixable     | correct (insert canonical Status Legend; NO_OP others)                                                                         | none                                                                                  |
 | plans/require-test-files                  | fixable     | correct (insert `- Test:` entries)                                                                                             | none                                                                                  |
 | plans/status-dependency-order             | fixable     | correct (`[x]`->`[ ]` revert)                                                                                                  | none                                                                                  |
-| plans/no-template-placeholders            | fixable     | correct (fills `YYYY-MM-DD` only; NO_OP others)                                                                                | (optional) fix all date occurrences per line                                          |
+| plans/no-template-placeholders            | fixable     | correct (fills the ISO date token only; NO_OP others)                                                                          | (optional) fix all date occurrences per line                                          |
 | plans/no-empty-plan-sections              | detect-only | mis-declared `fixable:true`, emits NO_OP                                                                                       | set `fixable:false`                                                                   |
 | plans/no-incomplete-tasks                 | detect-only | mis-declared `fixable:true`, emits NO_OP                                                                                       | set `fixable:false`                                                                   |
 | plans/require-concrete-verification       | detect-only | mis-declared `fixable:true`, emits NO_OP                                                                                       | set `fixable:false`                                                                   |
@@ -115,12 +115,12 @@ Separately, `@storylyne/editor` `qa:test` shows all 1498 tests passing but exits
 
 **Status**: [ ]
 
-**Gap**: `data as any as Config` — `no-generic-any-assertion` fixes the inner `any` while `no-type-assertion-chain` fixes the whole chain; the ranges overlap and the applier has no overlap detection -> corruption. `no-type-assertion-chain` is currently `off`, so this is latent, but the guard makes the rule independently safe. Separately, `no-template-placeholders` fixes only the first `YYYY-MM-DD` per line.
+**Gap**: `data as any as Config` — `no-generic-any-assertion` fixes the inner `any` while `no-type-assertion-chain` fixes the whole chain; the ranges overlap and the applier has no overlap detection -> corruption. `no-type-assertion-chain` is currently `off`, so this is latent, but the guard makes the rule independently safe. Separately, `no-template-placeholders` fixes only the first date placeholder per line.
 
 **Plan**:
 
 - In `no-generic-any-assertion.ts`'s `TSAsExpression` visitor: after confirming `typeAnnotation.type === 'TSAnyKeyword'`, return `NO_OP_FIX` (keep the diagnostic) when this node is the inner operand of an enclosing `TSAsExpression` — detect via a top-down pre-pass that marks every `TSAsExpression` whose `.expression` is itself a `TSAsExpression`, or by checking that the source after this node's type annotation continues with `as <Type>`.
-- (Optional) `no-template-placeholders.ts`: iterate per-match (`matchAll`) so all `YYYY-MM-DD` occurrences on a line are fixed in one pass.
+- (Optional) `no-template-placeholders.ts`: iterate per-match (`matchAll`) so all date-placeholder occurrences on a line are fixed in one pass.
 
 **Files**:
 
@@ -135,7 +135,11 @@ Separately, `@storylyne/editor` `qa:test` shows all 1498 tests passing but exits
 
 **Gap**: `globals:true` disables `svelteTesting()` auto-`cleanup()`, so `theme-switcher.test.ts` (which renders `<DropdownMenu.Root open>`) never unmounts; bits-ui `BodyScrollLock`'s 24ms `setTimeout` fires after jsdom teardown -> `document is not defined` -> vitest exits 1. The existing `useFakeTimers`/`runAllTimers` mitigation is mis-ordered (nothing unmounts before the flush).
 
-**Plan**: in `theme-switcher.test.ts` — add `cleanup` to the `@testing-library/svelte` import (line 10); insert `cleanup();` as the FIRST statement of `afterEach` (before `vi.runAllTimers()`), so the component unmounts (synchronously via `flushSync`) WHILE jsdom is alive, scheduling the now-fake timer, which `runAllTimers()` then fires against a live `document`. Refresh the explanatory comment. No assertion changed. (Read-only third-party bits-ui sources are NOT edited.)
+**Plan**:
+
+- In `theme-switcher.test.ts`, add `cleanup` to the existing `@testing-library/svelte` import (line 10).
+- Insert `cleanup();` as the FIRST statement of `afterEach` (before `vi.runAllTimers()`), so the component unmounts (synchronously via `flushSync`) WHILE jsdom is alive — scheduling the now-fake 24ms timer, which `runAllTimers()` then fires against a live `document`.
+- Refresh the explanatory comment; no assertion changed; read-only third-party bits-ui sources are NOT edited.
 
 **Files**:
 
@@ -170,9 +174,9 @@ Separately, `@storylyne/editor` `qa:test` shows all 1498 tests passing but exits
 
 **Verification**:
 
-- `git diff HEAD -- src/rules` adds zero `registerCommand` lines.
-- `cli-helpers.ts` reads `fixable` (applier skips detect-only rules).
-- No orphaned exports — every new import is referenced.
+- `git diff HEAD -- src/rules | grep -c registerCommand` outputs 0 (no VS Code commands added).
+- `grep -c "fixable" src/cli-helpers.ts` >= 1 — the `--fix` applier reads the flag; the 7 detect-only rules are in its skip list (registered vs declared count matches).
+- `grep -rn deleteCommentLineFix src/rules` shows it imported and referenced in no-biome/no-prettier — zero orphaned exports.
 
 ## TASK 8 — Full QA + Coverage
 
