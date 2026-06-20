@@ -18,6 +18,6 @@
     "localflare": "^0.4.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "wrangler": "^4.60.0"
+    "wrangler": "^4.103.0"
   }
 }
